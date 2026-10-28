@@ -1,8 +1,15 @@
+GOTOOLCHAIN ?= go1.24.3
+export GOTOOLCHAIN
+
+SWAG ?= go run github.com/swaggo/swag/cmd/swag@v1.16.5
+WIRE ?= go run github.com/google/wire/cmd/wire@v0.7.0
+GOLANGCI_LINT ?= go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.1.6
+
 generate:
-	swag fmt --dir handler && swag init --exclude pro -g cmd/api/main.go --pd \
-	&& wire cmd/api/wire.go \
-	&& wire cmd/consumer/wire.go \
-	&& wire cmd/migrate/wire.go
+	$(SWAG) fmt --dir handler && $(SWAG) init --exclude pro -g cmd/api/main.go --pd \
+	&& $(WIRE) cmd/api/wire.go \
+	&& $(WIRE) cmd/consumer/wire.go \
+	&& $(WIRE) cmd/migrate/wire.go
 
 generate_pro:
 	wire cmd/migrate/wire.go \
@@ -11,8 +18,17 @@ generate_pro:
 	&& wire cmd/api_pro/wire.go \
 	&& wire cmd/consumer_pro/wire.go
 
-lint:generate generate_pro
-	go mod tidy && golangci-lint run
+lint:generate
+	go mod tidy && $(GOLANGCI_LINT) run
+
+lint_pro: generate generate_pro
+	go mod tidy && $(GOLANGCI_LINT) run
+
+test:
+	go test ./... -skip '^TestDiscord$$'
+
+build:
+	go build ./...
 
 SEQ_NAME=init
 migrate_sql:

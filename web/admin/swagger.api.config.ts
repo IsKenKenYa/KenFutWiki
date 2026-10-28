@@ -11,14 +11,10 @@ const config = [
     templates: './api-templates',
     output: './src/request',
     filterPathname: (pathname: string) => {
-      return pathname.startsWith('/api/v1');
+      return (
+        pathname.startsWith('/api/v1') || pathname.startsWith('/api/kenfut/v1')
+      );
     },
-  },
-  {
-    url: `${process.env.SWAGGER_BASE_URL}/api/pro/swagger/doc.json`,
-    authorizationToken: process.env.SWAGGER_AUTH_TOKEN,
-    templates: './api-templates',
-    output: './src/request/pro',
   },
 ];
 

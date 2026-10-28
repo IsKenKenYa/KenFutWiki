@@ -2,6 +2,8 @@ package pg
 
 import (
 	"database/sql"
+	"embed"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -9,7 +11,7 @@ import (
 
 	"github.com/golang-migrate/migrate/v4"
 	migratePG "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -54,27 +56,44 @@ func NewDB(config *config.Config) (*DB, error) {
 	return &DB{DB: db}, nil
 }
 
+//go:embed migration/*.sql kenfut_migration/*.sql
+var migrationFiles embed.FS
+
 func doMigrate(dsn string) error {
+	for _, migration := range []struct{ directory, table string }{
+		{"migration", "schema_migrations"},
+		{"kenfut_migration", "kenfut_schema_migrations"},
+	} {
+		if err := runMigrations(dsn, migration.directory, migration.table); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func runMigrations(dsn, directory, table string) error {
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		return fmt.Errorf("open db failed: %w", err)
+		return fmt.Errorf("open migration database: %w", err)
 	}
-	driver, err := migratePG.WithInstance(db, &migratePG.Config{})
+	source, err := iofs.New(migrationFiles, directory)
 	if err != nil {
-		return fmt.Errorf("with instance failed: %w", err)
+		_ = db.Close()
+		return fmt.Errorf("open %s migrations: %w", directory, err)
 	}
-	m, err := migrate.NewWithDatabaseInstance(
-		"file://migration",
-		"postgres", driver)
+	driver, err := migratePG.WithInstance(db, &migratePG.Config{MigrationsTable: table})
 	if err != nil {
-		return fmt.Errorf("new with database instance failed: %w", err)
+		_ = db.Close()
+		return fmt.Errorf("initialize %s migrations: %w", directory, err)
 	}
-	if err := m.Up(); err != nil {
-		if err == migrate.ErrNoChange {
-			return nil
-		}
-		return fmt.Errorf("migrate db failed: %w", err)
+	m, err := migrate.NewWithInstance("iofs", source, "postgres", driver)
+	if err != nil {
+		_ = db.Close()
+		return fmt.Errorf("initialize migration source: %w", err)
 	}
-
+	defer m.Close()
+	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return fmt.Errorf("migrate %s: %w", directory, err)
+	}
 	return nil
 }

@@ -64,7 +64,7 @@ func (r *UserRepository) CreateUser(ctx context.Context, user *domain.User, edit
 		if err := tx.Model(&domain.User{}).Count(&count).Error; err != nil {
 			return err
 		}
-		if count >= domain.GetBaseEditionLimitation(ctx).MaxAdmin {
+		if limit := domain.GetBaseEditionLimitation(ctx).MaxAdmin; limit > 0 && count >= limit {
 			return fmt.Errorf("exceed max admin limit, current count: %d, max limit: %d", count, domain.GetBaseEditionLimitation(ctx).MaxAdmin)
 		}
 

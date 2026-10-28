@@ -45,6 +45,26 @@ const nextConfig: NextConfig = {
             basePath: false as const,
           },
           {
+            source: '/share/kenfut/v1/:path*',
+            destination: `${process.env.TARGET}/share/kenfut/v1/:path*`,
+            basePath: false as const,
+          },
+          {
+            source: '/:basePath/share/kenfut/v1/:path*',
+            destination: `${process.env.TARGET}/share/kenfut/v1/:path*`,
+            basePath: false as const,
+          },
+          {
+            source: '/integration/kenfut/v1/:path*',
+            destination: `${process.env.TARGET}/integration/kenfut/v1/:path*`,
+            basePath: false as const,
+          },
+          {
+            source: '/:basePath/integration/kenfut/v1/:path*',
+            destination: `${process.env.TARGET}/integration/kenfut/v1/:path*`,
+            basePath: false as const,
+          },
+          {
             source: '/share/v1/:path*',
             destination: `${process.env.TARGET}/share/v1/:path*`,
             basePath: false as const,
@@ -63,17 +83,18 @@ const nextConfig: NextConfig = {
 
 // 在开发环境下跳过 Sentry 配置
 const isDevelopment = process.env.NODE_ENV === 'development';
+const enableSentry = process.env.ENABLE_SENTRY === 'true';
 
-export default isDevelopment
+export default isDevelopment || !enableSentry
   ? nextConfig
   : withSentryConfig(nextConfig, {
       // For all available options, see:
       // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
-      org: 'sentry',
+      org: process.env.SENTRY_ORG,
 
-      project: 'pandawiki-app',
-      sentryUrl: 'https://sentry.baizhi.cloud/',
+      project: process.env.SENTRY_PROJECT,
+      sentryUrl: process.env.SENTRY_URL,
 
       // Only print logs for uploading source maps in CI
       silent: !process.env.CI,
