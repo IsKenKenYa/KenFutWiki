@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chaitin/panda-wiki/domain"
 	"github.com/chaitin/panda-wiki/log"
 	"github.com/chaitin/panda-wiki/repo/pg"
 )
@@ -23,7 +22,7 @@ func NewSitemapUsecase(nodeUsecase *pg.NodeRepository, appUsecase *pg.KnowledgeB
 }
 
 func (u *SitemapUsecase) GetSitemap(ctx context.Context, kbID string) (string, error) {
-	nodes, err := u.nodeUsecase.GetNodeReleaseListByKBID(ctx, kbID)
+	nodes, err := u.nodeUsecase.PublicContentSitemapRows(ctx, kbID)
 	if err != nil {
 		return "", fmt.Errorf("failed to get node release list: %w", err)
 	}
@@ -38,13 +37,14 @@ func (u *SitemapUsecase) GetSitemap(ctx context.Context, kbID string) (string, e
 	sb.WriteString(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`)
 
 	// add welcome
-	writeSitemapURL(&sb, kb.AccessSettings.BaseURL+"/welcome", time.Now())
+	baseURL := strings.TrimRight(kb.AccessSettings.GetBaseUrl(), "/")
+	writeSitemapURL(&sb, baseURL+"/welcome", time.Now())
+	writeSitemapURL(&sb, baseURL+"/blog", time.Now())
 
 	// add nodes
 	for _, node := range nodes {
-		if node.Type == domain.NodeTypeDocument {
-			writeSitemapURL(&sb, node.GetURL(kb.AccessSettings.BaseURL), node.UpdatedAt)
-		}
+		item := contentItem(node, baseURL)
+		writeSitemapURL(&sb, item.CanonicalURL, node.UpdatedAt)
 	}
 
 	sb.WriteString(`</urlset>`)

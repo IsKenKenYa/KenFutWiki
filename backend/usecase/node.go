@@ -394,6 +394,10 @@ func (u *NodeUsecase) MoveNodeNav(ctx context.Context, req *v1.NodeMoveNavReq) e
 }
 
 func (u *NodeUsecase) convertMDToHTML(mdStr string) string {
+	return renderNodeMarkdown(mdStr)
+}
+
+func renderNodeMarkdown(mdStr string) string {
 	extensions := parser.CommonExtensions & ^parser.Autolink & ^parser.MathJax
 	p := parser.NewWithExtensions(extensions)
 	doc := p.Parse([]byte(mdStr))

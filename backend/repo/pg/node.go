@@ -791,10 +791,12 @@ func (r *NodeRepository) GetNodeReleaseListByKBID(ctx context.Context, kbID stri
 		Model(&domain.KBReleaseNodeRelease{}).
 		Joins("LEFT JOIN node_releases ON node_releases.id = kb_release_node_releases.node_release_id").
 		Joins("LEFT JOIN nodes ON nodes.id = kb_release_node_releases.node_id").
+		Joins("LEFT JOIN kenfut_content_releases kcr ON kcr.node_release_id = node_releases.id").
 		Where("kb_release_node_releases.kb_id = ?", kbID).
 		Where("kb_release_node_releases.release_id = ?", kbRelease.ID).
 		Where("nodes.permissions->>'visible' != ?", consts.NodeAccessPermClosed).
-		Select("node_releases.node_id as id, node_releases.name, node_releases.type, node_releases.parent_id, nodes.position, node_releases.meta->>'emoji' as emoji, node_releases.updated_at, nodes.permissions, nodes.meta, kb_release_node_releases.nav_id")
+		Where("COALESCE(kcr.metadata->>'channel','docs') IN ('docs','both')").
+		Select("node_releases.node_id as id, node_releases.name, node_releases.type, node_releases.parent_id, node_releases.position, node_releases.meta->>'emoji' as emoji, node_releases.updated_at, nodes.permissions, node_releases.meta, kb_release_node_releases.nav_id")
 
 	if err := qs.Find(&nodes).Error; err != nil {
 		return nil, err
@@ -816,7 +818,7 @@ func (r *NodeRepository) GetNodeReleaseDetailByKBIDAndID(ctx context.Context, kb
 	var node *shareV1.ShareNodeDetailResp
 	if err := r.db.WithContext(ctx).
 		Model(&domain.KBReleaseNodeRelease{}).
-		Select("node_releases.*, nodes.permissions, nodes.creator_id").
+		Select("node_releases.node_id AS id,node_releases.kb_id,node_releases.type,2 AS status,node_releases.name,node_releases.content,node_releases.meta,node_releases.parent_id,node_releases.created_at,node_releases.updated_at,node_releases.publisher_id,node_releases.editor_id,nodes.permissions,nodes.creator_id").
 		Joins("LEFT JOIN node_releases ON node_releases.id = kb_release_node_releases.node_release_id").
 		Joins("LEFT JOIN nodes ON nodes.id = kb_release_node_releases.node_id").
 		Where("kb_release_node_releases.release_id = ?", kbRelease.ID).

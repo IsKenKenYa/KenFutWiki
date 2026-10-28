@@ -3,6 +3,9 @@ package mq
 import (
 	"context"
 	"encoding/json"
+	"errors"
+
+	"gorm.io/gorm"
 
 	"github.com/chaitin/panda-wiki/consts"
 	"github.com/chaitin/panda-wiki/domain"
@@ -62,62 +65,15 @@ func (h *RAGMQHandler) HandleNodeContentVectorRequest(ctx context.Context, msg t
 		h.logger.Info("update node group success", log.Any("doc_id", request.DocID), log.Any("group_ids", request.GroupIds))
 
 	case "upsert":
-		h.logger.Debug("upsert node content vector request", "request", request)
-		nodeRelease, err := h.nodeRepo.GetNodeReleaseWithDirPathByID(ctx, request.NodeReleaseID)
+		release, err := h.nodeRepo.GetNodeReleaseWithDirPathByID(ctx, request.NodeReleaseID)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
 		if err != nil {
-			h.logger.Error("get node content by ids failed", log.Error(err))
-			return nil
+			return err
 		}
-		if nodeRelease.Type == domain.NodeTypeFolder {
-			h.logger.Info("node is folder, skip upsert", log.Any("node_release_id", request.NodeReleaseID))
-			return nil
-		}
-		kb, err := h.kbRepo.GetKnowledgeBaseByID(ctx, request.KBID)
-		if err != nil {
-			h.logger.Error("get kb failed", log.Error(err), log.String("kb_id", request.KBID))
-			return nil
-		}
+		return h.nodeRepo.WithKenFutRAGLock(ctx, release.NodeID, func() error { return h.upsertKenFutPublished(ctx, request) })
 
-		groupIds, err := h.nodeRepo.GetNodeAuthGroupIdsByNodeId(ctx, nodeRelease.NodeID, consts.NodePermNameAnswerable)
-		if err != nil {
-			h.logger.Error("get groupIds failed", log.Error(err), log.String("kb_id", request.KBID))
-			return nil
-		}
-
-		// upsert node content chunks
-		docID, err := h.rag.UpsertRecords(ctx, &rag.UpsertRecordsRequest{
-			ID:        nodeRelease.ID,
-			Title:     nodeRelease.Name,
-			DatasetID: kb.DatasetID,
-			DocID:     nodeRelease.DocID,
-			Content:   nodeRelease.Content,
-			GroupIDs:  groupIds,
-		})
-		if err != nil {
-			h.logger.Error("upsert node content vector failed", log.Error(err))
-			return nil
-		}
-		// update node doc_id
-		if err := h.nodeRepo.UpdateNodeReleaseDocID(ctx, request.NodeReleaseID, docID); err != nil {
-			h.logger.Error("update node doc_id failed", log.String("node_id", request.NodeReleaseID), log.Error(err))
-			return nil
-		}
-		// delete old RAG records
-		// get old doc_ids by node_id
-		oldDocIDs, err := h.nodeRepo.GetOldNodeDocIDsByNodeID(ctx, nodeRelease.ID, nodeRelease.NodeID)
-		if err != nil {
-			h.logger.Error("get old doc_ids by node_id failed", log.String("node_id", nodeRelease.NodeID), log.Error(err))
-			return nil
-		}
-		if len(oldDocIDs) > 0 {
-			// delete old RAG records
-			if err := h.rag.DeleteRecords(ctx, kb.DatasetID, oldDocIDs); err != nil {
-				h.logger.Error("delete old RAG records failed", log.String("kb_id", kb.ID), log.Error(err))
-				return nil
-			}
-		}
-
-		h.logger.Info("upsert node content vector success", log.Any("updated_ids", request.NodeReleaseID))
 	case "delete":
 		h.logger.Info("delete node content vector request", log.Any("request", request))
 		kb, err := h.kbRepo.GetKnowledgeBaseByID(ctx, request.KBID)
@@ -167,5 +123,81 @@ func (h *RAGMQHandler) HandleNodeContentVectorRequest(ctx context.Context, msg t
 		h.logger.Info("summary node content vector success", log.Any("summary_id", request.NodeReleaseID), log.Any("summary", summary))
 	}
 
+	return nil
+}
+
+func (h *RAGMQHandler) upsertKenFutPublished(ctx context.Context, request domain.NodeReleaseVectorRequest) error {
+	h.logger.Debug("upsert node content vector request", "request", request)
+	nodeRelease, err := h.nodeRepo.GetNodeReleaseWithDirPathByID(ctx, request.NodeReleaseID)
+	if err != nil {
+		h.logger.Error("get node content by ids failed", log.Error(err))
+		return err
+	}
+	current, err := h.kbRepo.IsCurrentKenFutRelease(ctx, request.KBID, request.NodeReleaseID)
+	if err != nil {
+		return err
+	}
+	if !current {
+		return nil
+	}
+
+	if nodeRelease.Type == domain.NodeTypeFolder {
+		h.logger.Info("node is folder, skip upsert", log.Any("node_release_id", request.NodeReleaseID))
+		return nil
+	}
+	kb, err := h.kbRepo.GetKnowledgeBaseByID(ctx, request.KBID)
+	if err != nil {
+		h.logger.Error("get kb failed", log.Error(err), log.String("kb_id", request.KBID))
+		return err
+	}
+
+	groupIds, err := h.nodeRepo.GetNodeAuthGroupIdsByNodeId(ctx, nodeRelease.NodeID, consts.NodePermNameAnswerable)
+	if err != nil {
+		h.logger.Error("get groupIds failed", log.Error(err), log.String("kb_id", request.KBID))
+		return err
+	}
+
+	// upsert node content chunks
+	docID, err := h.rag.UpsertRecords(ctx, &rag.UpsertRecordsRequest{
+		ID:        nodeRelease.ID,
+		Title:     nodeRelease.Name,
+		DatasetID: kb.DatasetID,
+		DocID:     nodeRelease.DocID,
+		Content:   nodeRelease.Content,
+		GroupIDs:  groupIds,
+	})
+	if err != nil {
+		h.logger.Error("upsert node content vector failed", log.Error(err))
+		return err
+	}
+	current, err = h.kbRepo.IsCurrentKenFutRelease(ctx, request.KBID, request.NodeReleaseID)
+	if err != nil {
+		return err
+	}
+	if !current {
+		return h.rag.DeleteRecords(ctx, kb.DatasetID, []string{docID})
+	}
+
+	// update node doc_id
+	if err := h.nodeRepo.UpdateNodeReleaseDocID(ctx, request.NodeReleaseID, docID); err != nil {
+		h.logger.Error("update node doc_id failed", log.String("node_id", request.NodeReleaseID), log.Error(err))
+		return err
+	}
+	// delete old RAG records
+	// get old doc_ids by node_id
+	oldDocIDs, err := h.nodeRepo.GetOldNodeDocIDsByNodeID(ctx, nodeRelease.ID, nodeRelease.NodeID)
+	if err != nil {
+		h.logger.Error("get old doc_ids by node_id failed", log.String("node_id", nodeRelease.NodeID), log.Error(err))
+		return err
+	}
+	if len(oldDocIDs) > 0 {
+		// delete old RAG records
+		if err := h.rag.DeleteRecords(ctx, kb.DatasetID, oldDocIDs); err != nil {
+			h.logger.Error("delete old RAG records failed", log.String("kb_id", kb.ID), log.Error(err))
+			return err
+		}
+	}
+
+	h.logger.Info("upsert node content vector success", log.Any("updated_ids", request.NodeReleaseID))
 	return nil
 }

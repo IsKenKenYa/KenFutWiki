@@ -159,40 +159,26 @@ func (u *KnowledgeBaseUsecase) DeleteKnowledgeBase(ctx context.Context, kbID str
 }
 
 func (u *KnowledgeBaseUsecase) CreateKBRelease(ctx context.Context, req *domain.CreateKBReleaseReq, userId string) (string, error) {
-	if len(req.NodeIDs) > 0 {
-		// create published nodes
-		releaseIDs, err := u.nodeRepo.CreateNodeReleases(ctx, req.KBID, userId, req.NodeIDs)
-		if err != nil {
-			return "", fmt.Errorf("failed to create published nodes: %w", err)
+	release := &domain.KBRelease{ID: uuid.NewString(), KBID: req.KBID, Message: req.Message, Tag: req.Tag, PublisherId: userId, CreatedAt: time.Now()}
+	releaseIDs, err := u.repo.PublishContentRelease(ctx, release, userId, req.NodeIDs)
+	if err != nil {
+		return "", fmt.Errorf("publish content release: %w", err)
+	}
+	if len(releaseIDs) > 0 {
+		requests := make([]*domain.NodeReleaseVectorRequest, 0, len(releaseIDs))
+		for _, id := range releaseIDs {
+			requests = append(requests, &domain.NodeReleaseVectorRequest{KBID: req.KBID, NodeReleaseID: id, Action: "upsert"})
 		}
-		if len(releaseIDs) > 0 {
-			// async upsert vector content via mq
-			nodeContentVectorRequests := make([]*domain.NodeReleaseVectorRequest, 0)
-			for _, releaseID := range releaseIDs {
-				nodeContentVectorRequests = append(nodeContentVectorRequests, &domain.NodeReleaseVectorRequest{
-					KBID:          req.KBID,
-					NodeReleaseID: releaseID,
-					Action:        "upsert",
-				})
-			}
-			if err := u.ragRepo.AsyncUpdateNodeReleaseVector(ctx, nodeContentVectorRequests); err != nil {
-				return "", err
+		if err := u.ragRepo.AsyncUpdateNodeReleaseVector(ctx, requests); err != nil {
+			u.logger.Error("content published; vector synchronization is pending", log.Error(err), log.String("release_id", release.ID))
+		} else {
+			for _, id := range releaseIDs {
+				if err := u.repo.CompleteKenFutRAG(ctx, id); err != nil {
+					u.logger.Error("failed to acknowledge vector outbox task", log.Error(err), log.String("node_release_id", id))
+				}
 			}
 		}
 	}
-
-	release := &domain.KBRelease{
-		ID:          uuid.New().String(),
-		KBID:        req.KBID,
-		Message:     req.Message,
-		Tag:         req.Tag,
-		PublisherId: userId,
-		CreatedAt:   time.Now(),
-	}
-	if err := u.repo.CreateKBRelease(ctx, release); err != nil {
-		return "", fmt.Errorf("failed to create kb release: %w", err)
-	}
-
 	return release.ID, nil
 }
 
