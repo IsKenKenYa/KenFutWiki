@@ -97,7 +97,12 @@ func (r *KenFutIntegrationRepository) RecordEvent(ctx context.Context, event *do
 			return nil
 		}
 		if stat != nil {
-			return tx.Create(stat).Error
+			if err := tx.Create(stat).Error; err != nil {
+				return err
+			}
+			if stat.Scene == domain.StatPageSceneNodeDetail && stat.NodeID != "" {
+				return incrementKenFutPV(tx, stat.KBID, stat.NodeID)
+			}
 		}
 		return nil
 	})

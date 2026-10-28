@@ -129,7 +129,7 @@ func browserPostgres(t *testing.T, dsn string) *storePG.DB {
 	if err := db.Exec(`CREATE TABLE comments(id text PRIMARY KEY,kb_id text,user_id text,node_id text,info jsonb,parent_id text,root_id text,content text,status smallint,pic_urls text[] NOT NULL DEFAULT '{}',created_at timestamptz)`).Error; err != nil {
 		t.Fatal(err)
 	}
-	for _, name := range []string{"000001_content.up.sql", "000002_integration.up.sql"} {
+	for _, name := range []string{"000001_content.up.sql", "000002_integration.up.sql", "000003_node_pv.up.sql"} {
 		data, err := os.ReadFile("../../store/pg/kenfut_migration/" + name)
 		if err != nil {
 			t.Fatal(err)

@@ -117,7 +117,7 @@ func (r *KenFutContentRepository) LatestReleaseID(ctx context.Context, kbID stri
 }
 
 func publishedContentBaseQuery(tx *gorm.DB, kbID, releaseID string) *gorm.DB {
-	q := tx.Table("kb_release_node_releases manifest").Joins("JOIN node_releases nr ON nr.id = manifest.node_release_id").Joins("JOIN nodes n ON n.id = nr.node_id AND n.kb_id = nr.kb_id").Joins("LEFT JOIN kenfut_content_releases kcr ON kcr.node_release_id = nr.id").Joins("LEFT JOIN node_stats ns ON ns.node_id = nr.node_id").Where("manifest.kb_id = ? AND manifest.release_id = ? AND nr.type = ?", kbID, releaseID, domain.NodeTypeDocument)
+	q := tx.Table("kb_release_node_releases manifest").Joins("JOIN node_releases nr ON nr.id = manifest.node_release_id").Joins("JOIN nodes n ON n.id = nr.node_id AND n.kb_id = nr.kb_id").Joins("LEFT JOIN kenfut_content_releases kcr ON kcr.node_release_id = nr.id").Joins("LEFT JOIN kenfut_node_pv ns ON ns.node_id = nr.node_id").Where("manifest.kb_id = ? AND manifest.release_id = ? AND nr.type = ?", kbID, releaseID, domain.NodeTypeDocument)
 	return q
 }
 

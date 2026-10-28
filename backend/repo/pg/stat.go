@@ -26,7 +26,15 @@ func NewStatRepository(db *pg.DB, cahe *cache.Cache) *StatRepository {
 }
 
 func (r *StatRepository) CreateStatPage(ctx context.Context, stat *domain.StatPage) error {
-	return r.db.WithContext(ctx).Model(&domain.StatPage{}).Create(stat).Error
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(stat).Error; err != nil {
+			return err
+		}
+		if stat.Scene == domain.StatPageSceneNodeDetail && stat.NodeID != "" {
+			return incrementKenFutPV(tx, stat.KBID, stat.NodeID)
+		}
+		return nil
+	})
 }
 
 func (r *StatRepository) GetHotPages(ctx context.Context, kbID string) ([]*domain.HotPage, error) {

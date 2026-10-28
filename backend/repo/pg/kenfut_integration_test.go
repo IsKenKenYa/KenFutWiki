@@ -328,3 +328,71 @@ func TestKenFutVectorWritesSerializeAndReleaseLocks(t *testing.T) {
 		t.Fatalf("lock not released: %v", err)
 	}
 }
+
+func TestKenFutPVPreservesUpgradeBaselineAndAvoidsDailyDoubleCounting(t *testing.T) {
+	db := contentTestDB(t)
+	contentFixture(t, db, "pv-article", "PV article", "body")
+	ctx := context.Background()
+	if err := db.Exec("DROP TABLE kenfut_node_pv").Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Create(&domain.NodeStats{NodeID: "pv-article", PV: 100}).Error; err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Create(&domain.StatPage{KBID: "kb", NodeID: "pv-article", SessionID: "old", Scene: domain.StatPageSceneNodeDetail, CreatedAt: time.Now()}).Error; err != nil {
+		t.Fatal(err)
+	}
+	migration, err := os.ReadFile("../../store/pg/kenfut_migration/000003_node_pv.up.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Exec(string(migration)).Error; err != nil {
+		t.Fatal(err)
+	}
+	nodes := &NodeRepository{db: db}
+	assertPV := func(want int64) {
+		t.Helper()
+		stats, err := nodes.GetNodeStatsByNodeId(ctx, "pv-article")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if stats.PV != want {
+			t.Fatalf("PV=%d, want %d", stats.PV, want)
+		}
+	}
+	assertPV(101)
+	repo := NewKenFutIntegrationRepository(db)
+	id := uuid.NewString()
+	now := time.Now()
+	for i := 0; i < 2; i++ {
+		event := &domain.KenFutEvent{EventID: id, Kind: "article_view", KBID: "kb", NodeID: "pv-article", SessionID: "new", PayloadHash: "same", OccurredAt: now, ReceivedAt: now}
+		stat := &domain.StatPage{KBID: "kb", NodeID: "pv-article", SessionID: "new", Scene: domain.StatPageSceneNodeDetail, CreatedAt: now}
+		// This fixture only needs the event schema after the baseline has been captured.
+		if i == 0 {
+			sqlData, e := os.ReadFile("../../store/pg/kenfut_migration/000002_integration.up.sql")
+			if e != nil {
+				t.Fatal(e)
+			}
+			if e := db.Exec(string(sqlData)).Error; e != nil {
+				t.Fatal(e)
+			}
+		}
+		if _, err := repo.RecordEvent(ctx, event, stat); err != nil {
+			t.Fatal(err)
+		}
+	}
+	assertPV(102)
+	legacy := NewStatRepository(db, nil)
+	if err := legacy.UpsertNodeStats(ctx, "pv-article", 50); err != nil {
+		t.Fatal(err)
+	}
+	assertPV(102)
+	if err := legacy.CreateStatPage(ctx, &domain.StatPage{KBID: "kb", NodeID: "pv-article", Scene: domain.StatPageSceneNodeDetail, CreatedAt: now}); err != nil {
+		t.Fatal(err)
+	}
+	assertPV(103)
+	if err := legacy.CreateStatPage(ctx, &domain.StatPage{KBID: "another-kb", NodeID: "pv-article", Scene: domain.StatPageSceneNodeDetail, CreatedAt: now}); err == nil {
+		t.Fatal("another site's node accepted")
+	}
+	assertPV(103)
+}

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -52,7 +53,7 @@ func TestKenFutMigrationsFreshInstallAndRepeat(t *testing.T) {
 	if err := db.QueryRow("SELECT version FROM kenfut_schema_migrations").Scan(&extension); err != nil {
 		t.Fatal(err)
 	}
-	if upstream != 38 || extension < 2 {
+	if upstream != latestKenFutTestMigration(t, "migration") || extension != latestKenFutTestMigration(t, "kenfut_migration") {
 		t.Fatalf("migration histories mixed: upstream=%d extension=%d", upstream, extension)
 	}
 	var count int
@@ -62,4 +63,26 @@ func TestKenFutMigrationsFreshInstallAndRepeat(t *testing.T) {
 	if count != 3 {
 		t.Fatalf("expected extension tables, got %d", count)
 	}
+}
+
+func latestKenFutTestMigration(t *testing.T, directory string) int {
+	t.Helper()
+	files, err := migrationFiles.ReadDir(directory)
+	if err != nil {
+		t.Fatal(err)
+	}
+	latest := 0
+	for _, file := range files {
+		if !strings.HasSuffix(file.Name(), ".up.sql") {
+			continue
+		}
+		number, err := strconv.Atoi(strings.SplitN(file.Name(), "_", 2)[0])
+		if err != nil {
+			t.Fatal(err)
+		}
+		if number > latest {
+			latest = number
+		}
+	}
+	return latest
 }
