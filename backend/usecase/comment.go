@@ -37,8 +37,12 @@ func NewCommentUsecase(commentRepo *pg.CommentRepository, logger *log.Logger,
 func (u *CommentUsecase) CreateComment(ctx context.Context, commentReq *domain.CommentReq, KbID string, remoteIP string,
 	status domain.CommentStatus, userID uint) (string, error) {
 	// node
-	if _, err := u.NodeRepo.GetNodeByID(ctx, commentReq.NodeID); err != nil {
+	node, err := u.NodeRepo.GetNodeByID(ctx, commentReq.NodeID)
+	if err != nil {
 		return "", err
+	}
+	if node.KBID != KbID {
+		return "", domain.ErrPermissionDenied
 	}
 
 	// 构造结构体给下方数据库进行插入

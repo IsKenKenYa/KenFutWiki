@@ -193,7 +193,10 @@ func (u *KenFutIntegrationUsecase) RecordClick(ctx context.Context, kbID, sessio
 		productID = cta.Target.ProductID
 	}
 	id := uuid.NewString()
-	event := &domain.KenFutEvent{EventID: req.EventID, Kind: "cta_click", KBID: kbID, ProductID: productID, NodeID: req.NodeID, NodeReleaseID: req.NodeReleaseID, CTAID: ctaID, ViewID: req.ViewID, SessionID: session, ClickID: &id, PayloadHash: kenFutPayloadHash(req), OccurredAt: time.Now(), ReceivedAt: time.Now()}
+	event := &domain.KenFutEvent{EventID: req.EventID, Kind: "cta_click", KBID: kbID, ProductID: productID, NodeID: req.NodeID, NodeReleaseID: req.NodeReleaseID, CTAID: ctaID, ViewID: req.ViewID, SessionID: session, ClickID: &id, PayloadHash: kenFutPayloadHash(struct {
+		Request domain.KenFutClickReq
+		CTAID   string
+	}{req, ctaID}), OccurredAt: time.Now(), ReceivedAt: time.Now()}
 	// Validate the saved target before persisting the click; no caller-provided redirect is accepted.
 	if _, err := u.ResolveTarget(ctx, kbID, cta.Target, id, authID); err != nil {
 		return nil, err

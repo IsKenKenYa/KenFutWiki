@@ -2,11 +2,14 @@ package pg
 
 import (
 	"database/sql"
+	"fmt"
+	"io/fs"
 	"net/url"
 	"os"
 	"strconv"
 	"strings"
 	"testing"
+	"testing/fstest"
 
 	"github.com/google/uuid"
 )
@@ -35,8 +38,16 @@ func TestKenFutMigrationsFreshInstallAndRepeat(t *testing.T) {
 		parsed.Path = "/" + name
 		testDSN = parsed.String()
 	}
+	// Start from the previous fork schema, then upgrade through the production runner.
+	previous := testMigrationFiles(t, true, 0)
+	if err := runMigrations(testDSN, "migration", "schema_migrations", previous); err != nil {
+		t.Fatal(err)
+	}
+	if err := runMigrations(testDSN, "kenfut_migration", "kenfut_schema_migrations", previous); err != nil {
+		t.Fatal(err)
+	}
 	if err := doMigrate(testDSN); err != nil {
-		t.Fatalf("fresh install: %v", err)
+		t.Fatalf("existing fork upgrade: %v", err)
 	}
 	if err := doMigrate(testDSN); err != nil {
 		t.Fatalf("repeat startup: %v", err)
@@ -63,6 +74,25 @@ func TestKenFutMigrationsFreshInstallAndRepeat(t *testing.T) {
 	if count != 3 {
 		t.Fatalf("expected extension tables, got %d", count)
 	}
+	// A simulated upstream addition must advance only its own history.
+	next := latestKenFutTestMigration(t, "migration") + 1
+	future := testMigrationFiles(t, false, next)
+	if err := runMigrations(testDSN, "migration", "schema_migrations", future); err != nil {
+		t.Fatal(err)
+	}
+	if err := runMigrations(testDSN, "kenfut_migration", "kenfut_schema_migrations", future); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.QueryRow("SELECT version FROM schema_migrations").Scan(&upstream); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.QueryRow("SELECT version FROM kenfut_schema_migrations").Scan(&extension); err != nil {
+		t.Fatal(err)
+	}
+	if upstream != next || extension != latestKenFutTestMigration(t, "kenfut_migration") {
+		t.Fatalf("upstream update contaminated fork history: %d/%d", upstream, extension)
+	}
+
 }
 
 func latestKenFutTestMigration(t *testing.T, directory string) int {
@@ -85,4 +115,34 @@ func latestKenFutTestMigration(t *testing.T, directory string) int {
 		}
 	}
 	return latest
+}
+
+func testMigrationFiles(t *testing.T, previous bool, next int) fs.FS {
+	t.Helper()
+	files := fstest.MapFS{}
+	err := fs.WalkDir(migrationFiles, ".", func(name string, entry fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if entry.IsDir() {
+			return nil
+		}
+		if previous && strings.HasPrefix(name, "kenfut_migration/000003_") {
+			return nil
+		}
+		data, err := migrationFiles.ReadFile(name)
+		if err != nil {
+			return err
+		}
+		files[name] = &fstest.MapFile{Data: data}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if next > 0 {
+		files[fmt.Sprintf("migration/%06d_upstream_probe.up.sql", next)] = &fstest.MapFile{Data: []byte("CREATE TABLE upstream_upgrade_probe(id integer PRIMARY KEY);")}
+		files[fmt.Sprintf("migration/%06d_upstream_probe.down.sql", next)] = &fstest.MapFile{Data: []byte("DROP TABLE upstream_upgrade_probe;")}
+	}
+	return files
 }

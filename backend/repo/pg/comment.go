@@ -29,11 +29,8 @@ func (r *CommentRepository) CreateComment(ctx context.Context, comment *domain.C
 func (r *CommentRepository) GetCommentList(ctx context.Context, nodeID string) ([]*domain.ShareCommentListItem, int64, error) {
 	// 按照时间排序来查询node_id的comments
 	var comments []*domain.ShareCommentListItem
-	query := r.db.WithContext(ctx).Model(&domain.Comment{}).Where("node_id = ?", nodeID)
-
-	if domain.GetBaseEditionLimitation(ctx).AllowCommentAudit {
-		query = query.Where("status = ?", domain.CommentStatusAccepted) //accepted
-	}
+	// Publication visibility never depends on a commercial capability flag.
+	query := r.db.WithContext(ctx).Model(&domain.Comment{}).Where("node_id = ? AND status = ?", nodeID, domain.CommentStatusAccepted)
 
 	var count int64
 	if err := query.Count(&count).Error; err != nil {

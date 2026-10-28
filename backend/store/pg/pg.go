@@ -5,6 +5,7 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
 	"time"
@@ -64,19 +65,19 @@ func doMigrate(dsn string) error {
 		{"migration", "schema_migrations"},
 		{"kenfut_migration", "kenfut_schema_migrations"},
 	} {
-		if err := runMigrations(dsn, migration.directory, migration.table); err != nil {
+		if err := runMigrations(dsn, migration.directory, migration.table, migrationFiles); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func runMigrations(dsn, directory, table string) error {
+func runMigrations(dsn, directory, table string, files fs.FS) error {
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return fmt.Errorf("open migration database: %w", err)
 	}
-	source, err := iofs.New(migrationFiles, directory)
+	source, err := iofs.New(files, directory)
 	if err != nil {
 		_ = db.Close()
 		return fmt.Errorf("open %s migrations: %w", directory, err)

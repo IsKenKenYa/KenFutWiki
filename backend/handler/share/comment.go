@@ -14,9 +14,10 @@ import (
 
 type ShareCommentHandler struct {
 	*handler.BaseHandler
-	logger  *log.Logger
-	usecase *usecase.CommentUsecase
-	app     *usecase.AppUsecase
+	logger     *log.Logger
+	usecase    *usecase.CommentUsecase
+	app        *usecase.AppUsecase
+	nodeAccess *usecase.NodeUsecase
 }
 
 func NewShareCommentHandler(
@@ -25,12 +26,14 @@ func NewShareCommentHandler(
 	logger *log.Logger,
 	usecase *usecase.CommentUsecase,
 	app *usecase.AppUsecase,
+	nodes *usecase.NodeUsecase,
 ) *ShareCommentHandler {
 	h := &ShareCommentHandler{
 		BaseHandler: baseHandler,
 		logger:      logger.WithModule("handler.share.comment"),
 		usecase:     usecase,
 		app:         app,
+		nodeAccess:  nodes,
 	}
 
 	share := e.Group("share/v1/comment",
@@ -75,6 +78,9 @@ func (h *ShareCommentHandler) CreateComment(c echo.Context) error {
 	}
 	if err := c.Validate(&req); err != nil {
 		return h.NewResponseWithError(c, "validate req failed", err)
+	}
+	if denial := h.nodeAccess.ValidateNodePerm(ctx, kbID, req.NodeID, domain.GetAuthID(c)); denial != nil {
+		return h.NewResponseWithErrCode(c, *denial)
 	}
 	// 校验是否开启了评论
 	appInfo, err := h.app.GetAppDetailByKBIDAndAppType(ctx, kbID, domain.AppType(domain.AppTypeWeb))
@@ -146,6 +152,9 @@ func (h *ShareCommentHandler) GetCommentList(c echo.Context) error {
 		return h.NewResponseWithError(c, "node id is required", nil)
 	}
 
+	if denial := h.nodeAccess.ValidateNodePerm(ctx, kbID, nodeID, domain.GetAuthID(c)); denial != nil {
+		return h.NewResponseWithErrCode(c, *denial)
+	}
 	// 校验是否开启了评论
 	appInfo, err := h.app.GetAppDetailByKBIDAndAppType(ctx, kbID, domain.AppType(domain.AppTypeWeb))
 	if err != nil {

@@ -95,8 +95,16 @@ func kenFutKBID(c echo.Context) string {
 	return id
 }
 func (h *KenFutIntegrationHandler) Capabilities(c echo.Context) error {
-	return kenFutResponse(c, map[string]any{"content": true, "comment_audit": true, "custom_prompts": true, "custom_branding": true, "node_stats": true, "admin_permissions": true, "limits": map[string]int{"max_kb": 0, "max_node": 0, "max_admin": 0}, "stat_days": []int{1, 7, 30, 90}, "source_url": "https://github.com/IsKenKenYa/KenFutWiki", "license": "AGPL-3.0"}, nil)
+	limits := domain.GetBaseEditionLimitation(c.Request().Context())
+	return kenFutResponse(c, map[string]any{
+		"content": true, "comment_audit": limits.AllowCommentAudit, "custom_prompts": true,
+		"custom_branding": limits.AllowCustomCopyright, "node_stats": limits.AllowNodeStats,
+		"admin_permissions": limits.AllowAdminPerm,
+		"limits":            map[string]any{"max_kb": limits.MaxKb, "max_node": limits.MaxNode, "max_admin": limits.MaxAdmin},
+		"stat_days":         []int{1, 7, 30, 90}, "source_url": "https://github.com/IsKenKenYa/KenFutWiki", "license": "AGPL-3.0",
+	}, nil)
 }
+
 func (h *KenFutIntegrationHandler) Products(c echo.Context) error {
 	items, err := h.u.Products(c.Request().Context(), kenFutKBID(c))
 	return kenFutResponse(c, map[string]any{"items": items}, err)
