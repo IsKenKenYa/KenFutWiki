@@ -47,7 +47,7 @@ type Client struct {
 
 // NewClient creates a new telemetry client
 func NewClient(logger *log.Logger, repo *pg.KnowledgeBaseRepository, modelUsecase *usecase.ModelUsecase, userUsecase *usecase.UserUsecase, nodeRepo *pg.NodeRepository, conversationRepo *pg.ConversationRepository, mcpRepo *pg.MCPRepository, cfg *config.Config) (*Client, error) {
-	baseURL := "https://baizhi.cloud/api/public/data/report"
+	baseURL := cfg.GetString("telemetry.endpoint")
 	aesKey := "SZ3SDP38y9Gg2c6yHdLPgDeX"
 
 	client := &Client{
@@ -66,6 +66,11 @@ func NewClient(logger *log.Logger, repo *pg.KnowledgeBaseRepository, modelUsecas
 		mcpRepo:          mcpRepo,
 		cfg:              cfg,
 		aesKey:           aesKey,
+	}
+
+	// A fork must explicitly opt in and select its own collector.
+	if !cfg.GetBool("telemetry.enabled") || baseURL == "" {
+		return client, nil
 	}
 
 	// get or create machine ID

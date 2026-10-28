@@ -10,6 +10,7 @@ origin 是当前 fork，upstream 是 PandaWiki。开发分支 codex/public-site-
 - Wire provider 和生成的 API/consumer/migrate入口。
 - 前端 NodeID路由、blog、SSR canonical、proxy统计责任、页面选择器及 Markdown patch。
 - 能力清单只开放已实现功能，真实站点角色仍校验。
+- PV由kenfut_node_pv逐事件累计；旧node_stats只保留兼容汇总，禁止再次将其日汇总累加进新计数。000003迁移保留升级前展示基线，历史计数不追溯重算。
 
 ## 本地命令
 
@@ -19,6 +20,6 @@ Go使用项目指定1.24.3；默认Makefile导出GOTOOLCHAIN，可由环境显�
 
 PG集成测试设置KENFUT_TEST_DSN，使用专用数据库，测试自建随机schema。不要指向真实业务数据。验证新装、重复启动、上一版升级和追加上游迁移后升级。
 
-后续CI/CD复用这些命令及公开Dockerfile。现有上游workflow中的私有模块、官方registry与secrets不应直接用于fork发行；本轮不触发这些远端发布。Sentry构建上传仅显式配置后开启。
+后续CI/CD复用这些命令及公开Dockerfile。现有上游workflow中的私有模块、官方registry与secrets不应直接用于fork发行；本轮不触发这些远端发布。Sentry构建和运行上报默认关闭，使用自有DSN后显式开启；后端安装/用量遥测同样需要config.yaml显式设置telemetry.enabled和telemetry.endpoint，默认不向上游上报。
 
 每次发行记录上游基线SHA、fork SHA、迁移版本、已通过/未执行检查、构建产物与对应源码URL。接口协议见 docs/integrations/README.md。
