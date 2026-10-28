@@ -9,14 +9,17 @@ import { PROFESSION_VERSION_PERMISSION } from '@/constant/version';
 import { message, Modal } from '@ctzhian/ui';
 import VersionMask from '@/components/VersionMask';
 import {
+  Alert,
   Box,
+  Button,
+  CircularProgress,
   FormControlLabel,
   RadioGroup,
   Radio,
   TextField,
   styled,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { FormItem, SettingCardItem } from './Common';
 type DomainUpdatePromptReq = Prompt & { kb_id: string };
@@ -32,6 +35,12 @@ const StyledRadioLabel = styled(Box)(({ theme }) => ({
 const CardAI = ({ kb }: CardAIProps) => {
   const [isEdit, setIsEdit] = useState(false);
   const capabilities = useCapabilities();
+  const [loadedKbId, setLoadedKbId] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [loadError, setLoadError] = useState('');
+  const [reload, setReload] = useState(0);
+  const requestVersion = useRef(0);
 
   const { control, handleSubmit, setValue, getValues, watch } = useForm({
     defaultValues: {
@@ -47,26 +56,10 @@ const CardAI = ({ kb }: CardAIProps) => {
 
   const enable_preset = watch('enable_preset');
 
-  const onSubmit = handleSubmit(async data => {
-    await putApiProV1Prompt({
-      kb_id: kb.id!,
-      content: data.content,
-      summary_content: data.summary_content,
-      enable_preset: data.enable_preset,
-      enable_preset_auto_language: data.enable_preset_auto_language,
-      enable_preset_general_info: data.enable_preset_general_info,
-      enable_preset_reference: data.enable_preset_reference,
-    });
-
-    message.success('保存成功');
-    setIsEdit(false);
-  });
-
   const isPro = capabilities?.custom_prompts === true;
-
-  useEffect(() => {
-    if (!kb.id || !isPro) return;
-    getApiProV1Prompt({ kb_id: kb.id! }).then(res => {
+  const canEdit = isPro && loadedKbId === kb.id && !loading && !busy;
+  const applyPrompt = useCallback(
+    (res: Prompt) => {
       setValue('content', res.content || '');
       setValue('summary_content', res.summary_content || '');
       setValue('enable_preset', res.enable_preset ?? false);
@@ -79,42 +72,105 @@ const CardAI = ({ kb }: CardAIProps) => {
         res.enable_preset_general_info ?? true,
       );
       setValue('enable_preset_reference', res.enable_preset_reference ?? true);
-    });
-  }, [kb, isPro]);
+    },
+    [setValue],
+  );
+
+  const onSubmit = handleSubmit(async data => {
+    if (!canEdit || !kb.id) return;
+    const version = requestVersion.current;
+    setBusy(true);
+    try {
+      await putApiProV1Prompt({
+        kb_id: kb.id,
+        content: data.content,
+        summary_content: data.summary_content,
+        enable_preset: data.enable_preset,
+        enable_preset_auto_language: data.enable_preset_auto_language,
+        enable_preset_general_info: data.enable_preset_general_info,
+        enable_preset_reference: data.enable_preset_reference,
+      });
+      if (version !== requestVersion.current) return;
+      message.success('保存成功');
+      setIsEdit(false);
+    } catch {
+      // The request wrapper already displays the error; preserve unsaved values.
+    } finally {
+      if (version === requestVersion.current) setBusy(false);
+    }
+  });
+
+  useEffect(() => {
+    const version = ++requestVersion.current;
+    let active = true;
+    setLoadedKbId('');
+    setLoading(false);
+    setBusy(false);
+    setLoadError('');
+    setIsEdit(false);
+    if (!kb.id || !isPro) return;
+    setLoading(true);
+    getApiProV1Prompt({ kb_id: kb.id })
+      .then(res => {
+        if (!active || version !== requestVersion.current) return;
+        applyPrompt(res);
+        setLoadedKbId(kb.id!);
+      })
+      .catch(error => {
+        if (active && version === requestVersion.current)
+          setLoadError(
+            error instanceof Error
+              ? error.message
+              : '提示词读取失败，请重试后再编辑',
+          );
+      })
+      .finally(() => {
+        if (active && version === requestVersion.current) setLoading(false);
+      });
+    return () => {
+      active = false;
+      requestVersion.current = version + 1;
+    };
+  }, [kb.id, isPro, reload, applyPrompt]);
 
   const onResetPrompt = (type: 'content' | 'summary_content' = 'content') => {
+    if (!canEdit || !kb.id) return;
+    const version = requestVersion.current;
+    const kbId = kb.id;
     Modal.confirm({
       title: '提示',
       content: `确定要重置为默认${type === 'content' ? '智能问答' : '智能摘要'}提示词吗？`,
-      onOk: () => {
-        let params: DomainUpdatePromptReq = {
-          kb_id: kb.id!,
-          content: '',
-          summary_content: getValues('summary_content'),
+      onOk: async () => {
+        if (version !== requestVersion.current) return;
+        const params: DomainUpdatePromptReq = {
+          kb_id: kbId,
+          content: type === 'content' ? '' : getValues('content'),
+          summary_content:
+            type === 'summary_content' ? '' : getValues('summary_content'),
           enable_preset: getValues('enable_preset'),
           enable_preset_auto_language: getValues('enable_preset_auto_language'),
           enable_preset_general_info: getValues('enable_preset_general_info'),
           enable_preset_reference: getValues('enable_preset_reference'),
         };
-        if (type === 'summary_content') {
-          params = {
-            kb_id: kb.id!,
-            summary_content: '',
-            content: getValues('content'),
-            enable_preset: getValues('enable_preset'),
-            enable_preset_auto_language: getValues(
-              'enable_preset_auto_language',
-            ),
-            enable_preset_general_info: getValues('enable_preset_general_info'),
-            enable_preset_reference: getValues('enable_preset_reference'),
-          };
+        let saved = false;
+        setBusy(true);
+        try {
+          await putApiProV1Prompt(params);
+          saved = true;
+          const result = await getApiProV1Prompt({ kb_id: kbId });
+          if (version !== requestVersion.current) return;
+          applyPrompt(result);
+          setIsEdit(false);
+          message.success('重置成功');
+        } catch {
+          // A failed reread must not allow stale form values to overwrite the reset.
+          if (saved && version === requestVersion.current) {
+            setLoadedKbId('');
+            setLoadError('重置已保存，但重新读取失败；请重试读取后再编辑');
+          }
+        } finally {
+          if (version === requestVersion.current) setBusy(false);
         }
-        putApiProV1Prompt(params).then(() => {
-          getApiProV1Prompt({ kb_id: kb.id! }).then(res => {
-            setValue(type, res[type] || '');
-            message.success('重置成功');
-          });
-        });
       },
     });
   };
@@ -127,7 +183,32 @@ const CardAI = ({ kb }: CardAIProps) => {
         pb: 4,
       }}
     >
-      <SettingCardItem title='智能问答' isEdit={isEdit} onSubmit={onSubmit}>
+      <SettingCardItem
+        title='智能问答'
+        isEdit={isEdit && canEdit}
+        onSubmit={onSubmit}
+        extra={
+          loading || busy ? (
+            <CircularProgress size={18} aria-label='提示词请求处理中' />
+          ) : undefined
+        }
+      >
+        {loadError && (
+          <Alert
+            severity='error'
+            action={
+              <Button
+                size='small'
+                disabled={loading || busy}
+                onClick={() => setReload(value => value + 1)}
+              >
+                重试读取
+              </Button>
+            }
+          >
+            {loadError}
+          </Alert>
+        )}
         <VersionMask
           permission={PROFESSION_VERSION_PERMISSION}
           capability='custom_prompts'
@@ -146,11 +227,13 @@ const CardAI = ({ kb }: CardAIProps) => {
                   }}
                 >
                   <FormControlLabel
+                    disabled={!canEdit}
                     value={false}
                     control={<Radio size='small' />}
                     label={<StyledRadioLabel>自定义</StyledRadioLabel>}
                   />
                   <FormControlLabel
+                    disabled={!canEdit}
                     value={true}
                     control={<Radio size='small' />}
                     label={<StyledRadioLabel>通用配置</StyledRadioLabel>}
@@ -185,7 +268,7 @@ const CardAI = ({ kb }: CardAIProps) => {
                   <TextField
                     {...field}
                     fullWidth
-                    disabled={!isPro}
+                    disabled={!canEdit}
                     multiline
                     rows={20}
                     placeholder='智能问答提示词'
@@ -213,11 +296,13 @@ const CardAI = ({ kb }: CardAIProps) => {
                       }}
                     >
                       <FormControlLabel
+                        disabled={!canEdit}
                         value={true}
                         control={<Radio size='small' />}
                         label={<StyledRadioLabel>启用</StyledRadioLabel>}
                       />
                       <FormControlLabel
+                        disabled={!canEdit}
                         value={false}
                         control={<Radio size='small' />}
                         label={<StyledRadioLabel>禁用</StyledRadioLabel>}
@@ -240,11 +325,13 @@ const CardAI = ({ kb }: CardAIProps) => {
                       }}
                     >
                       <FormControlLabel
+                        disabled={!canEdit}
                         value={true}
                         control={<Radio size='small' />}
                         label={<StyledRadioLabel>启用</StyledRadioLabel>}
                       />
                       <FormControlLabel
+                        disabled={!canEdit}
                         value={false}
                         control={<Radio size='small' />}
                         label={<StyledRadioLabel>禁用</StyledRadioLabel>}
@@ -267,11 +354,13 @@ const CardAI = ({ kb }: CardAIProps) => {
                       }}
                     >
                       <FormControlLabel
+                        disabled={!canEdit}
                         value={true}
                         control={<Radio size='small' />}
                         label={<StyledRadioLabel>启用</StyledRadioLabel>}
                       />
                       <FormControlLabel
+                        disabled={!canEdit}
                         value={false}
                         control={<Radio size='small' />}
                         label={<StyledRadioLabel>禁用</StyledRadioLabel>}
@@ -306,7 +395,7 @@ const CardAI = ({ kb }: CardAIProps) => {
                 <TextField
                   {...field}
                   fullWidth
-                  disabled={!isPro}
+                  disabled={!canEdit}
                   multiline
                   rows={5}
                   placeholder='智能摘要提示词'

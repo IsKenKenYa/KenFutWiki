@@ -189,11 +189,17 @@ const Comments = ({
       title: '拒绝评论',
       content: '确定要拒绝该评论吗？',
       okText: '拒绝',
-      onOk: () => {
-        moderateComment(id, kb_id, -1).then(() => {
+      onOk: async () => {
+        setLoading(true);
+        try {
+          await moderateComment(id, kb_id, -1);
           message.success('拒绝成功');
-          getData({});
-        });
+          await getData({});
+        } catch {
+          // Request wrappers display errors; leave rows unchanged on failed moderation.
+        } finally {
+          setLoading(false);
+        }
       },
     });
   };
@@ -203,11 +209,17 @@ const Comments = ({
       title: '通过评论',
       content: '确定要通过该评论吗？',
       okText: '通过',
-      onOk: () => {
-        moderateComment(id, kb_id, 1).then(() => {
+      onOk: async () => {
+        setLoading(true);
+        try {
+          await moderateComment(id, kb_id, 1);
           message.success('通过成功');
-          getData({});
-        });
+          await getData({});
+        } catch {
+          // Request wrappers display errors; leave rows unchanged on failed moderation.
+        } finally {
+          setLoading(false);
+        }
       },
     });
   };
@@ -334,7 +346,7 @@ const Comments = ({
     paramCommentStatus?: number;
   }) => {
     setLoading(true);
-    getApiV1Comment({
+    return getApiV1Comment({
       kb_id: paramKbId || kb_id,
       page: paramPage || page,
       per_page: paramPageSize || pageSize,
