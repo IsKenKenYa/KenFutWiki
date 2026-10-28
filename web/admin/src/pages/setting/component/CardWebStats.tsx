@@ -49,7 +49,10 @@ const CardWebStats = ({ data, id, refresh }: CardWebStatsProps) => {
 
   return (
     <SettingCardItem title='统计分析' isEdit={isEdit} onSubmit={onSubmit}>
-      <VersionMask permission={PROFESSION_VERSION_PERMISSION}>
+      <VersionMask
+        permission={PROFESSION_VERSION_PERMISSION}
+        capability='node_stats'
+      >
         <FormItem label='文档浏览量'>
           <Controller
             control={control}

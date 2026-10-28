@@ -84,7 +84,7 @@ const Login = () => {
                 mb: 4,
               }}
             >
-              PandaWiki
+              KenFutWiki
             </Stack>
             <TextField
               value={account}

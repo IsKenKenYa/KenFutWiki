@@ -37,6 +37,7 @@ interface HeaderProps {
   updateDetail: (detail: V1NodeDetailResp) => void;
   handleSave: () => void;
   handleExport: (type: string) => void;
+  extraActions?: React.ReactNode;
 }
 
 const Header = ({
@@ -45,6 +46,7 @@ const Header = ({
   updateDetail,
   handleSave,
   handleExport,
+  extraActions,
 }: HeaderProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -258,6 +260,7 @@ const Header = ({
           </Stack>
         </Stack>
         <Stack direction={'row'} gap={1}>
+          {extraActions}
           <Cascader
             list={[
               {

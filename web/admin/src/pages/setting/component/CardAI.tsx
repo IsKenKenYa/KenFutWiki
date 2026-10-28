@@ -1,7 +1,11 @@
-import { getApiProV1Prompt, putApiProV1Prompt } from '@/request/pro/Prompt';
+import {
+  getPrompts as getApiProV1Prompt,
+  putPrompts as putApiProV1Prompt,
+} from '@/features/kenfut/api';
+import useCapabilities from '@/features/kenfut/useCapabilities';
+import type { Prompt } from '@/features/kenfut/types';
 import { DomainKnowledgeBaseDetail } from '@/request/types';
 import { PROFESSION_VERSION_PERMISSION } from '@/constant/version';
-import { useAppSelector } from '@/store';
 import { message, Modal } from '@ctzhian/ui';
 import VersionMask from '@/components/VersionMask';
 import {
@@ -12,10 +16,10 @@ import {
   TextField,
   styled,
 } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { FormItem, SettingCardItem } from './Common';
-import { DomainUpdatePromptReq } from '@/request/pro/types';
+type DomainUpdatePromptReq = Prompt & { kb_id: string };
 
 interface CardAIProps {
   kb: DomainKnowledgeBaseDetail;
@@ -27,7 +31,7 @@ const StyledRadioLabel = styled(Box)(({ theme }) => ({
 
 const CardAI = ({ kb }: CardAIProps) => {
   const [isEdit, setIsEdit] = useState(false);
-  const { license } = useAppSelector(state => state.config);
+  const capabilities = useCapabilities();
 
   const { control, handleSubmit, setValue, getValues, watch } = useForm({
     defaultValues: {
@@ -58,13 +62,10 @@ const CardAI = ({ kb }: CardAIProps) => {
     setIsEdit(false);
   });
 
-  const isPro = useMemo(() => {
-    return PROFESSION_VERSION_PERMISSION.includes(license.edition!);
-  }, [license]);
+  const isPro = capabilities?.custom_prompts === true;
 
   useEffect(() => {
-    if (!kb.id || !PROFESSION_VERSION_PERMISSION.includes(license.edition!))
-      return;
+    if (!kb.id || !isPro) return;
     getApiProV1Prompt({ kb_id: kb.id! }).then(res => {
       setValue('content', res.content || '');
       setValue('summary_content', res.summary_content || '');
@@ -127,7 +128,10 @@ const CardAI = ({ kb }: CardAIProps) => {
       }}
     >
       <SettingCardItem title='智能问答' isEdit={isEdit} onSubmit={onSubmit}>
-        <VersionMask permission={PROFESSION_VERSION_PERMISSION}>
+        <VersionMask
+          permission={PROFESSION_VERSION_PERMISSION}
+          capability='custom_prompts'
+        >
           <FormItem label='智能问答提示词'>
             <Controller
               control={control}

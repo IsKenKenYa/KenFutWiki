@@ -1,3 +1,4 @@
+import LinkTextField from '@/features/kenfut/LinkTextField';
 import { FooterSetting } from '@/api/type';
 import { IconShanchu2, IconDrag, IconTianjia } from '@panda-wiki/icons';
 import {
@@ -181,7 +182,7 @@ const LinkItem = forwardRef<HTMLDivElement, LinkItemProps>(
             name={`brand_groups`}
             rules={{ required: '请输入链接地址' }}
             render={({ field }) => (
-              <TextField
+              <LinkTextField
                 {...field}
                 slotProps={{
                   inputLabel: {

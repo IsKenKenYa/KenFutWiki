@@ -12,10 +12,11 @@ import Card from '@/components/Card';
 import { message, Modal, Table } from '@ctzhian/ui';
 import dayjs from 'dayjs';
 import { ColumnType } from '@ctzhian/ui/dist/Table';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppSelector } from '@/store';
 import { VersionCanUse } from '@/components/VersionMask';
 import { PROFESSION_VERSION_PERMISSION } from '@/constant/version';
+import useCapabilities from '@/features/kenfut/useCapabilities';
 
 interface AddRoleProps {
   open: boolean;
@@ -26,7 +27,6 @@ interface AddRoleProps {
 
 const AddRole = ({ open, onCancel, onOk, selectedIds }: AddRoleProps) => {
   const { kb_id } = useAppSelector(state => state.config);
-  const { license } = useAppSelector(state => state.config);
   const [list, setList] = useState<V1UserListItemResp[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string>('');
@@ -118,9 +118,8 @@ const AddRole = ({ open, onCancel, onOk, selectedIds }: AddRoleProps) => {
     }
   }, [open]);
 
-  const isPro = useMemo(() => {
-    return PROFESSION_VERSION_PERMISSION.includes(license.edition!);
-  }, [license.edition]);
+  const capabilities = useCapabilities();
+  const isPro = capabilities?.admin_permissions === true;
 
   return (
     <Modal
@@ -231,14 +230,20 @@ const AddRole = ({ open, onCancel, onOk, selectedIds }: AddRoleProps) => {
             disabled={!isPro}
           >
             文档管理{' '}
-            <VersionCanUse permission={PROFESSION_VERSION_PERMISSION} />
+            <VersionCanUse
+              permission={PROFESSION_VERSION_PERMISSION}
+              capability='admin_permissions'
+            />
           </MenuItem>
           <MenuItem
             value={ConstsUserKBPermission.UserKBPermissionDataOperate}
             disabled={!isPro}
           >
             数据运营{' '}
-            <VersionCanUse permission={PROFESSION_VERSION_PERMISSION} />
+            <VersionCanUse
+              permission={PROFESSION_VERSION_PERMISSION}
+              capability='admin_permissions'
+            />
           </MenuItem>
         </Select>
       </FormItem>

@@ -1,3 +1,5 @@
+import { ContentMetadataButton } from '@/features/kenfut/ContentMetadataEditor';
+import EditorPageLink from '@/features/kenfut/EditorPageLink';
 import { uploadFile } from '@/api';
 import Emoji from '@/components/Emoji';
 import { BUSINESS_VERSION_PERMISSION } from '@/constant/version';
@@ -750,6 +752,21 @@ const Wrap = ({ detail: defaultDetail }: WrapProps) => {
               setIsEditing(false);
             }
           }}
+          extraActions={
+            <Stack direction='row' alignItems='center'>
+              <ContentMetadataButton
+                nodeId={defaultDetail.id!}
+                onSaved={() => updateDetail({ status: 1 })}
+              />
+              {isMarkdown && (
+                <EditorPageLink
+                  editor={editorRef.editor}
+                  markdownRef={markdownEditorRef}
+                  markdownValue={nodeDetail?.content || ''}
+                />
+              )}
+            </Stack>
+          }
           handleExport={handleExport}
         />
         {!isMarkdown && (

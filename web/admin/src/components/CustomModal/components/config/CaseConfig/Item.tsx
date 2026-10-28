@@ -1,3 +1,4 @@
+import LinkTextField from '@/features/kenfut/LinkTextField';
 import { Box, IconButton, Stack, TextField } from '@mui/material';
 import { IconShanchu2, IconDrag } from '@panda-wiki/icons';
 import {
@@ -97,7 +98,7 @@ const ItemType = forwardRef<HTMLDivElement, ItemTypeProps>(
                 setIsEdit(true);
               }}
             />
-            <TextField
+            <LinkTextField
               label='链接'
               slotProps={{
                 inputLabel: {

@@ -1,3 +1,4 @@
+import LinkTextField from '@/features/kenfut/LinkTextField';
 import {
   Box,
   IconButton,
@@ -98,7 +99,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                 setIsEdit(true);
               }}
             />
-            <TextField
+            <LinkTextField
               label='按钮链接'
               slotProps={{
                 inputLabel: {

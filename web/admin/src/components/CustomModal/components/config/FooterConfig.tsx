@@ -1,3 +1,4 @@
+import LinkIcon from '@mui/icons-material/Link';
 import { AppDetail, HeaderSetting } from '@/api';
 import UploadFile from '@/components/UploadFile';
 import { Stack, Box, TextField, SvgIconProps } from '@mui/material';
@@ -33,6 +34,13 @@ export interface Option {
   text_label?: string;
 }
 export const options: Option[] = [
+  {
+    key: 'link',
+    value: '网站或社交媒体',
+    type: LinkIcon,
+    text_placeholder: '链接名称',
+    text_label: '链接名称',
+  },
   {
     key: 'wechat_oa',
     value: '微信公众号',
@@ -500,9 +508,10 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
               },
             }}
           >
-            PandaWiki 版权信息
+            软件品牌标识
           </Box>
           <VersionMask
+            capability='custom_branding'
             permission={PROFESSION_VERSION_PERMISSION}
             wrapperSx={{ px: 2 }}
             sx={{ inset: '-8px 0' }}
@@ -521,7 +530,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
                       alignItems: 'center',
                     }}
                   >
-                    展示 PandaWiki 版权信息
+                    展示 软件品牌标识
                   </Box>
                   <Switch
                     sx={{ marginLeft: 'auto' }}

@@ -105,7 +105,11 @@ const DocumentComments = ({
           )}
         />
       </FormItem>
-      <FormItem label='评论审核' permission={PROFESSION_VERSION_PERMISSION}>
+      <FormItem
+        label='评论审核'
+        permission={PROFESSION_VERSION_PERMISSION}
+        capability='comment_audit'
+      >
         <Controller
           control={control}
           name='moderation_enable'
@@ -268,7 +272,11 @@ const AIQuestion = ({
           )}
         />{' '}
       </FormItem>
-      <FormItem label='免责声明' permission={PROFESSION_VERSION_PERMISSION}>
+      <FormItem
+        label='免责声明'
+        permission={PROFESSION_VERSION_PERMISSION}
+        capability='custom_branding'
+      >
         <Controller
           control={control}
           name='disclaimer'

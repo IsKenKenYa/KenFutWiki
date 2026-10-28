@@ -1,3 +1,4 @@
+import LinkTextField from '@/features/kenfut/LinkTextField';
 import UploadFile from '@/components/UploadFile';
 import { DomainSocialMediaAccount } from '@/request/types';
 import { IconShanchu2, IconDrag } from '@panda-wiki/icons';
@@ -263,6 +264,20 @@ const Item = forwardRef<HTMLDivElement, SocialInfoProps>(
                           icon: url,
                         };
                         field.onChange(newData);
+                        setIsEdit(true);
+                      }}
+                    />
+                  )}
+                  {item.channel === 'link' && (
+                    <LinkTextField
+                      fullWidth
+                      size='small'
+                      label='目标链接'
+                      value={item.link || ''}
+                      onChange={event => {
+                        const next = [...data];
+                        next[index] = { ...item, link: event.target.value };
+                        field.onChange(next);
                         setIsEdit(true);
                       }}
                     />

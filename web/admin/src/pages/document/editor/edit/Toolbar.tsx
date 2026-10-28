@@ -4,6 +4,7 @@ import {
   UseTiptapReturn,
 } from '@ctzhian/tiptap';
 import { Box } from '@mui/material';
+import EditorPageLink from '@/features/kenfut/EditorPageLink';
 
 interface ToolbarProps {
   editorRef: UseTiptapReturn;
@@ -15,6 +16,8 @@ const Toolbar = ({ editorRef, handleAiGenerate }: ToolbarProps) => {
     <Box
       sx={{
         width: 'auto',
+        display: 'flex',
+        alignItems: 'center',
         border: '1px solid',
         borderColor: 'divider',
         borderRadius: '10px',
@@ -23,6 +26,7 @@ const Toolbar = ({ editorRef, handleAiGenerate }: ToolbarProps) => {
         mx: 1,
       }}
     >
+      <EditorPageLink editor={editorRef.editor} />
       <EditorToolbar
         editor={editorRef.editor}
         menuInToolbarMore={[

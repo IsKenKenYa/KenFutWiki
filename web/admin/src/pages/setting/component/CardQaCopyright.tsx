@@ -72,7 +72,10 @@ const CardQaCopyright = ({
       isEdit={isEdit}
       onSubmit={onSubmit}
     >
-      <VersionMask permission={PROFESSION_VERSION_PERMISSION}>
+      <VersionMask
+        permission={PROFESSION_VERSION_PERMISSION}
+        capability='custom_branding'
+      >
         <FormItem
           label='版权信息'
           sx={{ alignItems: 'flex-start' }}
@@ -119,7 +122,7 @@ const CardQaCopyright = ({
                 <TextField
                   fullWidth
                   {...field}
-                  placeholder='本网站由 PandaWiki 提供技术支持'
+                  placeholder='本网站由 KenFutWiki 提供技术支持'
                   error={!!errors.copyright_info}
                   helperText={errors.copyright_info?.message}
                   onChange={event => {

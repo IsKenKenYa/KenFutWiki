@@ -1,3 +1,4 @@
+import useCapabilities from '@/features/kenfut/useCapabilities';
 import NoData from '@/assets/images/nodata.png';
 import {
   deleteApiV1KnowledgeBaseUserDelete,
@@ -40,10 +41,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import AddRole from './AddRole';
 import { Form, FormItem, SettingCardItem } from './Common';
-import {
-  PROFESSION_VERSION_PERMISSION,
-  BUSINESS_VERSION_PERMISSION,
-} from '@/constant/version';
+import { BUSINESS_VERSION_PERMISSION } from '@/constant/version';
 
 type ApiTokenPermission =
   GithubComChaitinPandaWikiProApiTokenV1CreateAPITokenReq['permission'];
@@ -385,7 +383,7 @@ const ApiToken = () => {
 };
 
 const CardKB = () => {
-  const { kb_id, license } = useAppSelector(state => state.config);
+  const { kb_id } = useAppSelector(state => state.config);
   const dispatch = useDispatch();
 
   const [addOpen, setAddOpen] = useState(false);
@@ -399,9 +397,8 @@ const CardKB = () => {
     });
   };
 
-  const isPro = useMemo(() => {
-    return PROFESSION_VERSION_PERMISSION.includes(license.edition!);
-  }, [license.edition]);
+  const capabilities = useCapabilities();
+  const isPro = capabilities?.admin_permissions === true;
 
   useEffect(() => {
     if (!kb_id) return;

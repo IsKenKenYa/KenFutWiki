@@ -1,3 +1,4 @@
+import LinkTextField from '@/features/kenfut/LinkTextField';
 import { CardWebHeaderBtn } from '@/api';
 import UploadFile from '@/components/UploadFile';
 import { useAppDispatch, useAppSelector } from '@/store';
@@ -244,7 +245,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                       setIsEdit(true);
                     }}
                   />
-                  <TextField
+                  <LinkTextField
                     label='按钮链接'
                     slotProps={{
                       inputLabel: {

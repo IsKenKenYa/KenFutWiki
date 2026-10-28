@@ -4,10 +4,8 @@ import {
   postApiV1CommentDelete,
 } from '@/request';
 
-import {
-  postApiProV1CommentModerate,
-  DomainCommentStatus,
-} from '@/request/pro';
+import { moderateComment } from '@/features/kenfut/api';
+import useCapabilities from '@/features/kenfut/useCapabilities';
 import { DomainCommentListItem } from '@/request/types';
 
 import NoData from '@/assets/images/nodata.png';
@@ -25,9 +23,8 @@ import {
 } from '@mui/material';
 import { Ellipsis, Table, Modal, message } from '@ctzhian/ui';
 import { IconGengduo } from '@panda-wiki/icons';
-import { PROFESSION_VERSION_PERMISSION } from '@/constant/version';
 import dayjs from 'dayjs';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
 // 自定义状态标签组件
 const StatusTag = ({ status }: { status: number }) => {
@@ -148,7 +145,8 @@ const Comments = ({
   commentStatus: number;
   setShowCommentsFilter: (show: boolean) => void;
 }) => {
-  const { kb_id = '', license } = useAppSelector(state => state.config);
+  const { kb_id = '' } = useAppSelector(state => state.config);
+  const capabilities = useCapabilities();
   const [data, setData] = useState<DomainCommentListItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -156,9 +154,7 @@ const Comments = ({
   const [total, setTotal] = useState(0);
   const [baseUrl, setBaseUrl] = useState('');
 
-  const isEnableReview = useMemo(() => {
-    return PROFESSION_VERSION_PERMISSION.includes(license.edition!);
-  }, [license.edition]);
+  const isEnableReview = capabilities?.comment_audit === true;
 
   useEffect(() => {
     setShowCommentsFilter(isEnableReview);
@@ -194,10 +190,7 @@ const Comments = ({
       content: '确定要拒绝该评论吗？',
       okText: '拒绝',
       onOk: () => {
-        postApiProV1CommentModerate({
-          ids: [id],
-          status: DomainCommentStatus.CommentStatusReject,
-        }).then(() => {
+        moderateComment(id, kb_id, -1).then(() => {
           message.success('拒绝成功');
           getData({});
         });
@@ -211,10 +204,7 @@ const Comments = ({
       content: '确定要通过该评论吗？',
       okText: '通过',
       onOk: () => {
-        postApiProV1CommentModerate({
-          ids: [id],
-          status: DomainCommentStatus.CommentStatusAccepted,
-        }).then(() => {
+        moderateComment(id, kb_id, 1).then(() => {
           message.success('通过成功');
           getData({});
         });

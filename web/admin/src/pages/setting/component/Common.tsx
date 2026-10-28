@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { createContext, useContext, useState } from 'react';
 import VersionMask from '@/components/VersionMask';
+import type { Capabilities } from '@/features/kenfut/types';
 
 export const SecretTextField = (props: TextFieldProps) => {
   const [show, setShow] = useState(false);
@@ -125,6 +126,7 @@ export const FormItem = ({
   sx,
   labelSx,
   permission,
+  capability,
 }: {
   label?: string | React.ReactNode;
   children?: React.ReactNode;
@@ -136,12 +138,13 @@ export const FormItem = ({
   sx?: SxProps;
   labelSx?: SxProps;
   permission?: number[];
+  capability?: keyof Omit<Capabilities, 'limits' | 'stat_days'>;
 }) => {
   const { vertical: verticalContext, labelWidth: labelWidthContext } =
     useContext(FormContext);
 
   return (
-    <VersionMask permission={permission}>
+    <VersionMask permission={permission} capability={capability}>
       <StyledFormItem vertical={vertical || verticalContext} sx={sx}>
         <StyledFormLabelWrapper
           vertical={vertical || verticalContext}

@@ -46,6 +46,12 @@ const router = [
         ),
       },
       {
+        path: '/kenfut',
+        element: createElement(
+          LazyLoadable(lazy(() => import('./features/kenfut/Operations'))),
+        ),
+      },
+      {
         path: '/setting',
         element: createElement(
           LazyLoadable(lazy(() => import('./pages/setting'))),

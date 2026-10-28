@@ -3,6 +3,9 @@ import { useVersionInfo } from '@/hooks';
 import { ConstsLicenseEdition } from '@/request/types';
 import { styled, SxProps, Tooltip } from '@mui/material';
 import React from 'react';
+import useCapabilities from '@/features/kenfut/useCapabilities';
+import type { Capabilities } from '@/features/kenfut/types';
+type CapabilityKey = keyof Omit<Capabilities, 'limits' | 'stat_days'>;
 
 const StyledMaskWrapper = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -57,14 +60,19 @@ const VersionMask = ({
   children,
   wrapperSx,
   sx,
+  capability,
 }: {
+  capability?: CapabilityKey;
   permission?: ConstsLicenseEdition[];
   children?: React.ReactNode;
   wrapperSx?: SxProps;
   sx?: SxProps;
 }) => {
   const versionInfo = useVersionInfo();
-  const hasPermission = permission.includes(versionInfo.permission);
+  const capabilities = useCapabilities();
+  const hasPermission =
+    (capability && capabilities?.[capability] === true) ||
+    permission.includes(versionInfo.permission);
   if (hasPermission) return children;
   const nextVersionInfo = VersionInfoMap[permission[0]];
 
@@ -96,13 +104,18 @@ export const VersionCanUse = ({
   ],
   sx,
   mode = 'text',
+  capability,
 }: {
   permission?: ConstsLicenseEdition[];
+  capability?: CapabilityKey;
   sx?: SxProps;
   mode?: 'icon' | 'text';
 }) => {
   const versionInfo = useVersionInfo();
-  const hasPermission = permission.includes(versionInfo.permission);
+  const capabilities = useCapabilities();
+  const hasPermission =
+    (capability && capabilities?.[capability] === true) ||
+    permission.includes(versionInfo.permission);
   if (hasPermission) return null;
   const nextVersionInfo = VersionInfoMap[permission[0]];
   return (

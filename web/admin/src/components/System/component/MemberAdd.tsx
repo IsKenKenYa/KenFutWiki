@@ -1,3 +1,4 @@
+import useCapabilities from '@/features/kenfut/useCapabilities';
 import { postApiV1UserCreate } from '@/request/User';
 import { postApiV1KnowledgeBaseUserInvite } from '@/request/KnowledgeBase';
 import Card from '@/components/Card';
@@ -6,7 +7,7 @@ import { CheckCircle } from '@mui/icons-material';
 import { Box, Button, MenuItem, Select, Stack, TextField } from '@mui/material';
 import { FormItem } from '@/components/Form';
 import { Modal, message } from '@ctzhian/ui';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useAppSelector } from '@/store';
 import { PROFESSION_VERSION_PERMISSION } from '@/constant/version';
@@ -101,17 +102,22 @@ const MemberAdd = ({
     postApiV1UserCreate({ account: data.account, password, role: data.role })
       .then(res => {
         if (data.kb_id && data.role === 'user') {
-          postApiV1KnowledgeBaseUserInvite({
+          return postApiV1KnowledgeBaseUserInvite({
             kb_id: data.kb_id,
             // @ts-expect-error 类型错误
             user_id: res.id,
             perm: data.perm,
-          }).then(() => {
-            onSuccess();
-            if (location.pathname.startsWith('/setting')) {
-              refreshAdminRequest();
-            }
-          });
+          })
+            .then(() => {
+              if (location.pathname.startsWith('/setting'))
+                refreshAdminRequest();
+            })
+            .catch(() => {
+              message.error(
+                '用户已创建，但站点权限分配失败；请保存登录信息后在站点管理员中重新分配权限',
+              );
+            })
+            .finally(onSuccess);
         }
         onSuccess();
       })
@@ -120,9 +126,8 @@ const MemberAdd = ({
       });
   });
 
-  const isPro = useMemo(() => {
-    return PROFESSION_VERSION_PERMISSION.includes(license.edition!);
-  }, [license.edition]);
+  const capabilities = useCapabilities();
+  const isPro = capabilities?.admin_permissions === true;
 
   return (
     <>
@@ -132,8 +137,10 @@ const MemberAdd = ({
         onClick={() => {
           const versionLimit =
             VERSION_MAP[license.edition as keyof typeof VERSION_MAP];
-          if (versionLimit && userLen >= versionLimit.max) {
-            message.error(versionLimit.message);
+          const maximum =
+            capabilities?.limits.max_admin ?? versionLimit?.max ?? 0;
+          if (maximum > 0 && userLen >= maximum) {
+            message.error(`当前最多支持 ${maximum} 个管理员`);
             return;
           }
           setAddMember(true);
@@ -288,6 +295,7 @@ const MemberAdd = ({
                       文档管理{' '}
                       <VersionCanUse
                         permission={PROFESSION_VERSION_PERMISSION}
+                        capability='admin_permissions'
                       />
                     </MenuItem>
 
@@ -298,6 +306,7 @@ const MemberAdd = ({
                       数据运营{' '}
                       <VersionCanUse
                         permission={PROFESSION_VERSION_PERMISSION}
+                        capability='admin_permissions'
                       />
                     </MenuItem>
                   </Select>

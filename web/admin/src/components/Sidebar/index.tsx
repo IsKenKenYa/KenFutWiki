@@ -1,4 +1,3 @@
-import Logo from '@/assets/images/logo.png';
 import Qrcode from '@/assets/images/qrcode.png';
 
 import { Box, Button, Stack, Typography, useTheme } from '@mui/material';
@@ -6,7 +5,6 @@ import { ConstsUserKBPermission } from '@/request/types';
 import { Modal } from '@ctzhian/ui';
 import { useState, useMemo, useEffect } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import Avatar from '../Avatar';
 import Version from './Version';
 import { useAppSelector } from '@/store';
 import {
@@ -23,6 +21,18 @@ import {
 } from '@panda-wiki/icons';
 
 const MENUS = [
+  {
+    label: '运营',
+    value: '/kenfut',
+    pathname: 'kenfut',
+    icon: IconTongjifenxi1,
+    show: true,
+    perms: [
+      ConstsUserKBPermission.UserKBPermissionFullControl,
+      ConstsUserKBPermission.UserKBPermissionDataOperate,
+      ConstsUserKBPermission.UserKBPermissionDocManage,
+    ],
+  },
   {
     label: '文档',
     value: '/',
@@ -143,7 +153,20 @@ const Sidebar = () => {
         justifyContent={'center'}
         sx={{ flexShrink: 0 }}
       >
-        <Avatar src={Logo} sx={{ width: 30, height: 30 }} />
+        <Box
+          sx={{
+            width: 30,
+            height: 30,
+            borderRadius: 1,
+            bgcolor: 'primary.main',
+            color: 'white',
+            textAlign: 'center',
+            lineHeight: '30px',
+            fontWeight: 700,
+          }}
+        >
+          K
+        </Box>
       </Stack>
       <Box
         sx={{
@@ -155,7 +178,7 @@ const Sidebar = () => {
           borderBottom: `1px solid ${theme.palette.divider}`,
         }}
       >
-        PandaWiki
+        KenFutWiki
       </Box>
       <Stack sx={{ py: 2, flexGrow: 1 }} gap={1}>
         {menus.map(it => {

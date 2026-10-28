@@ -120,3 +120,90 @@ index 4a8612aceaf935e644a8ee1fc9c897ffdb48bd6d..50fcc2567332c2861c4e18ff41a7fd2a
      getJSONByHTML: (html: string) => Record<string, any>;
      getHTMLByJSON: (json: JSONContent) => string;
      getStaticRenderToHTMLStringByJSON: (json: JSONContent) => string;
+diff --git a/dist/EditorMarkdown/index.d.ts b/dist/EditorMarkdown/index.d.ts
+index 91deb006..32507396 100644
+--- a/dist/EditorMarkdown/index.d.ts
++++ b/dist/EditorMarkdown/index.d.ts
+@@ -25,7 +25,14 @@ interface EditorMarkdownProps {
+     onAceChange?: (value: string) => void;
+     onTiptapChange?: (value: string) => void;
+ }
++export interface MarkdownSelection {
++    start: { row: number; column: number };
++    end: { row: number; column: number };
++    text: string;
++}
+ export interface MarkdownEditorRef {
++    captureSelection: () => MarkdownSelection | null;
++    replaceSelection: (options: { selection: MarkdownSelection; text: string }) => void;
+     scrollToHeading: (headingText: string) => void;
+ }
+ type DisplayMode = 'edit' | 'preview' | 'split';
+diff --git a/dist/EditorMarkdown/index.js b/dist/EditorMarkdown/index.js
+index 664f3822..f53d3cd6 100644
+--- a/dist/EditorMarkdown/index.js
++++ b/dist/EditorMarkdown/index.js
+@@ -49,6 +49,7 @@ var EditorMarkdown = /*#__PURE__*/forwardRef(function (_ref, ref) {
+     showLineNumbers = _ref$showLineNumbers === void 0 ? true : _ref$showLineNumbers;
+   var theme = useTheme();
+   var aceEditorRef = useRef(null);
++  var changeTimeoutRef = useRef(null);
+   var _useState = useState(defaultDisplayMode),
+     _useState2 = _slicedToArray(_useState, 2),
+     displayMode = _useState2[0],
+@@ -77,8 +78,9 @@ var EditorMarkdown = /*#__PURE__*/forwardRef(function (_ref, ref) {
+     return isExpend ? 'calc(100vh - 45px)' : height;
+   }, [isExpend, height]);
+   var onChange = function onChange(value) {
+-    // flush sync execution
+-    setTimeout(function () {
++    // A replace/undo can emit multiple deltas; publish only the final controlled value.
++    clearTimeout(changeTimeoutRef.current);
++    changeTimeoutRef.current = setTimeout(function () {
+       onAceChange === null || onAceChange === void 0 || onAceChange(value);
+       editor.commands.setContent(value, {
+         contentType: 'markdown'
+@@ -345,6 +347,33 @@ var EditorMarkdown = /*#__PURE__*/forwardRef(function (_ref, ref) {
+   }();
+   useImperativeHandle(ref, function () {
+     return {
++      captureSelection: function captureSelection() {
++        if (!aceEditorRef.current) return null;
++        var aceEditor = aceEditorRef.current.editor;
++        var range = aceEditor.getSelectionRange();
++        return {
++          start: { row: range.start.row, column: range.start.column },
++          end: { row: range.end.row, column: range.end.column },
++          text: aceEditor.session.getTextRange(range)
++        };
++      },
++      replaceSelection: function replaceSelection(options) {
++        if (!aceEditorRef.current || readOnly) return;
++        var aceEditor = aceEditorRef.current.editor;
++        aceEditor.session.markUndoGroup();
++        aceEditor.execCommand({
++          name: "replaceSelection",
++          exec: function (editor, text) {
++            var range = editor.getSelectionRange();
++            range.start = options.selection.start;
++            range.end = options.selection.end;
++            editor.selection.setSelectionRange(range);
++            editor.insert(text, true);
++          }
++        }, options.text);
++        aceEditor.session.markUndoGroup();
++        aceEditor.focus();
++      },
+       scrollToHeading: function scrollToHeading(headingText) {
+         if (!aceEditorRef.current) return;
+         var aceEditor = aceEditorRef.current.editor;
+@@ -363,6 +392,9 @@ var EditorMarkdown = /*#__PURE__*/forwardRef(function (_ref, ref) {
+       }
+     };
+   });
++  useEffect(function () {
++    return function () { clearTimeout(changeTimeoutRef.current); };
++  }, []);
+   useEffect(function () {
+     if (editor.isEditable) {
+       editor.setEditable(false);
