@@ -12,6 +12,7 @@ import (
 )
 
 type MQHandlers struct {
+	KenFutMaintenance   *KenFutMaintenance
 	RAGMQHandler        *RAGMQHandler
 	RagDocUpdateHandler *RagDocUpdateHandler
 	StatCronHandler     *CronHandler
@@ -32,6 +33,7 @@ var ProviderSet = wire.NewSet(
 	NewRAGMQHandler,
 	NewRagDocUpdateHandler,
 	NewCronHandler,
+	NewKenFutMaintenance,
 
 	wire.Struct(new(MQHandlers), "*"),
 )

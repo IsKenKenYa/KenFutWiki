@@ -35,25 +35,30 @@ func createApp() (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	ragService, err := rag.NewRAGService(configConfig, logger)
-	if err != nil {
-		return nil, err
-	}
 	db, err := pg.NewDB(configConfig)
 	if err != nil {
 		return nil, err
 	}
-	nodeRepository := pg2.NewNodeRepository(db, logger)
+	ragService, err := rag.NewRAGService(configConfig, logger)
+	if err != nil {
+		return nil, err
+	}
 	knowledgeBaseRepository := pg2.NewKnowledgeBaseRepository(db, configConfig, logger, ragService)
-	conversationRepository := pg2.NewConversationRepository(db, logger)
-	modelRepository := pg2.NewModelRepository(db, logger)
-	promptRepo := pg2.NewPromptRepo(db, logger)
-	llmUsecase := usecase.NewLLMUsecase(configConfig, ragService, conversationRepository, knowledgeBaseRepository, nodeRepository, modelRepository, promptRepo, logger)
+	kenFutIntegrationRepository := pg2.NewKenFutIntegrationRepository(db)
 	mqProducer, err := mq.NewMQProducer(configConfig, logger)
 	if err != nil {
 		return nil, err
 	}
 	ragRepository := mq2.NewRAGRepository(mqProducer)
+	kenFutMaintenance, err := mq3.NewKenFutMaintenance(logger, knowledgeBaseRepository, kenFutIntegrationRepository, ragRepository)
+	if err != nil {
+		return nil, err
+	}
+	nodeRepository := pg2.NewNodeRepository(db, logger)
+	conversationRepository := pg2.NewConversationRepository(db, logger)
+	modelRepository := pg2.NewModelRepository(db, logger)
+	promptRepo := pg2.NewPromptRepo(db, logger)
+	llmUsecase := usecase.NewLLMUsecase(configConfig, ragService, conversationRepository, knowledgeBaseRepository, nodeRepository, modelRepository, promptRepo, logger)
 	systemSettingRepo := pg2.NewSystemSettingRepo(db, logger)
 	modelUsecase := usecase.NewModelUsecase(modelRepository, nodeRepository, ragRepository, ragService, logger, configConfig, knowledgeBaseRepository, systemSettingRepo)
 	ragmqHandler, err := mq3.NewRAGMQHandler(mqConsumer, logger, ragService, nodeRepository, knowledgeBaseRepository, llmUsecase, modelUsecase)
@@ -90,6 +95,7 @@ func createApp() (*App, error) {
 		return nil, err
 	}
 	mqHandlers := &mq3.MQHandlers{
+		KenFutMaintenance:   kenFutMaintenance,
 		RAGMQHandler:        ragmqHandler,
 		RagDocUpdateHandler: ragDocUpdateHandler,
 		StatCronHandler:     cronHandler,

@@ -611,6 +611,11 @@ export interface DomainCommentConfig {
   type?: string;
 }
 
+export interface DomainCommentDeleteReq {
+  ids: string[];
+  kb_id: string;
+}
+
 export interface DomainCommentInfo {
   auth_user_id?: number;
   /** avatar */
@@ -918,6 +923,82 @@ export interface DomainKBReleaseListItemResp {
   message?: string;
   publisher_account?: string;
   tag?: string;
+}
+
+export interface DomainKenFutCTA {
+  id?: string;
+  label?: string;
+  new_tab?: boolean;
+  style?: string;
+  target?: DomainKenFutLinkTarget;
+}
+
+export interface DomainKenFutContentItem {
+  author_avatar?: string;
+  author_name?: string;
+  canonical_url?: string;
+  category?: string;
+  channel?: string;
+  content?: string;
+  content_type?: string;
+  cover_url?: string;
+  created_at?: string;
+  ctas?: DomainKenFutCTA[];
+  display_date?: string;
+  featured?: boolean;
+  featured_order?: number;
+  id?: string;
+  kb_id?: string;
+  node_id?: string;
+  node_release_id?: string;
+  pv?: number;
+  related?: DomainKenFutContentItem[];
+  related_node_ids?: string[];
+  slug?: string;
+  summary?: string;
+  tags?: string[];
+  title?: string;
+  updated_at?: string;
+  url?: string;
+}
+
+export interface DomainKenFutContentListResp {
+  items?: DomainKenFutContentItem[];
+  page?: number;
+  page_size?: number;
+  release_id?: string;
+  total?: number;
+}
+
+export interface DomainKenFutContentMetadata {
+  author_avatar?: string;
+  author_name?: string;
+  category?: string;
+  channel?: string;
+  cover_url?: string;
+  ctas?: DomainKenFutCTA[];
+  display_date?: string;
+  featured?: boolean;
+  featured_order?: number;
+  node_id?: string;
+  related_node_ids?: string[];
+  slug?: string;
+  tags?: string[];
+}
+
+export interface DomainKenFutLinkTarget {
+  node_id?: string;
+  page?: string;
+  page_key?: string;
+  params?: Record<string, any>;
+  product_id?: string;
+  type?: string;
+  url?: string;
+}
+
+export interface DomainKenFutTaxonomies {
+  categories?: string[];
+  tags?: string[];
 }
 
 export interface DomainKnowledgeBaseDetail {
@@ -1895,6 +1976,20 @@ export interface V1WechatAppInfoResp {
   wechat_app_is_enabled?: boolean;
 }
 
+export interface GetApiKenfutV1ContentsNodeIdParams {
+  /** Knowledge base */
+  kb_id: string;
+  /** Node ID */
+  nodeId: string;
+}
+
+export interface PutApiKenfutV1ContentsNodeIdParams {
+  /** Knowledge base */
+  kb_id: string;
+  /** Node ID */
+  nodeId: string;
+}
+
 export interface PutApiV1AppParams {
   /** id */
   id: string;
@@ -1950,11 +2045,6 @@ export interface GetApiV1CommentParams {
   per_page: number;
   /** @format int32 */
   status?: -1 | 0 | 1;
-}
-
-export interface DomainCommentDeleteReq {
-  ids: string[];
-  kb_id: string;
 }
 
 export interface GetApiV1ConversationParams {
@@ -2114,6 +2204,38 @@ export interface GetApiV1StatRefererHostsParams {
 
 export interface DeleteApiV1UserDeleteParams {
   user_id: string;
+}
+
+export interface GetShareKenfutV1ArticlesSlugParams {
+  /** Article slug */
+  slug: string;
+}
+
+export interface GetShareKenfutV1ContentsParams {
+  /** Keywords */
+  q?: string;
+  /** all, docs, article */
+  channel?: string;
+  /** Category */
+  category?: string;
+  /** Tag */
+  tag?: string;
+  /** Featured only */
+  featured?: boolean;
+  /** Page */
+  page?: number;
+  /** Page size, maximum 100 */
+  page_size?: number;
+}
+
+export interface GetShareKenfutV1ContentsNodeIdParams {
+  /** Node ID */
+  nodeId: string;
+}
+
+export interface GetShareKenfutV1ContentsNodeIdRelatedParams {
+  /** Node ID */
+  nodeId: string;
 }
 
 export interface GetShareV1AppWechatServiceAnswerParams {

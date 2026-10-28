@@ -1,0 +1,1529 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "KenFutWiki Public Site API",
+    "version": "1.0.0",
+    "license": {
+      "name": "AGPL-3.0",
+      "url": "https://www.gnu.org/licenses/agpl-3.0.html"
+    }
+  },
+  "paths": {
+    "/share/kenfut/v1/contents": {
+      "get": {
+        "summary": "查询当前已发布内容",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "channel",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "tag",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "featured",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/share/kenfut/v1/contents/{node_id}": {
+      "get": {
+        "summary": "内容详情",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "node_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/share/kenfut/v1/articles/{slug}": {
+      "get": {
+        "summary": "文章或旧slug解析",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/share/kenfut/v1/contents/{node_id}/related": {
+      "get": {
+        "summary": "相关推荐",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "node_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/share/kenfut/v1/pages": {
+      "get": {
+        "summary": "可公开页面目录",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        }
+      }
+    },
+    "/share/kenfut/v1/taxonomies": {
+      "get": {
+        "summary": "公开分类标签",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        }
+      }
+    },
+    "/share/kenfut/v1/events/view": {
+      "post": {
+        "summary": "实际展示事件",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "event_id",
+                  "node_id",
+                  "node_release_id",
+                  "channel"
+                ],
+                "properties": {
+                  "event_id": {
+                    "type": "string"
+                  },
+                  "node_id": {
+                    "type": "string"
+                  },
+                  "node_release_id": {
+                    "type": "string"
+                  },
+                  "channel": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/share/kenfut/v1/ctas/{cta_id}/click": {
+      "post": {
+        "summary": "显式CTA点击",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "cta_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "event_id",
+                  "node_id",
+                  "node_release_id",
+                  "view_id"
+                ],
+                "properties": {
+                  "event_id": {
+                    "type": "string"
+                  },
+                  "node_id": {
+                    "type": "string"
+                  },
+                  "node_release_id": {
+                    "type": "string"
+                  },
+                  "view_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/integration/kenfut/v1/events": {
+      "post": {
+        "summary": "服务端转化回传，需要conversion:write",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "security": [
+          {
+            "ProductBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Conversion"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/integration/kenfut/v1/funnel": {
+      "get": {
+        "summary": "仅查询本产品聚合漏斗，需要analytics:read",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "node_id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cta_id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "ProductBearer": []
+          }
+        ]
+      }
+    },
+    "/api/kenfut/v1/capabilities": {
+      "get": {
+        "summary": "按当前站点角色读取",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kb_id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "AdminBearer": []
+          }
+        ]
+      }
+    },
+    "/api/kenfut/v1/funnel": {
+      "get": {
+        "summary": "按当前站点角色读取",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kb_id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "AdminBearer": []
+          }
+        ]
+      }
+    },
+    "/api/kenfut/v1/prompts": {
+      "get": {
+        "summary": "按当前站点角色读取",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kb_id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "AdminBearer": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "按站点角色修改；body或query携带kb_id",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kb_id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "AdminBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kb_id": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "summary_content": {
+                    "type": "string"
+                  },
+                  "enable_preset": {
+                    "type": "boolean"
+                  },
+                  "enable_preset_reference": {
+                    "type": "boolean"
+                  },
+                  "enable_preset_general_info": {
+                    "type": "boolean"
+                  },
+                  "enable_preset_auto_language": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kenfut/v1/products": {
+      "get": {
+        "summary": "按当前站点角色读取",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kb_id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "AdminBearer": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "按站点角色修改；body或query携带kb_id",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kb_id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "AdminBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kenfut/v1/products/{product_id}/credentials": {
+      "get": {
+        "summary": "按当前站点角色读取",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kb_id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "AdminBearer": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "按站点角色修改；body或query携带kb_id",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kb_id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "AdminBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kb_id": {
+                    "type": "string"
+                  },
+                  "scopes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "conversion:write",
+                        "analytics:read"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kenfut/v1/contents/{node_id}": {
+      "get": {
+        "summary": "按当前站点角色读取",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kb_id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "node_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "AdminBearer": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "按站点角色修改；body或query携带kb_id",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kb_id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "node_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "AdminBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentMetadata"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/kenfut/v1/products/{product_id}": {
+      "put": {
+        "summary": "按站点角色修改；body或query携带kb_id",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kb_id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "AdminBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "按站点角色修改；body或query携带kb_id",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kb_id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "AdminBearer": []
+          }
+        ]
+      }
+    },
+    "/api/kenfut/v1/products/{product_id}/credentials/{key_id}": {
+      "delete": {
+        "summary": "按站点角色修改；body或query携带kb_id",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kb_id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "product_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "key_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "AdminBearer": []
+          }
+        ]
+      }
+    },
+    "/api/kenfut/v1/comments/{comment_id}/moderation": {
+      "post": {
+        "summary": "按站点角色修改；body或query携带kb_id",
+        "responses": {
+          "200": {
+            "description": "成功，JSON为 {success:true,data:...}"
+          },
+          "400": {
+            "description": "请求无效"
+          },
+          "401": {
+            "description": "认证无效"
+          },
+          "403": {
+            "description": "范围或角色不允许"
+          },
+          "404": {
+            "description": "资源不可用"
+          },
+          "409": {
+            "description": "事件ID冲突"
+          },
+          "429": {
+            "description": "限流"
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kb_id",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "comment_id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "AdminBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kb_id": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "integer",
+                    "enum": [
+                      -1,
+                      1
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ContentMetadata": {
+        "type": "object",
+        "properties": {
+          "node_id": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "docs",
+              "article",
+              "both"
+            ]
+          },
+          "slug": {
+            "type": "string"
+          },
+          "cover_url": {
+            "type": "string"
+          },
+          "author_name": {
+            "type": "string"
+          },
+          "author_avatar": {
+            "type": "string"
+          },
+          "display_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "category": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "featured": {
+            "type": "boolean"
+          },
+          "featured_order": {
+            "type": "integer"
+          },
+          "related_node_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ctas": {
+            "type": "array",
+            "maxItems": 2,
+            "items": {
+              "$ref": "#/components/schemas/CTA"
+            }
+          }
+        }
+      },
+      "ContentItem": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ContentMetadata"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kb_id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              },
+              "content_type": {
+                "type": "string"
+              },
+              "canonical_url": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "node_release_id": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "LinkTarget": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "node",
+              "site",
+              "product",
+              "url"
+            ]
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "page": {
+            "type": "string",
+            "enum": [
+              "home",
+              "docs",
+              "blog"
+            ]
+          },
+          "product_id": {
+            "type": "string"
+          },
+          "page_key": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "params": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CTA": {
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "target"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "target": {
+            "$ref": "#/components/schemas/LinkTarget"
+          },
+          "style": {
+            "type": "string",
+            "enum": [
+              "primary",
+              "secondary"
+            ]
+          },
+          "new_tab": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Conversion": {
+        "type": "object",
+        "required": [
+          "event_id",
+          "event_type",
+          "occurred_at",
+          "subject_id"
+        ],
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "registered",
+              "first_generation_success"
+            ]
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "subject_id": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "click_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "required": [
+          "kb_id",
+          "name",
+          "origin",
+          "pages",
+          "enabled"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kb_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string",
+            "format": "uri"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "pages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "key",
+                "name",
+                "path"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "parameters": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "AdminBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "ProductBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

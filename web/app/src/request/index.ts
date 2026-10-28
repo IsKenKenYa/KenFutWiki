@@ -1,3 +1,4 @@
+export * from './KenfutContent'
 export * from './ShareApp'
 export * from './ShareAuth'
 export * from './ShareCaptcha'

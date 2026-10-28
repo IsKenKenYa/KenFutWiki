@@ -9,6 +9,8 @@ import (
 var ProviderSet = wire.NewSet(
 	pg.ProviderSet,
 
+	NewKenFutContentRepository,
+	NewKenFutIntegrationRepository,
 	NewNodeRepository,
 	NewAppRepository,
 	NewConversationRepository,

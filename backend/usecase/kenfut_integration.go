@@ -325,7 +325,7 @@ func (u *KenFutIntegrationUsecase) Funnel(ctx context.Context, req domain.KenFut
 	if req.From.IsZero() {
 		req.From = req.To.Add(-30 * 24 * time.Hour)
 	}
-	if req.From.Before(time.Now().Add(-180 * 24 * time.Hour)) {
+	if req.From.Before(time.Now().UTC().Truncate(24*time.Hour).AddDate(0, 0, -180)) {
 		return nil, fmt.Errorf("%w: 漏斗明细仅支持最近180天；每日事件汇总保留", ErrKenFutInvalid)
 	}
 	if !req.To.After(req.From) || req.To.Sub(req.From) > 180*24*time.Hour {

@@ -15,6 +15,111 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/kenfut/v1/contents/{node_id}": {
+            "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "kenfut_content"
+                ],
+                "summary": "Get content metadata draft",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge base",
+                        "name": "kb_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Node ID",
+                        "name": "node_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.KenFutContentMetadata"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "kenfut_content"
+                ],
+                "summary": "Update content metadata draft",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Node ID",
+                        "name": "node_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Metadata; kb_id is required as query parameter",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.KenFutContentMetadata"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Knowledge base",
+                        "name": "kb_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.KenFutContentMetadata"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/app": {
             "put": {
                 "security": [
@@ -317,7 +422,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_chaitin_panda-wiki_api_auth_v1.AuthSetReq"
+                            "$ref": "#/definitions/v1.AuthSetReq"
                         }
                     }
                 ],
@@ -3450,6 +3555,282 @@ const docTemplate = `{
                 }
             }
         },
+        "/share/kenfut/v1/articles/{slug}": {
+            "get": {
+                "tags": [
+                    "kenfut_content"
+                ],
+                "summary": "Published article detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge base",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Article slug",
+                        "name": "slug",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.KenFutContentItem"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/share/kenfut/v1/contents": {
+            "get": {
+                "tags": [
+                    "kenfut_content"
+                ],
+                "summary": "Query published content",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge base",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Keywords",
+                        "name": "q",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "all, docs, article",
+                        "name": "channel",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Category",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Tag",
+                        "name": "tag",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Featured only",
+                        "name": "featured",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size, maximum 100",
+                        "name": "page_size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.KenFutContentListResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/share/kenfut/v1/contents/{node_id}": {
+            "get": {
+                "tags": [
+                    "kenfut_content"
+                ],
+                "summary": "Published content detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge base",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Node ID",
+                        "name": "node_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.KenFutContentItem"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/share/kenfut/v1/contents/{node_id}/related": {
+            "get": {
+                "tags": [
+                    "kenfut_content"
+                ],
+                "summary": "Related published pages",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge base",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Node ID",
+                        "name": "node_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/domain.KenFutContentItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/share/kenfut/v1/pages": {
+            "get": {
+                "tags": [
+                    "kenfut_content"
+                ],
+                "summary": "Published page catalog",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge base",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PWResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/share/kenfut/v1/taxonomies": {
+            "get": {
+                "tags": [
+                    "kenfut_content"
+                ],
+                "summary": "Published categories and tags",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge base",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.KenFutTaxonomies"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/share/v1/app/web/info": {
             "get": {
                 "description": "GetAppInfo",
@@ -3675,7 +4056,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_chaitin_panda-wiki_api_share_v1.AuthGitHubReq"
+                            "$ref": "#/definitions/v1.AuthGitHubReq"
                         }
                     }
                 ],
@@ -3691,7 +4072,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_chaitin_panda-wiki_api_share_v1.AuthGitHubResp"
+                                            "$ref": "#/definitions/v1.AuthGitHubResp"
                                         }
                                     }
                                 }
@@ -4210,7 +4591,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_chaitin_panda-wiki_api_share_v1.FileUploadResp"
+                                            "$ref": "#/definitions/v1.FileUploadResp"
                                         }
                                     }
                                 }
@@ -6141,7 +6522,7 @@ const docTemplate = `{
                     "description": "status : -1 reject 0 pending 1 accept",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_chaitin_panda-wiki_domain.CommentStatus"
+                            "$ref": "#/definitions/domain.CommentStatus"
                         }
                     ]
                 }
@@ -6180,6 +6561,20 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "domain.CommentStatus": {
+            "type": "integer",
+            "format": "int32",
+            "enum": [
+                -1,
+                0,
+                1
+            ],
+            "x-enum-varnames": [
+                "CommentStatusReject",
+                "CommentStatusPending",
+                "CommentStatusAccepted"
+            ]
         },
         "domain.CompleteReq": {
             "type": "object",
@@ -6240,7 +6635,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "user_info": {
-                    "$ref": "#/definitions/github_com_chaitin_panda-wiki_domain.UserInfo"
+                    "$ref": "#/definitions/domain.UserInfo"
                 }
             }
         },
@@ -6962,6 +7357,243 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.KenFutCTA": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "new_tab": {
+                    "type": "boolean"
+                },
+                "style": {
+                    "type": "string"
+                },
+                "target": {
+                    "$ref": "#/definitions/domain.KenFutLinkTarget"
+                }
+            }
+        },
+        "domain.KenFutContentItem": {
+            "type": "object",
+            "properties": {
+                "author_avatar": {
+                    "type": "string"
+                },
+                "author_name": {
+                    "type": "string"
+                },
+                "canonical_url": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "channel": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "content_type": {
+                    "type": "string"
+                },
+                "cover_url": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "ctas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.KenFutCTA"
+                    }
+                },
+                "display_date": {
+                    "type": "string"
+                },
+                "featured": {
+                    "type": "boolean"
+                },
+                "featured_order": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "kb_id": {
+                    "type": "string"
+                },
+                "node_id": {
+                    "type": "string"
+                },
+                "node_release_id": {
+                    "type": "string"
+                },
+                "pv": {
+                    "type": "integer"
+                },
+                "related": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.KenFutContentItem"
+                    }
+                },
+                "related_node_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.KenFutContentListResp": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.KenFutContentItem"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "release_id": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.KenFutContentMetadata": {
+            "type": "object",
+            "properties": {
+                "author_avatar": {
+                    "type": "string"
+                },
+                "author_name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "channel": {
+                    "type": "string"
+                },
+                "cover_url": {
+                    "type": "string"
+                },
+                "ctas": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.KenFutCTA"
+                    }
+                },
+                "display_date": {
+                    "type": "string"
+                },
+                "featured": {
+                    "type": "boolean"
+                },
+                "featured_order": {
+                    "type": "integer"
+                },
+                "node_id": {
+                    "type": "string"
+                },
+                "related_node_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "domain.KenFutLinkTarget": {
+            "type": "object",
+            "properties": {
+                "node_id": {
+                    "type": "string"
+                },
+                "page": {
+                    "type": "string"
+                },
+                "page_key": {
+                    "type": "string"
+                },
+                "params": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.KenFutTaxonomies": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "domain.KnowledgeBaseDetail": {
             "type": "object",
             "properties": {
@@ -7247,6 +7879,32 @@ const docTemplate = `{
                 },
                 "summary": {
                     "type": "string"
+                }
+            }
+        },
+        "domain.NodeGroupDetail": {
+            "type": "object",
+            "properties": {
+                "auth_group_id": {
+                    "type": "integer"
+                },
+                "auth_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "kb_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "node_id": {
+                    "type": "string"
+                },
+                "perm": {
+                    "$ref": "#/definitions/consts.NodePermName"
                 }
             }
         },
@@ -8300,6 +8958,33 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.UserInfo": {
+            "type": "object",
+            "properties": {
+                "auth_user_id": {
+                    "type": "integer"
+                },
+                "avatar": {
+                    "description": "avatar",
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "from": {
+                    "$ref": "#/definitions/domain.MessageFrom"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "real_name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.WeChatAppAdvancedSetting": {
             "type": "object",
             "properties": {
@@ -8583,7 +9268,7 @@ const docTemplate = `{
                 "auths": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_chaitin_panda-wiki_api_auth_v1.AuthItem"
+                        "$ref": "#/definitions/v1.AuthItem"
                     }
                 },
                 "client_id": {
@@ -8597,62 +9282,6 @@ const docTemplate = `{
                 },
                 "source_type": {
                     "$ref": "#/definitions/consts.SourceType"
-                }
-            }
-        },
-        "github_com_chaitin_panda-wiki_api_auth_v1.AuthItem": {
-            "type": "object",
-            "properties": {
-                "avatar_url": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "ip": {
-                    "type": "string"
-                },
-                "last_login_time": {
-                    "type": "string"
-                },
-                "source_type": {
-                    "$ref": "#/definitions/consts.SourceType"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_chaitin_panda-wiki_api_auth_v1.AuthSetReq": {
-            "type": "object",
-            "required": [
-                "source_type"
-            ],
-            "properties": {
-                "client_id": {
-                    "type": "string"
-                },
-                "client_secret": {
-                    "type": "string"
-                },
-                "kb_id": {
-                    "type": "string"
-                },
-                "proxy": {
-                    "type": "string"
-                },
-                "source_type": {
-                    "enum": [
-                        "github"
-                    ],
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/consts.SourceType"
-                        }
-                    ]
                 }
             }
         },
@@ -8693,33 +9322,6 @@ const docTemplate = `{
                 },
                 "source_type": {
                     "$ref": "#/definitions/consts.SourceType"
-                }
-            }
-        },
-        "github_com_chaitin_panda-wiki_api_share_v1.AuthGitHubReq": {
-            "type": "object",
-            "properties": {
-                "kb_id": {
-                    "type": "string"
-                },
-                "redirect_url": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_chaitin_panda-wiki_api_share_v1.AuthGitHubResp": {
-            "type": "object",
-            "properties": {
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_chaitin_panda-wiki_api_share_v1.FileUploadResp": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "type": "string"
                 }
             }
         },
@@ -8783,20 +9385,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "github_com_chaitin_panda-wiki_domain.CommentStatus": {
-            "type": "integer",
-            "format": "int32",
-            "enum": [
-                -1,
-                0,
-                1
-            ],
-            "x-enum-varnames": [
-                "CommentStatusReject",
-                "CommentStatusPending",
-                "CommentStatusAccepted"
-            ]
         },
         "github_com_chaitin_panda-wiki_domain.ModelListItem": {
             "type": "object",
@@ -8880,59 +9468,6 @@ const docTemplate = `{
                 "ModelProviderBaiZhiCloudModelStore"
             ]
         },
-        "github_com_chaitin_panda-wiki_domain.NodeGroupDetail": {
-            "type": "object",
-            "properties": {
-                "auth_group_id": {
-                    "type": "integer"
-                },
-                "auth_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "kb_id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "node_id": {
-                    "type": "string"
-                },
-                "perm": {
-                    "$ref": "#/definitions/consts.NodePermName"
-                }
-            }
-        },
-        "github_com_chaitin_panda-wiki_domain.UserInfo": {
-            "type": "object",
-            "properties": {
-                "auth_user_id": {
-                    "type": "integer"
-                },
-                "avatar": {
-                    "description": "avatar",
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "from": {
-                    "$ref": "#/definitions/domain.MessageFrom"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "real_name": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "string"
-                }
-            }
-        },
         "gocap.ChallengeData": {
             "type": "object",
             "properties": {
@@ -9014,6 +9549,51 @@ const docTemplate = `{
                 }
             }
         },
+        "v1.AuthGitHubReq": {
+            "type": "object",
+            "properties": {
+                "kb_id": {
+                    "type": "string"
+                },
+                "redirect_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.AuthGitHubResp": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.AuthItem": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "last_login_time": {
+                    "type": "string"
+                },
+                "source_type": {
+                    "$ref": "#/definitions/consts.SourceType"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "v1.AuthLoginSimpleReq": {
             "type": "object",
             "required": [
@@ -9022,6 +9602,36 @@ const docTemplate = `{
             "properties": {
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "v1.AuthSetReq": {
+            "type": "object",
+            "required": [
+                "source_type"
+            ],
+            "properties": {
+                "client_id": {
+                    "type": "string"
+                },
+                "client_secret": {
+                    "type": "string"
+                },
+                "kb_id": {
+                    "type": "string"
+                },
+                "proxy": {
+                    "type": "string"
+                },
+                "source_type": {
+                    "enum": [
+                        "github"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/consts.SourceType"
+                        }
+                    ]
                 }
             }
         },
@@ -9223,6 +9833,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.FileUploadResp": {
+            "type": "object",
+            "properties": {
+                "key": {
                     "type": "string"
                 }
             }
@@ -9538,7 +10156,7 @@ const docTemplate = `{
                     "description": "可被问答",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_chaitin_panda-wiki_domain.NodeGroupDetail"
+                        "$ref": "#/definitions/domain.NodeGroupDetail"
                     }
                 },
                 "id": {
@@ -9551,14 +10169,14 @@ const docTemplate = `{
                     "description": "导航内可见",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_chaitin_panda-wiki_domain.NodeGroupDetail"
+                        "$ref": "#/definitions/domain.NodeGroupDetail"
                     }
                 },
                 "visitable_groups": {
                     "description": "可被访问",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_chaitin_panda-wiki_domain.NodeGroupDetail"
+                        "$ref": "#/definitions/domain.NodeGroupDetail"
                     }
                 }
             }

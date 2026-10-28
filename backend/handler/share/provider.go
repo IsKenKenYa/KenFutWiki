@@ -7,24 +7,26 @@ import (
 )
 
 type ShareHandler struct {
-	ShareNodeHandler         *ShareNodeHandler
-	ShareNavHandler          *ShareNavHandler
-	ShareAppHandler          *ShareAppHandler
-	ShareChatHandler         *ShareChatHandler
-	ShareSitemapHandler      *ShareSitemapHandler
-	ShareStatHandler         *ShareStatHandler
-	ShareCommentHandler      *ShareCommentHandler
-	ShareAuthHandler         *ShareAuthHandler
-	ShareConversationHandler *ShareConversationHandler
-	ShareWechatHandler       *ShareWechatHandler
-	ShareCaptchaHandler      *ShareCaptchaHandler
-	OpenapiV1Handler         *OpenapiV1Handler
-	ShareCommonHandler       *ShareCommonHandler
+	ShareKenFutContentHandler *ShareKenFutContentHandler
+	ShareNodeHandler          *ShareNodeHandler
+	ShareNavHandler           *ShareNavHandler
+	ShareAppHandler           *ShareAppHandler
+	ShareChatHandler          *ShareChatHandler
+	ShareSitemapHandler       *ShareSitemapHandler
+	ShareStatHandler          *ShareStatHandler
+	ShareCommentHandler       *ShareCommentHandler
+	ShareAuthHandler          *ShareAuthHandler
+	ShareConversationHandler  *ShareConversationHandler
+	ShareWechatHandler        *ShareWechatHandler
+	ShareCaptchaHandler       *ShareCaptchaHandler
+	OpenapiV1Handler          *OpenapiV1Handler
+	ShareCommonHandler        *ShareCommonHandler
 }
 
 var ProviderSet = wire.NewSet(
 	captcha.NewCaptcha,
 
+	NewShareKenFutContentHandler,
 	NewShareNodeHandler,
 	NewShareNavHandler,
 	NewShareAppHandler,

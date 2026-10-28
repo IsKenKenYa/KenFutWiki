@@ -19,6 +19,7 @@ export enum SchemaRoleType {
 
 export enum GithubComChaitinPandaWikiDomainModelProvider {
   ModelProviderBrandBaiZhiCloud = "BaiZhiCloud",
+  ModelProviderBaiZhiCloudModelStore = "BaiZhiCloudModelStore",
 }
 
 export enum DomainStatPageScene {
@@ -610,6 +611,11 @@ export interface DomainCommentConfig {
   type?: string;
 }
 
+export interface DomainCommentDeleteReq {
+  ids: string[];
+  kb_id: string;
+}
+
 export interface DomainCommentInfo {
   auth_user_id?: number;
   /** avatar */
@@ -919,6 +925,82 @@ export interface DomainKBReleaseListItemResp {
   tag?: string;
 }
 
+export interface DomainKenFutCTA {
+  id?: string;
+  label?: string;
+  new_tab?: boolean;
+  style?: string;
+  target?: DomainKenFutLinkTarget;
+}
+
+export interface DomainKenFutContentItem {
+  author_avatar?: string;
+  author_name?: string;
+  canonical_url?: string;
+  category?: string;
+  channel?: string;
+  content?: string;
+  content_type?: string;
+  cover_url?: string;
+  created_at?: string;
+  ctas?: DomainKenFutCTA[];
+  display_date?: string;
+  featured?: boolean;
+  featured_order?: number;
+  id?: string;
+  kb_id?: string;
+  node_id?: string;
+  node_release_id?: string;
+  pv?: number;
+  related?: DomainKenFutContentItem[];
+  related_node_ids?: string[];
+  slug?: string;
+  summary?: string;
+  tags?: string[];
+  title?: string;
+  updated_at?: string;
+  url?: string;
+}
+
+export interface DomainKenFutContentListResp {
+  items?: DomainKenFutContentItem[];
+  page?: number;
+  page_size?: number;
+  release_id?: string;
+  total?: number;
+}
+
+export interface DomainKenFutContentMetadata {
+  author_avatar?: string;
+  author_name?: string;
+  category?: string;
+  channel?: string;
+  cover_url?: string;
+  ctas?: DomainKenFutCTA[];
+  display_date?: string;
+  featured?: boolean;
+  featured_order?: number;
+  node_id?: string;
+  related_node_ids?: string[];
+  slug?: string;
+  tags?: string[];
+}
+
+export interface DomainKenFutLinkTarget {
+  node_id?: string;
+  page?: string;
+  page_key?: string;
+  params?: Record<string, any>;
+  product_id?: string;
+  type?: string;
+  url?: string;
+}
+
+export interface DomainKenFutTaxonomies {
+  categories?: string[];
+  tags?: string[];
+}
+
 export interface DomainKnowledgeBaseDetail {
   access_settings?: DomainAccessSettings;
   created_at?: string;
@@ -978,6 +1060,8 @@ export interface DomainMetricsConfig {
 export interface DomainModelModeSetting {
   /** 百智云 API Key */
   auto_mode_api_key?: string;
+  /** 自动模式供应商 */
+  auto_mode_provider?: GithubComChaitinPandaWikiDomainModelProvider;
   /** 自定义对话模型名称 */
   chat_model?: string;
   /** 手动模式下嵌入模型是否更新 */
@@ -1207,6 +1291,8 @@ export interface DomainRecommendNodeListResp {
   emoji?: string;
   id?: string;
   name?: string;
+  nav_id?: string;
+  nav_name?: string;
   parent_id?: string;
   permissions?: DomainNodePermissions;
   position?: number;
@@ -1293,6 +1379,8 @@ export interface DomainStatsSetting {
 export interface DomainSwitchModeReq {
   /** 百智云 API Key */
   auto_mode_api_key?: string;
+  /** 自动模式供应商 */
+  auto_mode_provider?: GithubComChaitinPandaWikiDomainModelProvider;
   /** 自定义对话模型名称 */
   chat_model?: string;
   mode: "manual" | "auto";
@@ -1888,6 +1976,20 @@ export interface V1WechatAppInfoResp {
   wechat_app_is_enabled?: boolean;
 }
 
+export interface GetApiKenfutV1ContentsNodeIdParams {
+  /** Knowledge base */
+  kb_id: string;
+  /** Node ID */
+  nodeId: string;
+}
+
+export interface PutApiKenfutV1ContentsNodeIdParams {
+  /** Knowledge base */
+  kb_id: string;
+  /** Node ID */
+  nodeId: string;
+}
+
 export interface PutApiV1AppParams {
   /** id */
   id: string;
@@ -1943,10 +2045,6 @@ export interface GetApiV1CommentParams {
   per_page: number;
   /** @format int32 */
   status?: -1 | 0 | 1;
-}
-
-export interface DeleteApiV1CommentListParams {
-  ids?: string[];
 }
 
 export interface GetApiV1ConversationParams {
@@ -2046,6 +2144,7 @@ export interface GetApiV1NodeListParams {
 
 export interface GetApiV1NodeListGroupNavParams {
   kb_id: string;
+  nav_ids?: string[];
   search?: string;
   status?: "released" | "unpublished" | "unstudied";
 }
@@ -2057,7 +2156,8 @@ export interface GetApiV1NodePermissionParams {
 
 export interface GetApiV1NodeRecommendNodesParams {
   kb_id: string;
-  node_ids: string[];
+  nav_ids?: string[];
+  node_ids?: string[];
 }
 
 export interface GetApiV1NodeStatsParams {
@@ -2104,6 +2204,38 @@ export interface GetApiV1StatRefererHostsParams {
 
 export interface DeleteApiV1UserDeleteParams {
   user_id: string;
+}
+
+export interface GetShareKenfutV1ArticlesSlugParams {
+  /** Article slug */
+  slug: string;
+}
+
+export interface GetShareKenfutV1ContentsParams {
+  /** Keywords */
+  q?: string;
+  /** all, docs, article */
+  channel?: string;
+  /** Category */
+  category?: string;
+  /** Tag */
+  tag?: string;
+  /** Featured only */
+  featured?: boolean;
+  /** Page */
+  page?: number;
+  /** Page size, maximum 100 */
+  page_size?: number;
+}
+
+export interface GetShareKenfutV1ContentsNodeIdParams {
+  /** Node ID */
+  nodeId: string;
+}
+
+export interface GetShareKenfutV1ContentsNodeIdRelatedParams {
+  /** Node ID */
+  nodeId: string;
 }
 
 export interface GetShareV1AppWechatServiceAnswerParams {

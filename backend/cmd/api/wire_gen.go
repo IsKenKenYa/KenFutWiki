@@ -54,44 +54,25 @@ func createApp() (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	userAccessRepository := pg2.NewUserAccessRepository(db, logger)
-	apiTokenRepo := pg2.NewAPITokenRepo(db, logger, cacheCache)
-	authMiddleware, err := middleware.NewAuthMiddleware(configConfig, logger, userAccessRepository, apiTokenRepo)
-	if err != nil {
-		return nil, err
-	}
-	ragService, err := rag.NewRAGService(configConfig, logger)
-	if err != nil {
-		return nil, err
-	}
-	knowledgeBaseRepository := pg2.NewKnowledgeBaseRepository(db, configConfig, logger, ragService)
+	kenFutContentRepository := pg2.NewKenFutContentRepository(db, logger)
 	nodeRepository := pg2.NewNodeRepository(db, logger)
 	navRepository := pg2.NewNavRepository(db, logger)
+	appRepository := pg2.NewAppRepository(db, logger)
 	mqProducer, err := mq.NewMQProducer(configConfig, logger)
 	if err != nil {
 		return nil, err
 	}
 	ragRepository := mq2.NewRAGRepository(mqProducer)
 	userRepository := pg2.NewUserRepository(db, logger)
-	kbRepo := cache2.NewKBRepo(cacheCache)
-	knowledgeBaseUsecase, err := usecase.NewKnowledgeBaseUsecase(knowledgeBaseRepository, nodeRepository, navRepository, ragRepository, userRepository, ragService, kbRepo, logger, configConfig)
+	ragService, err := rag.NewRAGService(configConfig, logger)
 	if err != nil {
 		return nil, err
 	}
-	shareAuthMiddleware := middleware.NewShareAuthMiddleware(logger, knowledgeBaseUsecase)
-	captchaCaptcha := captcha.NewCaptcha()
-	baseHandler := handler.NewBaseHandler(echo, logger, configConfig, authMiddleware, shareAuthMiddleware, captchaCaptcha)
-	userUsecase, err := usecase.NewUserUsecase(userRepository, logger, configConfig)
-	if err != nil {
-		return nil, err
-	}
-	userHandler := v1.NewUserHandler(echo, baseHandler, logger, userUsecase, authMiddleware, configConfig, cacheCache)
+	knowledgeBaseRepository := pg2.NewKnowledgeBaseRepository(db, configConfig, logger, ragService)
 	conversationRepository := pg2.NewConversationRepository(db, logger)
 	modelRepository := pg2.NewModelRepository(db, logger)
 	promptRepo := pg2.NewPromptRepo(db, logger)
 	llmUsecase := usecase.NewLLMUsecase(configConfig, ragService, conversationRepository, knowledgeBaseRepository, nodeRepository, modelRepository, promptRepo, logger)
-	knowledgeBaseHandler := v1.NewKnowledgeBaseHandler(baseHandler, echo, knowledgeBaseUsecase, llmUsecase, authMiddleware, logger)
-	appRepository := pg2.NewAppRepository(db, logger)
 	minioClient, err := s3.NewMinioClient(configConfig)
 	if err != nil {
 		return nil, err
@@ -100,6 +81,31 @@ func createApp() (*App, error) {
 	systemSettingRepo := pg2.NewSystemSettingRepo(db, logger)
 	modelUsecase := usecase.NewModelUsecase(modelRepository, nodeRepository, ragRepository, ragService, logger, configConfig, knowledgeBaseRepository, systemSettingRepo)
 	nodeUsecase := usecase.NewNodeUsecase(nodeRepository, navRepository, appRepository, ragRepository, userRepository, knowledgeBaseRepository, llmUsecase, ragService, logger, minioClient, modelRepository, authRepo, modelUsecase)
+	kenFutContentUsecase := usecase.NewKenFutContentUsecase(kenFutContentRepository, nodeUsecase, knowledgeBaseRepository)
+	userAccessRepository := pg2.NewUserAccessRepository(db, logger)
+	apiTokenRepo := pg2.NewAPITokenRepo(db, logger, cacheCache)
+	authMiddleware, err := middleware.NewAuthMiddleware(configConfig, logger, userAccessRepository, apiTokenRepo)
+	if err != nil {
+		return nil, err
+	}
+	kenFutContentHandler := v1.NewKenFutContentHandler(echo, kenFutContentUsecase, authMiddleware)
+	kenFutIntegrationRepository := pg2.NewKenFutIntegrationRepository(db)
+	kenFutIntegrationUsecase := usecase.NewKenFutIntegrationUsecase(kenFutIntegrationRepository, kenFutContentUsecase)
+	kbRepo := cache2.NewKBRepo(cacheCache)
+	knowledgeBaseUsecase, err := usecase.NewKnowledgeBaseUsecase(knowledgeBaseRepository, nodeRepository, navRepository, ragRepository, userRepository, ragService, kbRepo, logger, configConfig)
+	if err != nil {
+		return nil, err
+	}
+	shareAuthMiddleware := middleware.NewShareAuthMiddleware(logger, knowledgeBaseUsecase)
+	captchaCaptcha := captcha.NewCaptcha()
+	baseHandler := handler.NewBaseHandler(echo, logger, configConfig, authMiddleware, shareAuthMiddleware, captchaCaptcha)
+	kenFutIntegrationHandler := v1.NewKenFutIntegrationHandler(echo, kenFutIntegrationUsecase, authMiddleware, baseHandler)
+	userUsecase, err := usecase.NewUserUsecase(userRepository, logger, configConfig)
+	if err != nil {
+		return nil, err
+	}
+	userHandler := v1.NewUserHandler(echo, baseHandler, logger, userUsecase, authMiddleware, configConfig, cacheCache)
+	knowledgeBaseHandler := v1.NewKnowledgeBaseHandler(baseHandler, echo, knowledgeBaseUsecase, llmUsecase, authMiddleware, logger)
 	nodeHandler := v1.NewNodeHandler(baseHandler, echo, nodeUsecase, authMiddleware, logger)
 	geoRepo := cache2.NewGeoCache(cacheCache, db, logger)
 	ipdbIPDB, err := ipdb.NewIPDB(configConfig, logger)
@@ -144,20 +150,23 @@ func createApp() (*App, error) {
 	navUsecase := usecase.NewNavUsecase(navRepository, nodeRepository, ragRepository, logger)
 	navHandler := v1.NewNavHandler(baseHandler, echo, navUsecase, authMiddleware, logger)
 	apiHandlers := &v1.APIHandlers{
-		UserHandler:          userHandler,
-		KnowledgeBaseHandler: knowledgeBaseHandler,
-		NodeHandler:          nodeHandler,
-		AppHandler:           appHandler,
-		FileHandler:          fileHandler,
-		ModelHandler:         modelHandler,
-		ConversationHandler:  conversationHandler,
-		CrawlerHandler:       crawlerHandler,
-		CreationHandler:      creationHandler,
-		StatHandler:          statHandler,
-		CommentHandler:       commentHandler,
-		AuthV1Handler:        authV1Handler,
-		NavHandler:           navHandler,
+		KenFutContentHandler:     kenFutContentHandler,
+		KenFutIntegrationHandler: kenFutIntegrationHandler,
+		UserHandler:              userHandler,
+		KnowledgeBaseHandler:     knowledgeBaseHandler,
+		NodeHandler:              nodeHandler,
+		AppHandler:               appHandler,
+		FileHandler:              fileHandler,
+		ModelHandler:             modelHandler,
+		ConversationHandler:      conversationHandler,
+		CrawlerHandler:           crawlerHandler,
+		CreationHandler:          creationHandler,
+		StatHandler:              statHandler,
+		CommentHandler:           commentHandler,
+		AuthV1Handler:            authV1Handler,
+		NavHandler:               navHandler,
 	}
+	shareKenFutContentHandler := share.NewShareKenFutContentHandler(echo, baseHandler, kenFutContentUsecase, kenFutIntegrationUsecase)
 	shareNodeHandler := share.NewShareNodeHandler(baseHandler, echo, nodeUsecase, logger)
 	shareNavHandler := share.NewShareNavHandler(baseHandler, echo, navUsecase, logger)
 	shareAppHandler := share.NewShareAppHandler(echo, baseHandler, logger, appUsecase)
@@ -177,19 +186,20 @@ func createApp() (*App, error) {
 	openapiV1Handler := share.NewOpenapiV1Handler(echo, baseHandler, logger, authUsecase, appUsecase)
 	shareCommonHandler := share.NewShareCommonHandler(echo, baseHandler, logger, fileUsecase, appUsecase)
 	shareHandler := &share.ShareHandler{
-		ShareNodeHandler:         shareNodeHandler,
-		ShareNavHandler:          shareNavHandler,
-		ShareAppHandler:          shareAppHandler,
-		ShareChatHandler:         shareChatHandler,
-		ShareSitemapHandler:      shareSitemapHandler,
-		ShareStatHandler:         shareStatHandler,
-		ShareCommentHandler:      shareCommentHandler,
-		ShareAuthHandler:         shareAuthHandler,
-		ShareConversationHandler: shareConversationHandler,
-		ShareWechatHandler:       shareWechatHandler,
-		ShareCaptchaHandler:      shareCaptchaHandler,
-		OpenapiV1Handler:         openapiV1Handler,
-		ShareCommonHandler:       shareCommonHandler,
+		ShareKenFutContentHandler: shareKenFutContentHandler,
+		ShareNodeHandler:          shareNodeHandler,
+		ShareNavHandler:           shareNavHandler,
+		ShareAppHandler:           shareAppHandler,
+		ShareChatHandler:          shareChatHandler,
+		ShareSitemapHandler:       shareSitemapHandler,
+		ShareStatHandler:          shareStatHandler,
+		ShareCommentHandler:       shareCommentHandler,
+		ShareAuthHandler:          shareAuthHandler,
+		ShareConversationHandler:  shareConversationHandler,
+		ShareWechatHandler:        shareWechatHandler,
+		ShareCaptchaHandler:       shareCaptchaHandler,
+		OpenapiV1Handler:          openapiV1Handler,
+		ShareCommonHandler:        shareCommonHandler,
 	}
 	mcpRepository := pg2.NewMCPRepository(db, logger)
 	client, err := telemetry.NewClient(logger, knowledgeBaseRepository, modelUsecase, userUsecase, nodeRepository, conversationRepository, mcpRepository, configConfig)
