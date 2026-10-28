@@ -78,7 +78,10 @@ const Header = React.memo(
     const menuOpen = Boolean(anchorEl);
 
     useEffect(() => {
-      setCtrlKShortcut(getKeyboardShortcut());
+      const frame = requestAnimationFrame(() =>
+        setCtrlKShortcut(getKeyboardShortcut()),
+      );
+      return () => cancelAnimationFrame(frame);
     }, []);
 
     const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -279,9 +282,7 @@ const Header = React.memo(
                         >
                           {ctrlKShortcut}
                         </Box>
-                        <StyledButton variant='contained'>
-                          智能问答
-                        </StyledButton>
+                        <StyledButton variant='contained'>搜索</StyledButton>
                       </Stack>
                     ),
                   },
@@ -424,5 +425,7 @@ const Header = React.memo(
     );
   },
 );
+
+Header.displayName = 'WelcomeHeader';
 
 export default Header;

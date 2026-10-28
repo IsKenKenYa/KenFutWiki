@@ -1,6 +1,7 @@
 'use client';
 import { useMemo, useState, useEffect } from 'react';
 import Home from '@/views/home';
+import ScrollToTopFab from '@/components/scrollToTopFab';
 import { WelcomeFooter } from '@/components/footer';
 import { ThemeProvider } from '@ctzhian/ui';
 import { WelcomeHeader } from '@/components/header';
@@ -76,6 +77,7 @@ const HomePage = () => {
           <Home />
         </Stack>
         <WelcomeFooter />
+        <ScrollToTopFab scrollContainerId='window' />
       </Stack>
     </ThemeProvider>
   );

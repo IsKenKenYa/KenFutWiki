@@ -5,6 +5,7 @@ import { Fab, Zoom } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 interface ScrollToTopFabProps {
+  /** Use "window" on pages without a dedicated scrolling element. */
   scrollContainerId?: string;
   threshold?: number;
 }
@@ -14,36 +15,39 @@ const ScrollToTopFab = ({
   threshold = 300,
 }: ScrollToTopFabProps) => {
   const [show, setShow] = useState(false);
-
-  const handleScroll = () => {
-    const container = document.getElementById(scrollContainerId);
-    setShow(container ? container.scrollTop > threshold : false);
-  };
-
-  const scrollToTop = () => {
-    const container = document.getElementById(scrollContainerId);
-    container?.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   useEffect(() => {
-    const container = document.getElementById(scrollContainerId);
-    container?.addEventListener('scroll', handleScroll);
-    return () => container?.removeEventListener('scroll', handleScroll);
-  }, [scrollContainerId]);
-
+    const element =
+      scrollContainerId === 'window'
+        ? null
+        : document.getElementById(scrollContainerId);
+    const target = element || window;
+    const update = () =>
+      setShow((element ? element.scrollTop : window.scrollY) > threshold);
+    update();
+    target.addEventListener('scroll', update, { passive: true });
+    return () => target.removeEventListener('scroll', update);
+  }, [scrollContainerId, threshold]);
+  const scrollToTop = () => {
+    const element =
+      scrollContainerId === 'window'
+        ? null
+        : document.getElementById(scrollContainerId);
+    (element || window).scrollTo({ top: 0, behavior: 'smooth' });
+  };
   return (
     <Zoom in={show}>
       <Fab
         size='small'
+        aria-label='返回顶部'
         onClick={scrollToTop}
         sx={{
           position: 'fixed',
           bottom: 20,
           right: 16,
           zIndex: 10000,
-          backgroundColor: 'background.paper3',
+          bgcolor: 'background.paper3',
           color: 'text.primary',
-          '&:hover': { backgroundColor: 'background.paper2' },
+          '&:hover': { bgcolor: 'background.paper2' },
         }}
       >
         <KeyboardArrowUpIcon sx={{ fontSize: 24 }} />
@@ -51,5 +55,4 @@ const ScrollToTopFab = ({
     </Zoom>
   );
 };
-
 export default ScrollToTopFab;

@@ -65,7 +65,10 @@ const Header = React.memo(
     const menuOpen = Boolean(anchorEl);
 
     useEffect(() => {
-      setCtrlKShortcut(getKeyboardShortcut());
+      const frame = requestAnimationFrame(() =>
+        setCtrlKShortcut(getKeyboardShortcut()),
+      );
+      return () => cancelAnimationFrame(frame);
     }, []);
 
     const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -292,7 +295,7 @@ const Header = React.memo(
                                 '0px 1px 2px 0px rgba(145,158,171,0.16)',
                             }}
                           >
-                            智能问答
+                            搜索
                           </Button>
                         </Box>
                       </Stack>
@@ -430,5 +433,7 @@ const Header = React.memo(
     );
   },
 );
+
+Header.displayName = 'Header';
 
 export default Header;

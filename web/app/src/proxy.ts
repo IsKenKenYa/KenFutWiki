@@ -16,7 +16,6 @@ import { deepSearchFirstNode } from '@/utils';
 
 const StatPage = {
   welcome: 1,
-  node: 2,
   chat: 3,
   auth: 4,
 } as const;
@@ -60,26 +59,37 @@ const homeProxy = async (
     url.pathname = pathname;
   }
   const { page, id } = parsePathname(url.pathname);
+  const renderHeaders = new Headers(request.headers);
+  renderHeaders.set('x-current-path', url.pathname);
+  renderHeaders.set('x-current-search', url.search);
+  const renderOptions = { request: { headers: renderHeaders } };
   try {
     // 获取节点列表
     if (url.pathname === '/') {
       const homePath = await getHomePath();
       if (homePath === 'custom') {
-        return NextResponse.rewrite(new URL('/home', request.url));
+        return NextResponse.rewrite(
+          new URL('/home', request.url),
+          renderOptions,
+        );
       } else {
         const [firstNode] = await Promise.all([getFirstNode(), getHomePath()]);
         if (firstNode) {
           return NextResponse.rewrite(
             new URL(`/node/${firstNode.id}`, request.url),
+            renderOptions,
           );
         }
-        return NextResponse.rewrite(new URL('/node', request.url));
+        return NextResponse.rewrite(
+          new URL('/node', request.url),
+          renderOptions,
+        );
       }
     }
 
     // 页面上报
     const pages = Object.keys(StatPage);
-    if (pages.includes(page) || pages.includes(id)) {
+    if (pages.includes(page)) {
       postShareV1StatPage(
         {
           scene: StatPage[page as keyof typeof StatPage],
@@ -97,9 +107,10 @@ const homeProxy = async (
     if (pathname && pathname !== request.nextUrl.pathname) {
       return NextResponse.rewrite(
         new URL(`${url.pathname}${url.search}`, request.url),
+        renderOptions,
       );
     }
-    return NextResponse.next();
+    return NextResponse.next(renderOptions);
   } catch (error) {
     if (
       typeof error === 'object' &&
@@ -119,9 +130,10 @@ const homeProxy = async (
   if (pathname && pathname !== request.nextUrl.pathname) {
     return NextResponse.rewrite(
       new URL(`${url.pathname}${url.search}`, request.url),
+      renderOptions,
     );
   }
-  return NextResponse.next();
+  return NextResponse.next(renderOptions);
 };
 
 const proxyShare = async (request: NextRequest, pathname?: string) => {
@@ -220,6 +232,10 @@ export const config = {
     '/:basePath/welcome',
     '/auth/login',
     '/:basePath/auth/login',
+    '/blog/:path*',
+    '/:basePath/blog/:path*',
+    '/blog',
+    '/:basePath/blog',
     '/node/:path*',
     '/:basePath/node/:path*',
     '/node',

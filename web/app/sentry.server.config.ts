@@ -5,9 +5,13 @@
 import * as Sentry from '@sentry/nextjs';
 
 // 只在生产环境下启用 Sentry
-if (process.env.NODE_ENV === 'production') {
+if (
+  process.env.NODE_ENV === 'production' &&
+  process.env.ENABLE_SENTRY === 'true' &&
+  process.env.SENTRY_DSN
+) {
   Sentry.init({
-    dsn: 'https://88c396fc9b383382005465cfc9120e5d@sentry.baizhi.cloud/5',
+    dsn: process.env.SENTRY_DSN,
 
     // Enable logs to be sent to Sentry
     enableLogs: true,

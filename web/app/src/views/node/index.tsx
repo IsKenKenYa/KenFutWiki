@@ -10,17 +10,26 @@ import useCopy from '@/hooks/useCopy';
 import { useStore } from '@/provider';
 import { ConstsCopySetting } from '@/request/types';
 import { TocList, useTiptap } from '@ctzhian/tiptap';
-import { Box } from '@mui/material';
+import { Alert, Box } from '@mui/material';
 import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import DocAnchor from './DocAnchor';
 import DocContent from './DocContent';
+import type { PageTarget, PublishedContent } from '@/features/kenfut/types';
 
 const Doc = ({
   node,
   error,
+  publishedContent,
+  pageTargets,
+  articleLayout = false,
+  publicationError,
 }: {
   node?: any;
+  publishedContent?: PublishedContent;
+  pageTargets?: PageTarget[];
+  articleLayout?: boolean;
+  publicationError?: string;
   error?: Partial<Error> & { digest?: string } & { code?: number | string };
 }) => {
   const { kbDetail, mobile, catalogWidth } = useStore();
@@ -51,8 +60,9 @@ const Doc = ({
   });
 
   const docWidth = useMemo(() => {
+    if (articleLayout) return 'full';
     return kbDetail?.settings?.theme_and_style?.doc_width || 'full';
-  }, [kbDetail]);
+  }, [articleLayout, kbDetail]);
 
   useCopy({
     mode:
@@ -69,13 +79,16 @@ const Doc = ({
   useEffect(() => {
     if (!node || !editorRef.editor) return;
 
-    setHeadings([]);
-    requestAnimationFrame(() => {
+    const frame = requestAnimationFrame(() => {
+      setHeadings([]);
       editorRef.setContent(
         node?.content || '',
         isMarkdown ? 'markdown' : 'html',
       );
     });
+    return () => cancelAnimationFrame(frame);
+    // Synchronize the editor instance, not the changing hook wrapper.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editorRef.editor, isMarkdown, node]);
 
   useEffect(() => {
@@ -100,13 +113,20 @@ const Doc = ({
         </Box>
       ) : (
         <>
+          {publicationError && (
+            <Alert severity='info'>{publicationError}</Alert>
+          )}
           {loading ? (
             <Box
-              sx={getDocContentSx({
-                docWidth,
-                mobile: mobile ?? false,
-                catalogWidth: catalogWidth ?? 260,
-              })}
+              sx={
+                articleLayout
+                  ? { width: '100%', maxWidth: 880, mx: 'auto' }
+                  : getDocContentSx({
+                      docWidth,
+                      mobile: mobile ?? false,
+                      catalogWidth: catalogWidth ?? 260,
+                    })
+              }
             >
               <DocSkeleton showSummary={node?.type === 2} />
             </Box>
@@ -116,11 +136,14 @@ const Doc = ({
               docWidth={docWidth}
               editorRef={editorRef}
               characterCount={characterCount}
+              publishedContent={publishedContent}
+              pageTargets={pageTargets}
+              articleLayout={articleLayout}
             />
           )}
-          {!mobile && <DocAnchor headings={headings} />}
-          <DocFab />
-          {!mobile && <ScrollToTopFab />}
+          {!mobile && !articleLayout && <DocAnchor headings={headings} />}
+          {!articleLayout && <DocFab nodeId={node?.id} />}
+          {!articleLayout && <ScrollToTopFab />}
         </>
       )}
     </>

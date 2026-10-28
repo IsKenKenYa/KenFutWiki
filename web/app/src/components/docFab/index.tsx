@@ -14,12 +14,12 @@ import {
   Tooltip,
   Zoom,
 } from '@mui/material';
-import { useParams, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
-const DocFab = () => {
+const DocFab = ({ nodeId }: { nodeId?: string }) => {
   const pathname = usePathname();
-  const { id: docId } = useParams() || {};
+  const docId = nodeId;
   const { kbDetail, mobile } = useStore();
   const [showActions, setShowActions] = useState(false);
   const [contentType, setContentType] = useState<'html' | 'md'>('html');

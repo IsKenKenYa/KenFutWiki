@@ -61,6 +61,7 @@ const MobileLayout = ({
   const { tree } = useStore();
   return (
     <Stack
+      id='scroll-container'
       sx={{
         position: 'relative',
         height: '100vh',

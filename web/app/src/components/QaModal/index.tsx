@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useCallback, useEffect, useRef, useMemo } from 'react';
 import { IconZhinengwenda, IconJinsousuo } from '@panda-wiki/icons';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -76,8 +76,13 @@ const StyledTab = styled(Tab)(({ theme }) => ({
 }));
 
 const QaModal: React.FC<QaModalProps> = () => {
-  const { qaModalOpen, setQaModalOpen, kbDetail, mobile } = useStore();
-  const [searchMode, setSearchMode] = useState<'chat' | 'search'>('chat');
+  const { qaModalOpen, setQaModalOpen, kbDetail, mobile, qaMode, setQaMode } =
+    useStore();
+  const searchMode = qaMode || 'search';
+  const setSearchMode = useCallback(
+    (mode: 'chat' | 'search') => setQaMode?.(mode),
+    [setQaMode],
+  );
   const inputRef = useRef<HTMLInputElement>(null);
   const aiQaInputRef = useRef<HTMLInputElement>(null);
   const searchParams = useSearchParams();
@@ -114,19 +119,21 @@ const QaModal: React.FC<QaModalProps> = () => {
 
   useEffect(() => {
     if (!qaModalOpen) {
-      setTimeout(() => {
-        setSearchMode('chat');
+      const timer = setTimeout(() => {
+        setSearchMode('search');
       }, 300);
+      return () => clearTimeout(timer);
     }
-  }, [qaModalOpen]);
+  }, [qaModalOpen, setSearchMode]);
 
   useEffect(() => {
     const cid = searchParams.get('cid');
     const ask = searchParams.get('ask');
     if (cid || ask) {
+      setSearchMode('chat');
       setQaModalOpen?.(true);
     }
-  }, []);
+  }, [searchParams, setQaModalOpen, setSearchMode]);
 
   return (
     <Modal
@@ -187,7 +194,7 @@ const QaModal: React.FC<QaModalProps> = () => {
               label={
                 <Stack direction='row' gap={0.5} alignItems='center'>
                   <IconJinsousuo sx={{ fontSize: 16 }} />
-                  {!mobile && <span>仅搜索文档</span>}
+                  {!mobile && <span>内容搜索</span>}
                 </Stack>
               }
               value='search'
@@ -226,11 +233,13 @@ const QaModal: React.FC<QaModalProps> = () => {
             flexDirection: 'column',
           }}
         >
-          <AiQaContent
-            hotSearch={hotSearch}
-            placeholder={placeholder}
-            inputRef={aiQaInputRef}
-          />
+          {searchMode === 'chat' && (
+            <AiQaContent
+              hotSearch={hotSearch}
+              placeholder={placeholder}
+              inputRef={aiQaInputRef}
+            />
+          )}
         </Box>
         <Box
           sx={{
@@ -270,7 +279,7 @@ const QaModal: React.FC<QaModalProps> = () => {
               {!kbDetail?.settings?.conversation_setting
                 ?.copyright_hide_enabled &&
                 (kbDetail?.settings?.conversation_setting?.copyright_info ||
-                  '本网站由 PandaWiki 提供技术支持')}
+                  '本网站由 KenFutWiki 提供技术支持')}
             </Box>
           </Typography>
         </Box>

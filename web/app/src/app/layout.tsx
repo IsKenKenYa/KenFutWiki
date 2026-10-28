@@ -1,8 +1,8 @@
 import ErrorComponent from '@/components/error';
 import StoreProvider from '@/provider';
+import type { KBDetail } from '@/assets/type';
 import { ThemeStoreProvider } from '@/provider/themeStore';
 import { getShareV1AppWebInfo } from '@/request/ShareApp';
-import { getShareProV1AuthInfo } from '@/request/pro/ShareAuth';
 import Script from 'next/script';
 import { Box } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
@@ -11,6 +11,7 @@ import localFont from 'next/font/local';
 import { headers, cookies } from 'next/headers';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import { getBasePath, getImagePath } from '@/utils';
+import { getPublicSite } from '@/features/kenfut/server';
 import './globals.css';
 
 const gilory = localFont({
@@ -34,8 +35,6 @@ const gilory = localFont({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -43,15 +42,15 @@ export async function generateMetadata(): Promise<Metadata> {
   const basePath = getBasePath(kbDetail?.base_url || '');
   const icon = getImagePath(kbDetail?.settings?.icon || '', basePath);
   return {
-    metadataBase: new URL(process.env.TARGET || ''),
-    title: kbDetail?.settings?.title || 'Panda-Wiki',
+    metadataBase: new URL((await getPublicSite()).origin),
+    title: kbDetail?.settings?.title || 'KenFutWiki',
     description: kbDetail?.settings?.desc || '',
     keywords: kbDetail?.settings?.keyword || '',
     icons: {
       icon: icon || `${basePath}/favicon.png`,
     },
     openGraph: {
-      title: kbDetail?.settings?.title || 'Panda-Wiki',
+      title: kbDetail?.settings?.title || 'KenFutWiki',
       description: kbDetail?.settings?.desc || '',
       images: icon ? [icon] : [],
     },
@@ -72,22 +71,11 @@ const Layout = async ({
 
   let error: any = null;
 
-  const [kbDetailResolve, authInfoResolve] = await Promise.allSettled([
-    getShareV1AppWebInfo(),
-    getShareProV1AuthInfo({}),
-  ]);
-
-  const authInfo: any =
-    authInfoResolve.status === 'fulfilled' ? authInfoResolve.value : undefined;
-  const kbDetail: any =
-    kbDetailResolve.status === 'fulfilled' ? kbDetailResolve.value : undefined;
-
-  if (
-    authInfoResolve.status === 'rejected' &&
-    authInfoResolve.reason.code === 403
-  ) {
-    error = authInfoResolve.reason;
-  }
+  const [kbDetailResolve] = await Promise.allSettled([getShareV1AppWebInfo()]);
+  const kbDetail = (
+    kbDetailResolve.status === 'fulfilled' ? kbDetailResolve.value : undefined
+  ) as KBDetail | undefined;
+  if (kbDetailResolve.status === 'rejected') error = kbDetailResolve.reason;
 
   const { isMobile } = getSelectorsByUserAgent(userAgent || '') || {
     isMobile: false,
@@ -96,11 +84,12 @@ const Layout = async ({
   const basePath = getBasePath(kbDetail?.base_url || '');
 
   return (
-    <html lang='en'>
+    <html lang='zh-CN'>
       <Script
         id='base-path'
+        strategy='beforeInteractive'
         dangerouslySetInnerHTML={{
-          __html: `window._BASE_PATH_ = '${basePath}';`,
+          __html: `window._BASE_PATH_ = ${JSON.stringify(basePath).replace(/</g, '\\u003c')};`,
         }}
       />
       <body
@@ -112,7 +101,6 @@ const Layout = async ({
               kbDetail={kbDetail}
               themeMode={themeMode || 'light'}
               mobile={isMobile}
-              authInfo={authInfo}
             >
               <Box
                 sx={{

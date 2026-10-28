@@ -37,6 +37,8 @@ interface StoreContextType {
   catalogWidth?: number;
   setCatalogWidth?: (value: number) => void;
   qaModalOpen?: boolean;
+  qaMode?: 'chat' | 'search';
+  setQaMode?: (value: 'chat' | 'search') => void;
   setQaModalOpen?: (value: boolean) => void;
   /** 栏目列表，多栏目时展示导航栏 */
   navList?: NavItem[];
@@ -101,6 +103,7 @@ export default function StoreProvider({
     return initialTree;
   });
   const [qaModalOpen, setQaModalOpen] = useState(false);
+  const [qaMode, setQaMode] = useState<'chat' | 'search'>('search');
   const [navList] = useState<NavItem[]>(initialNavList);
   const [navDataMap] =
     useState<Record<string, NodeListItem[]>>(initialNavDataMap);
@@ -191,6 +194,8 @@ export default function StoreProvider({
           window.localStorage.setItem('CATALOG_WIDTH', value.toString());
         },
         qaModalOpen,
+        qaMode,
+        setQaMode,
         setQaModalOpen,
         navList,
         selectedNavId,

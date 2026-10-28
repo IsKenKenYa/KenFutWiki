@@ -4,12 +4,14 @@ import {
   DomainDisclaimerSettings,
   DomainConversationSetting,
   DomainWebAppLandingConfig,
+  DomainWebAppCommentSettings,
+  DomainStatsSetting,
 } from '@/request/types';
 
 export interface NavBtn {
   id: string;
   url: string;
-  variant: 'contained' | 'outlined';
+  variant: 'contained' | 'outlined' | 'text';
   showIcon: boolean;
   icon: string;
   text: string;
@@ -61,6 +63,8 @@ export interface KBDetail {
   base_url?: string;
   settings: {
     conversation_setting: DomainConversationSetting;
+    web_app_comment_settings?: DomainWebAppCommentSettings;
+    stats_setting?: DomainStatsSetting;
     title: string;
     btns: NavBtn[];
     icon: string;

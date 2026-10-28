@@ -3,6 +3,8 @@ import { useStore } from '@/provider';
 import { useMemo } from 'react';
 import { getImagePath } from '@/utils/getImagePath';
 import { useBasePath } from '@/hooks';
+import SoftwareNotice from '@/features/kenfut/SoftwareNotice';
+import { localHref } from '@/features/kenfut/links';
 
 import {
   Footer,
@@ -28,31 +30,35 @@ export const FooterProvider = ({
   const customStyle = kbDetail?.settings?.web_app_custom_style;
 
   return (
-    <Footer
-      mobile={mobile}
-      catalogWidth={catalogWidth}
-      showBrand={showBrand}
-      isDocPage={isDocPage}
-      logo='https://release.baizhi.cloud/panda-wiki/icon.png'
-      docWidth={docWidth}
-      footerSetting={
-        footerSetting
-          ? {
-              ...footerSetting,
-              brand_logo: getImagePath(footerSetting?.brand_logo, basePath),
-            }
-          : undefined
-      }
-      customStyle={{
-        ...customStyle,
-        social_media_accounts: customStyle?.social_media_accounts?.map(
-          (item: any) => ({
-            ...item,
-            icon: getImagePath(item.icon, basePath),
-          }),
-        ),
-      }}
-    />
+    <>
+      <Footer
+        mobile={mobile}
+        catalogWidth={catalogWidth}
+        showBrand={showBrand}
+        isDocPage={isDocPage}
+        logo='https://release.baizhi.cloud/panda-wiki/icon.png'
+        docWidth={docWidth}
+        footerSetting={
+          footerSetting
+            ? {
+                ...footerSetting,
+                brand_logo: getImagePath(footerSetting?.brand_logo, basePath),
+              }
+            : undefined
+        }
+        customStyle={{
+          ...customStyle,
+          social_media_accounts: customStyle?.social_media_accounts?.map(
+            (item: any) => ({
+              ...item,
+              ...(item.link ? { link: localHref(basePath, item.link) } : {}),
+              icon: getImagePath(item.icon, basePath),
+            }),
+          ),
+        }}
+      />
+      <SoftwareNotice />
+    </>
   );
 };
 
@@ -66,31 +72,35 @@ export const WelcomeFooter = ({
   const footerSetting = kbDetail?.settings?.footer_settings;
   const customStyle = kbDetail?.settings?.web_app_custom_style;
   return (
-    <WelcomeFooterComponent
-      mobile={mobile}
-      catalogWidth={catalogWidth}
-      showBrand={showBrand}
-      isDocPage={false}
-      logo='https://release.baizhi.cloud/panda-wiki/icon.png'
-      docWidth='full'
-      footerSetting={
-        footerSetting
-          ? {
-              ...footerSetting,
-              brand_logo: getImagePath(footerSetting?.brand_logo, basePath),
-            }
-          : undefined
-      }
-      customStyle={{
-        ...customStyle,
-        social_media_accounts: customStyle?.social_media_accounts?.map(
-          (item: any) => ({
-            ...item,
-            icon: getImagePath(item.icon, basePath),
-          }),
-        ),
-      }}
-    />
+    <>
+      <WelcomeFooterComponent
+        mobile={mobile}
+        catalogWidth={catalogWidth}
+        showBrand={showBrand}
+        isDocPage={false}
+        logo='https://release.baizhi.cloud/panda-wiki/icon.png'
+        docWidth='full'
+        footerSetting={
+          footerSetting
+            ? {
+                ...footerSetting,
+                brand_logo: getImagePath(footerSetting?.brand_logo, basePath),
+              }
+            : undefined
+        }
+        customStyle={{
+          ...customStyle,
+          social_media_accounts: customStyle?.social_media_accounts?.map(
+            (item: any) => ({
+              ...item,
+              ...(item.link ? { link: localHref(basePath, item.link) } : {}),
+              icon: getImagePath(item.icon, basePath),
+            }),
+          ),
+        }}
+      />
+      <SoftwareNotice />
+    </>
   );
 };
 

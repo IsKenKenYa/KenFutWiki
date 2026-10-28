@@ -1,4 +1,7 @@
 'use client';
+import Link from 'next/link';
+import { hasNavigation } from '@/features/kenfut/links';
+import { Button } from '@mui/material';
 
 import Logo from '@/assets/images/logo.png';
 import { useBasePath } from '@/hooks';
@@ -8,7 +11,9 @@ import { getImagePath } from '@/utils/getImagePath';
 import { Modal } from '@ctzhian/ui';
 import ErrorIcon from '@mui/icons-material/Error';
 import { alpha, Box, IconButton, Stack, Tooltip } from '@mui/material';
-import { IconDengchu } from '@panda-wiki/icons';
+import { IconDengchu, IconZhinengwenda } from '@panda-wiki/icons';
+import type { NavBtn } from '@/assets/type';
+import { localHref } from '@/features/kenfut/links';
 import {
   Header as CustomHeader,
   WelcomeHeader as WelcomeHeaderComponent,
@@ -65,12 +70,64 @@ const LogoutButton = () => {
   );
 };
 
+const navigationButtons = (
+  buttons: NavBtn[] | undefined,
+  basePath: string,
+  siteURL: string | undefined,
+  mobile: boolean,
+) => {
+  const result = (buttons || []).map(item => ({
+    ...item,
+    url: localHref(basePath, item.url),
+    icon: getImagePath(item.icon, basePath),
+    variant: item.variant || ('text' as const),
+  }));
+  if (mobile) {
+    for (const [page, text] of [
+      ['/node', '文档'],
+      ['/blog', '文章'],
+    ] as const) {
+      if (!hasNavigation(buttons, page, basePath, siteURL))
+        result.push({
+          id: `kenfut-${page.slice(1)}`,
+          url: `${basePath}${page}`,
+          variant: 'text',
+          showIcon: false,
+          icon: '',
+          text,
+          target: '_self',
+        });
+    }
+  }
+  return result;
+};
+
+const AIAction = ({
+  mobile,
+  onClick,
+}: {
+  mobile: boolean;
+  onClick: () => void;
+}) =>
+  mobile ? (
+    <Tooltip title='AI 问答'>
+      <IconButton size='small' aria-label='AI 问答' onClick={onClick}>
+        <IconZhinengwenda sx={{ fontSize: 21 }} />
+      </IconButton>
+    </Tooltip>
+  ) : (
+    <Button size='small' onClick={onClick}>
+      AI 问答
+    </Button>
+  );
+
 const Header = ({ isDocPage = false, isWelcomePage = false }: HeaderProps) => {
   const {
     mobile = false,
     kbDetail,
     catalogWidth,
     setQaModalOpen,
+    setQaMode,
     authInfo,
   } = useStore();
   const basePath = useBasePath();
@@ -79,13 +136,15 @@ const Header = ({ isDocPage = false, isWelcomePage = false }: HeaderProps) => {
     return kbDetail?.settings?.theme_and_style?.doc_width || 'full';
   }, [kbDetail, isWelcomePage]);
 
-  const handleSearch = (value?: string, type: 'chat' | 'search' = 'chat') => {
+  const handleSearch = (value?: string, type: 'chat' | 'search' = 'search') => {
     if (value?.trim()) {
+      setQaMode?.(type);
+      setQaModalOpen?.(true);
       if (type === 'chat') {
         sessionStorage.setItem('chat_search_query', value.trim());
         setQaModalOpen?.(true);
       } else {
-        sessionStorage.setItem('chat_search_query', value.trim());
+        sessionStorage.setItem('content_search_query', value.trim());
       }
     }
   };
@@ -103,17 +162,53 @@ const Header = ({ isDocPage = false, isWelcomePage = false }: HeaderProps) => {
       }
       showSearch
       homePath={basePath || '/'}
-      btns={
-        kbDetail?.settings?.btns?.map((item: any) => ({
-          ...item,
-          url: getImagePath(item.url, basePath),
-          icon: getImagePath(item.icon, basePath),
-        })) || []
-      }
+      btns={navigationButtons(
+        kbDetail?.settings?.btns,
+        basePath,
+        kbDetail?.base_url,
+        mobile,
+      )}
       onSearch={handleSearch}
-      onQaClick={() => setQaModalOpen?.(true)}
+      onQaClick={() => {
+        setQaMode?.('search');
+        setQaModalOpen?.(true);
+      }}
     >
-      <Stack sx={{ ml: 2 }} direction='row' alignItems='center' gap={1}>
+      <Stack
+        sx={{ ml: mobile ? 0 : 2, flexShrink: 0 }}
+        direction='row'
+        alignItems='center'
+        gap={mobile ? 0.25 : 1}
+      >
+        {!mobile &&
+          !hasNavigation(
+            kbDetail?.settings?.btns,
+            '/node',
+            basePath,
+            kbDetail?.base_url,
+          ) && (
+            <Button component={Link} href={`${basePath}/node`} size='small'>
+              文档
+            </Button>
+          )}
+        {!mobile &&
+          !hasNavigation(
+            kbDetail?.settings?.btns,
+            '/blog',
+            basePath,
+            kbDetail?.base_url,
+          ) && (
+            <Button component={Link} href={`${basePath}/blog`} size='small'>
+              文章
+            </Button>
+          )}
+        <AIAction
+          mobile={mobile}
+          onClick={() => {
+            setQaMode?.('chat');
+            setQaModalOpen?.(true);
+          }}
+        />
         <ThemeSwitch />
         {!!authInfo && <LogoutButton />}
       </Stack>
@@ -133,15 +228,18 @@ export const WelcomeHeader = ({
     kbDetail,
     catalogWidth,
     setQaModalOpen,
+    setQaMode,
     authInfo,
   } = useStore();
-  const handleSearch = (value?: string, type: 'chat' | 'search' = 'chat') => {
+  const handleSearch = (value?: string, type: 'chat' | 'search' = 'search') => {
     if (value?.trim()) {
+      setQaMode?.(type);
+      setQaModalOpen?.(true);
       if (type === 'chat') {
         sessionStorage.setItem('chat_search_query', value.trim());
         setQaModalOpen?.(true);
       } else {
-        sessionStorage.setItem('chat_search_query', value.trim());
+        sessionStorage.setItem('content_search_query', value.trim());
       }
     }
   };
@@ -158,16 +256,47 @@ export const WelcomeHeader = ({
       }
       showSearch={showSearch}
       homePath={basePath || '/'}
-      btns={
-        kbDetail?.settings?.btns?.map((item: any) => ({
-          ...item,
-          url: getImagePath(item.url, basePath),
-          icon: getImagePath(item.icon, basePath),
-        })) || []
-      }
+      btns={navigationButtons(
+        kbDetail?.settings?.btns,
+        basePath,
+        kbDetail?.base_url,
+        mobile,
+      )}
       onSearch={handleSearch}
-      onQaClick={() => setQaModalOpen?.(true)}
+      onQaClick={() => {
+        setQaMode?.('search');
+        setQaModalOpen?.(true);
+      }}
     >
+      {!mobile &&
+        !hasNavigation(
+          kbDetail?.settings?.btns,
+          '/node',
+          basePath,
+          kbDetail?.base_url,
+        ) && (
+          <Button component={Link} href={`${basePath}/node`} size='small'>
+            文档
+          </Button>
+        )}
+      {!mobile &&
+        !hasNavigation(
+          kbDetail?.settings?.btns,
+          '/blog',
+          basePath,
+          kbDetail?.base_url,
+        ) && (
+          <Button component={Link} href={`${basePath}/blog`} size='small'>
+            文章
+          </Button>
+        )}
+      <AIAction
+        mobile={mobile}
+        onClick={() => {
+          setQaMode?.('chat');
+          setQaModalOpen?.(true);
+        }}
+      />
       {!!authInfo && (
         <Box sx={{ ml: 2 }}>
           <LogoutButton />

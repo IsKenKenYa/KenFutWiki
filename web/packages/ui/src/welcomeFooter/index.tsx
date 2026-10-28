@@ -4,6 +4,7 @@ import { Box, Divider, Stack, Link, alpha } from '@mui/material';
 import { useState } from 'react';
 import { IconDianhua, IconWeixingongzhonghao } from '@panda-wiki/icons';
 import Overlay from './Overlay';
+import SocialLink from '../footer/SocialLink';
 import { decodeBase64 } from '../utils';
 import { PROJECT_NAME } from '../constants';
 
@@ -139,6 +140,8 @@ const Footer = React.memo(
                   <Stack direction={'column'} gap={2.5} mt={2}>
                     {customStyle?.social_media_accounts?.map(
                       (account, index) => {
+                        if (account.channel === 'link')
+                          return <SocialLink key={index} account={account} />;
                         return (
                           <Stack
                             direction={'row'}
@@ -513,6 +516,8 @@ const Footer = React.memo(
                   <Stack direction={'column'} gap={'26px'}>
                     {customStyle?.social_media_accounts?.map(
                       (account, index) => {
+                        if (account.channel === 'link')
+                          return <SocialLink key={index} account={account} />;
                         return (
                           <Stack
                             direction={'row'}
@@ -787,5 +792,7 @@ const Footer = React.memo(
     );
   },
 );
+
+Footer.displayName = 'WelcomeFooter';
 
 export default Footer;
