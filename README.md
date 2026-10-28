@@ -1,3 +1,15 @@
+# KenFutWiki
+
+基于 PandaWiki 的 AGPL-3.0 公开文档与内容运营发行版，保留上游历史、版权及更新接缝。
+
+- 同源文档与文章、分类标签、关键词搜索、精选及相关推荐。
+- 可配置文末 CTA、统一页面选择器、评论审核和提示词管理。
+- 通用多产品转化回传、30天归因、产品隔离凭证与漏斗查询。
+
+[产品接入](docs/integrations/README.md) · [实施契约](docs/engineering/public-site-v1.md) · [上游合并与本地验证](docs/engineering/upstream-integration.md)
+
+以下保留上游项目介绍与来源说明。发行和部署时使用本项目的公开构建入口，并将源码链接配置到实际运行提交；原上游安装器不包含本 fork 的新增功能。
+
 <p align="center">
   <img src="/images/banner.png" width="400" />
 </p>

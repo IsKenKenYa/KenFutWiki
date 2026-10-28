@@ -18,7 +18,7 @@ Go使用项目指定1.24.3；默认Makefile导出GOTOOLCHAIN，可由环境显�
 
 前端仅pnpm：`cd web && pnpm install --frozen-lockfile && pnpm build`；app的lint使用ESLint flat配置。公开客户端生成 `pnpm api` 自动从仓库中的公开Swagger启动临时本机文档服务器，无须运行API或私有Pro Swagger。
 
-PG集成测试设置KENFUT_TEST_DSN，使用专用数据库，测试自建随机schema。不要指向真实业务数据。验证新装、重复启动、上一版升级和追加上游迁移后升级。
+数据库需预装pg_trgm或允许迁移角色安装此扩展。PG集成测试设置KENFUT_TEST_DSN，使用专用数据库，测试自建随机schema。不要指向真实业务数据。验证新装、重复启动、上一版升级和追加上游迁移后升级。
 
 后续CI/CD复用这些命令及公开Dockerfile。现有上游workflow中的私有模块、官方registry与secrets不应直接用于fork发行；本轮不触发这些远端发布。Sentry构建和运行上报默认关闭，使用自有DSN后显式开启；后端安装/用量遥测同样需要config.yaml显式设置telemetry.enabled和telemetry.endpoint，默认不向上游上报。
 
