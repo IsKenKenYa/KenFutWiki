@@ -104,3 +104,39 @@ func TestKenFutIntegrationHashIsDeterministicAndNotPlaintext(t *testing.T) {
 		t.Fatal("changing milestone did not change fingerprint")
 	}
 }
+
+func TestKenFutLocalExternalCTATargetUsesTheSameValidation(t *testing.T) {
+	u := &KenFutIntegrationUsecase{}
+	for _, address := range []string{"http://localhost:4180/canvas", "http://127.0.0.1:4180/"} {
+		target := domain.KenFutLinkTarget{Type: "url", URL: address, Params: map[string]string{"template": "中文 & 示例"}}
+		if err := ValidateKenFutLinkTarget(target); err != nil {
+			t.Fatal(err)
+		}
+		resolved, err := u.ResolveTarget(context.Background(), "kb", target, "", 0)
+		if err != nil {
+			t.Fatalf("accepted local CTA could not resolve: %v", err)
+		}
+		parsed, err := url.Parse(resolved)
+		if err != nil || parsed.Query().Get("template") != "中文 & 示例" {
+			t.Fatalf("local CTA parameters were lost: %s %v", resolved, err)
+		}
+	}
+}
+
+func TestKenFutPublicCTAProjectionDiscardsUntrustedFallbacks(t *testing.T) {
+	u := &KenFutIntegrationUsecase{}
+	item := &domain.KenFutContentItem{KenFutContentMetadata: domain.KenFutContentMetadata{CTAs: []domain.KenFutCTA{
+		{ID: "valid", Target: domain.KenFutLinkTarget{Type: "url", URL: "https://product.example.test/canvas", Params: map[string]string{"template": "中文 & 示例"}}, ResolvedURL: "https://untrusted.example.test"},
+		{ID: "invalid", Target: domain.KenFutLinkTarget{Type: "url", URL: "http://nonlocal.example.test"}, ResolvedURL: "https://untrusted.example.test"},
+	}}}
+	if err := u.ProjectCTAs(context.Background(), item, 0); err != nil {
+		t.Fatal(err)
+	}
+	parsed, err := url.Parse(item.CTAs[0].ResolvedURL)
+	if err != nil || parsed.Host != "product.example.test" || parsed.Query().Get("template") != "中文 & 示例" {
+		t.Fatalf("public fallback was not derived from the target: %#v %v", item.CTAs, err)
+	}
+	if item.CTAs[1].ResolvedURL != "" {
+		t.Fatal("an invalid target retained an untrusted fallback")
+	}
+}

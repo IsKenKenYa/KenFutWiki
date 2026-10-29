@@ -1421,6 +1421,11 @@
           },
           "new_tab": {
             "type": "boolean"
+          },
+          "resolved_url": {
+            "type": "string",
+            "readOnly": true,
+            "description": "公开响应中由服务器校验生成的跳转地址；未通过校验时省略。客户端不得根据未校验的 target 参数构造 CTA 兜底地址。"
           }
         }
       },

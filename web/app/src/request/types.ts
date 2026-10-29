@@ -929,6 +929,11 @@ export interface DomainKenFutCTA {
   id?: string;
   label?: string;
   new_tab?: boolean;
+  /**
+   * ResolvedURL is read-only: derived from a validated published target for public responses.
+   * Editable metadata cannot supply or persist this fallback destination.
+   */
+  resolved_url?: string;
   style?: string;
   target?: DomainKenFutLinkTarget;
 }

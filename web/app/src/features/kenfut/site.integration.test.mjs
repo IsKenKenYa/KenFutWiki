@@ -76,6 +76,36 @@ test(
 );
 
 test(
+  'stable ID and old slug redirects preserve configurable parameters and repeated values',
+  options,
+  async () => {
+    const params = new URLSearchParams([
+      ['source', 'article'],
+      ['template', '中文 & 示例'],
+      ['tag', '教程'],
+      ['tag', '模型'],
+    ]);
+    for (const [path, destination] of [
+      [`/node/${articleId}`, '/blog/release-notes'],
+      ['/blog/old-model-guide', '/blog/model-guide'],
+    ]) {
+      const response = await fetch(`${site}${path}?${params}`, {
+        redirect: 'manual',
+      });
+      assert.equal(response.status, 308);
+      const location = new URL(response.headers.get('location'), site);
+      assert.equal(
+        location.pathname,
+        new URL(`${site}${destination}`).pathname,
+      );
+      assert.equal(location.searchParams.get('source'), 'article');
+      assert.equal(location.searchParams.get('template'), '中文 & 示例');
+      assert.deepEqual(location.searchParams.getAll('tag'), ['教程', '模型']);
+    }
+  },
+);
+
+test(
   'both entry points publish the same canonical without redirecting the document view',
   options,
   async () => {

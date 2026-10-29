@@ -7,10 +7,15 @@ import Doc from '@/views/node';
 import type { ResolvingMetadata } from 'next';
 import { getContent, getPageTargets } from '@/features/kenfut/api';
 import { getContentMetadata, getPublicSite } from '@/features/kenfut/server';
-import { localHref } from '@/features/kenfut/links';
+import {
+  localHref,
+  withSearchParams,
+  type PageSearchParams,
+} from '@/features/kenfut/links';
 
 export interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<PageSearchParams>;
 }
 
 const loadContent = cache(getContent);
@@ -35,7 +40,7 @@ export async function generateMetadata(
   }
 }
 
-export default async function DocPage({ params }: PageProps) {
+export default async function DocPage({ params, searchParams }: PageProps) {
   const { id } = await params;
   const [legacy, publication, pageTargets] = await Promise.allSettled([
     getShareV1NodeDetail({ id, format: 'json' }),
@@ -69,7 +74,10 @@ export default async function DocPage({ params }: PageProps) {
   if (content?.channel === 'article') {
     const { basePath } = await getPublicSite();
     permanentRedirect(
-      localHref(basePath, content.canonical_url || `/blog/${content.slug}`),
+      withSearchParams(
+        localHref(basePath, content.canonical_url || `/blog/${content.slug}`),
+        await searchParams,
+      ),
     );
   }
   return (

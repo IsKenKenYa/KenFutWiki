@@ -1,5 +1,7 @@
 import type { LinkTarget, PageTarget, PublishedContent } from './types';
 
+export type PageSearchParams = Record<string, string | string[] | undefined>;
+
 export const hasNavigation = (
   buttons: { url?: string }[] | undefined,
   page: '/node' | '/blog',
@@ -35,6 +37,20 @@ export const localHref = (basePath: string, path: string) => {
   return `${basePath}${normalized}` || '/';
 };
 
+export const withSearchParams = (href: string, params: PageSearchParams) => {
+  const url = new URL(href, 'https://kenfut.invalid');
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined) return;
+    url.searchParams.delete(key);
+    for (const item of Array.isArray(value) ? value : [value]) {
+      url.searchParams.append(key, item);
+    }
+  });
+  return url.origin === 'https://kenfut.invalid'
+    ? `${url.pathname}${url.search}${url.hash}`
+    : url.toString();
+};
+
 export const contentHref = (content: PublishedContent, basePath: string) =>
   localHref(
     basePath,
@@ -47,9 +63,12 @@ export const resolveTarget = (
   target: LinkTarget,
   basePath: string,
   pages: PageTarget[],
+  verifiedURL?: string,
 ) => {
   let href = '';
-  if (target.type === 'node' && target.node_id) {
+  if (verifiedURL !== undefined) {
+    href = verifiedURL;
+  } else if (target.type === 'node' && target.node_id) {
     href = localHref(basePath, `/node/${encodeURIComponent(target.node_id)}`);
   } else if (target.type === 'site') {
     href = localHref(
@@ -76,9 +95,11 @@ export const resolveTarget = (
       url.password
     )
       return '';
-    Object.entries(target.params || {}).forEach(([key, value]) => {
-      if (key !== 'kf_click_id') url.searchParams.set(key, value);
-    });
+    if (verifiedURL === undefined) {
+      Object.entries(target.params || {}).forEach(([key, value]) => {
+        if (key !== 'kf_click_id') url.searchParams.set(key, value);
+      });
+    }
     return url.origin === 'https://kenfut.invalid'
       ? `${url.pathname}${url.search}${url.hash}`
       : url.toString();

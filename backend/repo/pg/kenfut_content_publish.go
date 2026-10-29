@@ -133,6 +133,9 @@ func snapshotContentMetadata(tx *gorm.DB, node domain.Node, snapshot domain.Node
 	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
+	if err := validateKenFutProductCTAs(tx, node.KBID, &metadata); err != nil {
+		return err
+	}
 	if metadata.DisplayDate == "" {
 		var first domain.KenFutContentRelease
 		err := tx.Where("node_id = ? AND metadata->>'display_date' <> ''", node.ID).Order("created_at ASC").First(&first).Error

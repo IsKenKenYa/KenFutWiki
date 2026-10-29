@@ -103,7 +103,12 @@ export default function ContentEngagement({
           sx={{ mt: 5, py: 3 }}
         >
           {content.ctas.slice(0, 2).map(cta => {
-            const href = resolveTarget(cta.target, basePath, pages);
+            const href = resolveTarget(
+              cta.target,
+              basePath,
+              pages,
+              cta.resolved_url ?? '',
+            );
             if (!href) return null;
             return (
               <Button

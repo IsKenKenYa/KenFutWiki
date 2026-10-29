@@ -69,6 +69,13 @@ func (h *ShareKenFutContentHandler) List(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, domain.PWResponse{Message: "invalid content query"})
 	}
 	result, err := h.usecase.List(c.Request().Context(), req, domain.GetAuthID(c))
+	if err == nil {
+		for i := range result.Items {
+			if err = h.integration.ProjectCTAs(c.Request().Context(), &result.Items[i], domain.GetAuthID(c)); err != nil {
+				break
+			}
+		}
+	}
 	return contentPublicReply(c, result, err)
 }
 
@@ -82,6 +89,9 @@ func (h *ShareKenFutContentHandler) List(c echo.Context) error {
 //	@Router		/share/kenfut/v1/contents/{node_id} [get]
 func (h *ShareKenFutContentHandler) Detail(c echo.Context) error {
 	result, err := h.usecase.Detail(c.Request().Context(), c.Request().Header.Get("X-KB-ID"), c.Param("node_id"), domain.GetAuthID(c))
+	if err == nil {
+		err = h.integration.ProjectCTAs(c.Request().Context(), result, domain.GetAuthID(c))
+	}
 	return contentPublicReply(c, result, err)
 }
 
@@ -95,6 +105,9 @@ func (h *ShareKenFutContentHandler) Detail(c echo.Context) error {
 //	@Router		/share/kenfut/v1/articles/{slug} [get]
 func (h *ShareKenFutContentHandler) Article(c echo.Context) error {
 	result, err := h.usecase.Article(c.Request().Context(), c.Request().Header.Get("X-KB-ID"), c.Param("slug"), domain.GetAuthID(c))
+	if err == nil {
+		err = h.integration.ProjectCTAs(c.Request().Context(), result, domain.GetAuthID(c))
+	}
 	return contentPublicReply(c, result, err)
 }
 
@@ -108,6 +121,13 @@ func (h *ShareKenFutContentHandler) Article(c echo.Context) error {
 //	@Router		/share/kenfut/v1/contents/{node_id}/related [get]
 func (h *ShareKenFutContentHandler) Related(c echo.Context) error {
 	result, err := h.usecase.Related(c.Request().Context(), c.Request().Header.Get("X-KB-ID"), c.Param("node_id"), domain.GetAuthID(c))
+	if err == nil {
+		for i := range result {
+			if err = h.integration.ProjectCTAs(c.Request().Context(), &result[i], domain.GetAuthID(c)); err != nil {
+				break
+			}
+		}
+	}
 	return contentPublicReply(c, result, err)
 }
 

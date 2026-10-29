@@ -28,7 +28,7 @@ func integrationTestDB(t *testing.T) *storePG.DB {
 	}
 	contentFixture(t, db, "article", "Article", "Published body")
 	for _, id := range []string{"product-a", "product-b"} {
-		if err := db.Create(&domain.KenFutProduct{ID: id, KBID: "kb", Name: id, Origin: "https://example.test", Enabled: true, Pages: []domain.KenFutProductPage{}}).Error; err != nil {
+		if err := db.Create(&domain.KenFutProduct{ID: id, KBID: "kb", Name: id, Origin: "https://example.test", Enabled: true, Pages: []domain.KenFutProductPage{{Key: "start", Name: "Start", Path: "/"}}}).Error; err != nil {
 			t.Fatal(err)
 		}
 	}

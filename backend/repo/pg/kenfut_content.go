@@ -60,6 +60,9 @@ func (r *KenFutContentRepository) SaveDraft(ctx context.Context, kbID string, m 
 		if err := tx.Where("kb_id = ? AND id = ? AND type = ?", kbID, m.NodeID, domain.NodeTypeDocument).First(&node).Error; err != nil {
 			return err
 		}
+		if err := validateKenFutProductCTAs(tx, kbID, &m); err != nil {
+			return err
+		}
 		if m.Slug != "" {
 			var conflicts int64
 			if err := tx.Model(&domain.KenFutSlugAlias{}).Where("kb_id = ? AND slug = ? AND node_id <> ?", kbID, m.Slug, m.NodeID).Count(&conflicts).Error; err != nil {

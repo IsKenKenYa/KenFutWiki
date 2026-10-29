@@ -58,6 +58,7 @@ func NormalizeKenFutContentMetadata(m *domain.KenFutContentMetadata) error {
 	ids := map[string]bool{}
 	for i := range m.CTAs {
 		cta := &m.CTAs[i]
+		cta.ResolvedURL = ""
 		cta.Label = strings.TrimSpace(cta.Label)
 		if cta.ID == "" {
 			cta.ID = uuid.NewString()

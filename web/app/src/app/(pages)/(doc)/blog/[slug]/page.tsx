@@ -2,11 +2,18 @@ import { cache } from 'react';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { getArticle, getPageTargets } from '@/features/kenfut/api';
 import { getContentMetadata, getPublicSite } from '@/features/kenfut/server';
-import { localHref } from '@/features/kenfut/links';
+import {
+  localHref,
+  withSearchParams,
+  type PageSearchParams,
+} from '@/features/kenfut/links';
 import Doc from '@/views/node';
 
 const loadArticle = cache(getArticle);
-type Props = { params: Promise<{ slug: string }> };
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<PageSearchParams>;
+};
 
 export async function generateMetadata({ params }: Props) {
   try {
@@ -16,7 +23,7 @@ export async function generateMetadata({ params }: Props) {
   }
 }
 
-export default async function Page({ params }: Props) {
+export default async function Page({ params, searchParams }: Props) {
   const { slug } = await params;
   let content;
   try {
@@ -28,7 +35,10 @@ export default async function Page({ params }: Props) {
   const { origin, basePath } = await getPublicSite();
   if (content.slug !== slug)
     permanentRedirect(
-      localHref(basePath, content.canonical_url || `/blog/${content.slug}`),
+      withSearchParams(
+        localHref(basePath, content.canonical_url || `/blog/${content.slug}`),
+        await searchParams,
+      ),
     );
   const pages = await getPageTargets().catch(() => ({ items: [] }));
   const canonical = new URL(

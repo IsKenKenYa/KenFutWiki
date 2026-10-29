@@ -227,6 +227,7 @@ func seedBrowserSite(t *testing.T, s *browserServices, siteURL, apiURL string) {
 		metadata.RelatedNodeIDs = []string{"11111111-1111-4111-8111-111111111111", "33333333-3333-4333-8333-333333333333"}
 		if item.channel != "docs" {
 			metadata.CTAs = []domain.KenFutCTA{{ID: "try-" + item.id, Label: "马上试用", Style: "primary", Target: domain.KenFutLinkTarget{Type: "product", ProductID: product.ID, PageKey: "start", Params: map[string]string{"template": "example"}}}}
+			metadata.CTAs = append(metadata.CTAs, domain.KenFutCTA{ID: "claim-" + item.id, Label: "去领取", Style: "secondary", Target: domain.KenFutLinkTarget{Type: "node", NodeID: "33333333-3333-4333-8333-333333333333", Params: map[string]string{"source": "article", "template": "中文 & example"}}})
 		}
 		if err := metadataRepo.SaveDraft(context.Background(), browserKBID, metadata, "browser-editor"); err != nil {
 			t.Fatal(err)
@@ -235,6 +236,9 @@ func seedBrowserSite(t *testing.T, s *browserServices, siteURL, apiURL string) {
 	}
 	release := &domain.KBRelease{ID: uuid.NewString(), KBID: browserKBID, Tag: "browser-fixture", PublisherId: "browser-editor", CreatedAt: now}
 	if _, err := s.kb.PublishContentRelease(context.Background(), release, "browser-editor", ids); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.db.Create(&domain.KenFutSlugAlias{KBID: browserKBID, Slug: "old-model-guide", NodeID: "22222222-2222-4222-8222-222222222222"}).Error; err != nil {
 		t.Fatal(err)
 	}
 	comment := domain.Comment{ID: uuid.NewString(), KbID: browserKBID, NodeID: items[1].id, Content: "已审核的公开评论", Status: domain.CommentStatusAccepted, Info: domain.CommentInfo{UserName: "读者"}, CreatedAt: now}

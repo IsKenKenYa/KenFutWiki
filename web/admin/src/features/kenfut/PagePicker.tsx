@@ -51,6 +51,11 @@ export default function PagePicker({
     if (!open || !kb_id) return;
     let cancelled = false;
     setError('');
+    setQuery('');
+    setTab('all');
+    setUrl('');
+    setUrlTitle('');
+    setPages([]);
     Promise.all([
       getApiV1NodeListGroupNav({ kb_id, status: 'released' }),
       nodeOnly ? Promise.resolve({ items: [] }) : getProducts(kb_id),
@@ -189,7 +194,9 @@ export default function PagePicker({
               .filter(
                 page =>
                   !excludeIds.includes(page.id) &&
-                  (tab === 'all' || page.type === tab) &&
+                  (nodeOnly
+                    ? page.type === 'node'
+                    : tab === 'all' || page.type === tab) &&
                   `${page.title} ${page.url}`
                     .toLowerCase()
                     .includes(query.toLowerCase()),

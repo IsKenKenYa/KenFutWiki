@@ -23,6 +23,9 @@ type KenFutCTA struct {
 	Target KenFutLinkTarget `json:"target"`
 	Style  string           `json:"style"`
 	NewTab bool             `json:"new_tab"`
+	// ResolvedURL is read-only: derived from a validated published target for public responses.
+	// Editable metadata cannot supply or persist this fallback destination.
+	ResolvedURL string `json:"resolved_url,omitempty"`
 }
 
 type KenFutContentMetadata struct {

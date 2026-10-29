@@ -37,8 +37,8 @@ if (
   throw new Error('真实编辑器夹具仅允许在本地 Vite 开发服务器运行');
 }
 
-// Only the page-catalog transport is a fixture. Both editors and the complete
-// EditorPageLink -> PagePicker flow are the production implementations.
+// Only the page-catalog and metadata transports are fixtures. Both editors,
+// ContentMetadataEditor and their PagePicker flows are production implementations.
 // Import the adapter lazily so its generated Axios client uses this fixture adapter.
 axios.defaults.adapter = async request => {
   if (request.url !== '/api/v1/node/list/group/nav')
@@ -64,13 +64,52 @@ axios.defaults.adapter = async request => {
   };
 };
 const originalFetch = window.fetch.bind(window);
+const fixtureProduct = {
+  id: 'fixture-product',
+  name: '参考产品',
+  origin: 'https://product.example',
+  enabled: true,
+  pages: [
+    { key: 'canvas', name: '画布', path: '/canvas', parameters: ['template'] },
+  ],
+};
+let fixtureMetadata = {
+  node_id: 'fixture-current',
+  channel: 'article',
+  slug: 'fixture-current',
+  cover_url: '',
+  author_name: '',
+  author_avatar: '',
+  display_date: '',
+  category: '',
+  tags: [],
+  featured: false,
+  featured_order: 0,
+  related_node_ids: ['fixture-intro'],
+  ctas: [
+    {
+      id: 'fixture-cta',
+      label: '马上试用',
+      style: 'primary',
+      new_tab: false,
+      target: { type: 'site', page: 'home' },
+    },
+  ],
+};
 window.fetch = (input, init) => {
   const raw = input instanceof Request ? input.url : String(input);
   const pathname = new URL(raw, location.origin).pathname;
   if (pathname === '/api/kenfut/v1/products')
     return Promise.resolve(
-      Response.json({ success: true, data: { items: [] } }),
+      Response.json({ success: true, data: { items: [fixtureProduct] } }),
     );
+  if (pathname === '/api/kenfut/v1/contents/fixture-current') {
+    if (init?.method === 'PUT')
+      fixtureMetadata = JSON.parse(String(init.body)) as typeof fixtureMetadata;
+    return Promise.resolve(
+      Response.json({ success: true, data: fixtureMetadata }),
+    );
+  }
   if (
     pathname.startsWith('/api/') ||
     pathname.startsWith('/share/') ||
@@ -91,6 +130,9 @@ const fixtureStore = configureStore({
 });
 const EditorPageLink = lazy(
   () => import('../src/features/kenfut/EditorPageLink'),
+);
+const ContentMetadataEditor = lazy(
+  () => import('../src/features/kenfut/ContentMetadataEditor'),
 );
 
 const initialHTML =
@@ -265,6 +307,35 @@ function MarkdownFixture() {
   );
 }
 
+function MetadataFixture() {
+  const [open, setOpen] = useState(false);
+  const [saved, setSaved] = useState('尚未保存');
+  return (
+    <Stack spacing={2}>
+      <Alert severity='info'>
+        回归步骤：在 CTA
+        目标选择器切到“产品页面”并搜索“画布”，选择后打开“选择推荐页面”，应显示未选教程且搜索词已清空。
+        再打开 CTA
+        目标选择器，已设置为推荐的“示例入门文档”仍应可选。保存后可在下方查看实际提交数据。
+      </Alert>
+      <Button onClick={() => setOpen(true)}>打开文章设置回归</Button>
+      <ContentMetadataEditor
+        nodeId='fixture-current'
+        open={open}
+        onClose={() => setOpen(false)}
+        onSaved={() => setSaved(JSON.stringify(fixtureMetadata, null, 2))}
+      />
+      <Box
+        component='pre'
+        data-testid='metadata-source'
+        sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}
+      >
+        {saved}
+      </Box>
+    </Stack>
+  );
+}
+
 function Harness() {
   const [mode, setMode] = useState('rich');
   return (
@@ -278,9 +349,16 @@ function Harness() {
       <Tabs value={mode} onChange={(_, next) => setMode(next)} sx={{ my: 2 }}>
         <Tab value='rich' label='富文本模式' />
         <Tab value='markdown' label='Markdown 模式' />
+        <Tab value='metadata' label='页面选择器回归' />
       </Tabs>
       <Suspense fallback={<Typography>正在加载真实链接适配器…</Typography>}>
-        {mode === 'rich' ? <RichFixture /> : <MarkdownFixture />}
+        {mode === 'rich' ? (
+          <RichFixture />
+        ) : mode === 'markdown' ? (
+          <MarkdownFixture />
+        ) : (
+          <MetadataFixture />
+        )}
       </Suspense>
     </Box>
   );

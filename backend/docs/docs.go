@@ -7369,6 +7369,10 @@ const docTemplate = `{
                 "new_tab": {
                     "type": "boolean"
                 },
+                "resolved_url": {
+                    "description": "ResolvedURL is read-only: derived from a validated published target for public responses.\nEditable metadata cannot supply or persist this fallback destination.",
+                    "type": "string"
+                },
                 "style": {
                     "type": "string"
                 },

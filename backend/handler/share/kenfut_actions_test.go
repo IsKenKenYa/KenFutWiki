@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"testing"
 	"time"
@@ -17,6 +18,69 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
+
+func TestKenFutFourStageFunnelHTTP(t *testing.T) {
+	s := actionFixture(t)
+	e := echo.New()
+	registerBrowserHandlers(e, s)
+	const nodeID = "22222222-2222-4222-8222-222222222222"
+	content, err := s.content.Detail(context.Background(), browserKBID, nodeID, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := func(method, path string, body any, token bool) json.RawMessage {
+		t.Helper()
+		data, err := json.Marshal(body)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req := httptest.NewRequest(method, path, bytes.NewReader(data))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		req.Header.Set("X-KB-ID", browserKBID)
+		req.AddCookie(&http.Cookie{Name: "x-pw-session-id", Value: "four-stage-visitor"})
+		if token {
+			req.Header.Set("Authorization", "Bearer "+browserProductToken)
+		}
+		rec := httptest.NewRecorder()
+		e.ServeHTTP(rec, req)
+		var result struct {
+			Success bool            `json:"success"`
+			Data    json.RawMessage `json:"data"`
+		}
+		if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &result) != nil || !result.Success {
+			t.Fatalf("%s %s: HTTP%d %s", method, path, rec.Code, rec.Body.String())
+		}
+		return result.Data
+	}
+	view := domain.KenFutViewReq{EventID: uuid.NewString(), NodeID: nodeID, NodeReleaseID: content.NodeReleaseID, Channel: "article"}
+	request(http.MethodPost, "/share/kenfut/v1/events/view", view, false)
+	request(http.MethodPost, "/share/kenfut/v1/events/view", view, false)
+	click := domain.KenFutClickReq{EventID: uuid.NewString(), NodeID: nodeID, NodeReleaseID: content.NodeReleaseID, ViewID: view.EventID}
+	clickPath := "/share/kenfut/v1/ctas/try-" + nodeID + "/click"
+	var target struct {
+		URL string `json:"url"`
+	}
+	if err := json.Unmarshal(request(http.MethodPost, clickPath, click, false), &target); err != nil {
+		t.Fatal(err)
+	}
+	request(http.MethodPost, clickPath, click, false)
+	parsed, err := url.Parse(target.URL)
+	if err != nil || parsed.Host != "product.example.test" || parsed.Query().Get("template") != "example" || parsed.Query().Get("kf_click_id") == "" {
+		t.Fatalf("configured destination or attribution missing: %s (%v)", target.URL, err)
+	}
+	for _, kind := range []string{"registered", "first_generation_success"} {
+		event := domain.KenFutConversionReq{EventID: uuid.NewString(), EventType: kind, SubjectID: "four-stage-user", ClickID: parsed.Query().Get("kf_click_id"), OccurredAt: time.Now()}
+		request(http.MethodPost, "/integration/kenfut/v1/events", event, true)
+		request(http.MethodPost, "/integration/kenfut/v1/events", event, true)
+	}
+	var funnel domain.KenFutFunnelResp
+	if err := json.Unmarshal(request(http.MethodGet, "/integration/kenfut/v1/funnel", nil, true), &funnel); err != nil {
+		t.Fatal(err)
+	}
+	if funnel.Views != 1 || funnel.Clicks != 1 || funnel.Registrations != 1 || funnel.FirstGenerations != 1 || funnel.Viewers != 1 || funnel.Clickers != 1 || funnel.RegisteredVisitors != 1 || funnel.FirstGenerationVisitors != 1 || funnel.UnattributedRegistrations != 0 || funnel.UnattributedFirstGenerations != 0 {
+		t.Fatalf("four-stage funnel or retry deduplication failed: %#v", funnel)
+	}
+}
 
 func actionFixture(t *testing.T) *browserServices {
 	t.Helper()

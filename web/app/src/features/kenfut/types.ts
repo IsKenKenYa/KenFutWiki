@@ -16,6 +16,7 @@ export type ContentCTA = {
   target: LinkTarget;
   style: 'primary' | 'secondary';
   new_tab: boolean;
+  resolved_url?: string;
 };
 
 export type PublishedContent = {

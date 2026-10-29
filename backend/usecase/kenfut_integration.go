@@ -213,6 +213,9 @@ func (u *KenFutIntegrationUsecase) RecordClick(ctx context.Context, kbID, sessio
 }
 
 func (u *KenFutIntegrationUsecase) ResolveTarget(ctx context.Context, kbID string, target domain.KenFutLinkTarget, clickID string, authID uint) (string, error) {
+	if err := ValidateKenFutLinkTarget(target); err != nil {
+		return "", fmt.Errorf("%w: %v", ErrKenFutInvalid, err)
+	}
 	var address string
 	switch target.Type {
 	case "node":
@@ -243,10 +246,6 @@ func (u *KenFutIntegrationUsecase) ResolveTarget(ctx context.Context, kbID strin
 		return resolveKenFutProductPage(*product, target, clickID)
 	case "url":
 		address = target.URL
-		parsed, err := url.Parse(address)
-		if err != nil || parsed.User != nil || parsed.Host == "" || parsed.Scheme != "https" {
-			return "", ErrKenFutInvalid
-		}
 	default:
 		return "", ErrKenFutInvalid
 	}
@@ -271,41 +270,31 @@ func (u *KenFutIntegrationUsecase) ResolveTarget(ctx context.Context, kbID strin
 	parsed.RawQuery = query.Encode()
 	return parsed.String(), nil
 }
+
+// ProjectCTAs derives safe fallback destinations from published content. A stale or
+// inaccessible target must not bypass validation when click analytics fail.
+func (u *KenFutIntegrationUsecase) ProjectCTAs(ctx context.Context, item *domain.KenFutContentItem, authID uint) error {
+	for i := range item.CTAs {
+		cta := &item.CTAs[i]
+		cta.ResolvedURL = ""
+		address, err := u.ResolveTarget(ctx, item.KBID, cta.Target, "", authID)
+		if err != nil {
+			if errors.Is(err, ErrKenFutInvalid) || errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, domain.ErrPermissionDenied) {
+				continue
+			}
+			return fmt.Errorf("project CTA destination: %w", err)
+		}
+		cta.ResolvedURL = address
+	}
+	return nil
+}
+
 func resolveKenFutProductPage(product domain.KenFutProduct, target domain.KenFutLinkTarget, clickID string) (string, error) {
-	var page *domain.KenFutProductPage
-	for i := range product.Pages {
-		if product.Pages[i].Key == target.PageKey {
-			page = &product.Pages[i]
-			break
-		}
-	}
-	if page == nil {
-		return "", gorm.ErrRecordNotFound
-	}
-	origin, err := url.Parse(product.Origin)
+	address, err := domain.ResolveKenFutProductPage(product, target, clickID)
 	if err != nil {
-		return "", ErrKenFutInvalid
+		return "", fmt.Errorf("%w: %v", ErrKenFutInvalid, err)
 	}
-	path, err := url.Parse(page.Path)
-	if err != nil {
-		return "", ErrKenFutInvalid
-	}
-	address := origin.ResolveReference(path)
-	query := address.Query()
-	if len(target.Params) > 20 {
-		return "", ErrKenFutInvalid
-	}
-	for key, value := range target.Params {
-		if !slices.Contains(page.Parameters, key) || key == "kf_click_id" || len(value) > 2048 {
-			return "", ErrKenFutInvalid
-		}
-		query.Set(key, value)
-	}
-	if clickID != "" {
-		query.Set("kf_click_id", clickID)
-	}
-	address.RawQuery = query.Encode()
-	return address.String(), nil
+	return address, nil
 }
 
 func (u *KenFutIntegrationUsecase) RecordConversion(ctx context.Context, product domain.KenFutProduct, req domain.KenFutConversionReq) error {

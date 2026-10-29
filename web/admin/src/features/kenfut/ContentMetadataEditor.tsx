@@ -531,7 +531,9 @@ export default function ContentMetadataEditor({
       <PagePicker
         open={picker !== null}
         nodeOnly={picker === 'related'}
-        excludeIds={[nodeId, ...value.related_node_ids]}
+        excludeIds={
+          picker === 'related' ? [nodeId, ...value.related_node_ids] : []
+        }
         onClose={() => setPicker(null)}
         onSelect={(target, page) => {
           if (picker === 'related' && target.node_id) {
