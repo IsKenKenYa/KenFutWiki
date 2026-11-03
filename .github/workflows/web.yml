@@ -1,4 +1,4 @@
-name: Web Build and Push
+name: Web Build and Release
 
 on:
   push:
@@ -7,37 +7,64 @@ on:
       - admin-*
       - app-*
     tags:
-      - 'admin-v[0-9]+.[0-9]+.[0-9]+*'
-      - 'app-v[0-9]+.[0-9]+.[0-9]+*'
       - 'v[0-9]+.[0-9]+.[0-9]+*'
   pull_request:
     branches:
       - main
     paths:
       - 'web/**'
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Image tag, e.g. v1.2.3 (default: sha-<short sha>)'
+        required: false
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE_PREFIX: kenfutwiki
 
 jobs:
   version:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get_version.outputs.VERSION }}
+      stable: ${{ steps.get_version.outputs.STABLE }}
 
     steps:
       - name: Get version
         id: get_version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            # 支持 admin-v* / app-v* / v*
-            if [[ $GITHUB_REF == refs/tags/admin-v* ]]; then
-              echo "VERSION=${GITHUB_REF#refs/tags/admin-v}" >> $GITHUB_OUTPUT
-            elif [[ $GITHUB_REF == refs/tags/app-v* ]]; then
-              echo "VERSION=${GITHUB_REF#refs/tags/app-v}" >> $GITHUB_OUTPUT
-            else
-              echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-            fi
+          set -euo pipefail
+          if [[ -n "${INPUT_VERSION:-}" ]]; then
+            version="${INPUT_VERSION}"
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            version="${GITHUB_REF#refs/tags/}"
           else
-            echo "VERSION=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+            version="sha-${GITHUB_SHA::7}"
           fi
+          if [[ ! "${version}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+            echo "::error::Invalid image tag '${version}'. Allowed characters: A-Z a-z 0-9 . _ -"
+            exit 1
+          fi
+          stable=false
+          if [[ "${version}" == v* && "${version}" != *-* ]]; then
+            stable=true
+          fi
+          {
+            echo "VERSION=${version}"
+            echo "STABLE=${stable}"
+          } >> "$GITHUB_OUTPUT"
 
   build:
     runs-on: ubuntu-latest
@@ -60,10 +87,10 @@ jobs:
       - name: Get pnpm store directory
         shell: bash
         run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+          echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_ENV"
 
       - name: Setup pnpm cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('web/pnpm-lock.yaml') }}
@@ -113,9 +140,10 @@ jobs:
     needs: [build, version]
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         project: [admin, app]
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Checkout code
@@ -144,12 +172,69 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Aliyun Container Registry
+      - name: Resolve registries and tags
+        id: image
+        env:
+          PROJECT: ${{ matrix.project }}
+          DOCKERHUB_NAMESPACE: ${{ vars.DOCKERHUB_NAMESPACE }}
+          PUBLISH_DOCKERHUB: ${{ vars.PUBLISH_DOCKERHUB }}
+          PUBLISH_GHCR: ${{ vars.PUBLISH_GHCR }}
+          VERSION: ${{ needs.version.outputs.version }}
+          STABLE: ${{ needs.version.outputs.stable }}
+        run: |
+          set -euo pipefail
+          case "${PROJECT}" in
+            admin) service=nginx ;;
+            app) service=app ;;
+            *)
+              echo "::error::Unknown project '${PROJECT}'"
+              exit 1
+              ;;
+          esac
+          owner="$(printf '%s' "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+          namespace="${DOCKERHUB_NAMESPACE:-${owner}}"
+          namespace="$(printf '%s' "${namespace}" | tr '[:upper:]' '[:lower:]')"
+          images=()
+          if [[ "${PUBLISH_DOCKERHUB:-true}" != "false" ]]; then
+            images+=("docker.io/${namespace}/${IMAGE_PREFIX}-${service}")
+          fi
+          if [[ "${PUBLISH_GHCR:-false}" == "true" ]]; then
+            images+=("ghcr.io/${owner}/${IMAGE_PREFIX}-${service}")
+          fi
+          if [[ ${#images[@]} -eq 0 ]]; then
+            echo "::error::No image registry enabled; set PUBLISH_DOCKERHUB or PUBLISH_GHCR"
+            exit 1
+          fi
+          tags=("sha-${GITHUB_SHA::7}")
+          if [[ "${VERSION}" != "sha-${GITHUB_SHA::7}" ]]; then
+            tags+=("${VERSION}")
+          fi
+          if [[ "${STABLE}" == "true" ]]; then
+            tags+=("latest")
+          fi
+          {
+            echo "images<<IMAGES_EOF"
+            printf '%s\n' "${images[@]}"
+            echo "IMAGES_EOF"
+            echo "tags<<TAGS_EOF"
+            printf '%s\n' "${tags[@]}"
+            echo "TAGS_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Login to Docker Hub
+        if: vars.PUBLISH_DOCKERHUB != 'false'
         uses: docker/login-action@v3
         with:
-          registry: chaitin-registry.cn-hangzhou.cr.aliyuncs.com
-          username: ${{ secrets.CT_ALIYUN_USER }}
-          password: ${{ secrets.CT_ALIYUN_PASS }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        if: vars.PUBLISH_GHCR == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Package and push
         uses: docker/build-push-action@v5
@@ -157,7 +242,9 @@ jobs:
           context: ./web/${{ matrix.project }}
           file: ./web/${{ matrix.project }}/Dockerfile
           push: true
-          platforms: linux/amd64, linux/arm64
-          tags: chaitin-registry.cn-hangzhou.cr.aliyuncs.com/chaitin/panda-wiki-${{ matrix.project == 'admin' && 'nginx' || 'app' }}:v${{ needs.version.outputs.version }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.image.outputs.tags }}
+          cache-from: |
+            type=gha,scope=${{ matrix.project }}
+          cache-to: |
+            type=gha,scope=${{ matrix.project }},mode=max

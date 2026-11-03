@@ -1,41 +1,109 @@
-name: Backend Build and Push
+name: Backend Image Release
 
 on:
   push:
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+*"
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Image tag, e.g. v1.2.3 (default: sha-<short sha>)'
+        required: false
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE_PREFIX: kenfutwiki
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         service: [api, consumer]
     timeout-minutes: 30
-
-    outputs:
-      version: ${{ steps.get_version.outputs.VERSION }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           lfs: true
-          submodules: true
-          token: ${{ secrets.PRO_TOKEN }}
 
-      - name: Get version
-        id: get_version
+      - name: Resolve version
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            if [[ $GITHUB_REF == refs/tags/backend-* ]]; then
-              echo "VERSION=${GITHUB_REF#refs/tags/backend-}" >> $GITHUB_OUTPUT
-            else
-              echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-            fi
+          set -euo pipefail
+          if [[ -n "${INPUT_VERSION:-}" ]]; then
+            version="${INPUT_VERSION}"
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            version="${GITHUB_REF#refs/tags/}"
           else
-            echo "VERSION=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+            version="sha-${GITHUB_SHA::7}"
           fi
+          if [[ ! "${version}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+            echo "::error::Invalid image tag '${version}'. Allowed characters: A-Z a-z 0-9 . _ -"
+            exit 1
+          fi
+          stable=false
+          if [[ "${version}" == v* && "${version}" != *-* ]]; then
+            stable=true
+          fi
+          {
+            echo "VERSION=${version}"
+            echo "STABLE=${stable}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Resolve registries and tags
+        id: image
+        env:
+          SERVICE: ${{ matrix.service }}
+          DOCKERHUB_NAMESPACE: ${{ vars.DOCKERHUB_NAMESPACE }}
+          PUBLISH_DOCKERHUB: ${{ vars.PUBLISH_DOCKERHUB }}
+          PUBLISH_GHCR: ${{ vars.PUBLISH_GHCR }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
+          STABLE: ${{ steps.version.outputs.STABLE }}
+        run: |
+          set -euo pipefail
+          owner="$(printf '%s' "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+          namespace="${DOCKERHUB_NAMESPACE:-${owner}}"
+          namespace="$(printf '%s' "${namespace}" | tr '[:upper:]' '[:lower:]')"
+          images=()
+          if [[ "${PUBLISH_DOCKERHUB:-true}" != "false" ]]; then
+            images+=("docker.io/${namespace}/${IMAGE_PREFIX}-${SERVICE}")
+          fi
+          if [[ "${PUBLISH_GHCR:-false}" == "true" ]]; then
+            images+=("ghcr.io/${owner}/${IMAGE_PREFIX}-${SERVICE}")
+          fi
+          if [[ ${#images[@]} -eq 0 ]]; then
+            echo "::error::No image registry enabled; set PUBLISH_DOCKERHUB or PUBLISH_GHCR"
+            exit 1
+          fi
+          tags=("sha-${GITHUB_SHA::7}")
+          if [[ "${VERSION}" != "sha-${GITHUB_SHA::7}" ]]; then
+            tags+=("${VERSION}")
+          fi
+          if [[ "${STABLE}" == "true" ]]; then
+            tags+=("latest")
+          fi
+          {
+            echo "images<<IMAGES_EOF"
+            printf '%s\n' "${images[@]}"
+            echo "IMAGES_EOF"
+            echo "tags<<TAGS_EOF"
+            printf '%s\n' "${tags[@]}"
+            echo "TAGS_EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -45,24 +113,31 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Aliyun Container Registry
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Login to Docker Hub
+        if: vars.PUBLISH_DOCKERHUB != 'false'
         uses: docker/login-action@v3
         with:
-          registry: chaitin-registry.cn-hangzhou.cr.aliyuncs.com
-          username: ${{ secrets.CT_ALIYUN_USER }}
-          password: ${{ secrets.CT_ALIYUN_PASS }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        if: vars.PUBLISH_GHCR == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: ./backend
-          file: ./backend/Dockerfile.${{ matrix.service }}.pro
-          push: ${{ startsWith(github.ref, 'refs/tags/') }}
-          platforms: linux/amd64, linux/arm64
-          tags: chaitin-registry.cn-hangzhou.cr.aliyuncs.com/chaitin/panda-wiki-${{ matrix.service }}:${{ steps.get_version.outputs.VERSION }}
+          file: ./backend/Dockerfile.${{ matrix.service }}
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.image.outputs.tags }}
           build-args: |
-            VERSION=${{ steps.get_version.outputs.VERSION }}
+            VERSION=${{ steps.version.outputs.VERSION }}
           cache-from: |
             type=gha,scope=${{ matrix.service }}
           cache-to: |
