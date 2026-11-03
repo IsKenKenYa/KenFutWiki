@@ -205,13 +205,19 @@ jobs:
             echo "::error::No image registry enabled; set PUBLISH_DOCKERHUB or PUBLISH_GHCR"
             exit 1
           fi
-          tags=("sha-${GITHUB_SHA::7}")
+          tag_names=("sha-${GITHUB_SHA::7}")
           if [[ "${VERSION}" != "sha-${GITHUB_SHA::7}" ]]; then
-            tags+=("${VERSION}")
+            tag_names+=("${VERSION}")
           fi
           if [[ "${STABLE}" == "true" ]]; then
-            tags+=("latest")
+            tag_names+=("latest")
           fi
+          tags=()
+          for image in "${images[@]}"; do
+            for tag in "${tag_names[@]}"; do
+              tags+=("${image}:${tag}")
+            done
+          done
           {
             echo "images<<IMAGES_EOF"
             printf '%s\n' "${images[@]}"
