@@ -19,7 +19,6 @@ import (
 	"github.com/chaitin/panda-wiki/store/ipdb"
 	"github.com/chaitin/panda-wiki/store/pg"
 	"github.com/chaitin/panda-wiki/store/rag"
-	"github.com/chaitin/panda-wiki/store/s3"
 	"github.com/chaitin/panda-wiki/usecase"
 )
 
@@ -85,11 +84,7 @@ func createApp() (*App, error) {
 	statUseCase := usecase.NewStatUseCase(statRepository, nodeRepository, conversationRepository, appRepository, ipAddressRepo, geoRepo, authRepo, knowledgeBaseRepository, logger)
 	navRepository := pg2.NewNavRepository(db, logger)
 	userRepository := pg2.NewUserRepository(db, logger)
-	minioClient, err := s3.NewMinioClient(configConfig)
-	if err != nil {
-		return nil, err
-	}
-	nodeUsecase := usecase.NewNodeUsecase(nodeRepository, navRepository, appRepository, ragRepository, userRepository, knowledgeBaseRepository, llmUsecase, ragService, logger, minioClient, modelRepository, authRepo, modelUsecase)
+	nodeUsecase := usecase.NewNodeUsecase(nodeRepository, navRepository, appRepository, ragRepository, userRepository, knowledgeBaseRepository, llmUsecase, ragService, logger, modelRepository, authRepo, modelUsecase)
 	cronHandler, err := mq3.NewCronHandler(logger, statRepository, nodeRepository, statUseCase, nodeUsecase)
 	if err != nil {
 		return nil, err

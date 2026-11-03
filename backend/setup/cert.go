@@ -12,10 +12,16 @@ import (
 	"time"
 )
 
-const (
-	keyFile  = "/app/etc/nginx/ssl/panda-wiki.key" // Key file path
-	certFile = "/app/etc/nginx/ssl/panda-wiki.crt" // Certificate file path
-)
+// certDir 返回自签证书目录，可通过 CERT_DIR 环境变量覆盖（默认为容器内路径，本地开发时可指向本机目录）。
+func certDir() string {
+	if dir := os.Getenv("CERT_DIR"); dir != "" {
+		return dir
+	}
+	return "/app/etc/nginx/ssl"
+}
+
+func certKeyPath() string { return certDir() + "/panda-wiki.key" }
+func certCrtPath() string { return certDir() + "/panda-wiki.crt" }
 
 // check init cert
 func CheckInitCert() error {
@@ -23,11 +29,11 @@ func CheckInitCert() error {
 	keyExists := false
 	certExists := false
 
-	if _, err := os.Stat(keyFile); err == nil {
+	if _, err := os.Stat(certKeyPath()); err == nil {
 		keyExists = true
 	}
 
-	if _, err := os.Stat(certFile); err == nil {
+	if _, err := os.Stat(certCrtPath()); err == nil {
 		certExists = true
 	}
 
@@ -67,13 +73,13 @@ func createSelfSignedCerts() error {
 		return fmt.Errorf("failed to create certificate: %v", err)
 	}
 
-	// ensure dir /app/etc/nginx/ssl exists
-	if err := os.MkdirAll("/app/etc/nginx/ssl", 0o755); err != nil {
+	// ensure cert dir exists
+	if err := os.MkdirAll(certDir(), 0o755); err != nil {
 		return fmt.Errorf("failed to create ssl dir: %v", err)
 	}
 
 	// Write certificate file with appropriate permissions
-	certFile, err := os.Create("/app/etc/nginx/ssl/panda-wiki.crt")
+	certFile, err := os.Create(certCrtPath())
 	if err != nil {
 		return fmt.Errorf("failed to create cert file: %v", err)
 	}
@@ -90,7 +96,7 @@ func createSelfSignedCerts() error {
 	}
 
 	// Write private key file with appropriate permissions
-	keyFile, err := os.Create("/app/etc/nginx/ssl/panda-wiki.key")
+	keyFile, err := os.Create(certKeyPath())
 	if err != nil {
 		return fmt.Errorf("failed to create key file: %v", err)
 	}

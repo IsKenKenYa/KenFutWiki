@@ -30,7 +30,7 @@ import (
 
 type FileUsecase struct {
 	logger            *log.Logger
-	s3Client          *s3.MinioClient
+	s3Client          *s3.ClientHolder
 	config            *config.Config
 	systemSettingRepo *pg.SystemSettingRepo
 	httpClient        *http.Client
@@ -42,7 +42,7 @@ const approvedIPDialAttemptTimeout = 3 * time.Second
 
 const remoteDownloadTimeout = 2 * time.Minute
 
-func NewFileUsecase(logger *log.Logger, s3Client *s3.MinioClient, config *config.Config, systemSettingRepo *pg.SystemSettingRepo) *FileUsecase {
+func NewFileUsecase(logger *log.Logger, s3Client *s3.ClientHolder, config *config.Config, systemSettingRepo *pg.SystemSettingRepo) *FileUsecase {
 	return &FileUsecase{
 		s3Client:          s3Client,
 		logger:            logger.WithModule("usecase.file"),
@@ -63,7 +63,7 @@ func (u *FileUsecase) UploadFileGetUrl(ctx context.Context, kbID string, file *m
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("http://panda-wiki-minio:9000/static-file/%s", key), nil
+	return u.s3Client.PublicURL(key), nil
 }
 
 func (u *FileUsecase) UploadFile(ctx context.Context, kbID string, file *multipart.FileHeader) (string, error) {
@@ -91,7 +91,6 @@ func (u *FileUsecase) UploadFile(ctx context.Context, kbID string, file *multipa
 
 	resp, err := u.s3Client.PutObject(
 		ctx,
-		domain.Bucket,
 		filename,
 		src,
 		size,
@@ -132,7 +131,6 @@ func (u *FileUsecase) UploadFileFromBytes(ctx context.Context, kbID string, file
 
 	resp, err := u.s3Client.PutObject(
 		ctx,
-		domain.Bucket,
 		s3Filename,
 		reader,
 		size,
@@ -176,7 +174,6 @@ func (u *FileUsecase) UploadFileFromReader(
 	// 上传到 S3
 	_, err := u.s3Client.PutObject(
 		ctx,
-		domain.Bucket,
 		s3Filename,
 		reader,
 		size, // 必须提供对象大小
@@ -217,7 +214,6 @@ func (u *FileUsecase) AnyDocUploadFile(ctx context.Context, file *multipart.File
 
 	resp, err := u.s3Client.PutObject(
 		ctx,
-		domain.Bucket,
 		path,
 		src,
 		size,
@@ -293,7 +289,6 @@ func (u *FileUsecase) UploadFileByUrl(ctx context.Context, kbID string, fileURL 
 
 	putResp, err := u.s3Client.PutObject(
 		ctx,
-		domain.Bucket,
 		s3Filename,
 		bytes.NewReader(data),
 		int64(len(data)),

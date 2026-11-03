@@ -13,7 +13,6 @@ import (
 	"github.com/chaitin/panda-wiki/handler"
 	"github.com/chaitin/panda-wiki/log"
 	"github.com/chaitin/panda-wiki/middleware"
-	"github.com/chaitin/panda-wiki/store/s3"
 	"github.com/chaitin/panda-wiki/usecase"
 	"github.com/chaitin/panda-wiki/utils"
 )
@@ -26,7 +25,7 @@ type FileHandler struct {
 	fileUsecase *usecase.FileUsecase
 }
 
-func NewFileHandler(echo *echo.Echo, baseHandler *handler.BaseHandler, logger *log.Logger, auth middleware.AuthMiddleware, minioClient *s3.MinioClient, config *config.Config, fileUsecase *usecase.FileUsecase) *FileHandler {
+func NewFileHandler(echo *echo.Echo, baseHandler *handler.BaseHandler, logger *log.Logger, auth middleware.AuthMiddleware, config *config.Config, fileUsecase *usecase.FileUsecase) *FileHandler {
 	h := &FileHandler{
 		BaseHandler: baseHandler,
 		logger:      logger.WithModule("handler.v1.file"),

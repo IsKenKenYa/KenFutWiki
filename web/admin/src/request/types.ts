@@ -1381,6 +1381,50 @@ export interface DomainStatsSetting {
   pv_enable?: boolean;
 }
 
+export interface DomainStorageSetting {
+  access_key?: string;
+  /** 桶不存在时自动创建并尝试设置公读策略 */
+  auto_bucket?: boolean;
+  /** 默认 static-file */
+  bucket?: string;
+  /** host[:port]，不带协议 */
+  endpoint?: string;
+  /** minio | aliyun_oss | custom */
+  provider?: string;
+  /** 公网读取基址（如 OSS 桶域名）；为空时用相对路径 /static-file/ */
+  public_url?: string;
+  /** 默认 us-east-1；OSS 如 oss-cn-hangzhou */
+  region?: string;
+  secret_key?: string;
+  /** 是否走 HTTPS */
+  secure?: boolean;
+}
+
+export interface DomainStorageSettingDetail {
+  /** 最近一次构建失败的错误 */
+  error?: string;
+  /** 客户端是否构建成功 */
+  ready?: boolean;
+  secret_set?: boolean;
+  setting?: DomainStorageSetting;
+  /** database | default */
+  source?: string;
+  /** 最近一次构建的警告（如公读策略设置失败） */
+  warnings?: string[];
+}
+
+export interface DomainStorageTestResult {
+  ok?: boolean;
+  steps?: DomainStorageTestStep[];
+  warnings?: string[];
+}
+
+export interface DomainStorageTestStep {
+  message?: string;
+  name?: string;
+  ok?: boolean;
+}
+
 export interface DomainSwitchModeReq {
   /** 百智云 API Key */
   auto_mode_api_key?: string;

@@ -8,6 +8,7 @@ import (
 	"github.com/chaitin/panda-wiki/pkg/bot"
 	"github.com/chaitin/panda-wiki/pkg/bot/wechat_service"
 	"github.com/chaitin/panda-wiki/repo/pg"
+	"github.com/chaitin/panda-wiki/store/s3"
 )
 
 type WechatServiceUsecase struct {
@@ -16,15 +17,17 @@ type WechatServiceUsecase struct {
 	authRepo    *pg.AuthRepo
 	chatUsecase *ChatUsecase
 	weRepo      *pg.WechatRepository
+	s3Client    *s3.ClientHolder
 }
 
-func NewWechatUsecase(logger *log.Logger, AppUsecase *AppUsecase, chatUsecase *ChatUsecase, weRepo *pg.WechatRepository, authRepo *pg.AuthRepo) *WechatServiceUsecase {
+func NewWechatUsecase(logger *log.Logger, AppUsecase *AppUsecase, chatUsecase *ChatUsecase, weRepo *pg.WechatRepository, authRepo *pg.AuthRepo, s3Client *s3.ClientHolder) *WechatServiceUsecase {
 	return &WechatServiceUsecase{
 		logger:      logger.WithModule("usecase.wechatUsecase"),
 		AppUsecase:  AppUsecase,
 		chatUsecase: chatUsecase,
 		weRepo:      weRepo,
 		authRepo:    authRepo,
+		s3Client:    s3Client,
 	}
 }
 
@@ -62,6 +65,7 @@ func (u *WechatServiceUsecase) NewWechatServiceConfig(ctx context.Context, kbID 
 		appInfo.Settings.WechatServiceLogo,
 		appInfo.Settings.WechatServiceContainKeywords,
 		appInfo.Settings.WechatServiceEqualKeywords,
+		u.s3Client.AbsURL,
 	)
 }
 

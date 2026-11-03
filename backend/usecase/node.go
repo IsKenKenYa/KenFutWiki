@@ -22,7 +22,6 @@ import (
 	"github.com/chaitin/panda-wiki/repo/mq"
 	"github.com/chaitin/panda-wiki/repo/pg"
 	"github.com/chaitin/panda-wiki/store/rag"
-	"github.com/chaitin/panda-wiki/store/s3"
 	"github.com/chaitin/panda-wiki/utils"
 )
 
@@ -37,7 +36,6 @@ type NodeUsecase struct {
 	authRepo     *pg.AuthRepo
 	llmUsecase   *LLMUsecase
 	logger       *log.Logger
-	s3Client     *s3.MinioClient
 	rAGService   rag.RAGService
 	modelUsecase *ModelUsecase
 }
@@ -52,7 +50,6 @@ func NewNodeUsecase(
 	llmUsecase *LLMUsecase,
 	ragService rag.RAGService,
 	logger *log.Logger,
-	s3Client *s3.MinioClient,
 	modelRepo *pg.ModelRepository,
 	authRepo *pg.AuthRepo,
 	modelUsecase *ModelUsecase,
@@ -69,7 +66,6 @@ func NewNodeUsecase(
 		llmUsecase:   llmUsecase,
 		modelRepo:    modelRepo,
 		logger:       logger.WithModule("usecase.node"),
-		s3Client:     s3Client,
 		modelUsecase: modelUsecase,
 	}
 }

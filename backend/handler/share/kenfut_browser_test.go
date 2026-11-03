@@ -164,7 +164,7 @@ func newBrowserServices(db *storePG.DB) *browserServices {
 	apps := repo.NewAppRepository(db, logger)
 	users := repo.NewUserRepository(db, logger)
 	auth := repo.NewAuthRepo(db, logger, nil)
-	node := usecase.NewNodeUsecase(nodes, navs, apps, nil, users, kb, nil, nil, logger, nil, nil, auth, nil)
+	node := usecase.NewNodeUsecase(nodes, navs, apps, nil, users, kb, nil, nil, logger, nil, auth, nil)
 	content := usecase.NewKenFutContentUsecase(repo.NewKenFutContentRepository(db, logger), node, kb)
 	integration := usecase.NewKenFutIntegrationUsecase(repo.NewKenFutIntegrationRepository(db), content)
 	return &browserServices{db: db, kb: kb, app: apps, node: node, content: content, integration: integration, logger: logger, cfg: cfg}

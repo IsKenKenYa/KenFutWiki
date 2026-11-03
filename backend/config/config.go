@@ -74,6 +74,10 @@ type S3Config struct {
 	Endpoint  string `mapstructure:"endpoint"`
 	AccessKey string `mapstructure:"access_key"`
 	SecretKey string `mapstructure:"secret_key"`
+	Bucket    string `mapstructure:"bucket"`
+	Region    string `mapstructure:"region"`
+	Secure    bool   `mapstructure:"secure"`
+	PublicURL string `mapstructure:"public_url"`
 }
 
 type SentryConfig struct {
@@ -125,6 +129,8 @@ func NewConfig() (*Config, error) {
 			Endpoint:  "panda-wiki-minio:9000",
 			AccessKey: "s3panda-wiki",
 			SecretKey: "",
+			Bucket:    "static-file",
+			Region:    "us-east-1",
 		},
 		Sentry: SentryConfig{
 			Enabled: false,
@@ -200,6 +206,21 @@ func overrideWithEnv(c *Config) {
 	// s3
 	if env := os.Getenv("S3_ENDPOINT"); env != "" {
 		c.S3.Endpoint = env
+	}
+	if env := os.Getenv("S3_ACCESS_KEY"); env != "" {
+		c.S3.AccessKey = env
+	}
+	if env := os.Getenv("S3_BUCKET"); env != "" {
+		c.S3.Bucket = env
+	}
+	if env := os.Getenv("S3_REGION"); env != "" {
+		c.S3.Region = env
+	}
+	if env := os.Getenv("S3_SECURE"); env != "" {
+		c.S3.Secure = env == "true" || env == "1"
+	}
+	if env := os.Getenv("S3_PUBLIC_URL"); env != "" {
+		c.S3.PublicURL = env
 	}
 	// sentry
 	if env := os.Getenv("SENTRY_ENABLED"); env != "" {

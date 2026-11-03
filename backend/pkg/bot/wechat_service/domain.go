@@ -20,6 +20,8 @@ type WechatServiceConfig struct {
 	containKeywords []string
 	equalKeywords   []string
 	logoUrl         string
+	// resolveURL 把存储相对路径（如 /static-file/xxx）解析成微信服务器可拉取的绝对 URL
+	resolveURL func(path string) string
 	// db
 	WeRepo *pg.WechatRepository
 }

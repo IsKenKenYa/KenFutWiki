@@ -3355,6 +3355,152 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/storage/setting": {
+            "get": {
+                "description": "get current effective storage setting (secret masked) and client status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "storage"
+                ],
+                "summary": "get storage setting",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.StorageSettingDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "validate, save storage setting and rebuild client; empty or masked secret keeps current value",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "storage"
+                ],
+                "summary": "update storage setting",
+                "parameters": [
+                    {
+                        "description": "storage setting",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.StorageSetting"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.StorageSettingDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete saved storage setting and fall back to env default",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "storage"
+                ],
+                "summary": "reset storage setting",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/storage/test": {
+            "post": {
+                "description": "probe storage connectivity with the given setting without saving",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "storage"
+                ],
+                "summary": "test storage connection",
+                "parameters": [
+                    {
+                        "description": "storage setting",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.StorageSetting"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.StorageTestResult"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/user": {
             "get": {
                 "description": "GetUser",
@@ -8722,6 +8868,109 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "pv_enable": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "domain.StorageSetting": {
+            "type": "object",
+            "properties": {
+                "access_key": {
+                    "type": "string"
+                },
+                "auto_bucket": {
+                    "description": "桶不存在时自动创建并尝试设置公读策略",
+                    "type": "boolean"
+                },
+                "bucket": {
+                    "description": "默认 static-file",
+                    "type": "string"
+                },
+                "endpoint": {
+                    "description": "host[:port]，不带协议",
+                    "type": "string"
+                },
+                "provider": {
+                    "description": "minio | aliyun_oss | custom",
+                    "type": "string"
+                },
+                "public_url": {
+                    "description": "公网读取基址（如 OSS 桶域名）；为空时用相对路径 /static-file/",
+                    "type": "string"
+                },
+                "region": {
+                    "description": "默认 us-east-1；OSS 如 oss-cn-hangzhou",
+                    "type": "string"
+                },
+                "secret_key": {
+                    "type": "string"
+                },
+                "secure": {
+                    "description": "是否走 HTTPS",
+                    "type": "boolean"
+                }
+            }
+        },
+        "domain.StorageSettingDetail": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "description": "最近一次构建失败的错误",
+                    "type": "string"
+                },
+                "ready": {
+                    "description": "客户端是否构建成功",
+                    "type": "boolean"
+                },
+                "secret_set": {
+                    "type": "boolean"
+                },
+                "setting": {
+                    "$ref": "#/definitions/domain.StorageSetting"
+                },
+                "source": {
+                    "description": "database | default",
+                    "type": "string"
+                },
+                "warnings": {
+                    "description": "最近一次构建的警告（如公读策略设置失败）",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "domain.StorageTestResult": {
+            "type": "object",
+            "properties": {
+                "ok": {
+                    "type": "boolean"
+                },
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.StorageTestStep"
+                    }
+                },
+                "warnings": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "domain.StorageTestStep": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "ok": {
                     "type": "boolean"
                 }
             }

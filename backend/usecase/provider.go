@@ -3,6 +3,7 @@ package usecase
 import (
 	"github.com/google/wire"
 
+	"github.com/chaitin/panda-wiki/domain"
 	"github.com/chaitin/panda-wiki/repo/ipdb"
 	mqRepo "github.com/chaitin/panda-wiki/repo/mq"
 	"github.com/chaitin/panda-wiki/repo/pg"
@@ -38,4 +39,7 @@ var ProviderSet = wire.NewSet(
 	NewWechatAppUsecase,
 	NewAuthUsecase,
 	NewNavUsecase,
+	NewStorageUsecase,
+
+	wire.Bind(new(domain.StorageSettingSource), new(*pg.SystemSettingRepo)),
 )

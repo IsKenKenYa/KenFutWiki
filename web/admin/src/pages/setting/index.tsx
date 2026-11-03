@@ -14,6 +14,7 @@ import CardFeedback from './component/CardFeedback';
 import CardKB from './component/CardKB';
 import CardRobot from './component/CardRobot';
 import CardSecurity from './component/CardSecurity';
+import CardStorage from './component/CardStorage';
 import CardWeb from './component/CardWeb';
 import CardMCP from './component/CardMCP';
 
@@ -25,6 +26,7 @@ const SettingTabs: { label: string; id: string }[] = [
   { label: '安全设置', id: 'security' },
   { label: '访问控制', id: 'backend-info' },
   { label: 'MCP 设置', id: 'mcp' },
+  { label: '存储配置', id: 'storage' },
 ];
 
 const Setting = () => {
@@ -85,7 +87,8 @@ const Setting = () => {
     if (kb_id) getKb();
   }, [kb_id]);
 
-  if (!kb) return <></>;
+  // 存储配置为全局设置，不依赖知识库数据
+  if (!kb && activeTab !== 'storage') return <></>;
 
   return (
     <Box
@@ -111,14 +114,15 @@ const Setting = () => {
         }}
       >
         {activeTab === 'backend-info' && <CardKB />}
-        {activeTab === 'ai-setting' && <CardAI kb={kb} />}
+        {activeTab === 'ai-setting' && <CardAI kb={kb!} />}
         {activeTab === 'security' && (
-          <CardSecurity data={info} kb={kb} refresh={getInfo} />
+          <CardSecurity data={info} kb={kb!} refresh={getInfo} />
         )}
-        {activeTab === 'feedback' && <CardFeedback kb={kb} />}
-        {activeTab === 'robot' && <CardRobot kb={kb} url={url} />}
-        {activeTab === 'portal-website' && <CardWeb kb={kb} refresh={getKb} />}
-        {activeTab === 'mcp' && <CardMCP kb={kb} />}
+        {activeTab === 'feedback' && <CardFeedback kb={kb!} />}
+        {activeTab === 'robot' && <CardRobot kb={kb!} url={url} />}
+        {activeTab === 'portal-website' && <CardWeb kb={kb!} refresh={getKb} />}
+        {activeTab === 'mcp' && <CardMCP kb={kb!} />}
+        {activeTab === 'storage' && <CardStorage />}
       </Card>
     </Box>
   );
