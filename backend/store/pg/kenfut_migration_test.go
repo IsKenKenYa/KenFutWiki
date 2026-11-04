@@ -127,7 +127,7 @@ func testMigrationFiles(t *testing.T, previous bool, next int) fs.FS {
 		if entry.IsDir() {
 			return nil
 		}
-		if previous && strings.HasPrefix(name, "kenfut_migration/000003_") {
+		if previous && (strings.HasPrefix(name, "kenfut_migration/000003_") || strings.HasPrefix(name, "kenfut_migration/000004_")) {
 			return nil
 		}
 		data, err := migrationFiles.ReadFile(name)

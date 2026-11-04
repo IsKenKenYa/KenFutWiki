@@ -143,6 +143,17 @@ func kenFutHash(data []byte) string      { sum := sha256.Sum256(data); return he
 func kenFutPayloadHash(value any) string { data, _ := json.Marshal(value); return kenFutHash(data) }
 func validKenFutEventID(id string) bool  { _, err := uuid.Parse(id); return err == nil }
 
+// kenFutViewSurface validates the page surface sent by the site. The value is
+// persisted so the article funnel never counts documentation traffic.
+func kenFutViewSurface(channel string) (string, bool) {
+	switch channel {
+	case "article", "docs", "home":
+		return channel, true
+	default:
+		return "", false
+	}
+}
+
 func (u *KenFutIntegrationUsecase) RecordView(ctx context.Context, kbID, session string, req domain.KenFutViewReq, stat domain.StatPage, authID uint) error {
 	if !validKenFutEventID(req.EventID) || session == "" || len(session) > 128 {
 		return ErrKenFutInvalid
@@ -154,7 +165,11 @@ func (u *KenFutIntegrationUsecase) RecordView(ctx context.Context, kbID, session
 	if content.NodeReleaseID != req.NodeReleaseID {
 		return fmt.Errorf("%w: content changed; reload the page", ErrKenFutInvalid)
 	}
-	event := &domain.KenFutEvent{EventID: req.EventID, Kind: "article_view", KBID: kbID, NodeID: req.NodeID, NodeReleaseID: req.NodeReleaseID, SessionID: session, PayloadHash: kenFutPayloadHash(req), OccurredAt: time.Now(), ReceivedAt: time.Now()}
+	surface, ok := kenFutViewSurface(req.Channel)
+	if !ok {
+		return fmt.Errorf("%w: unsupported surface", ErrKenFutInvalid)
+	}
+	event := &domain.KenFutEvent{EventID: req.EventID, Kind: "article_view", Surface: surface, KBID: kbID, NodeID: req.NodeID, NodeReleaseID: req.NodeReleaseID, SessionID: session, PayloadHash: kenFutPayloadHash(req), OccurredAt: time.Now(), ReceivedAt: time.Now()}
 	stat.KBID = kbID
 	stat.NodeID = req.NodeID
 	stat.SessionID = session
@@ -175,7 +190,8 @@ func (u *KenFutIntegrationUsecase) RecordClick(ctx context.Context, kbID, sessio
 	if content.NodeReleaseID != req.NodeReleaseID {
 		return nil, ErrKenFutInvalid
 	}
-	if err := u.repo.View(ctx, kbID, req.NodeID, req.ViewID, session); err != nil {
+	surface, err := u.repo.View(ctx, kbID, req.NodeID, req.ViewID, session)
+	if err != nil {
 		return nil, fmt.Errorf("%w: view is not recorded", ErrKenFutInvalid)
 	}
 	var cta *domain.KenFutCTA
@@ -193,7 +209,7 @@ func (u *KenFutIntegrationUsecase) RecordClick(ctx context.Context, kbID, sessio
 		productID = cta.Target.ProductID
 	}
 	id := uuid.NewString()
-	event := &domain.KenFutEvent{EventID: req.EventID, Kind: "cta_click", KBID: kbID, ProductID: productID, NodeID: req.NodeID, NodeReleaseID: req.NodeReleaseID, CTAID: ctaID, ViewID: req.ViewID, SessionID: session, ClickID: &id, PayloadHash: kenFutPayloadHash(struct {
+	event := &domain.KenFutEvent{EventID: req.EventID, Kind: "cta_click", Surface: surface, KBID: kbID, ProductID: productID, NodeID: req.NodeID, NodeReleaseID: req.NodeReleaseID, CTAID: ctaID, ViewID: req.ViewID, SessionID: session, ClickID: &id, PayloadHash: kenFutPayloadHash(struct {
 		Request domain.KenFutClickReq
 		CTAID   string
 	}{req, ctaID}), OccurredAt: time.Now(), ReceivedAt: time.Now()}

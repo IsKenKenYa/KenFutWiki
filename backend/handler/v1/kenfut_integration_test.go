@@ -111,6 +111,13 @@ func handlerIntegrationFixture(t *testing.T) (*KenFutIntegrationHandler, *storeP
 	if err := db.Exec(string(migration)).Error; err != nil {
 		t.Fatal(err)
 	}
+	surfaceMigration, err := os.ReadFile("../../store/pg/kenfut_migration/000004_event_surface.up.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Exec(string(surfaceMigration)).Error; err != nil {
+		t.Fatal(err)
+	}
 	product := &domain.KenFutProduct{ID: "product-a", KBID: "kb", Name: "Reference Product", Origin: "https://app.example.test", Enabled: true, Pages: []domain.KenFutProductPage{}, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 	if err := db.Create(product).Error; err != nil {
 		t.Fatal(err)

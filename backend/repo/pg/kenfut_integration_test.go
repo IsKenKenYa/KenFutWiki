@@ -26,6 +26,13 @@ func integrationTestDB(t *testing.T) *storePG.DB {
 	if err := db.Exec(string(migration)).Error; err != nil {
 		t.Fatal(err)
 	}
+	surfaceMigration, err := os.ReadFile("../../store/pg/kenfut_migration/000004_event_surface.up.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Exec(string(surfaceMigration)).Error; err != nil {
+		t.Fatal(err)
+	}
 	contentFixture(t, db, "article", "Article", "Published body")
 	for _, id := range []string{"product-a", "product-b"} {
 		if err := db.Create(&domain.KenFutProduct{ID: id, KBID: "kb", Name: id, Origin: "https://example.test", Enabled: true, Pages: []domain.KenFutProductPage{{Key: "start", Name: "Start", Path: "/"}}}).Error; err != nil {
@@ -38,7 +45,7 @@ func integrationTestDB(t *testing.T) *storePG.DB {
 func clickFixture(t *testing.T, repo *KenFutIntegrationRepository, product, session, node string, when time.Time) string {
 	t.Helper()
 	clickID := uuid.NewString()
-	event := &domain.KenFutEvent{EventID: uuid.NewString(), Kind: "cta_click", KBID: "kb", ProductID: product, NodeID: node, SessionID: session, ClickID: &clickID, PayloadHash: uuid.NewString(), OccurredAt: when, ReceivedAt: time.Now()}
+	event := &domain.KenFutEvent{EventID: uuid.NewString(), Kind: "cta_click", Surface: "article", KBID: "kb", ProductID: product, NodeID: node, SessionID: session, ClickID: &clickID, PayloadHash: uuid.NewString(), OccurredAt: when, ReceivedAt: time.Now()}
 	if _, err := repo.RecordEvent(context.Background(), event, nil); err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +67,7 @@ func TestKenFutEventRetriesAreDurableAndScoped(t *testing.T) {
 	id := uuid.NewString()
 	now := time.Now()
 	newEvent := func(hash string) *domain.KenFutEvent {
-		return &domain.KenFutEvent{EventID: id, Kind: "article_view", KBID: "kb", NodeID: "article", SessionID: "visitor", PayloadHash: hash, OccurredAt: now, ReceivedAt: now}
+		return &domain.KenFutEvent{EventID: id, Kind: "article_view", Surface: "article", KBID: "kb", NodeID: "article", SessionID: "visitor", PayloadHash: hash, OccurredAt: now, ReceivedAt: now}
 	}
 	stat := &domain.StatPage{KBID: "kb", NodeID: "article", SessionID: "visitor", Scene: domain.StatPageSceneNodeDetail, CreatedAt: now}
 	if _, err := repo.RecordEvent(ctx, newEvent("same"), stat); err != nil {
@@ -78,11 +85,47 @@ func TestKenFutEventRetriesAreDurableAndScoped(t *testing.T) {
 	if events != 1 || stats != 1 {
 		t.Fatalf("retry inflated analytics: events=%d PV=%d", events, stats)
 	}
-	if err := repo.View(ctx, "kb", "article", id, "another-visitor"); err == nil {
+	if _, err := repo.View(ctx, "kb", "article", id, "another-visitor"); err == nil {
 		t.Fatal("view belonging to another visitor was accepted")
 	}
-	if err := repo.View(ctx, "other-kb", "article", id, "visitor"); err == nil {
+	if _, err := repo.View(ctx, "other-kb", "article", id, "visitor"); err == nil {
 		t.Fatal("view belonging to another site was accepted")
+	}
+}
+
+func TestKenFutFunnelSeparatesArticleAndDocumentViews(t *testing.T) {
+	db := integrationTestDB(t)
+	repo := NewKenFutIntegrationRepository(db)
+	ctx := context.Background()
+	now := time.Now()
+	recordView := func(node, session, surface string) {
+		t.Helper()
+		event := &domain.KenFutEvent{EventID: uuid.NewString(), Kind: "article_view", Surface: surface, KBID: "kb", NodeID: node, SessionID: session, PayloadHash: uuid.NewString(), OccurredAt: now, ReceivedAt: now}
+		if _, err := repo.RecordEvent(ctx, event, nil); err != nil {
+			t.Fatal(err)
+		}
+	}
+	recordView("article", "reader-1", "article")
+	recordView("article", "reader-2", "article")
+	recordView("doc", "reader-1", "docs")
+	recordView("doc", "reader-3", "docs")
+	docClick := uuid.NewString()
+	click := &domain.KenFutEvent{EventID: uuid.NewString(), Kind: "cta_click", Surface: "docs", KBID: "kb", NodeID: "doc", SessionID: "reader-1", ClickID: &docClick, PayloadHash: uuid.NewString(), OccurredAt: now, ReceivedAt: now}
+	if _, err := repo.RecordEvent(ctx, click, nil); err != nil {
+		t.Fatal(err)
+	}
+	funnel, err := repo.Funnel(ctx, domain.KenFutFunnelReq{KBID: "kb", From: now.Add(-time.Hour), To: now.Add(time.Hour)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if funnel.Views != 2 || funnel.Viewers != 2 {
+		t.Fatalf("document views leaked into article views: %#v", funnel)
+	}
+	if funnel.DocumentViews != 2 || funnel.DocumentViewers != 2 {
+		t.Fatalf("document views were not reported separately: %#v", funnel)
+	}
+	if funnel.Clicks != 0 {
+		t.Fatalf("document CTA click leaked into article clicks: %#v", funnel)
 	}
 }
 
@@ -258,7 +301,7 @@ func TestKenFutCTAFunnelViewCohortIsLimitedToThatCTA(t *testing.T) {
 	now := time.Now()
 	repo := NewKenFutIntegrationRepository(db)
 	for _, entry := range entries {
-		event := &domain.KenFutEvent{EventID: uuid.NewString(), Kind: "article_view", KBID: "kb", NodeID: entry.NodeID, NodeReleaseID: entry.NodeReleaseID, SessionID: "visitor-" + entry.NodeID, PayloadHash: "view", OccurredAt: now, ReceivedAt: now}
+		event := &domain.KenFutEvent{EventID: uuid.NewString(), Kind: "article_view", Surface: "article", KBID: "kb", NodeID: entry.NodeID, NodeReleaseID: entry.NodeReleaseID, SessionID: "visitor-" + entry.NodeID, PayloadHash: "view", OccurredAt: now, ReceivedAt: now}
 		if _, err := repo.RecordEvent(context.Background(), event, nil); err != nil {
 			t.Fatal(err)
 		}
@@ -276,7 +319,7 @@ func TestKenFutRetentionArchivesCountsAndKeepsMilestones(t *testing.T) {
 	old := time.Now().AddDate(0, 0, -190)
 	before := time.Now().AddDate(0, 0, -180)
 	for _, when := range []time.Time{old, time.Now()} {
-		event := &domain.KenFutEvent{EventID: uuid.NewString(), Kind: "article_view", KBID: "kb", NodeID: "article", SessionID: "visitor", PayloadHash: "hash", OccurredAt: when, ReceivedAt: when}
+		event := &domain.KenFutEvent{EventID: uuid.NewString(), Kind: "article_view", Surface: "article", KBID: "kb", NodeID: "article", SessionID: "visitor", PayloadHash: "hash", OccurredAt: when, ReceivedAt: when}
 		if _, err := repo.RecordEvent(ctx, event, nil); err != nil {
 			t.Fatal(err)
 		}
@@ -365,7 +408,7 @@ func TestKenFutPVPreservesUpgradeBaselineAndAvoidsDailyDoubleCounting(t *testing
 	id := uuid.NewString()
 	now := time.Now()
 	for i := 0; i < 2; i++ {
-		event := &domain.KenFutEvent{EventID: id, Kind: "article_view", KBID: "kb", NodeID: "pv-article", SessionID: "new", PayloadHash: "same", OccurredAt: now, ReceivedAt: now}
+		event := &domain.KenFutEvent{EventID: id, Kind: "article_view", Surface: "article", KBID: "kb", NodeID: "pv-article", SessionID: "new", PayloadHash: "same", OccurredAt: now, ReceivedAt: now}
 		stat := &domain.StatPage{KBID: "kb", NodeID: "pv-article", SessionID: "new", Scene: domain.StatPageSceneNodeDetail, CreatedAt: now}
 		// This fixture only needs the event schema after the baseline has been captured.
 		if i == 0 {
@@ -374,6 +417,13 @@ func TestKenFutPVPreservesUpgradeBaselineAndAvoidsDailyDoubleCounting(t *testing
 				t.Fatal(e)
 			}
 			if e := db.Exec(string(sqlData)).Error; e != nil {
+				t.Fatal(e)
+			}
+			surfaceData, e := os.ReadFile("../../store/pg/kenfut_migration/000004_event_surface.up.sql")
+			if e != nil {
+				t.Fatal(e)
+			}
+			if e := db.Exec(string(surfaceData)).Error; e != nil {
 				t.Fatal(e)
 			}
 		}

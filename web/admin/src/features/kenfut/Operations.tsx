@@ -465,7 +465,7 @@ function FunnelPanel({ products }: { products: Product[] }) {
             }}
           >
             {[
-              ['文章浏览', data.views, `${data.viewers} 位访客`],
+              ['文章浏览', data.views, `${data.viewers} 位访客 · 仅文章页面`],
               ['CTA 点击', data.clicks, `${data.clickers} 位访客`],
               [
                 '归因注册',
@@ -491,6 +491,17 @@ function FunnelPanel({ products }: { products: Product[] }) {
               </Paper>
             ))}
           </Box>
+          <Paper variant='outlined' sx={{ p: 2 }}>
+            <Typography color='text.secondary'>
+              文档浏览（独立口径，不参与文章漏斗）
+            </Typography>
+            <Typography variant='h6' sx={{ my: 1 }}>
+              {data.document_views ?? 0}
+            </Typography>
+            <Typography variant='caption'>
+              {data.document_viewers ?? 0} 位访客
+            </Typography>
+          </Paper>
           <Stack direction='row' spacing={1} useFlexGap flexWrap='wrap'>
             <Chip
               label={`浏览 → 点击：${formatFunnelRate(data.clickers, data.viewers)}`}
@@ -529,7 +540,7 @@ function FunnelPanel({ products }: { products: Product[] }) {
             </Alert>
           )}
           <Typography variant='body2' color='text.secondary'>
-            浏览次数、去重访客和产品账号为不同口径；未归因事件不会被强行计入文章转化。
+            文章浏览只统计文章页面；文档浏览单独展示，不进入漏斗。浏览次数、去重访客和产品账号为不同口径；未归因事件不会被强行计入文章转化。
           </Typography>
           {data.items && data.items.length > 0 && (
             <Box sx={{ overflow: 'auto' }}>

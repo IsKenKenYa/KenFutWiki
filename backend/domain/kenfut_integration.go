@@ -37,6 +37,7 @@ type KenFutEvent struct {
 	ID            int64     `json:"-" gorm:"primaryKey"`
 	EventID       string    `json:"event_id"`
 	Kind          string    `json:"event_type"`
+	Surface       string    `json:"surface"`
 	KBID          string    `json:"kb_id"`
 	ProductID     string    `json:"product_id"`
 	NodeID        string    `json:"node_id"`
@@ -98,6 +99,8 @@ type KenFutFunnelResp struct {
 	GenerationConnected          bool               `json:"generation_connected"`
 	Views                        int64              `json:"views"`
 	Viewers                      int64              `json:"viewers"`
+	DocumentViews                int64              `json:"document_views"`
+	DocumentViewers              int64              `json:"document_viewers"`
 	Clicks                       int64              `json:"clicks"`
 	Clickers                     int64              `json:"clickers"`
 	Registrations                int64              `json:"registrations"`

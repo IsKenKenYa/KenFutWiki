@@ -88,6 +88,8 @@ export type Funnel = {
   generation_connected: boolean;
   views: number;
   viewers: number;
+  document_views: number;
+  document_viewers: number;
   clicks: number;
   clickers: number;
   registrations: number;

@@ -109,15 +109,16 @@ func (r *KenFutIntegrationRepository) RecordEvent(ctx context.Context, event *do
 	return event, err
 }
 
-func (r *KenFutIntegrationRepository) View(ctx context.Context, kbID, nodeID, viewID, sessionID string) error {
-	var count int64
-	if err := r.db.WithContext(ctx).Model(&domain.KenFutEvent{}).Where("kb_id = ? AND node_id = ? AND event_id = ? AND session_id = ? AND kind = 'article_view'", kbID, nodeID, viewID, sessionID).Count(&count).Error; err != nil {
-		return err
+// View returns the surface of the previously recorded view. Click events inherit
+// it so article and documentation funnels stay separated downstream.
+func (r *KenFutIntegrationRepository) View(ctx context.Context, kbID, nodeID, viewID, sessionID string) (string, error) {
+	var view domain.KenFutEvent
+	if err := r.db.WithContext(ctx).Model(&domain.KenFutEvent{}).
+		Where("kb_id = ? AND node_id = ? AND event_id = ? AND session_id = ? AND kind = 'article_view'", kbID, nodeID, viewID, sessionID).
+		First(&view).Error; err != nil {
+		return "", err
 	}
-	if count == 0 {
-		return gorm.ErrRecordNotFound
-	}
-	return nil
+	return view.Surface, nil
 }
 
 func (r *KenFutIntegrationRepository) RecordConversion(ctx context.Context, event *domain.KenFutEvent, clickID string) error {
@@ -182,7 +183,9 @@ func (r *KenFutIntegrationRepository) Funnel(ctx context.Context, req domain.Ken
 	if err := r.populateFunnelConnection(ctx, req, response); err != nil {
 		return nil, err
 	}
-	views := r.db.WithContext(ctx).Table("kenfut_events e").Where("e.kind='article_view'")
+	// The funnel denominator is article views only. Documentation views are
+	// reported separately below so they cannot dilute article conversion rates.
+	views := r.db.WithContext(ctx).Table("kenfut_events e").Where("e.kind='article_view' AND e.surface='article'")
 	// A product's view cohort consists of pages whose published CTA targets that product,
 	// including visitors who did not click. Never use clicks as the view denominator.
 	if req.ProductID != "" {
@@ -203,17 +206,30 @@ func (r *KenFutIntegrationRepository) Funnel(ctx context.Context, req domain.Ken
 	}
 	response.Views = v.Views
 	response.Viewers = v.Viewers
+	docReq := req
+	docReq.ProductID = ""
+	docReq.CTAID = ""
+	var d struct {
+		Views   int64
+		Viewers int64
+	}
+	docs := eventFilter(r.db.WithContext(ctx).Table("kenfut_events e").Where("e.kind='article_view' AND e.surface='docs'"), docReq, "e")
+	if err := docs.Select("COUNT(*) AS views,COUNT(DISTINCT e.session_id) AS viewers").Scan(&d).Error; err != nil {
+		return nil, err
+	}
+	response.DocumentViews = d.Views
+	response.DocumentViewers = d.Viewers
 	var c struct {
 		Clicks   int64
 		Clickers int64
 	}
-	clicks := eventFilter(r.db.WithContext(ctx).Table("kenfut_events e").Where("e.kind='cta_click'"), req, "e")
+	clicks := eventFilter(r.db.WithContext(ctx).Table("kenfut_events e").Where("e.kind='cta_click' AND e.surface='article'"), req, "e")
 	if err := clicks.Select("COUNT(*) AS clicks,COUNT(DISTINCT e.session_id) AS clickers").Scan(&c).Error; err != nil {
 		return nil, err
 	}
 	response.Clicks = c.Clicks
 	response.Clickers = c.Clickers
-	attributed := r.db.WithContext(ctx).Table("kenfut_milestones r").Joins("JOIN kenfut_events e ON e.click_id=r.click_id AND e.product_id=r.product_id").Where("r.kind='registered' AND r.occurred_at >= e.occurred_at AND r.occurred_at <= e.occurred_at + INTERVAL '30 days'")
+	attributed := r.db.WithContext(ctx).Table("kenfut_milestones r").Joins("JOIN kenfut_events e ON e.click_id=r.click_id AND e.product_id=r.product_id").Where("e.surface='article' AND r.kind='registered' AND r.occurred_at >= e.occurred_at AND r.occurred_at <= e.occurred_at + INTERVAL '30 days'")
 	attributed = eventFilter(attributed, req, "e")
 	if err := attributed.Count(&response.Registrations).Error; err != nil {
 		return nil, err
@@ -364,11 +380,11 @@ func (r *KenFutIntegrationRepository) PurgeEvents(ctx context.Context, before ti
 		}
 		// Preserve daily event totals before removing old detail. Business milestones
 		// remain separately deduplicated; event counts are never labelled accounts.
-		if err := tx.Exec(`INSERT INTO kenfut_daily_event_totals(day,kb_id,product_id,node_id,cta_id,kind,records)
- SELECT (occurred_at AT TIME ZONE 'UTC')::date,kb_id,product_id,node_id,cta_id,kind,COUNT(*)
+		if err := tx.Exec(`INSERT INTO kenfut_daily_event_totals(day,kb_id,product_id,node_id,cta_id,kind,surface,records)
+ SELECT (occurred_at AT TIME ZONE 'UTC')::date,kb_id,product_id,node_id,cta_id,kind,surface,COUNT(*)
  FROM kenfut_events WHERE received_at < ? AND occurred_at < ?
- GROUP BY 1,2,3,4,5,6
- ON CONFLICT(day,kb_id,product_id,node_id,cta_id,kind)
+ GROUP BY 1,2,3,4,5,6,7
+ ON CONFLICT(day,kb_id,product_id,node_id,cta_id,kind,surface)
  DO UPDATE SET records=kenfut_daily_event_totals.records+EXCLUDED.records`, before, before).Error; err != nil {
 			return err
 		}
