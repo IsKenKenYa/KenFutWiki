@@ -47,7 +47,25 @@ export async function generateMetadata(): Promise<Metadata> {
     description: kbDetail?.settings?.desc || '',
     keywords: kbDetail?.settings?.keyword || '',
     icons: {
-      icon: icon || `${basePath}/favicon.png`,
+      icon: icon
+        ? icon
+        : [
+            {
+              url: `${basePath}/favicon.png`,
+              sizes: '32x32',
+              type: 'image/png',
+            },
+            {
+              url: `${basePath}/icon-192.png`,
+              sizes: '192x192',
+              type: 'image/png',
+            },
+            {
+              url: `${basePath}/icon-512.png`,
+              sizes: '512x512',
+              type: 'image/png',
+            },
+          ],
     },
     openGraph: {
       title: kbDetail?.settings?.title || 'KenFutWiki',
