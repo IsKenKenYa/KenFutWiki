@@ -15,7 +15,7 @@ import (
 
 const (
 	SessionCacheKey = "_session_store"
-	SessionName     = "_pw_auth_session"
+	SessionName     = "_kfw_auth_session"
 )
 
 type Auth struct {

@@ -12,7 +12,7 @@ function App() {
   const loginPage = pathname.includes('/login');
   const onlyAllowShareApi = loginPage;
 
-  const token = localStorage.getItem('panda_wiki_token') || '';
+  const token = localStorage.getItem('kfw_admin_token') || '';
 
   if (!token && !onlyAllowShareApi) {
     window.location.href = window.__BASENAME__ + '/login';

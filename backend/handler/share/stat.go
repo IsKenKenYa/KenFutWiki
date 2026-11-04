@@ -71,9 +71,9 @@ func (h *ShareStatHandler) RecordPage(c echo.Context) error {
 		}
 	}
 	sessionID := ""
-	sessionIDCookie, err := c.Request().Cookie("x-pw-session-id")
+	sessionIDCookie, err := c.Request().Cookie("x-kfw-session-id")
 	if err != nil {
-		sessionID = c.Request().Header.Get("x-pw-session-id")
+		sessionID = c.Request().Header.Get("x-kfw-session-id")
 	} else {
 		sessionID = sessionIDCookie.Value
 	}

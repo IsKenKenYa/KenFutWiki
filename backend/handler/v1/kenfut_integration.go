@@ -178,11 +178,11 @@ func (h *KenFutIntegrationHandler) Funnel(c echo.Context) error {
 	return kenFutResponse(c, value, err)
 }
 func kenFutSession(c echo.Context) string {
-	if cookie, err := c.Cookie("x-pw-session-id"); err == nil && cookie.Value != "" && len(cookie.Value) <= 128 {
+	if cookie, err := c.Cookie("x-kfw-session-id"); err == nil && cookie.Value != "" && len(cookie.Value) <= 128 {
 		return cookie.Value
 	}
 	id := uuid.NewString()
-	c.SetCookie(&http.Cookie{Name: "x-pw-session-id", Value: id, Path: "/", HttpOnly: true, Secure: c.Scheme() == "https", SameSite: http.SameSiteLaxMode, MaxAge: 365 * 24 * 60 * 60})
+	c.SetCookie(&http.Cookie{Name: "x-kfw-session-id", Value: id, Path: "/", HttpOnly: true, Secure: c.Scheme() == "https", SameSite: http.SameSiteLaxMode, MaxAge: 365 * 24 * 60 * 60})
 	return id
 }
 func (h *KenFutIntegrationHandler) View(c echo.Context) error {

@@ -97,7 +97,7 @@ const homeProxy = async (
         },
         {
           headers: {
-            'x-pw-session-id': session,
+            'x-kfw-session-id': session,
             ...headers,
           },
         },
@@ -188,7 +188,7 @@ export async function proxy(request: NextRequest) {
     headers[key] = value;
   }
 
-  let sessionId = request.cookies.get('x-pw-session-id')?.value || '';
+  let sessionId = request.cookies.get('x-kfw-session-id')?.value || '';
   let needSetSessionId = false;
 
   if (!sessionId) {
@@ -205,7 +205,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (needSetSessionId) {
-    response.cookies.set('x-pw-session-id', sessionId, {
+    response.cookies.set('x-kfw-session-id', sessionId, {
       httpOnly: true,
       maxAge: 60 * 60 * 24 * 365, // 1 年
     });

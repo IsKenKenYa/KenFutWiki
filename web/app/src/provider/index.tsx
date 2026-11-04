@@ -79,7 +79,7 @@ export default function StoreProvider({
     navDataMap: initialNavDataMap = context.navDataMap || {},
   } = props;
 
-  const NAV_ID_STORAGE_KEY = 'panda-wiki-selected-nav-id';
+  const NAV_ID_STORAGE_KEY = 'kfw-selected-nav-id';
 
   // 使用 props 传入的 defaultNavId，避免 SSR 与 CSR 不一致导致 Hydration 错误
   const initialNavId = initialSelectedNavId;

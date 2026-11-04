@@ -18,7 +18,7 @@ export async function kenfutRequest<T>(
     credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('panda_wiki_token') || ''}`,
+      Authorization: `Bearer ${localStorage.getItem('kfw_admin_token') || ''}`,
       ...options.headers,
     },
   });

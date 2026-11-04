@@ -37,7 +37,7 @@ func TestKenFutFourStageFunnelHTTP(t *testing.T) {
 		req := httptest.NewRequest(method, path, bytes.NewReader(data))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		req.Header.Set("X-KB-ID", browserKBID)
-		req.AddCookie(&http.Cookie{Name: "x-pw-session-id", Value: "four-stage-visitor"})
+		req.AddCookie(&http.Cookie{Name: "x-kfw-session-id", Value: "four-stage-visitor"})
 		if token {
 			req.Header.Set("Authorization", "Bearer "+browserProductToken)
 		}
@@ -125,7 +125,7 @@ func TestKenFutClickRetryCannotSwitchCTATarget(t *testing.T) {
 		request := httptest.NewRequest(http.MethodPost, path, bytes.NewReader(data))
 		request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 		request.Header.Set("X-KB-ID", browserKBID)
-		request.AddCookie(&http.Cookie{Name: "x-pw-session-id", Value: "action-visitor"})
+		request.AddCookie(&http.Cookie{Name: "x-kfw-session-id", Value: "action-visitor"})
 		response := httptest.NewRecorder()
 		e.ServeHTTP(response, request)
 		if response.Code != want {
