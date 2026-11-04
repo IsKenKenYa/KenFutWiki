@@ -36,7 +36,6 @@ export const FooterProvider = ({
         catalogWidth={catalogWidth}
         showBrand={showBrand}
         isDocPage={isDocPage}
-        logo='https://release.baizhi.cloud/panda-wiki/icon.png'
         docWidth={docWidth}
         footerSetting={
           footerSetting
@@ -78,7 +77,6 @@ export const WelcomeFooter = ({
         catalogWidth={catalogWidth}
         showBrand={showBrand}
         isDocPage={false}
-        logo='https://release.baizhi.cloud/panda-wiki/icon.png'
         docWidth='full'
         footerSetting={
           footerSetting

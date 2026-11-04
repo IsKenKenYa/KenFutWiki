@@ -644,7 +644,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                               <TextField
                                 fullWidth
                                 {...field}
-                                placeholder='本网站由 PandaWiki 提供技术支持'
+                                placeholder='本网站由 KenFutWiki 提供技术支持'
                                 error={!!errors.copyright_info}
                                 helperText={errors.copyright_info?.message}
                                 onChange={event => {
@@ -668,7 +668,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                             <TextField
                               fullWidth
                               {...field}
-                              placeholder='本回答由 PandaWiki AI 自动生成，仅供参考。'
+                              placeholder='本回答由 KenFutWiki AI 自动生成，仅供参考。'
                               error={!!errors.disclaimer}
                               helperText={errors.disclaimer?.message}
                               onChange={event => {

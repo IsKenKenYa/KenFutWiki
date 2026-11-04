@@ -43,7 +43,7 @@ export default function SoftwareNotice() {
           target='_blank'
           rel='noopener noreferrer'
         >
-          基于 PandaWiki
+          基于上游开源项目 PandaWiki
         </Link>
       </Stack>
     </Box>

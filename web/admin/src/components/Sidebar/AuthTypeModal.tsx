@@ -102,7 +102,7 @@ const AuthTypeModal = ({
       <Modal
         open={open}
         footer={null}
-        title='关于 PandaWiki'
+        title='关于 KenFutWiki'
         onCancel={onClose}
       >
         <Stack gap={1} sx={{ fontSize: 14, lineHeight: '32px' }}>

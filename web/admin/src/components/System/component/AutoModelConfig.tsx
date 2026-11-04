@@ -133,7 +133,7 @@ const AutoModelConfig = forwardRef<AutoModelConfigRef, AutoModelConfigProps>(
                   color: 'text.secondary',
                 }}
               >
-                通过 API Key 连接百智云提供平台后，PandaWiki
+                通过 API Key 连接百智云提供平台后，KenFutWiki
                 会自动配置好系统所需的问答模型、向量模型、重排序模型、文档分析模型。充分利用平台配置，无需逐个手动配置。
               </Box>
             </Box>

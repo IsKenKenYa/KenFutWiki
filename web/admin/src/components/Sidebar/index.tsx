@@ -282,7 +282,7 @@ const Sidebar = () => {
           }}
           startIcon={<IconGithub sx={{ fontSize: '14px !important' }} />}
           onClick={() =>
-            window.open('https://github.com/chaitin/PandaWiki', '_blank')
+            window.open('https://github.com/IsKenKenYa/KenFutWiki', '_blank')
           }
         >
           GitHub
@@ -413,7 +413,7 @@ const Sidebar = () => {
                     variant='contained'
                     onClick={() =>
                       window.open(
-                        'https://bbs.baizhi.cloud?ref=PandaWiki',
+                        'https://bbs.baizhi.cloud?ref=KenFutWiki',
                         '_blank',
                       )
                     }

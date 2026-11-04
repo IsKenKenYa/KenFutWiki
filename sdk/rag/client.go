@@ -66,7 +66,7 @@ func (c *Client) newRequest(ctx context.Context, method, path string, body inter
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.apiKey)
 	req.Header.Set("X-API-Version", "1.0.0")
-	req.Header.Set("X-App-Name", "Panda-Wiki")
+	req.Header.Set("X-App-Name", "KenFutWiki")
 	return req, nil
 }
 

@@ -212,7 +212,7 @@ func (cfg *WechatServiceConfig) getImageID(token, image string) (string, error) 
 		cfg.logger.Error("failed to get image ID, using default", log.Error(err))
 	}
 
-	return GetDefaultImageID(token, domain.DefaultPandaWikiIconB64)
+	return GetDefaultImageID(token, domain.DefaultKenFutWikiIconB64)
 }
 
 func (cfg *WechatServiceConfig) SendResponseToKfUrl(userId, openkfId, conversationID, token, question, baseUrl, image, disclaimerContent string) error {

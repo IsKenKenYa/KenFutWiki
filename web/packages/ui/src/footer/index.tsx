@@ -52,7 +52,6 @@ const Footer = React.memo(
     docWidth = 'full',
     customStyle,
     footerSetting,
-    logo,
   }: {
     mobile?: boolean;
     catalogWidth?: number;
@@ -61,7 +60,6 @@ const Footer = React.memo(
     docWidth?: string;
     customStyle?: CustomStyle;
     footerSetting?: FooterSetting;
-    logo?: string;
   }) => {
     const [curOverlayType, setCurOverlayType] = useState('');
     const [open, setOpen] = useState(false);
@@ -113,7 +111,7 @@ const Footer = React.memo(
                     {footerSetting?.brand_logo && (
                       <img
                         src={footerSetting.brand_logo}
-                        alt='PandaWiki'
+                        alt={footerSetting.brand_name || 'KenFutWiki'}
                         height={24}
                       />
                     )}
@@ -340,22 +338,9 @@ const Footer = React.memo(
                   color: alpha(theme.palette.text.primary, 0.3),
                 })}
               >
-                <Link
-                  href={'https://pandawiki.docs.baizhi.cloud/'}
-                  target='_blank'
-                >
-                  <Stack
-                    direction={'row'}
-                    alignItems={'center'}
-                    gap={0.5}
-                    sx={{
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <Box>{decodeBase64(PROJECT_NAME)}</Box>
-                    <img src={logo} alt='PandaWiki' width={0} height={0} />
-                  </Stack>
-                </Link>
+                <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+                  <Box>{decodeBase64(PROJECT_NAME)}</Box>
+                </Stack>
               </Stack>
             )}
           </Box>
@@ -507,7 +492,7 @@ const Footer = React.memo(
                     {footerSetting?.brand_logo && (
                       <img
                         src={footerSetting.brand_logo}
-                        alt='PandaWiki'
+                        alt={footerSetting.brand_name || 'KenFutWiki'}
                         height={36}
                       />
                     )}
@@ -782,30 +767,9 @@ const Footer = React.memo(
                         color: alpha(theme.palette.text.primary, 0.5),
                       })}
                     >
-                      <Link
-                        href={'https://pandawiki.docs.baizhi.cloud/'}
-                        target='_blank'
-                      >
-                        <Stack
-                          direction={'row'}
-                          alignItems={'center'}
-                          gap={0.5}
-                          sx={{
-                            cursor: 'pointer',
-                            '&:hover': {
-                              color: 'primary.main',
-                            },
-                          }}
-                        >
-                          <Box>{decodeBase64(PROJECT_NAME)}</Box>
-                          <img
-                            src={logo}
-                            alt='PandaWiki'
-                            width={0}
-                            height={0}
-                          />
-                        </Stack>
-                      </Link>
+                      <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+                        <Box>{decodeBase64(PROJECT_NAME)}</Box>
+                      </Stack>
                     </Stack>
                   </>
                 )}
