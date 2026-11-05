@@ -128,7 +128,7 @@ const AuthTypeModal = ({
                   }
                   onClick={() => {
                     window.open(
-                      'https://pandawiki.docs.baizhi.cloud/node/01971615-05b8-7924-9af7-15f73784f893',
+                      'https://github.com/IsKenKenYa/KenFutWiki/releases',
                     );
                   }}
                 >
