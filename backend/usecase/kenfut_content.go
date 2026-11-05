@@ -116,15 +116,30 @@ func (u *KenFutContentUsecase) Detail(ctx context.Context, kbID, nodeID string, 
 		return nil, err
 	}
 	item.Related, err = u.related(ctx, *row, releaseID, visibility, baseURL)
-	return &item, err
+	if err != nil {
+		return nil, err
+	}
+	item.Translations, err = u.GetTranslations(ctx, kbID, nodeID)
+	if err != nil {
+		return nil, err
+	}
+	return &item, nil
 }
 
-func (u *KenFutContentUsecase) Article(ctx context.Context, kbID, slug string, authID uint) (*domain.KenFutContentItem, error) {
-	nodeID, err := u.repo.ResolveSlug(ctx, kbID, slug)
+func (u *KenFutContentUsecase) Article(ctx context.Context, kbID, slug, lang string, authID uint) (*domain.KenFutContentItem, error) {
+	if lang == "" {
+		lang = domain.DefaultNodeLang
+	}
+	nodeID, err := u.repo.ResolveSlug(ctx, kbID, slug, lang)
 	if err != nil {
 		return nil, err
 	}
 	return u.Detail(ctx, kbID, nodeID, authID)
+}
+
+// GetTranslations 返回文档译本组（供公开站语言切换器与 hreflang 使用）
+func (u *KenFutContentUsecase) GetTranslations(ctx context.Context, kbID, nodeID string) ([]*domain.NodeTranslation, error) {
+	return u.nodes.GetTranslations(ctx, kbID, nodeID)
 }
 
 func (u *KenFutContentUsecase) Related(ctx context.Context, kbID, nodeID string, authID uint) ([]domain.KenFutContentItem, error) {
@@ -157,7 +172,7 @@ func contentItem(row pg.KenFutPublishedRow, baseURL string) domain.KenFutContent
 	if content != "" && row.ContentType != domain.ContentTypeMD && !utils.IsLikelyHTML(content) {
 		content = renderNodeMarkdown(content)
 	}
-	return domain.KenFutContentItem{KenFutContentMetadata: m, ID: row.ID, KBID: row.KBID, Title: row.Title, Summary: row.Summary, Content: content, ContentType: row.ContentType, CreatedAt: row.CreatedAt, UpdatedAt: row.UpdatedAt, URL: canonical, CanonicalURL: canonical, NodeReleaseID: row.NodeReleaseID, PV: row.PV}
+	return domain.KenFutContentItem{KenFutContentMetadata: m, ID: row.ID, KBID: row.KBID, Title: row.Title, Summary: row.Summary, Content: content, ContentType: row.ContentType, Lang: row.Lang, CreatedAt: row.CreatedAt, UpdatedAt: row.UpdatedAt, URL: canonical, CanonicalURL: canonical, NodeReleaseID: row.NodeReleaseID, PV: row.PV}
 }
 
 func (u *KenFutContentUsecase) related(ctx context.Context, current pg.KenFutPublishedRow, releaseID string, visibility pg.KenFutVisibility, baseURL string) ([]domain.KenFutContentItem, error) {

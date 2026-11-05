@@ -586,12 +586,16 @@ export interface DomainChatRequest {
   conversation_id?: string;
   /** @maxItems 3 */
   image_paths?: string[];
+  /** Lang 会话内容语言（BCP-47 小写主码），用于按语言过滤检索；缺省 zh */
+  lang?: string;
   message?: string;
   nonce?: string;
 }
 
 export interface DomainChatSearchReq {
   captcha_token?: string;
+  /** Lang 检索语言过滤；缺省不过滤 */
+  lang?: string;
   message: string;
 }
 
@@ -776,11 +780,15 @@ export interface DomainCreateNodeReq {
   content_type?: string;
   emoji?: string;
   kb_id: string;
+  /** Lang 内容语言，缺省 zh；文档创建后不可修改 */
+  lang?: string;
   name: string;
   nav_id: string;
   parent_id?: string;
   position?: number;
   summary?: string;
+  /** TranslateFromNodeID 创建译本：传入源文档 ID，自动加入其译本组（源文档无组则同时建组） */
+  translate_from_node_id?: string;
   type: 1 | 2;
 }
 
@@ -954,6 +962,7 @@ export interface DomainKenFutContentItem {
   featured_order?: number;
   id?: string;
   kb_id?: string;
+  lang?: string;
   node_id?: string;
   node_release_id?: string;
   pv?: number;
@@ -963,6 +972,7 @@ export interface DomainKenFutContentItem {
   summary?: string;
   tags?: string[];
   title?: string;
+  translations?: DomainNodeTranslation[];
   updated_at?: string;
   url?: string;
 }
@@ -1120,6 +1130,7 @@ export interface DomainNodeListItemResp {
   editor_id?: string;
   emoji?: string;
   id?: string;
+  lang?: string;
   name?: string;
   nav_id?: string;
   parent_id?: string;
@@ -1129,6 +1140,7 @@ export interface DomainNodeListItemResp {
   rag_info?: DomainRagInfo;
   status?: DomainNodeStatus;
   summary?: string;
+  translation_group_id?: string;
   type?: DomainNodeType;
   updated_at?: string;
 }
@@ -1151,6 +1163,17 @@ export interface DomainNodePermissions {
 export interface DomainNodeSummaryReq {
   ids: string[];
   kb_id: string;
+}
+
+export interface DomainNodeTranslation {
+  /** Channel 译本最新发布内容的 channel（docs/article），决定 URL 形态 */
+  channel?: string;
+  lang?: string;
+  name?: string;
+  node_id?: string;
+  slug?: string;
+  /** URL 为站内路径（/blog/{slug} 或 /node/{id}），不含 locale 前缀 */
+  url?: string;
 }
 
 export interface DomainObjectUploadResp {
@@ -1455,8 +1478,10 @@ export interface DomainTextImgConfig {
 }
 
 export interface DomainTextReq {
-  /** action: improve, summary, extend, shorten, etc. */
+  /** action: improve, summary, extend, shorten, translate 等 */
   action?: string;
+  /** TargetLang translate 动作的目标语言（BCP-47 小写主码，支持 zh/en） */
+  target_lang?: string;
   text: string;
 }
 
@@ -1886,6 +1911,7 @@ export interface V1NodeDetailResp {
   editor_id?: string;
   id?: string;
   kb_id?: string;
+  lang?: string;
   meta?: DomainNodeMeta;
   name?: string;
   nav_id?: string;
@@ -1895,6 +1921,7 @@ export interface V1NodeDetailResp {
   publisher_id?: string;
   pv?: number;
   status?: DomainNodeStatus;
+  translation_group_id?: string;
   type?: DomainNodeType;
   updated_at?: string;
 }
@@ -2256,6 +2283,8 @@ export interface DeleteApiV1UserDeleteParams {
 }
 
 export interface GetShareKenfutV1ArticlesSlugParams {
+  /** Content language, default zh */
+  lang?: string;
   /** Article slug */
   slug: string;
 }
@@ -2285,6 +2314,11 @@ export interface GetShareKenfutV1ContentsNodeIdParams {
 export interface GetShareKenfutV1ContentsNodeIdRelatedParams {
   /** Node ID */
   nodeId: string;
+}
+
+export interface GetShareKenfutV1TranslationsParams {
+  /** Node ID */
+  node_id: string;
 }
 
 export interface GetShareV1AppWechatServiceAnswerParams {

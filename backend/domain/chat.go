@@ -14,6 +14,8 @@ type ChatRequest struct {
 	Nonce          string   `json:"nonce"`
 	AppType        AppType  `json:"app_type" validate:"required,oneof=1 2"`
 	CaptchaToken   string   `json:"captcha_token"`
+	// Lang 会话内容语言（BCP-47 小写主码），用于按语言过滤检索；缺省 zh
+	Lang string `json:"lang"`
 
 	KBID  string `json:"-" validate:"required"`
 	AppID string `json:"-"`
@@ -27,6 +29,8 @@ type ChatRequest struct {
 
 type ChatRagOnlyRequest struct {
 	Message string `json:"message" validate:"required"`
+	// Lang 检索语言过滤；缺省不过滤
+	Lang string `json:"lang"`
 
 	KBID string `json:"-" validate:"required"`
 
@@ -81,6 +85,8 @@ func (m MessageFrom) String() string {
 type ChatSearchReq struct {
 	Message      string `json:"message" validate:"required"`
 	CaptchaToken string `json:"captcha_token"`
+	// Lang 检索语言过滤；缺省不过滤
+	Lang string `json:"lang"`
 
 	KBID string `json:"-" validate:"required"`
 

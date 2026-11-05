@@ -39,10 +39,23 @@ export async function getContentMetadata(
   const image = content.cover_url
     ? new URL(localHref(basePath, content.cover_url), origin).toString()
     : undefined;
+  // hreflang：有译本时输出各语言 alternate（x-default 指向默认语言版本）
+  let languages: Record<string, string> | undefined;
+  if (content.translations && content.translations.length > 1) {
+    languages = {};
+    for (const t of content.translations) {
+      languages[t.lang] = new URL(
+        t.lang === 'zh'
+          ? localHref(basePath, t.url)
+          : localHref(basePath, `/en${t.url}`),
+        origin,
+      ).toString();
+    }
+  }
   return {
     title: content.title,
     description: content.summary,
-    alternates: { canonical },
+    alternates: { canonical, languages },
     authors: content.author_name ? [{ name: content.author_name }] : undefined,
     openGraph: {
       type: 'article',

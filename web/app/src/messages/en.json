@@ -1,0 +1,71 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "retry": "Retry",
+    "backHome": "Back to home",
+    "copy": "Copy",
+    "copied": "Copied",
+    "viewMore": "View more"
+  },
+  "header": {
+    "docs": "Docs",
+    "blog": "Blog",
+    "aiChat": "AI Chat",
+    "logout": "Log out",
+    "logoutConfirmTitle": "Log out",
+    "logoutConfirmContent": "Are you sure you want to log out?",
+    "language": "Language"
+  },
+  "home": {
+    "linkGroup": "Link group",
+    "folderCard": "Folder card",
+    "faq": "FAQ"
+  },
+  "blog": {
+    "title": "Articles",
+    "searchPlaceholder": "Search articles",
+    "noResults": "No articles found",
+    "allCategories": "All categories",
+    "allTags": "All tags",
+    "featured": "Featured",
+    "readMore": "Read more",
+    "backToArticles": "Back to articles",
+    "views": "Views",
+    "relatedArticles": "Related articles"
+  },
+  "login": {
+    "title": "Sign in",
+    "account": "Account",
+    "password": "Password",
+    "submit": "Sign in",
+    "accountRequired": "Please enter your account",
+    "passwordRequired": "Please enter your password",
+    "invalidCredentials": "Invalid account or password"
+  },
+  "error": {
+    "notFoundTitle": "Page not found",
+    "notFoundDesc": "The page you are looking for does not exist or has been removed.",
+    "errorTitle": "Something went wrong",
+    "errorDesc": "An unexpected error occurred. Please try again later."
+  },
+  "comment": {
+    "title": "Comments",
+    "placeholder": "Write a comment...",
+    "submit": "Submit",
+    "empty": "No comments yet",
+    "reply": "Reply"
+  },
+  "qa": {
+    "placeholder": "Ask me anything...",
+    "thinking": "Thinking...",
+    "searchDocs": "Related docs",
+    "stop": "Stop",
+    "newChat": "New chat"
+  },
+  "node": {
+    "toc": "Table of contents",
+    "lastUpdated": "Last updated",
+    "copyFailed": "Copy failed",
+    "source": "Content from"
+  }
+}

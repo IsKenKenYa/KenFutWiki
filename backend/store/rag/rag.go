@@ -20,6 +20,8 @@ type QueryRecordsRequest struct {
 	SimilarityThreshold float64
 	HistoryMsgs         []*schema.Message
 	MaxChunksPerDoc     int
+	// Lang 内容语言过滤；为空不过滤
+	Lang string
 }
 
 type UpsertRecordsRequest struct {
@@ -30,6 +32,8 @@ type UpsertRecordsRequest struct {
 	Content   string
 	GroupIDs  []int
 	Tags      []string
+	// Lang 写入向量元数据，供检索按语言过滤
+	Lang string
 }
 
 type DocumentMetadata struct {

@@ -26,6 +26,7 @@ func NewShareKenFutContentHandler(e *echo.Echo, base *handler.BaseHandler, u *us
 	group.GET("/contents/:node_id/related", h.Related)
 	group.GET("/pages", h.Pages)
 	group.GET("/taxonomies", h.Taxonomies)
+	group.GET("/translations", h.Translations)
 	return h
 }
 
@@ -101,13 +102,31 @@ func (h *ShareKenFutContentHandler) Detail(c echo.Context) error {
 //	@Tags		kenfut_content
 //	@Param		X-KB-ID	header		string	true	"Knowledge base"
 //	@Param		slug	path		string	true	"Article slug"
+//	@Param		lang	query		string	false	"Content language, default zh"
 //	@Success	200		{object}	domain.PWResponse{data=domain.KenFutContentItem}
 //	@Router		/share/kenfut/v1/articles/{slug} [get]
 func (h *ShareKenFutContentHandler) Article(c echo.Context) error {
-	result, err := h.usecase.Article(c.Request().Context(), c.Request().Header.Get("X-KB-ID"), c.Param("slug"), domain.GetAuthID(c))
+	result, err := h.usecase.Article(c.Request().Context(), c.Request().Header.Get("X-KB-ID"), c.Param("slug"), c.QueryParam("lang"), domain.GetAuthID(c))
 	if err == nil {
 		err = h.integration.ProjectCTAs(c.Request().Context(), result, domain.GetAuthID(c))
 	}
+	return contentPublicReply(c, result, err)
+}
+
+// Translations returns the published translation group of a node.
+//
+//	@Summary	Node translations
+//	@Tags		kenfut_content
+//	@Param		X-KB-ID	header		string	true	"Knowledge base"
+//	@Param		node_id	query		string	true	"Node ID"
+//	@Success	200		{object}	domain.PWResponse{data=[]domain.NodeTranslation}
+//	@Router		/share/kenfut/v1/translations [get]
+func (h *ShareKenFutContentHandler) Translations(c echo.Context) error {
+	nodeID := c.QueryParam("node_id")
+	if nodeID == "" {
+		return contentPublicReply(c, nil, errors.New("node_id is required"))
+	}
+	result, err := h.usecase.GetTranslations(c.Request().Context(), c.Request().Header.Get("X-KB-ID"), nodeID)
 	return contentPublicReply(c, result, err)
 }
 

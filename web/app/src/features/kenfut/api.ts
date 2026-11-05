@@ -35,14 +35,25 @@ const post = <T>(
     signal,
   });
 
+// 语言维度请求参数：客户端从 URL（/en 前缀）读取；RSC 调用方用 resolveLocale 显式传 lang
+export const getClientLocaleParam = (): string | undefined => {
+  if (typeof window === 'undefined') return undefined;
+  const path = window.location.pathname;
+  return path === '/en' || path.startsWith('/en/') ? 'en' : undefined;
+};
+
 export const getContents = (query: ContentQuery = {}) =>
-  get<ContentList>('/contents', query);
+  get<ContentList>('/contents', { lang: getClientLocaleParam(), ...query });
 
-export const getContent = (nodeId: string) =>
-  get<PublishedContent>(`/contents/${encodeURIComponent(nodeId)}`);
+export const getContent = (nodeId: string, lang?: string) =>
+  get<PublishedContent>(`/contents/${encodeURIComponent(nodeId)}`, {
+    lang,
+  });
 
-export const getArticle = (slug: string) =>
-  get<PublishedContent>(`/articles/${encodeURIComponent(slug)}`);
+export const getArticle = (slug: string, lang?: string) =>
+  get<PublishedContent>(`/articles/${encodeURIComponent(slug)}`, {
+    lang,
+  });
 
 export const getRelated = (nodeId: string) =>
   get<PublishedContent[]>(`/contents/${encodeURIComponent(nodeId)}/related`);

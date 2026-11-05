@@ -19,6 +19,15 @@ export type ContentCTA = {
   resolved_url?: string;
 };
 
+export type ContentTranslation = {
+  node_id: string;
+  lang: string;
+  name: string;
+  slug: string;
+  channel: string;
+  url: string;
+};
+
 export type PublishedContent = {
   id: string;
   node_id: string;
@@ -45,6 +54,8 @@ export type PublishedContent = {
   url: string;
   canonical_url: string;
   pv: number;
+  lang?: string;
+  translations?: ContentTranslation[];
   related?: PublishedContent[];
 };
 
@@ -70,6 +81,7 @@ export type ContentQuery = {
   category?: string;
   tag?: string;
   featured?: boolean;
+  lang?: string;
   page?: number;
   page_size?: number;
 };

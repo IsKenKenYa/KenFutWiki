@@ -78,6 +78,9 @@ func (s *CTRAG) QueryRecords(ctx context.Context, req *QueryRecordsRequest) (str
 		ChatHistory:         chatMsgs,
 		MaxChunksPerDoc:     req.MaxChunksPerDoc,
 	}
+	if req.Lang != "" {
+		data.Metadata["lang"] = req.Lang
+	}
 	res, err := s.client.Search.Retrieve(ctx, data)
 	if err != nil {
 		return "", nil, err
@@ -114,6 +117,9 @@ func (s *CTRAG) UpsertRecords(ctx context.Context, req *UpsertRecordsRequest) (s
 	}
 	if req.GroupIDs != nil {
 		data.Metadata["group_ids"] = req.GroupIDs
+	}
+	if req.Lang != "" {
+		data.Metadata["lang"] = req.Lang
 	}
 	if req.Tags != nil {
 		data.Tags = req.Tags

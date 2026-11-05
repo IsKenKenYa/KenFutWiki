@@ -148,12 +148,12 @@ func snapshotContentMetadata(tx *gorm.DB, node domain.Node, snapshot domain.Node
 		}
 	}
 	if metadata.Slug != "" {
-		alias := domain.KenFutSlugAlias{KBID: node.KBID, Slug: metadata.Slug, NodeID: node.ID}
+		alias := domain.KenFutSlugAlias{KBID: node.KBID, Slug: metadata.Slug, Lang: node.Lang, NodeID: node.ID}
 		if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&alias).Error; err != nil {
 			return err
 		}
 		var owner domain.KenFutSlugAlias
-		if err := tx.Where("kb_id = ? AND slug = ?", node.KBID, metadata.Slug).First(&owner).Error; err != nil {
+		if err := tx.Where("kb_id = ? AND slug = ? AND lang = ?", node.KBID, metadata.Slug, node.Lang).First(&owner).Error; err != nil {
 			return err
 		}
 		if owner.NodeID != node.ID {

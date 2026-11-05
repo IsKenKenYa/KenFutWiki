@@ -224,7 +224,7 @@ func (u *ChatUsecase) Chat(ctx context.Context, req *domain.ChatRequest) (<-chan
 			return
 		}
 
-		messages, rankedNodes, err := u.llmUsecase.BuildConversationMessageWithRAG(ctx, req.ConversationID, req.KBID, groupIds, req.Prompt)
+		messages, rankedNodes, err := u.llmUsecase.BuildConversationMessageWithRAG(ctx, req.ConversationID, req.KBID, groupIds, req.Prompt, req.Lang)
 		if err != nil {
 			u.logger.Error("build messages failed", log.Error(err))
 			eventCh <- domain.SSEEvent{Type: "error", Content: err.Error()}
@@ -355,6 +355,7 @@ func (u *ChatUsecase) ChatRagOnly(ctx context.Context, req *domain.ChatRagOnlyRe
 			HistoryMessages:     nil,
 			SimilarityThreshold: 0,
 			MaxChunksPerDoc:     1,
+			Lang:                req.Lang,
 		})
 		if err != nil {
 			u.logger.Error("failed to get rank nodes", log.Error(err))
@@ -448,6 +449,7 @@ func (u *ChatUsecase) Search(ctx context.Context, req *domain.ChatSearchReq) (*d
 		GroupIDs:            groupIds,
 		SimilarityThreshold: 0.2,
 		HistoryMessages:     nil,
+		Lang:                req.Lang,
 	})
 	if err != nil {
 		return nil, err

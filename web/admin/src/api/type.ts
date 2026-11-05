@@ -206,6 +206,7 @@ export interface ITreeItem {
   status?: 0 | 1 | 2;
   permissions?: DomainNodePermissions;
   collapsed?: boolean;
+  lang?: string;
 }
 
 export interface NodeReleaseItem {

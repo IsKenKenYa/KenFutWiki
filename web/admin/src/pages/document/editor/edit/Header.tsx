@@ -229,6 +229,26 @@ const Header = ({
             MD
           </Box>
         )}
+        {detail.lang && detail.lang !== 'zh' && (
+          <Box
+            component={'span'}
+            sx={{
+              fontSize: 10,
+              color: 'white',
+              background: 'linear-gradient(135deg, #8ec5fc 0%, #e0c3fc 100%)',
+              px: 1,
+              flexShrink: 0,
+              fontWeight: '500',
+              borderRadius: '4px',
+              height: '20px',
+              lineHeight: '20px',
+              display: 'inline-block',
+              textTransform: 'uppercase',
+            }}
+          >
+            {detail.lang}
+          </Box>
+        )}
         <Stack sx={{ width: 0, flex: 1 }}>
           {detail?.name ? (
             <Ellipsis sx={{ fontSize: 14, fontWeight: 'bold' }}>
@@ -279,6 +299,30 @@ const Header = ({
                       emoji: detail.meta?.emoji,
                     }).then(res => {
                       message.success('复制成功');
+                      window.open(`/doc/editor/${res.id}`, '_blank');
+                    });
+                  }
+                },
+              },
+              {
+                key: 'translate',
+                textSx: { flex: 1 },
+                label: <StyledMenuSelect>创建译本（English）</StyledMenuSelect>,
+                disabled: detail.lang === 'en',
+                onClick: () => {
+                  if (kb_id) {
+                    postApiV1Node({
+                      name: detail.name || '',
+                      content: detail.content,
+                      kb_id,
+                      nav_id: nav_id || detail.nav_id || '',
+                      parent_id: detail.parent_id || undefined,
+                      type: 2,
+                      emoji: detail.meta?.emoji,
+                      lang: 'en',
+                      translate_from_node_id: detail.id,
+                    }).then(res => {
+                      message.success('译本已创建，请翻译内容后发布');
                       window.open(`/doc/editor/${res.id}`, '_blank');
                     });
                   }

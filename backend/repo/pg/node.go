@@ -90,22 +90,63 @@ func (r *NodeRepository) Create(ctx context.Context, req *domain.CreateNodeReq, 
 			meta.ContentType = *req.ContentType
 		}
 
+		lang := req.Lang
+		if lang == "" {
+			lang = domain.DefaultNodeLang
+		}
+		if !domain.IsValidNodeLang(lang) {
+			return fmt.Errorf("unsupported node lang: %s", lang)
+		}
+
+		// 译本组：源文档已有组则加入，否则建新组并把源文档收进组
+		var groupID *string
+		if req.TranslateFromNodeID != "" {
+			var source domain.Node
+			if err := tx.Where("kb_id = ? AND id = ?", req.KBID, req.TranslateFromNodeID).First(&source).Error; err != nil {
+				return fmt.Errorf("translation source node not found: %w", err)
+			}
+			if source.Lang == lang {
+				return fmt.Errorf("translation lang conflicts with source node lang %q", source.Lang)
+			}
+			if source.TranslationGroupID != nil {
+				groupID = source.TranslationGroupID
+			} else {
+				newGroup := uuid.NewString()
+				groupID = &newGroup
+				if err := tx.Model(&domain.Node{}).Where("id = ?", source.ID).Update("translation_group_id", newGroup).Error; err != nil {
+					return err
+				}
+			}
+			// 组内语言唯一性
+			var siblings int64
+			if err := tx.Model(&domain.Node{}).
+				Where("kb_id = ? AND translation_group_id = ? AND lang = ? AND id <> ?", req.KBID, *groupID, lang, source.ID).
+				Count(&siblings).Error; err != nil {
+				return err
+			}
+			if siblings > 0 {
+				return fmt.Errorf("translation group already has a %s version", lang)
+			}
+		}
+
 		node := &domain.Node{
-			ID:        nodeIDStr,
-			KBID:      req.KBID,
-			NavId:     req.NavId,
-			Name:      req.Name,
-			Content:   req.Content,
-			Meta:      meta,
-			Type:      req.Type,
-			ParentID:  req.ParentID,
-			Position:  newPos,
-			Status:    domain.NodeStatusUnreleased,
-			CreatorId: userId,
-			EditorId:  userId,
-			CreatedAt: now,
-			UpdatedAt: now,
-			EditTime:  now,
+			ID:                 nodeIDStr,
+			KBID:               req.KBID,
+			NavId:              req.NavId,
+			Name:               req.Name,
+			Content:            req.Content,
+			Meta:               meta,
+			Type:               req.Type,
+			ParentID:           req.ParentID,
+			Position:           newPos,
+			Status:             domain.NodeStatusUnreleased,
+			CreatorId:          userId,
+			EditorId:           userId,
+			Lang:               lang,
+			TranslationGroupID: groupID,
+			CreatedAt:          now,
+			UpdatedAt:          now,
+			EditTime:           now,
 			RagInfo: domain.RagInfo{
 				Status:  consts.NodeRagStatusPending,
 				Message: "",
@@ -133,7 +174,7 @@ func (r *NodeRepository) GetList(ctx context.Context, req *domain.GetNodeListReq
 		Joins("LEFT JOIN users cu ON nodes.creator_id = cu.id").
 		Joins("LEFT JOIN users eu ON nodes.editor_id = eu.id").
 		Where("nodes.kb_id = ?", req.KBID).
-		Select("cu.account AS creator, eu.account AS editor, nodes.editor_id, nodes.nav_id, nodes.rag_info, nodes.creator_id, nodes.id, nodes.permissions, nodes.type, nodes.status, nodes.name, nodes.parent_id, nodes.position, nodes.created_at, nodes.edit_time as updated_at, nodes.meta->>'summary' as summary, nodes.meta->>'emoji' as emoji, nodes.meta->>'content_type' as content_type")
+		Select("cu.account AS creator, eu.account AS editor, nodes.editor_id, nodes.nav_id, nodes.rag_info, nodes.creator_id, nodes.id, nodes.permissions, nodes.type, nodes.status, nodes.name, nodes.parent_id, nodes.position, nodes.created_at, nodes.edit_time as updated_at, nodes.meta->>'summary' as summary, nodes.meta->>'emoji' as emoji, nodes.meta->>'content_type' as content_type, nodes.lang, nodes.translation_group_id")
 	if req.Search != "" {
 		searchPattern := "%" + req.Search + "%"
 		query = query.Where("name LIKE ? OR content LIKE ?", searchPattern, searchPattern)
@@ -145,6 +186,36 @@ func (r *NodeRepository) GetList(ctx context.Context, req *domain.GetNodeListReq
 		return nil, err
 	}
 	return nodes, nil
+}
+
+// GetNodeTranslations 返回文档译本组内全部成员（含自身），按 lang 排序；
+// slug/channel 取各译本最新一次发布的内容元数据（未发布过的译本为空）
+func (r *NodeRepository) GetNodeTranslations(ctx context.Context, kbID, nodeID string) ([]*domain.NodeTranslation, error) {
+	var source domain.Node
+	if err := r.db.WithContext(ctx).
+		Where("kb_id = ? AND id = ?", kbID, nodeID).
+		Select("id, translation_group_id").
+		First(&source).Error; err != nil {
+		return nil, err
+	}
+	if source.TranslationGroupID == nil {
+		return nil, nil
+	}
+	translations := []*domain.NodeTranslation{}
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT n.id AS node_id, n.lang, n.name,
+		       COALESCE(kcr.metadata->>'slug','') AS slug,
+		       COALESCE(kcr.metadata->>'channel','docs') AS channel
+		FROM nodes n
+		LEFT JOIN LATERAL (
+			SELECT metadata FROM kenfut_content_releases r
+			WHERE r.node_id = n.id
+			ORDER BY r.created_at DESC
+			LIMIT 1
+		) kcr ON true
+		WHERE n.kb_id = ? AND n.translation_group_id = ?
+		ORDER BY n.lang ASC`, kbID, *source.TranslationGroupID).Scan(&translations).Error
+	return translations, err
 }
 
 func (r *NodeRepository) GetLatestNodeReleaseByNodeIDs(ctx context.Context, kbID string, ids []string) ([]*domain.NodeRelease, error) {
@@ -771,8 +842,8 @@ func (r *NodeRepository) GetRecommendNodeListByParentIDs(ctx context.Context, kb
 	return nodesMap, nil
 }
 
-// GetNodeReleaseListByKBID get node list by kb id
-func (r *NodeRepository) GetNodeReleaseListByKBID(ctx context.Context, kbID string) ([]*domain.ShareNodeListItemResp, error) {
+// GetNodeReleaseListByKBID get node list by kb id；lang 非空时仅返回该语言的文档
+func (r *NodeRepository) GetNodeReleaseListByKBID(ctx context.Context, kbID string, lang string) ([]*domain.ShareNodeListItemResp, error) {
 	// get kb release
 	var kbRelease *domain.KBRelease
 	if err := r.db.WithContext(ctx).
@@ -795,8 +866,11 @@ func (r *NodeRepository) GetNodeReleaseListByKBID(ctx context.Context, kbID stri
 		Where("kb_release_node_releases.kb_id = ?", kbID).
 		Where("kb_release_node_releases.release_id = ?", kbRelease.ID).
 		Where("nodes.permissions->>'visible' != ?", consts.NodeAccessPermClosed).
-		Where("COALESCE(kcr.metadata->>'channel','docs') IN ('docs','both')").
-		Select("node_releases.node_id as id, node_releases.name, node_releases.type, node_releases.parent_id, node_releases.position, node_releases.meta->>'emoji' as emoji, node_releases.updated_at, nodes.permissions, node_releases.meta, kb_release_node_releases.nav_id")
+		Where("COALESCE(kcr.metadata->>'channel','docs') IN ('docs','both')")
+	if lang != "" {
+		qs = qs.Where("nodes.lang = ?", lang)
+	}
+	qs = qs.Select("node_releases.node_id as id, node_releases.name, node_releases.type, node_releases.parent_id, node_releases.position, node_releases.meta->>'emoji' as emoji, node_releases.updated_at, nodes.permissions, node_releases.meta, kb_release_node_releases.nav_id")
 
 	if err := qs.Find(&nodes).Error; err != nil {
 		return nil, err
@@ -1356,7 +1430,7 @@ func (r *NodeRepository) GetNodeListByStatus(ctx context.Context, kbId, status, 
 		Joins("LEFT JOIN users cu ON nodes.creator_id = cu.id").
 		Joins("LEFT JOIN users eu ON nodes.editor_id = eu.id").
 		Where("nodes.kb_id = ?", kbId).
-		Select("cu.account AS creator, eu.account AS editor, nodes.editor_id, nodes.nav_id, nodes.rag_info, nodes.creator_id, nodes.id, nodes.permissions, nodes.type, nodes.status, nodes.name, nodes.parent_id, nodes.position, nodes.created_at, nodes.edit_time as updated_at, nodes.meta->>'summary' as summary, nodes.meta->>'emoji' as emoji, nodes.meta->>'content_type' as content_type")
+		Select("cu.account AS creator, eu.account AS editor, nodes.editor_id, nodes.nav_id, nodes.rag_info, nodes.creator_id, nodes.id, nodes.permissions, nodes.type, nodes.status, nodes.name, nodes.parent_id, nodes.position, nodes.created_at, nodes.edit_time as updated_at, nodes.meta->>'summary' as summary, nodes.meta->>'emoji' as emoji, nodes.meta->>'content_type' as content_type, nodes.lang, nodes.translation_group_id")
 
 	if search != "" {
 		searchPattern := "%" + search + "%"

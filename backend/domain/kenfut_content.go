@@ -67,6 +67,7 @@ func (m *KenFutContentMetadata) Scan(value any) error {
 type KenFutContentDraft struct {
 	NodeID    string `gorm:"primaryKey"`
 	KBID      string
+	Lang      string
 	Metadata  KenFutContentMetadata `gorm:"type:jsonb"`
 	UpdatedAt time.Time
 }
@@ -87,6 +88,7 @@ func (KenFutContentRelease) TableName() string { return "kenfut_content_releases
 type KenFutSlugAlias struct {
 	KBID   string `gorm:"primaryKey"`
 	Slug   string `gorm:"primaryKey"`
+	Lang   string `gorm:"primaryKey;default:zh"`
 	NodeID string
 }
 
@@ -100,6 +102,8 @@ type KenFutContentItem struct {
 	Summary       string              `json:"summary"`
 	Content       string              `json:"content,omitempty"`
 	ContentType   string              `json:"content_type"`
+	Lang          string              `json:"lang"`
+	Translations  []*NodeTranslation  `json:"translations,omitempty"`
 	CreatedAt     time.Time           `json:"created_at"`
 	UpdatedAt     time.Time           `json:"updated_at"`
 	URL           string              `json:"url"`
@@ -116,6 +120,8 @@ type KenFutContentListReq struct {
 	Category string `query:"category"`
 	Tag      string `query:"tag"`
 	Featured bool   `query:"featured"`
+	// Lang 内容语言过滤；为空返回全部语言
+	Lang     string `query:"lang"`
 	Page     int    `query:"page"`
 	PageSize int    `query:"page_size"`
 }

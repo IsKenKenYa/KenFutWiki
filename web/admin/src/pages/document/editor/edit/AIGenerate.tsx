@@ -1,7 +1,7 @@
 import SSEClient from '@/utils/fetch';
 import { Editor, useTiptap, UseTiptapReturn } from '@ctzhian/tiptap';
 import { Modal } from '@ctzhian/ui';
-import { Box, Divider, Stack } from '@mui/material';
+import { Box, Button, Divider, Stack } from '@mui/material';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface AIGenerateProps {
@@ -10,6 +10,11 @@ interface AIGenerateProps {
   onClose: () => void;
   editorRef: UseTiptapReturn;
 }
+
+const LANG_TARGETS: { value: string; label: string }[] = [
+  { value: 'zh', label: '中文' },
+  { value: 'en', label: 'English' },
+];
 
 const AIGenerate = ({
   open,
@@ -21,6 +26,8 @@ const AIGenerate = ({
 
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
+  // null = 润色；'zh'/'en' = 翻译到目标语言
+  const [targetLang, setTargetLang] = useState<null | string>(null);
 
   const defaultEditor = useTiptap({
     editable: false,
@@ -32,31 +39,37 @@ const AIGenerate = ({
     baseUrl: window.__BASENAME__ || '',
   });
 
-  const onGenerate = useCallback(() => {
-    if (sseClientRef.current) {
-      setLoading(true);
-      sseClientRef.current.subscribe(
-        JSON.stringify({
-          text: selectText,
-          action: 'rephrase',
-          stream: true,
-        }),
-        data => {
-          setContent(prev => {
-            const newContent = prev + data;
-            readEditor?.setContent(newContent);
-            return newContent;
-          });
-        },
-      );
-    }
-  }, [selectText, sseClientRef.current, readEditor]);
+  const onGenerate = useCallback(
+    (lang: null | string) => {
+      const client = sseClientRef.current;
+      if (client) {
+        setLoading(true);
+        client.subscribe(
+          JSON.stringify({
+            text: selectText,
+            action: lang == null ? 'rephrase' : 'translate',
+            ...(lang == null ? {} : { target_lang: lang }),
+            stream: true,
+          }),
+          data => {
+            setContent(prev => {
+              const newContent = prev + data;
+              readEditor?.setContent(newContent);
+              return newContent;
+            });
+          },
+        );
+      }
+    },
+    [selectText, readEditor],
+  );
 
   const onCancel = () => {
     sseClientRef.current?.unsubscribe();
     defaultEditor?.setContent('');
     readEditor?.setContent('');
     setContent('');
+    setTargetLang(null);
     onClose();
   };
 
@@ -80,17 +93,47 @@ const AIGenerate = ({
     if (selectText) {
       defaultEditor?.setContent(selectText);
       setTimeout(() => {
-        onGenerate();
+        onGenerate(targetLang);
       }, 60);
     }
+    return () => {
+      sseClientRef.current?.unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectText, open]);
+
+  // 切换目标语言：终止当前流并重新生成
+  const handleSwitchLang = (lang: null | string) => {
+    if (lang === targetLang) return;
+    sseClientRef.current?.unsubscribe();
+    setLoading(true);
+    setContent('');
+    readEditor?.setContent('');
+    setTargetLang(lang);
+    sseClientRef.current?.subscribe(
+      JSON.stringify({
+        text: selectText,
+        action: lang == null ? 'rephrase' : 'translate',
+        ...(lang == null ? {} : { target_lang: lang }),
+        stream: true,
+      }),
+      data => {
+        setContent(prev => {
+          const newContent = prev + data;
+          readEditor?.setContent(newContent);
+          return newContent;
+        });
+      },
+    );
+  };
 
   useEffect(() => {
     return () => {
-      defaultEditor.editor.destroy();
-      readEditor.editor.destroy();
+      defaultEditor?.editor.destroy();
+      readEditor?.editor.destroy();
       sseClientRef.current?.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -120,17 +163,21 @@ const AIGenerate = ({
             flex: 1,
           }}
         >
-          <Box
-            sx={{
-              mb: 0.5,
-              ml: 1,
-              fontSize: 14,
-              fontWeight: 'bold',
-              color: 'text.tertiary',
-            }}
+          <Stack
+            direction='row'
+            alignItems='center'
+            sx={{ mb: 0.5, ml: 1, gap: 1 }}
           >
-            原文
-          </Box>
+            <Box
+              sx={{
+                fontSize: 14,
+                fontWeight: 'bold',
+                color: 'text.tertiary',
+              }}
+            >
+              原文
+            </Box>
+          </Stack>
           <Box
             sx={{
               borderRadius: '10px',
@@ -144,17 +191,39 @@ const AIGenerate = ({
         </Stack>
         <Divider orientation='vertical' flexItem sx={{ mx: 2 }} />
         <Stack sx={{ width: '50%', flex: 1 }}>
-          <Box
-            sx={{
-              mb: 0.5,
-              ml: 1,
-              fontSize: 14,
-              fontWeight: 'bold',
-              color: 'text.tertiary',
-            }}
+          <Stack
+            direction='row'
+            alignItems='center'
+            spacing={1}
+            sx={{ mb: 0.5, ml: 1 }}
           >
-            润色后
-          </Box>
+            <Box
+              sx={{
+                fontSize: 14,
+                fontWeight: 'bold',
+                color: 'text.tertiary',
+              }}
+            >
+              {targetLang == null ? '润色后' : '译文'}
+            </Box>
+            <Button
+              size='small'
+              variant={targetLang == null ? 'contained' : 'outlined'}
+              onClick={() => handleSwitchLang(null)}
+            >
+              润色
+            </Button>
+            {LANG_TARGETS.map(option => (
+              <Button
+                key={option.value}
+                size='small'
+                variant={targetLang === option.value ? 'contained' : 'outlined'}
+                onClick={() => handleSwitchLang(option.value)}
+              >
+                译成{option.label}
+              </Button>
+            ))}
+          </Stack>
           <Box
             sx={{
               borderRadius: '10px',

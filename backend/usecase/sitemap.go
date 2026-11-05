@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/chaitin/panda-wiki/domain"
 	"github.com/chaitin/panda-wiki/log"
 	"github.com/chaitin/panda-wiki/repo/pg"
 )
@@ -32,19 +33,48 @@ func (u *SitemapUsecase) GetSitemap(ctx context.Context, kbID string) (string, e
 		return "", fmt.Errorf("failed to get knowledge base: %w", err)
 	}
 
-	sb := strings.Builder{}
-	sb.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
-	sb.WriteString(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`)
-
-	// add welcome
 	baseURL := strings.TrimRight(kb.AccessSettings.GetBaseUrl(), "/")
-	writeSitemapURL(&sb, baseURL+"/welcome", time.Now())
-	writeSitemapURL(&sb, baseURL+"/blog", time.Now())
 
-	// add nodes
+	// 译本组：groupID → lang → 该语言版本的规范地址
+	alternatesByGroup := map[string]map[string]string{}
+	items := make([]domain.KenFutContentItem, 0, len(nodes))
 	for _, node := range nodes {
 		item := contentItem(node, baseURL)
-		writeSitemapURL(&sb, item.CanonicalURL, node.UpdatedAt)
+		items = append(items, item)
+		if node.TranslationGroupID == nil {
+			continue
+		}
+		langs, ok := alternatesByGroup[*node.TranslationGroupID]
+		if !ok {
+			langs = map[string]string{}
+			alternatesByGroup[*node.TranslationGroupID] = langs
+		}
+		langs[node.Lang] = item.CanonicalURL
+	}
+
+	sb := strings.Builder{}
+	sb.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
+	sb.WriteString(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">`)
+
+	// add welcome
+	writeSitemapURL(&sb, baseURL+"/welcome", time.Now(), nil)
+	writeSitemapURL(&sb, baseURL+"/blog", time.Now(), nil)
+
+	// add nodes
+	for _, item := range items {
+		var alternates map[string]string
+		if item.Translations != nil {
+			alternates = map[string]string{}
+			for _, t := range item.Translations {
+				alternates[t.Lang] = baseURL + t.URL
+			}
+		}
+		if node := findSitemapRow(nodes, item.ID); node != nil && node.TranslationGroupID != nil {
+			if langs, ok := alternatesByGroup[*node.TranslationGroupID]; ok {
+				alternates = langs
+			}
+		}
+		writeSitemapURL(&sb, item.CanonicalURL, item.UpdatedAt, alternates)
 	}
 
 	sb.WriteString(`</urlset>`)
@@ -52,8 +82,29 @@ func (u *SitemapUsecase) GetSitemap(ctx context.Context, kbID string) (string, e
 	return sb.String(), nil
 }
 
-func writeSitemapURL(sb *strings.Builder, location string, updatedAt time.Time) {
+func findSitemapRow(rows []pg.KenFutPublishedRow, nodeID string) *pg.KenFutPublishedRow {
+	for i := range rows {
+		if rows[i].ID == nodeID {
+			return &rows[i]
+		}
+	}
+	return nil
+}
+
+// writeSitemapURL 输出 <url> 条目；alternates 非空时输出各语言 hreflang（x-default 指向默认语言 zh）
+func writeSitemapURL(sb *strings.Builder, location string, updatedAt time.Time, alternates map[string]string) {
 	escapedLocation := escapeSitemapLocation(location)
+	if len(alternates) > 1 {
+		fmt.Fprintf(sb, `<url><loc>%s</loc><lastmod>%s</lastmod>`, escapedLocation, updatedAt.Format(time.DateOnly))
+		for lang, href := range alternates {
+			fmt.Fprintf(sb, `<xhtml:link rel="alternate" hreflang="%s" href="%s"/>`, lang, escapeSitemapLocation(href))
+		}
+		if zh, ok := alternates[domain.DefaultNodeLang]; ok {
+			fmt.Fprintf(sb, `<xhtml:link rel="alternate" hreflang="x-default" href="%s"/>`, escapeSitemapLocation(zh))
+		}
+		sb.WriteString(`</url>`)
+		return
+	}
 	fmt.Fprintf(sb, `<url><loc>%s</loc><lastmod>%s</lastmod></url>`, escapedLocation, updatedAt.Format(time.DateOnly))
 }
 

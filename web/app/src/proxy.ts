@@ -13,6 +13,7 @@ import {
   parseNodeListResponse,
 } from '@/utils/tree';
 import { deepSearchFirstNode } from '@/utils';
+import { LOCALE_HEADER } from '@/i18n/constants';
 
 const StatPage = {
   welcome: 1,
@@ -171,7 +172,7 @@ export async function proxy(request: NextRequest) {
   const pathname = url.pathname;
   const kbDetail = await getShareV1AppWebInfo();
   const basePath = getBasePath(kbDetail?.base_url || '');
-  const appPathname = stripBasePath(pathname, basePath);
+  let appPathname = stripBasePath(pathname, basePath);
 
   if (appPathname.startsWith('/widget')) {
     const widgetInfo: any = await getShareV1AppWidgetInfo();
@@ -196,6 +197,15 @@ export async function proxy(request: NextRequest) {
     needSetSessionId = true;
   }
 
+  // 语言前缀剥离：/en/... 在内部重写到对应路由，locale 经请求头传递给 RSC/i18n
+  let locale = 'zh';
+  if (appPathname === '/en' || appPathname.startsWith('/en/')) {
+    locale = 'en';
+    appPathname = appPathname.slice('/en'.length) || '/';
+  }
+  request.headers.set(LOCALE_HEADER, locale);
+  headers[LOCALE_HEADER] = locale;
+
   let response: NextResponse;
 
   if (appPathname.startsWith('/share/')) {
@@ -203,6 +213,8 @@ export async function proxy(request: NextRequest) {
   } else {
     response = await homeProxy(request, headers, sessionId, appPathname);
   }
+
+  response.headers.set(LOCALE_HEADER, locale);
 
   if (needSetSessionId) {
     response.cookies.set('x-kfw-session-id', sessionId, {
@@ -240,5 +252,9 @@ export const config = {
     '/:basePath/node/:path*',
     '/node',
     '/:basePath/node',
+    '/en',
+    '/en/:path*',
+    '/:basePath/en',
+    '/:basePath/en/:path*',
   ],
 };

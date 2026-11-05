@@ -255,7 +255,7 @@ const Sidebar = () => {
             <IconBangzhuwendang1 sx={{ fontSize: '14px !important' }} />
           }
           onClick={() =>
-            window.open('https://pandawiki.docs.baizhi.cloud/', '_blank')
+            window.open('https://github.com/IsKenKenYa/KenFutWiki', '_blank')
           }
         >
           帮助文档

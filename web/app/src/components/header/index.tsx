@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { hasNavigation } from '@/features/kenfut/links';
 import { Button } from '@mui/material';
+import { useTranslations } from 'next-intl';
 
 import Logo from '@/assets/images/logo.png';
 import { useBasePath } from '@/hooks';
@@ -21,6 +22,7 @@ import {
 import { useMemo, useState } from 'react';
 import QaModal from '../QaModal';
 import ThemeSwitch from './themeSwitch';
+import LocaleSwitch from './localeSwitch';
 interface HeaderProps {
   isDocPage?: boolean;
   isWelcomePage?: boolean;
@@ -75,6 +77,7 @@ const navigationButtons = (
   basePath: string,
   siteURL: string | undefined,
   mobile: boolean,
+  t: (key: string) => string,
 ) => {
   const result = (buttons || []).map(item => ({
     ...item,
@@ -84,8 +87,8 @@ const navigationButtons = (
   }));
   if (mobile) {
     for (const [page, text] of [
-      ['/node', '文档'],
-      ['/blog', '文章'],
+      ['/node', t('docs')],
+      ['/blog', t('blog')],
     ] as const) {
       if (!hasNavigation(buttons, page, basePath, siteURL))
         result.push({
@@ -108,18 +111,20 @@ const AIAction = ({
 }: {
   mobile: boolean;
   onClick: () => void;
-}) =>
-  mobile ? (
-    <Tooltip title='AI 问答'>
-      <IconButton size='small' aria-label='AI 问答' onClick={onClick}>
+}) => {
+  const t = useTranslations('header');
+  return mobile ? (
+    <Tooltip title={t('aiChat')}>
+      <IconButton size='small' aria-label={t('aiChat')} onClick={onClick}>
         <IconZhinengwenda sx={{ fontSize: 21 }} />
       </IconButton>
     </Tooltip>
   ) : (
     <Button size='small' onClick={onClick}>
-      AI 问答
+      {t('aiChat')}
     </Button>
   );
+};
 
 const Header = ({ isDocPage = false, isWelcomePage = false }: HeaderProps) => {
   const {
@@ -130,6 +135,7 @@ const Header = ({ isDocPage = false, isWelcomePage = false }: HeaderProps) => {
     setQaMode,
     authInfo,
   } = useStore();
+  const tHeader = useTranslations('header');
   const basePath = useBasePath();
   const docWidth = useMemo(() => {
     if (isWelcomePage) return 'full';
@@ -167,6 +173,7 @@ const Header = ({ isDocPage = false, isWelcomePage = false }: HeaderProps) => {
         basePath,
         kbDetail?.base_url,
         mobile,
+        tHeader,
       )}
       onSearch={handleSearch}
       onQaClick={() => {
@@ -188,7 +195,7 @@ const Header = ({ isDocPage = false, isWelcomePage = false }: HeaderProps) => {
             kbDetail?.base_url,
           ) && (
             <Button component={Link} href={`${basePath}/node`} size='small'>
-              文档
+              {tHeader('docs')}
             </Button>
           )}
         {!mobile &&
@@ -199,7 +206,7 @@ const Header = ({ isDocPage = false, isWelcomePage = false }: HeaderProps) => {
             kbDetail?.base_url,
           ) && (
             <Button component={Link} href={`${basePath}/blog`} size='small'>
-              文章
+              {tHeader('blog')}
             </Button>
           )}
         <AIAction
@@ -209,6 +216,7 @@ const Header = ({ isDocPage = false, isWelcomePage = false }: HeaderProps) => {
             setQaModalOpen?.(true);
           }}
         />
+        <LocaleSwitch />
         <ThemeSwitch />
         {!!authInfo && <LogoutButton />}
       </Stack>
@@ -222,6 +230,7 @@ export const WelcomeHeader = ({
 }: {
   showSearch?: boolean;
 }) => {
+  const tHeader = useTranslations('header');
   const basePath = useBasePath();
   const {
     mobile = false,
@@ -261,6 +270,7 @@ export const WelcomeHeader = ({
         basePath,
         kbDetail?.base_url,
         mobile,
+        tHeader,
       )}
       onSearch={handleSearch}
       onQaClick={() => {
@@ -276,7 +286,7 @@ export const WelcomeHeader = ({
           kbDetail?.base_url,
         ) && (
           <Button component={Link} href={`${basePath}/node`} size='small'>
-            文档
+            {tHeader('docs')}
           </Button>
         )}
       {!mobile &&
@@ -287,7 +297,7 @@ export const WelcomeHeader = ({
           kbDetail?.base_url,
         ) && (
           <Button component={Link} href={`${basePath}/blog`} size='small'>
-            文章
+            {tHeader('blog')}
           </Button>
         )}
       <AIAction

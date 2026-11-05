@@ -73,11 +73,30 @@ func NewNodeUsecase(
 const ragSyncChunkSize = 100
 
 func (u *NodeUsecase) Create(ctx context.Context, req *domain.CreateNodeReq, userId string) (string, error) {
+	if req.Lang != "" && !domain.IsValidNodeLang(req.Lang) {
+		return "", fmt.Errorf("unsupported node lang: %s", req.Lang)
+	}
 	nodeID, err := u.nodeRepo.Create(ctx, req, userId)
 	if err != nil {
 		return "", err
 	}
 	return nodeID, nil
+}
+
+// GetTranslations 返回文档译本组内全部语言版本（URL 为站内路径，不含 locale 前缀）
+func (u *NodeUsecase) GetTranslations(ctx context.Context, kbID, nodeID string) ([]*domain.NodeTranslation, error) {
+	translations, err := u.nodeRepo.GetNodeTranslations(ctx, kbID, nodeID)
+	if err != nil {
+		return nil, err
+	}
+	for _, t := range translations {
+		if t.Channel != "docs" && t.Slug != "" {
+			t.URL = "/blog/" + t.Slug
+		} else {
+			t.URL = "/node/" + t.NodeID
+		}
+	}
+	return translations, nil
 }
 
 func (u *NodeUsecase) GetList(ctx context.Context, req *domain.GetNodeListReq) ([]*domain.NodeListItemResp, error) {
@@ -408,9 +427,9 @@ func renderNodeMarkdown(mdStr string) string {
 	return string(html)
 }
 
-func (u *NodeUsecase) GetShareNodeList(ctx context.Context, kbId string, authId uint) ([]*shareV1.NodeListGroupNavResp, error) {
+func (u *NodeUsecase) GetShareNodeList(ctx context.Context, kbId string, authId uint, lang string) ([]*shareV1.NodeListGroupNavResp, error) {
 
-	nodes, err := u.nodeRepo.GetNodeReleaseListByKBID(ctx, kbId)
+	nodes, err := u.nodeRepo.GetNodeReleaseListByKBID(ctx, kbId, lang)
 	if err != nil {
 		return nil, err
 	}
@@ -463,7 +482,7 @@ func (u *NodeUsecase) GetShareNodeList(ctx context.Context, kbId string, authId 
 
 func (u *NodeUsecase) GetNodeReleaseListByParentID(ctx context.Context, kbID, parentID string, authId uint) ([]*domain.ShareNodeDetailItem, error) {
 	// 一次性查询所有节点
-	allNodes, err := u.nodeRepo.GetNodeReleaseListByKBID(ctx, kbID)
+	allNodes, err := u.nodeRepo.GetNodeReleaseListByKBID(ctx, kbID, "")
 	if err != nil {
 		return nil, err
 	}

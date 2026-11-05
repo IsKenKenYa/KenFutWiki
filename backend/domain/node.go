@@ -37,6 +37,34 @@ const (
 	ContentTypeHTML string = "html"
 )
 
+// DefaultNodeLang 站点默认内容语言
+const DefaultNodeLang = "zh"
+
+// SupportedNodeLangs 支持的内容语言（BCP-47 小写主码）
+var SupportedNodeLangs = []string{"zh", "en"}
+
+// IsValidNodeLang 校验语言码是否受支持
+func IsValidNodeLang(lang string) bool {
+	for _, l := range SupportedNodeLangs {
+		if l == lang {
+			return true
+		}
+	}
+	return false
+}
+
+// NodeTranslation 同组译本的公开摘要（切换器/hreflang 用）
+type NodeTranslation struct {
+	NodeID string `json:"node_id"`
+	Lang   string `json:"lang"`
+	Name   string `json:"name"`
+	Slug   string `json:"slug"`
+	// Channel 译本最新发布内容的 channel（docs/article），决定 URL 形态
+	Channel string `json:"channel"`
+	// URL 为站内路径（/blog/{slug} 或 /node/{id}），不含 locale 前缀
+	URL string `json:"url"`
+}
+
 // table: nodes
 type Node struct {
 	ID          string          `json:"id" gorm:"primaryKey"`
@@ -55,8 +83,11 @@ type Node struct {
 	EditorId    string          `json:"editor_id"`
 	EditTime    time.Time       `json:"edit_time"`
 	Permissions NodePermissions `json:"permissions" gorm:"type:jsonb"`
-	CreatedAt   time.Time       `json:"created_at"`
-	UpdatedAt   time.Time       `json:"updated_at"`
+	Lang        string          `json:"lang" gorm:"default:zh"`
+	// TranslationGroupID 非空表示该文档属于一个译本组（同组互为译本，组内 lang 唯一）
+	TranslationGroupID *string   `json:"translation_group_id" gorm:"type:uuid"`
+	CreatedAt          time.Time `json:"created_at"`
+	UpdatedAt          time.Time `json:"updated_at"`
 }
 
 func (Node) TableName() string {
@@ -150,6 +181,10 @@ type CreateNodeReq struct {
 	ContentType *string  `json:"content_type"`
 	MaxNode     int      `json:"-"`
 	Position    *float64 `json:"position"`
+	// Lang 内容语言，缺省 zh；文档创建后不可修改
+	Lang string `json:"lang"`
+	// TranslateFromNodeID 创建译本：传入源文档 ID，自动加入其译本组（源文档无组则同时建组）
+	TranslateFromNodeID string `json:"translate_from_node_id"`
 }
 
 type GetNodeListReq struct {
@@ -159,25 +194,27 @@ type GetNodeListReq struct {
 }
 
 type NodeListItemResp struct {
-	ID          string          `json:"id"`
-	NavId       string          `json:"nav_id"`
-	Type        NodeType        `json:"type"`
-	Status      NodeStatus      `json:"status"`
-	RagInfo     RagInfo         `json:"rag_info"`
-	Name        string          `json:"name"`
-	Summary     string          `json:"summary"`
-	Emoji       string          `json:"emoji"`
-	ContentType string          `json:"content_type"`
-	Position    float64         `json:"position"`
-	ParentID    string          `json:"parent_id"`
-	CreatedAt   time.Time       `json:"created_at"`
-	UpdatedAt   time.Time       `json:"updated_at"`
-	CreatorId   string          `json:"creator_id"`
-	EditorId    string          `json:"editor_id"`
-	Creator     string          `json:"creator"`
-	Editor      string          `json:"editor"`
-	PublisherId string          `json:"publisher_id" gorm:"-"`
-	Permissions NodePermissions `json:"permissions" gorm:"type:jsonb"`
+	ID                 string          `json:"id"`
+	NavId              string          `json:"nav_id"`
+	Type               NodeType        `json:"type"`
+	Status             NodeStatus      `json:"status"`
+	RagInfo            RagInfo         `json:"rag_info"`
+	Name               string          `json:"name"`
+	Summary            string          `json:"summary"`
+	Emoji              string          `json:"emoji"`
+	ContentType        string          `json:"content_type"`
+	Position           float64         `json:"position"`
+	ParentID           string          `json:"parent_id"`
+	Lang               string          `json:"lang"`
+	TranslationGroupID *string         `json:"translation_group_id"`
+	CreatedAt          time.Time       `json:"created_at"`
+	UpdatedAt          time.Time       `json:"updated_at"`
+	CreatorId          string          `json:"creator_id"`
+	EditorId           string          `json:"editor_id"`
+	Creator            string          `json:"creator"`
+	Editor             string          `json:"editor"`
+	PublisherId        string          `json:"publisher_id" gorm:"-"`
+	Permissions        NodePermissions `json:"permissions" gorm:"type:jsonb"`
 }
 
 type NodeContentChunk struct {

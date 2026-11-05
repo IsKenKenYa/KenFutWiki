@@ -53,7 +53,7 @@ func (h *ShareNodeHandler) ShareNodeList(c echo.Context) error {
 		return h.NewResponseWithError(c, "kb_id is required", nil)
 	}
 
-	nodes, err := h.usecase.GetShareNodeList(c.Request().Context(), kbId, domain.GetAuthID(c))
+	nodes, err := h.usecase.GetShareNodeList(c.Request().Context(), kbId, domain.GetAuthID(c), c.QueryParam("lang"))
 	if err != nil {
 		return h.NewResponseWithError(c, "failed to get node list", err)
 	}

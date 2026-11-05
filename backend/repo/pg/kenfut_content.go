@@ -65,20 +65,20 @@ func (r *KenFutContentRepository) SaveDraft(ctx context.Context, kbID string, m 
 		}
 		if m.Slug != "" {
 			var conflicts int64
-			if err := tx.Model(&domain.KenFutSlugAlias{}).Where("kb_id = ? AND slug = ? AND node_id <> ?", kbID, m.Slug, m.NodeID).Count(&conflicts).Error; err != nil {
+			if err := tx.Model(&domain.KenFutSlugAlias{}).Where("kb_id = ? AND slug = ? AND lang = ? AND node_id <> ?", kbID, m.Slug, node.Lang, m.NodeID).Count(&conflicts).Error; err != nil {
 				return err
 			}
 			if conflicts > 0 {
 				return fmt.Errorf("slug is already reserved")
 			}
-			if err := tx.Model(&domain.KenFutContentDraft{}).Where("kb_id = ? AND metadata->>'slug' = ? AND node_id <> ?", kbID, m.Slug, m.NodeID).Count(&conflicts).Error; err != nil {
+			if err := tx.Model(&domain.KenFutContentDraft{}).Where("kb_id = ? AND lang = ? AND metadata->>'slug' = ? AND node_id <> ?", kbID, node.Lang, m.Slug, m.NodeID).Count(&conflicts).Error; err != nil {
 				return err
 			}
 			if conflicts > 0 {
 				return fmt.Errorf("slug is already in use")
 			}
 		}
-		draft := domain.KenFutContentDraft{NodeID: m.NodeID, KBID: kbID, Metadata: m, UpdatedAt: time.Now()}
+		draft := domain.KenFutContentDraft{NodeID: m.NodeID, KBID: kbID, Lang: node.Lang, Metadata: m, UpdatedAt: time.Now()}
 		if err := tx.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "node_id"}}, DoUpdates: clause.AssignmentColumns([]string{"metadata", "updated_at"})}).Create(&draft).Error; err != nil {
 			return err
 		}
@@ -91,18 +91,20 @@ func (r *KenFutContentRepository) SaveDraft(ctx context.Context, kbID string, m 
 }
 
 type KenFutPublishedRow struct {
-	ID            string
-	KBID          string
-	NodeReleaseID string
-	Title         string
-	Summary       string
-	Content       string
-	ContentType   string
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	ParentID      string
-	Metadata      domain.KenFutContentMetadata `gorm:"type:jsonb"`
-	PV            int64
+	ID                 string
+	KBID               string
+	NodeReleaseID      string
+	Title              string
+	Summary            string
+	Content            string
+	ContentType        string
+	Lang               string
+	TranslationGroupID *string
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+	ParentID           string
+	Metadata           domain.KenFutContentMetadata `gorm:"type:jsonb"`
+	PV                 int64
 }
 
 type KenFutVisibility struct {
@@ -130,13 +132,16 @@ func publishedContentQuery(tx *gorm.DB, kbID, releaseID string, visibility KenFu
 	return q.Where("(n.permissions->>'visitable' = ? OR (n.permissions->>'visitable' = ? AND n.id IN ?))", consts.NodeAccessPermOpen, consts.NodeAccessPermPartial, visibility.VisitableIDs)
 }
 
-const contentSelect = "nr.node_id AS id,nr.kb_id,nr.id AS node_release_id,nr.name AS title,nr.meta->>'summary' AS summary,nr.meta->>'content_type' AS content_type,nr.created_at,nr.updated_at,nr.parent_id,COALESCE(kcr.metadata, jsonb_build_object('node_id',nr.node_id,'channel','docs','tags','[]'::jsonb,'related_node_ids','[]'::jsonb,'ctas','[]'::jsonb)) AS metadata,COALESCE(ns.pv,0) AS pv"
+const contentSelect = "nr.node_id AS id,nr.kb_id,nr.id AS node_release_id,nr.name AS title,nr.meta->>'summary' AS summary,nr.meta->>'content_type' AS content_type,nr.created_at,nr.updated_at,nr.parent_id,n.lang AS lang,n.translation_group_id AS translation_group_id,COALESCE(kcr.metadata, jsonb_build_object('node_id',nr.node_id,'channel','docs','tags','[]'::jsonb,'related_node_ids','[]'::jsonb,'ctas','[]'::jsonb)) AS metadata,COALESCE(ns.pv,0) AS pv"
 
 func escapeContentPattern(value string) string {
 	return strings.NewReplacer("\\", "\\\\", "%", "\\%", "_", "\\_").Replace(value)
 }
 
 func filterContentQuery(q *gorm.DB, req domain.KenFutContentListReq) *gorm.DB {
+	if req.Lang != "" {
+		q = q.Where("n.lang = ?", req.Lang)
+	}
 	if req.Channel == "article" {
 		q = q.Where("kcr.metadata->>'channel' IN ('article','both')")
 	}
@@ -191,9 +196,9 @@ func (r *KenFutContentRepository) Detail(ctx context.Context, kbID, nodeID, rele
 	return &row, nil
 }
 
-func (r *KenFutContentRepository) ResolveSlug(ctx context.Context, kbID, slug string) (string, error) {
+func (r *KenFutContentRepository) ResolveSlug(ctx context.Context, kbID, slug, lang string) (string, error) {
 	var alias domain.KenFutSlugAlias
-	err := r.db.WithContext(ctx).Where("kb_id = ? AND slug = ?", kbID, slug).First(&alias).Error
+	err := r.db.WithContext(ctx).Where("kb_id = ? AND slug = ? AND lang = ?", kbID, slug, lang).First(&alias).Error
 	return alias.NodeID, err
 }
 

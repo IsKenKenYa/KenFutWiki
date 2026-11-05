@@ -1,5 +1,9 @@
 import Emoji from '@/components/Emoji';
-import { DomainCreateNodeReq, V1NodeDetailResp } from '@/request';
+import {
+  DomainCreateNodeReq,
+  DomainNodeListItemResp,
+  V1NodeDetailResp,
+} from '@/request';
 import { postApiV1Node, putApiV1NodeDetail } from '@/request/Node';
 import { useAppSelector } from '@/store';
 import { message, Modal } from '@ctzhian/ui';
@@ -13,7 +17,17 @@ import {
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
-type FormValues = { name: string; emoji: string; content_type: string };
+type FormValues = {
+  name: string;
+  emoji: string;
+  content_type: string;
+  lang: string;
+};
+
+const LANG_OPTIONS: { value: string; label: string }[] = [
+  { value: 'zh', label: '中文' },
+  { value: 'en', label: 'English' },
+];
 
 interface DocAddByCustomTextProps {
   open: boolean;
@@ -24,6 +38,8 @@ interface DocAddByCustomTextProps {
   setDetail?: (data: V1NodeDetailResp) => void;
   refresh?: () => void;
   type?: 1 | 2;
+  // 创建译本：指定源文档后，语言选择默认排除源文档语言
+  translateFrom?: DomainNodeListItemResp | null;
   onCreated?: (node: {
     id: string;
     name: string;
@@ -42,6 +58,7 @@ const DocAddByCustomText = ({
   refresh,
   setDetail,
   type = 2,
+  translateFrom,
   onCreated,
 }: DocAddByCustomTextProps) => {
   const { kb_id: id, nav_id } = useAppSelector(state => state.config);
@@ -58,6 +75,7 @@ const DocAddByCustomText = ({
       name: '',
       emoji: '',
       content_type: '',
+      lang: 'zh',
     },
   });
 
@@ -95,6 +113,8 @@ const DocAddByCustomText = ({
         type,
         emoji: value.emoji,
         content_type: value.content_type,
+        lang: value.lang,
+        translate_from_node_id: translateFrom?.id,
       };
       if (parentId) {
         params.parent_id = parentId;
@@ -186,6 +206,35 @@ const DocAddByCustomText = ({
               </RadioGroup>
             )}
           />
+          <Box sx={{ fontSize: 14, lineHeight: '36px', mt: 1 }}>内容语言</Box>
+          <Controller
+            control={control}
+            name='lang'
+            render={({ field }) => (
+              <RadioGroup
+                {...field}
+                row
+                onChange={e => field.onChange(e.target.value)}
+              >
+                {LANG_OPTIONS.map(option => (
+                  <FormControlLabel
+                    key={option.value}
+                    value={option.value}
+                    control={<Radio size='small' />}
+                    label={option.label}
+                    disabled={
+                      !!translateFrom && translateFrom.lang === option.value
+                    }
+                  />
+                ))}
+              </RadioGroup>
+            )}
+          />
+          {translateFrom && (
+            <Box sx={{ fontSize: 12, color: 'text.secondary', mt: 1 }}>
+              将作为「{translateFrom.name}」的译本加入同一语言组
+            </Box>
+          )}
         </>
       )}
     </Modal>

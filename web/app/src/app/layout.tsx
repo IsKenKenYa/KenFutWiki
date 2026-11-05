@@ -12,6 +12,9 @@ import { headers, cookies } from 'next/headers';
 import { getSelectorsByUserAgent } from 'react-device-detect';
 import { getBasePath, getImagePath } from '@/utils';
 import { getPublicSite } from '@/features/kenfut/server';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
+import { localeHtmlLang } from '@/i18n/routing';
 import './globals.css';
 
 const gilory = localFont({
@@ -100,9 +103,12 @@ const Layout = async ({
   };
 
   const basePath = getBasePath(kbDetail?.base_url || '');
+  const [locale, messages] = await Promise.all([getLocale(), getMessages()]);
 
   return (
-    <html lang='zh-CN'>
+    <html
+      lang={localeHtmlLang[locale as keyof typeof localeHtmlLang] ?? 'zh-CN'}
+    >
       <Script
         id='base-path'
         strategy='beforeInteractive'
@@ -114,23 +120,25 @@ const Layout = async ({
         className={`${gilory.variable} ${themeMode === 'dark' ? 'dark' : 'light'}`}
       >
         <AppRouterCacheProvider>
-          <ThemeStoreProvider themeMode={themeMode}>
-            <StoreProvider
-              kbDetail={kbDetail}
-              themeMode={themeMode || 'light'}
-              mobile={isMobile}
-            >
-              <Box
-                sx={{
-                  bgcolor: 'background.paper',
-                  height: error ? '100vh' : 'auto',
-                }}
-                id='app-theme-root'
+          <NextIntlClientProvider messages={messages}>
+            <ThemeStoreProvider themeMode={themeMode}>
+              <StoreProvider
+                kbDetail={kbDetail}
+                themeMode={themeMode || 'light'}
+                mobile={isMobile}
               >
-                {error ? <ErrorComponent error={error} /> : children}
-              </Box>
-            </StoreProvider>
-          </ThemeStoreProvider>
+                <Box
+                  sx={{
+                    bgcolor: 'background.paper',
+                    height: error ? '100vh' : 'auto',
+                  }}
+                  id='app-theme-root'
+                >
+                  {error ? <ErrorComponent error={error} /> : children}
+                </Box>
+              </StoreProvider>
+            </ThemeStoreProvider>
+          </NextIntlClientProvider>
         </AppRouterCacheProvider>
       </body>
     </html>

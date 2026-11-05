@@ -29,6 +29,12 @@ func NewCreationUsecase(logger *log.Logger, llm *LLMUsecase, model *ModelUsecase
 	}
 }
 
+// creationLangNames 语言码 → 提示词中的语言名称
+var creationLangNames = map[string]string{
+	"zh": "简体中文",
+	"en": "English",
+}
+
 func (u *CreationUsecase) TextCreation(ctx context.Context, req *domain.TextReq, onChunk func(ctx context.Context, dataType, chunk string) error) error {
 	model, err := u.model.GetChatModel(ctx)
 	if err != nil {
@@ -45,28 +51,47 @@ func (u *CreationUsecase) TextCreation(ctx context.Context, req *domain.TextReq,
 		return fmt.Errorf("get chat model failed: %w", err)
 	}
 
+	var systemPrompt string
+	if req.Action == "translate" {
+		targetName, ok := creationLangNames[req.TargetLang]
+		if !ok {
+			return fmt.Errorf("unsupported target lang: %s", req.TargetLang)
+		}
+		systemPrompt = "你是一位专业的内容本地化译者。你的任务是把输入的文本完整翻译成" + targetName + "。\n\n" +
+			"要求：\n" +
+			"1. 忠实传达原文的全部信息，不遗漏、不增删内容\n" +
+			"2. 译文符合" + targetName + "的表达习惯，专业术语翻译准确\n" +
+			"3. 保留原文的 Markdown/HTML 结构、代码块、链接、专有名词\n" +
+			"4. 保持原文的段落结构\n\n" +
+			"输出要求：\n" +
+			"1. 只返回翻译后的文本\n" +
+			"2. 不要添加任何解释或额外评论"
+	} else {
+		systemPrompt = "你是一位专业的文本编辑。你的任务是对输入的文本进行润色和优化。\n\n" +
+			"规则：\n" +
+			"1. 保持输入文本的原始语言\n" +
+			"2. 禁止将文本翻译成其他语言\n" +
+			"3. 保持原文的语言风格和表达方式\n\n" +
+			"优化方向：\n" +
+			"1. 内容优化：\n" +
+			"   - 提高文本的清晰度和可读性\n" +
+			"   - 确保逻辑流畅和连贯性\n" +
+			"   - 保持原文的核心信息和重点\n" +
+			"2. 语言优化：\n" +
+			"   - 改进语法和句子结构\n" +
+			"   - 使语言更加简洁有力\n" +
+			"   - 优化用词和表达方式\n\n" +
+			"输出要求：\n" +
+			"1. 只返回优化后的文本\n" +
+			"2. 不要添加任何解释或额外评论\n" +
+			"3. 不要改变文本的语言\n" +
+			"4. 保持原文的段落结构"
+	}
+
 	messages := []*schema.Message{
 		{
-			Role: "system",
-			Content: "你是一位专业的文本编辑。你的任务是对输入的文本进行润色和优化。\n\n" +
-				"规则：\n" +
-				"1. 保持输入文本的原始语言\n" +
-				"2. 禁止将文本翻译成其他语言\n" +
-				"3. 保持原文的语言风格和表达方式\n\n" +
-				"优化方向：\n" +
-				"1. 内容优化：\n" +
-				"   - 提高文本的清晰度和可读性\n" +
-				"   - 确保逻辑流畅和连贯性\n" +
-				"   - 保持原文的核心信息和重点\n" +
-				"2. 语言优化：\n" +
-				"   - 改进语法和句子结构\n" +
-				"   - 使语言更加简洁有力\n" +
-				"   - 优化用词和表达方式\n\n" +
-				"输出要求：\n" +
-				"1. 只返回优化后的文本\n" +
-				"2. 不要添加任何解释或额外评论\n" +
-				"3. 不要改变文本的语言\n" +
-				"4. 保持原文的段落结构",
+			Role:    "system",
+			Content: systemPrompt,
 		},
 		{
 			Role:    "user",

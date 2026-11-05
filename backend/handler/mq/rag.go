@@ -157,6 +157,12 @@ func (h *RAGMQHandler) upsertKenFutPublished(ctx context.Context, request domain
 		return err
 	}
 
+	node, err := h.nodeRepo.GetNodeByID(ctx, nodeRelease.NodeID)
+	if err != nil {
+		h.logger.Error("get node failed", log.Error(err), log.String("node_id", nodeRelease.NodeID))
+		return err
+	}
+
 	// upsert node content chunks
 	docID, err := h.rag.UpsertRecords(ctx, &rag.UpsertRecordsRequest{
 		ID:        nodeRelease.ID,
@@ -165,6 +171,7 @@ func (h *RAGMQHandler) upsertKenFutPublished(ctx context.Context, request domain
 		DocID:     nodeRelease.DocID,
 		Content:   nodeRelease.Content,
 		GroupIDs:  groupIds,
+		Lang:      node.Lang,
 	})
 	if err != nil {
 		h.logger.Error("upsert node content vector failed", log.Error(err))

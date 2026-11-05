@@ -22,7 +22,7 @@ func TestEscapeSitemapLocationEscapesXMLMetaCharacters(t *testing.T) {
 func TestWriteSitemapURLWritesEscapedLocation(t *testing.T) {
 	var sb strings.Builder
 
-	writeSitemapURL(&sb, `https://docs.example.com/node/1?q=a&b=b`, time.Date(2026, 10, 9, 0, 0, 0, 0, time.UTC))
+	writeSitemapURL(&sb, `https://docs.example.com/node/1?q=a&b=b`, time.Date(2026, 10, 9, 0, 0, 0, 0, time.UTC), nil)
 
 	got := sb.String()
 	if strings.Contains(got, "&b=b") {
@@ -30,5 +30,25 @@ func TestWriteSitemapURLWritesEscapedLocation(t *testing.T) {
 	}
 	if !strings.Contains(got, "<loc>https://docs.example.com/node/1?q=a&amp;b=b</loc>") {
 		t.Fatalf("unexpected sitemap entry: %s", got)
+	}
+}
+
+func TestWriteSitemapURLWritesHreflangAlternates(t *testing.T) {
+	var sb strings.Builder
+
+	writeSitemapURL(&sb, "https://docs.example.com/blog/guide", time.Date(2026, 10, 9, 0, 0, 0, 0, time.UTC), map[string]string{
+		"zh": "https://docs.example.com/blog/guide",
+		"en": "https://docs.example.com/en/blog/guide",
+	})
+
+	got := sb.String()
+	if !strings.Contains(got, `hreflang="zh" href="https://docs.example.com/blog/guide"`) {
+		t.Fatalf("missing zh alternate: %s", got)
+	}
+	if !strings.Contains(got, `hreflang="en" href="https://docs.example.com/en/blog/guide"`) {
+		t.Fatalf("missing en alternate: %s", got)
+	}
+	if !strings.Contains(got, `hreflang="x-default" href="https://docs.example.com/blog/guide"`) {
+		t.Fatalf("missing x-default alternate: %s", got)
 	}
 }

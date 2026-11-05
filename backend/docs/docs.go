@@ -3721,6 +3721,12 @@ const docTemplate = `{
                         "name": "slug",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Content language, default zh",
+                        "name": "lang",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3968,6 +3974,53 @@ const docTemplate = `{
                                     "properties": {
                                         "data": {
                                             "$ref": "#/definitions/domain.KenFutTaxonomies"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/share/kenfut/v1/translations": {
+            "get": {
+                "tags": [
+                    "kenfut_content"
+                ],
+                "summary": "Node translations",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge base",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Node ID",
+                        "name": "node_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/domain.NodeTranslation"
+                                            }
                                         }
                                     }
                                 }
@@ -6522,6 +6575,10 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "lang": {
+                    "description": "Lang 会话内容语言（BCP-47 小写主码），用于按语言过滤检索；缺省 zh",
+                    "type": "string"
+                },
                 "message": {
                     "type": "string"
                 },
@@ -6537,6 +6594,10 @@ const docTemplate = `{
             ],
             "properties": {
                 "captcha_token": {
+                    "type": "string"
+                },
+                "lang": {
+                    "description": "Lang 检索语言过滤；缺省不过滤",
                     "type": "string"
                 },
                 "message": {
@@ -7101,6 +7162,10 @@ const docTemplate = `{
                 "kb_id": {
                     "type": "string"
                 },
+                "lang": {
+                    "description": "Lang 内容语言，缺省 zh；文档创建后不可修改",
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -7114,6 +7179,10 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "summary": {
+                    "type": "string"
+                },
+                "translate_from_node_id": {
+                    "description": "TranslateFromNodeID 创建译本：传入源文档 ID，自动加入其译本组（源文档无组则同时建组）",
                     "type": "string"
                 },
                 "type": {
@@ -7578,6 +7647,9 @@ const docTemplate = `{
                 "kb_id": {
                     "type": "string"
                 },
+                "lang": {
+                    "type": "string"
+                },
                 "node_id": {
                     "type": "string"
                 },
@@ -7613,6 +7685,12 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
+                },
+                "translations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.NodeTranslation"
+                    }
                 },
                 "updated_at": {
                     "type": "string"
@@ -8085,6 +8163,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "lang": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -8110,6 +8191,9 @@ const docTemplate = `{
                     "$ref": "#/definitions/domain.NodeStatus"
                 },
                 "summary": {
+                    "type": "string"
+                },
+                "translation_group_id": {
                     "type": "string"
                 },
                 "type": {
@@ -8201,6 +8285,31 @@ const docTemplate = `{
                     }
                 },
                 "kb_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.NodeTranslation": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "description": "Channel 译本最新发布内容的 channel（docs/article），决定 URL 形态",
+                    "type": "string"
+                },
+                "lang": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "node_id": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "url": {
+                    "description": "URL 为站内路径（/blog/{slug} 或 /node/{id}），不含 locale 前缀",
                     "type": "string"
                 }
             }
@@ -9057,7 +9166,11 @@ const docTemplate = `{
             ],
             "properties": {
                 "action": {
-                    "description": "action: improve, summary, extend, shorten, etc.",
+                    "description": "action: improve, summary, extend, shorten, translate 等",
+                    "type": "string"
+                },
+                "target_lang": {
+                    "description": "TargetLang translate 动作的目标语言（BCP-47 小写主码，支持 zh/en）",
                     "type": "string"
                 },
                 "text": {
@@ -10299,6 +10412,9 @@ const docTemplate = `{
                 "kb_id": {
                     "type": "string"
                 },
+                "lang": {
+                    "type": "string"
+                },
                 "meta": {
                     "$ref": "#/definitions/domain.NodeMeta"
                 },
@@ -10325,6 +10441,9 @@ const docTemplate = `{
                 },
                 "status": {
                     "$ref": "#/definitions/domain.NodeStatus"
+                },
+                "translation_group_id": {
+                    "type": "string"
                 },
                 "type": {
                     "$ref": "#/definitions/domain.NodeType"

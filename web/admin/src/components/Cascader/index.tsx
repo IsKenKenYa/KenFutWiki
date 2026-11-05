@@ -8,6 +8,7 @@ interface Item {
   selected?: boolean;
   children?: Item[];
   show?: boolean;
+  disabled?: boolean;
   textSx?: SxProps<Theme>;
   key: number | string;
   onClick?: () => void;
@@ -96,6 +97,7 @@ const Cascader: React.FC<CascaderProps> = ({
   };
 
   const handleItemClick = (item: Item) => {
+    if (item.disabled) return;
     if (item.onClick) {
       item.onClick();
     }
@@ -130,7 +132,8 @@ const Cascader: React.FC<CascaderProps> = ({
                 onClick={() => handleItemClick(item)}
                 sx={{
                   position: 'relative',
-                  cursor: 'pointer',
+                  cursor: item.disabled ? 'not-allowed' : 'pointer',
+                  opacity: item.disabled ? 0.45 : 1,
                 }}
               >
                 <Stack alignItems='center' gap={1} direction='row'>

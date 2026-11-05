@@ -531,6 +531,27 @@ const TreeItem = React.forwardRef<
                             MD
                           </Box>
                         )}
+                        {item.type === 2 && item.lang && item.lang !== 'zh' && (
+                          <Box
+                            component={'span'}
+                            sx={{
+                              fontSize: 10,
+                              color: 'white',
+                              background:
+                                'linear-gradient(135deg, #8ec5fc 0%, #e0c3fc 100%)',
+                              px: 1,
+                              ml: 1,
+                              fontWeight: '500',
+                              borderRadius: '4px',
+                              height: '14px',
+                              lineHeight: '14px',
+                              display: 'inline-block',
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            {item.lang}
+                          </Box>
+                        )}
                       </Box>
                     </>
                   )}

@@ -7,6 +7,7 @@ import Doc from '@/views/node';
 import type { ResolvingMetadata } from 'next';
 import { getContent, getPageTargets } from '@/features/kenfut/api';
 import { getContentMetadata, getPublicSite } from '@/features/kenfut/server';
+import { resolveLocale } from '@/i18n/request';
 import {
   localHref,
   withSearchParams,
@@ -18,7 +19,11 @@ export interface PageProps {
   searchParams: Promise<PageSearchParams>;
 }
 
-const loadContent = cache(getContent);
+// 语言维度内容加载：按 proxy 剥离出的 locale 过滤译本
+const loadContent = cache(async (id: string) => {
+  const lang = await resolveLocale();
+  return lang === 'zh' ? getContent(id) : getContent(id, lang);
+});
 
 export async function generateMetadata(
   { params }: PageProps,

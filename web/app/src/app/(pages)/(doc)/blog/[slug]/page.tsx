@@ -2,6 +2,7 @@ import { cache } from 'react';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { getArticle, getPageTargets } from '@/features/kenfut/api';
 import { getContentMetadata, getPublicSite } from '@/features/kenfut/server';
+import { resolveLocale } from '@/i18n/request';
 import {
   localHref,
   withSearchParams,
@@ -9,7 +10,11 @@ import {
 } from '@/features/kenfut/links';
 import Doc from '@/views/node';
 
-const loadArticle = cache(getArticle);
+// 语言维度文章加载：按 proxy 剥离出的 locale 解析译本 slug
+const loadArticle = cache(async (slug: string) => {
+  const lang = await resolveLocale();
+  return lang === 'zh' ? getArticle(slug) : getArticle(slug, lang);
+});
 type Props = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<PageSearchParams>;

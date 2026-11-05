@@ -130,11 +130,11 @@ func TestKenFutContentPublishedIsolationAndSlugHistory(t *testing.T) {
 	if row.Title != "公开教程" || row.Metadata.Slug != "tutorial" || row.Metadata.CoverURL != "" || strings.Contains(row.Content, "机密") {
 		t.Fatalf("draft escaped published snapshot: %#v", row)
 	}
-	if _, err := repo.ResolveSlug(ctx, "kb", "new-tutorial"); err == nil {
+	if _, err := repo.ResolveSlug(ctx, "kb", "new-tutorial", domain.DefaultNodeLang); err == nil {
 		t.Fatal("draft slug resolved before publication")
 	}
 	second := publishFixture(t, db, "node")
-	if _, err := repo.ResolveSlug(ctx, "kb", "tutorial"); err != nil {
+	if _, err := repo.ResolveSlug(ctx, "kb", "tutorial", domain.DefaultNodeLang); err != nil {
 		t.Fatal("old slug alias was removed", err)
 	}
 	row, err = repo.Detail(ctx, "kb", "node", second, KenFutVisibility{})
