@@ -285,3 +285,9 @@ func (h *ClientHolder) Invalidate() {
 	h.lastErr = nil
 	h.lastWarns = nil
 }
+
+// Ensure 立即加载配置并构建客户端，让 Status 反映真实可用性（Invalidate 后调用）
+func (h *ClientHolder) Ensure(ctx context.Context) error {
+	_, _, err := h.current(ctx)
+	return err
+}

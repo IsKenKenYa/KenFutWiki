@@ -86,6 +86,11 @@ func (u *StorageUsecase) UpdateSetting(ctx context.Context, req *domain.StorageS
 		return nil, fmt.Errorf("save storage setting: %w", err)
 	}
 	u.s3Client.Invalidate()
+	// 立即重建，让 Status 反映真实可用性
+	if err := u.s3Client.Ensure(ctx); err != nil {
+		// 保存前已验证连通，这里失败属于竞态（如凭证被改），记录即可
+		u.logger.Error("rebuild storage client after save failed", log.Error(err))
+	}
 	u.logger.Info("storage setting updated", log.String("endpoint", req.Endpoint), log.String("provider", req.Provider))
 
 	detail := &domain.StorageSettingDetail{
@@ -143,6 +148,10 @@ func (u *StorageUsecase) ResetSetting(ctx context.Context) error {
 		return fmt.Errorf("delete storage setting: %w", err)
 	}
 	u.s3Client.Invalidate()
+	// 回退默认配置后重建；默认存储不可达不算错误，由 Status 如实反映
+	if err := u.s3Client.Ensure(ctx); err != nil {
+		u.logger.Warn("rebuild storage client after reset failed", log.Error(err))
+	}
 	u.logger.Info("storage setting reset to env default")
 	return nil
 }
