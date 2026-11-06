@@ -5,7 +5,7 @@ import { Button } from '@mui/material';
 import { useTranslations } from 'next-intl';
 
 import Logo from '@/assets/images/logo.png';
-import { useBasePath } from '@/hooks';
+import { useBasePath, useLocaleBasePath } from '@/hooks';
 import { useStore } from '@/provider';
 import { postShareProV1AuthLogout } from '@/request/pro/ShareAuth';
 import { getImagePath } from '@/utils/getImagePath';
@@ -29,13 +29,15 @@ interface HeaderProps {
 }
 
 const LogoutButton = () => {
+  const t = useTranslations('header');
+  const basePath = useBasePath();
   const [open, setOpen] = useState(false);
   const handleLogout = () => {
     return postShareProV1AuthLogout().then(() => {
       // 使用当前页面的协议（http 或 https）
       const protocol = window.location.protocol;
       const host = window.location.host;
-      window.location.href = `${protocol}//${host}/auth/login`;
+      window.location.href = `${protocol}//${host}${basePath}/auth/login`;
     });
   };
   return (
@@ -44,19 +46,19 @@ const LogoutButton = () => {
         title={
           <Stack direction='row' alignItems='center' gap={1}>
             <ErrorIcon sx={{ fontSize: 24, color: 'warning.main' }} />
-            <Box sx={{ mt: '2px' }}>提示</Box>
+            <Box sx={{ mt: '2px' }}>{t('tip')}</Box>
           </Stack>
         }
         open={open}
-        okText='确定'
-        cancelText='取消'
+        okText={t('confirm')}
+        cancelText={t('cancel')}
         onCancel={() => setOpen(false)}
         onOk={handleLogout}
         closable={false}
       >
-        <Box sx={{ pl: 4 }}>确定要退出登录吗？</Box>
+        <Box sx={{ pl: 4 }}>{t('logoutConfirmContent')}</Box>
       </Modal>
-      <Tooltip title='退出登录' arrow>
+      <Tooltip title={t('logout')} arrow>
         <IconButton size='small' onClick={() => setOpen(true)}>
           <IconDengchu
             sx={theme => ({
@@ -75,13 +77,14 @@ const LogoutButton = () => {
 const navigationButtons = (
   buttons: NavBtn[] | undefined,
   basePath: string,
+  linkBasePath: string,
   siteURL: string | undefined,
   mobile: boolean,
   t: (key: string) => string,
 ) => {
   const result = (buttons || []).map(item => ({
     ...item,
-    url: localHref(basePath, item.url),
+    url: localHref(linkBasePath, item.url),
     icon: getImagePath(item.icon, basePath),
     variant: item.variant || ('text' as const),
   }));
@@ -93,7 +96,7 @@ const navigationButtons = (
       if (!hasNavigation(buttons, page, basePath, siteURL))
         result.push({
           id: `kenfut-${page.slice(1)}`,
-          url: `${basePath}${page}`,
+          url: `${linkBasePath}${page}`,
           variant: 'text',
           showIcon: false,
           icon: '',
@@ -137,6 +140,7 @@ const Header = ({ isDocPage = false, isWelcomePage = false }: HeaderProps) => {
   } = useStore();
   const tHeader = useTranslations('header');
   const basePath = useBasePath();
+  const linkBasePath = useLocaleBasePath();
   const docWidth = useMemo(() => {
     if (isWelcomePage) return 'full';
     return kbDetail?.settings?.theme_and_style?.doc_width || 'full';
@@ -167,10 +171,11 @@ const Header = ({ isDocPage = false, isWelcomePage = false }: HeaderProps) => {
         kbDetail?.settings?.web_app_custom_style?.header_search_placeholder
       }
       showSearch
-      homePath={basePath || '/'}
+      homePath={linkBasePath || '/'}
       btns={navigationButtons(
         kbDetail?.settings?.btns,
         basePath,
+        linkBasePath,
         kbDetail?.base_url,
         mobile,
         tHeader,
@@ -194,7 +199,7 @@ const Header = ({ isDocPage = false, isWelcomePage = false }: HeaderProps) => {
             basePath,
             kbDetail?.base_url,
           ) && (
-            <Button component={Link} href={`${basePath}/node`} size='small'>
+            <Button component={Link} href={`${linkBasePath}/node`} size='small'>
               {tHeader('docs')}
             </Button>
           )}
@@ -205,7 +210,7 @@ const Header = ({ isDocPage = false, isWelcomePage = false }: HeaderProps) => {
             basePath,
             kbDetail?.base_url,
           ) && (
-            <Button component={Link} href={`${basePath}/blog`} size='small'>
+            <Button component={Link} href={`${linkBasePath}/blog`} size='small'>
               {tHeader('blog')}
             </Button>
           )}
@@ -232,6 +237,7 @@ export const WelcomeHeader = ({
 }) => {
   const tHeader = useTranslations('header');
   const basePath = useBasePath();
+  const linkBasePath = useLocaleBasePath();
   const {
     mobile = false,
     kbDetail,
@@ -264,10 +270,11 @@ export const WelcomeHeader = ({
         kbDetail?.settings?.web_app_custom_style?.header_search_placeholder
       }
       showSearch={showSearch}
-      homePath={basePath || '/'}
+      homePath={linkBasePath || '/'}
       btns={navigationButtons(
         kbDetail?.settings?.btns,
         basePath,
+        linkBasePath,
         kbDetail?.base_url,
         mobile,
         tHeader,
@@ -285,7 +292,7 @@ export const WelcomeHeader = ({
           basePath,
           kbDetail?.base_url,
         ) && (
-          <Button component={Link} href={`${basePath}/node`} size='small'>
+          <Button component={Link} href={`${linkBasePath}/node`} size='small'>
             {tHeader('docs')}
           </Button>
         )}
@@ -296,7 +303,7 @@ export const WelcomeHeader = ({
           basePath,
           kbDetail?.base_url,
         ) && (
-          <Button component={Link} href={`${basePath}/blog`} size='small'>
+          <Button component={Link} href={`${linkBasePath}/blog`} size='small'>
             {tHeader('blog')}
           </Button>
         )}

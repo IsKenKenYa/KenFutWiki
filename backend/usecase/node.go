@@ -480,9 +480,9 @@ func (u *NodeUsecase) GetShareNodeList(ctx context.Context, kbId string, authId 
 	return result, nil
 }
 
-func (u *NodeUsecase) GetNodeReleaseListByParentID(ctx context.Context, kbID, parentID string, authId uint) ([]*domain.ShareNodeDetailItem, error) {
+func (u *NodeUsecase) GetNodeReleaseListByParentID(ctx context.Context, kbID, parentID, lang string, authId uint) ([]*domain.ShareNodeDetailItem, error) {
 	// 一次性查询所有节点
-	allNodes, err := u.nodeRepo.GetNodeReleaseListByKBID(ctx, kbID, "")
+	allNodes, err := u.nodeRepo.GetNodeReleaseListByKBID(ctx, kbID, lang)
 	if err != nil {
 		return nil, err
 	}

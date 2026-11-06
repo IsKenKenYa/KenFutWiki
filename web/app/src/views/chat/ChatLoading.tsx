@@ -1,14 +1,25 @@
+'use client';
+
 import LoadingIcon from '@/assets/images/loading.png';
 import { alpha, Box, Stack } from '@mui/material';
 import Image from 'next/image';
-import { AnswerStatus } from './constant';
+import { useTranslations } from 'next-intl';
+
+// 回答状态的 i18n key
+const AnswerStatusKey = {
+  1: 'searching',
+  2: 'thinking',
+  3: 'answering',
+  4: '',
+} as const;
 
 interface ChatLoadingProps {
-  thinking: keyof typeof AnswerStatus;
+  thinking: keyof typeof AnswerStatusKey;
   onClick?: () => void;
 }
 
 const ChatLoading = ({ thinking, onClick }: ChatLoadingProps) => {
+  const t = useTranslations('qa');
   return (
     <Stack
       direction={onClick ? 'row-reverse' : 'row'}
@@ -50,7 +61,7 @@ const ChatLoading = ({ thinking, onClick }: ChatLoadingProps) => {
           color: alpha(theme.palette.text.primary, 0.5),
         })}
       >
-        {AnswerStatus[thinking]}
+        {t(AnswerStatusKey[thinking])}
       </Box>
     </Stack>
   );

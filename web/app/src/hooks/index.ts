@@ -5,3 +5,4 @@ export type {
   UseSmartScrollReturn,
 } from './useSmartScroll';
 export { useBasePath } from './useBasePath';
+export { useLocaleBasePath } from './useLocaleBasePath';

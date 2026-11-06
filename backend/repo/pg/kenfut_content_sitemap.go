@@ -10,5 +10,5 @@ func (r *NodeRepository) PublicContentSitemapRows(ctx context.Context, kbID stri
 	if err != nil || releaseID == "" {
 		return []KenFutPublishedRow{}, err
 	}
-	return repo.Candidates(ctx, kbID, releaseID, KenFutVisibility{})
+	return repo.Candidates(ctx, kbID, releaseID, KenFutVisibility{}, "")
 }

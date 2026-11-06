@@ -2,7 +2,7 @@
 import { useStore } from '@/provider';
 import { useMemo } from 'react';
 import { getImagePath } from '@/utils/getImagePath';
-import { useBasePath } from '@/hooks';
+import { useBasePath, useLocaleBasePath } from '@/hooks';
 import SoftwareNotice from '@/features/kenfut/SoftwareNotice';
 import { localHref } from '@/features/kenfut/links';
 
@@ -22,6 +22,7 @@ export const FooterProvider = ({
 }) => {
   const { mobile = false, catalogWidth, kbDetail } = useStore();
   const basePath = useBasePath();
+  const linkBasePath = useLocaleBasePath();
   const docWidth = useMemo(() => {
     if (isWelcomePage) return 'full';
     return kbDetail?.settings?.theme_and_style?.doc_width || 'full';
@@ -50,7 +51,9 @@ export const FooterProvider = ({
           social_media_accounts: customStyle?.social_media_accounts?.map(
             (item: any) => ({
               ...item,
-              ...(item.link ? { link: localHref(basePath, item.link) } : {}),
+              ...(item.link
+                ? { link: localHref(linkBasePath, item.link) }
+                : {}),
               icon: getImagePath(item.icon, basePath),
             }),
           ),
@@ -68,6 +71,7 @@ export const WelcomeFooter = ({
 }) => {
   const { mobile = false, catalogWidth, kbDetail } = useStore();
   const basePath = useBasePath();
+  const linkBasePath = useLocaleBasePath();
   const footerSetting = kbDetail?.settings?.footer_settings;
   const customStyle = kbDetail?.settings?.web_app_custom_style;
   return (
@@ -91,7 +95,9 @@ export const WelcomeFooter = ({
           social_media_accounts: customStyle?.social_media_accounts?.map(
             (item: any) => ({
               ...item,
-              ...(item.link ? { link: localHref(basePath, item.link) } : {}),
+              ...(item.link
+                ? { link: localHref(linkBasePath, item.link) }
+                : {}),
               icon: getImagePath(item.icon, basePath),
             }),
           ),

@@ -12,6 +12,7 @@ import { ConstsCopySetting } from '@/request/types';
 import { TocList, useTiptap } from '@ctzhian/tiptap';
 import { Alert, Box } from '@mui/material';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import DocAnchor from './DocAnchor';
 import DocContent from './DocContent';
@@ -33,6 +34,7 @@ const Doc = ({
   error?: Partial<Error> & { digest?: string } & { code?: number | string };
 }) => {
   const { kbDetail, mobile, catalogWidth } = useStore();
+  const tNode = useTranslations('node');
   const [loading, setLoading] = useState(true);
   const [headings, setHeadings] = useState<TocList>([]);
   const [characterCount, setCharacterCount] = useState(0);
@@ -72,7 +74,7 @@ const Doc = ({
     blockContextMenuWhenDisabled: false,
     suffix:
       kbDetail?.settings?.copy_setting === ConstsCopySetting.CopySettingAppend
-        ? `\n\n-----------------------------------------\n内容来自 ${typeof window !== 'undefined' ? window.location.href : ''}`
+        ? `\n\n-----------------------------------------\n${tNode('source')} ${typeof window !== 'undefined' ? window.location.href : ''}`
         : '',
   });
 

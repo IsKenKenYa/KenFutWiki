@@ -9,10 +9,12 @@ import { Box, Stack, TextField } from '@mui/material';
 import { IconXiajiantou } from '@panda-wiki/icons';
 import { useDebounce } from 'ahooks';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import CatalogFolder from './CatalogFolder';
 
 const CatalogH5 = () => {
+  const t = useTranslations('node');
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const params = useParams() || {};
@@ -43,11 +45,14 @@ const CatalogH5 = () => {
     };
   }, [open]);
 
-  useEffect(() => {
+  // 切换文档时收起目录：用「保存上一次渲染的值」模式代替 effect 内 setState
+  const [prevId, setPrevId] = useState(id);
+  if (id !== prevId) {
+    setPrevId(id);
     if (id) {
       setOpen(false);
     }
-  }, [id]);
+  }
 
   return (
     <Box
@@ -121,7 +126,7 @@ const CatalogH5 = () => {
             },
           }}
           size='small'
-          placeholder='搜索'
+          placeholder={t('searchPlaceholder')}
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
           sx={{

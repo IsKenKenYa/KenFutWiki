@@ -2,8 +2,9 @@
 
 import { Breadcrumbs, Link as MuiLink, Typography } from '@mui/material';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import type { ITreeItem } from '@/assets/type';
-import { useBasePath } from '@/hooks';
+import { useLocaleBasePath } from '@/hooks';
 import { useStore } from '@/provider';
 import { localHref } from './links';
 import type { PublishedContent } from './types';
@@ -23,20 +24,22 @@ export default function ContentBreadcrumbs({
   content: PublishedContent;
   article?: boolean;
 }) {
-  const basePath = useBasePath();
+  const basePath = useLocaleBasePath();
+  const t = useTranslations('common');
+  const tHeader = useTranslations('header');
   const { tree } = useStore();
   const ancestors = article
     ? []
     : (findPath(tree || [], content.node_id || content.id) || []).slice(0, -1);
   return (
-    <Breadcrumbs aria-label='页面路径' sx={{ mb: 3, fontSize: 13 }}>
+    <Breadcrumbs aria-label={t('breadcrumb')} sx={{ mb: 3, fontSize: 13 }}>
       <MuiLink
         component={Link}
         href={localHref(basePath, '/')}
         underline='hover'
         color='inherit'
       >
-        首页
+        {t('home')}
       </MuiLink>
       <MuiLink
         component={Link}
@@ -44,7 +47,7 @@ export default function ContentBreadcrumbs({
         underline='hover'
         color='inherit'
       >
-        {article ? '文章' : '文档'}
+        {article ? tHeader('blog') : tHeader('docs')}
       </MuiLink>
       {article && content.category && (
         <MuiLink

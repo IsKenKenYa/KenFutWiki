@@ -1,12 +1,29 @@
 'use client';
 import * as Sentry from '@sentry/nextjs';
-import { useEffect } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import ErrorPng from '@/assets/images/500.png';
 import Footer from '@/components/footer';
 import { lightTheme } from '@/theme';
 import { Box, Stack } from '@mui/material';
 import { ThemeProvider } from '@ctzhian/ui';
 import Image from 'next/image';
+import zhMessages from '@/messages/zh.json';
+import enMessages from '@/messages/en.json';
+
+const errorMessages = {
+  zh: zhMessages.error,
+  en: enMessages.error,
+} as const;
+
+// global-error 会替换根布局，无法使用 next-intl 的 Provider，只能依据 URL 判断语言。
+// useSyncExternalStore 读取浏览器地址（SSR 端回落到默认语言 zh），避免 hydration 不一致。
+const emptySubscribe = () => () => {};
+const useErrorLocale = () =>
+  useSyncExternalStore(
+    emptySubscribe,
+    () => (/\/en(\/|$)/.test(window.location.pathname) ? 'en' : 'zh'),
+    () => 'zh' as const,
+  );
 
 export default function GlobalError({
   error,
@@ -14,6 +31,9 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const locale = useErrorLocale();
+  const t = errorMessages[locale];
+
   useEffect(() => {
     // 只在生产环境下上报错误到 Sentry
     if (process.env.NODE_ENV === 'production') {
@@ -22,7 +42,7 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang='en'>
+    <html lang={locale === 'zh' ? 'zh-CN' : 'en'}>
       <body>
         <ThemeProvider theme={lightTheme}>
           <Box
@@ -54,7 +74,7 @@ export default function GlobalError({
                 alignItems='center'
                 sx={{ color: 'text.tertiary', fontSize: 14, mt: 3 }}
               >
-                页面出错了 {error.digest}
+                {t.errorTitle} {error.digest}
               </Stack>
             </Stack>
 

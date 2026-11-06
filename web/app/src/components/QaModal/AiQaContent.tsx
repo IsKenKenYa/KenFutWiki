@@ -6,6 +6,7 @@ import Feedback from '@/components/feedback';
 import { IconCopy } from '@/components/icons';
 import MarkDown2 from '@/components/markdown2';
 import { useBasePath, useSmartScroll } from '@/hooks';
+import { getClientLocaleParam } from '@/features/kenfut/api';
 import { useStore } from '@/provider';
 import { postShareV1ChatFeedback } from '@/request/ShareChat';
 import { getShareV1ConversationDetail } from '@/request/ShareConversation';
@@ -35,10 +36,9 @@ import {
   IconXingxing,
 } from '@panda-wiki/icons';
 import dayjs from 'dayjs';
-import 'dayjs/locale/zh-cn';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
+import { useFormatter, useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import ChatLoading from '../../views/chat/ChatLoading';
@@ -89,21 +89,20 @@ export interface ConversationItem {
   id: string;
 }
 
-dayjs.extend(relativeTime);
-dayjs.locale('zh-cn');
-
-const AnswerStatus = {
-  1: '正在搜索结果...',
-  2: '思考中...',
-  3: '正在回答',
+// 回答状态文案的 i18n key
+const AnswerStatusKey = {
+  1: 'searching',
+  2: 'thinking',
+  3: 'answering',
   4: '',
-};
+} as const;
 
 const LoadingContent = ({
   thinking,
 }: {
-  thinking: keyof typeof AnswerStatus;
+  thinking: keyof typeof AnswerStatusKey;
 }) => {
+  const t = useTranslations('qa');
   if (thinking === 4 || thinking === 2) return null;
   return (
     <Stack direction='row' alignItems='center' gap={1} sx={{ pb: 1 }}>
@@ -121,7 +120,7 @@ const LoadingContent = ({
           color: alpha(theme.palette.text.primary, 0.5),
         })}
       >
-        {AnswerStatus[thinking]}
+        {t(AnswerStatusKey[thinking])}
       </Typography>
     </Stack>
   );
@@ -132,6 +131,8 @@ const AiQaContent: React.FC<{
   placeholder: string;
   inputRef: React.RefObject<HTMLInputElement | null>;
 }> = ({ hotSearch, placeholder, inputRef }) => {
+  const t = useTranslations('qa');
+  const format = useFormatter();
   const sseClientRef = useRef<SSEClient<{
     type: string;
     content: string;
@@ -143,7 +144,7 @@ const AiQaContent: React.FC<{
   const [fullAnswer, setFullAnswer] = useState<string>('');
   const [conversation, setConversation] = useState<ConversationItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [thinking, setThinking] = useState<keyof typeof AnswerStatus>(4);
+  const [thinking, setThinking] = useState<keyof typeof AnswerStatusKey>(4);
   const [nonce, setNonce] = useState('');
   const [conversationId, setConversationId] = useState('');
   const [input, setInput] = useState('');
@@ -208,7 +209,7 @@ const AiQaContent: React.FC<{
     const maxImages = 3;
     const remainingSlots = maxImages - uploadedImages.length;
     if (remainingSlots <= 0) {
-      message.warning(`最多只能上传 ${maxImages} 张图片`);
+      message.warning(t('uploadLimit', { count: maxImages }));
       return;
     }
 
@@ -224,13 +225,13 @@ const AiQaContent: React.FC<{
       for (const file of filesToAdd) {
         // 验证文件类型
         if (!file.type.startsWith('image/')) {
-          message.error('只支持上传图片文件');
+          message.error(t('uploadImageOnly'));
           continue;
         }
 
         // 验证文件大小 (10MB)
         if (file.size > 10 * 1024 * 1024) {
-          message.error('图片大小不能超过 10MB');
+          message.error(t('imageTooLarge'));
           continue;
         }
 
@@ -247,7 +248,7 @@ const AiQaContent: React.FC<{
       const updatedImages = [...uploadedImages, ...newImages];
       setUploadedImages(updatedImages);
     } catch (error: any) {
-      message.error(error.message || '图片选择失败');
+      message.error(error.message || t('imagePickFailed'));
     }
   };
 
@@ -388,7 +389,7 @@ const AiQaContent: React.FC<{
           const solution = await cap.solve();
           token = solution.token;
         } catch (error) {
-          message.error('验证失败');
+          message.error(t('verifyFailed'));
           return Promise.reject(error);
         }
         // 上传新图片
@@ -403,7 +404,7 @@ const AiQaContent: React.FC<{
       return uploadedUrls;
     } catch (error: any) {
       setLoading(false);
-      message.error(error.message || '图片上传失败');
+      message.error(error.message || t('imageUploadFailed'));
       throw error;
     }
   };
@@ -426,7 +427,7 @@ const AiQaContent: React.FC<{
     } catch (error) {
       setLoading(false);
       setThinking(4);
-      message.error('验证失败');
+      message.error(t('verifyFailed'));
       return;
     }
 
@@ -437,6 +438,7 @@ const AiQaContent: React.FC<{
       conversation_id: '',
       app_type: 1,
       captcha_token: token,
+      lang: getClientLocaleParam() || '',
     };
     if (conversationId) reqData.conversation_id = conversationId;
     if (nonce) reqData.nonce = nonce;
@@ -462,8 +464,8 @@ const AiQaContent: React.FC<{
                 lastConversation.a =
                   lastConversation.a +
                   (content
-                    ? `\n\n回答出现错误：<error>${content}</error>`
-                    : '\n\n回答出现错误，请重试');
+                    ? `\n\n${t('answerError')}<error>${content}</error>`
+                    : `\n\n${t('answerErrorRetry')}`);
               }
               return newConversation;
             });
@@ -601,7 +603,7 @@ const AiQaContent: React.FC<{
     if (type) data.type = type;
     if (content) data.feedback_content = content;
     await postShareV1ChatFeedback(data);
-    message.success('反馈成功');
+    message.success(t('feedbackSuccess'));
     setConversation(
       conversation.map(item => {
         return item.message_id === message_id ? { ...item, score } : item;
@@ -623,7 +625,7 @@ const AiQaContent: React.FC<{
           window.location.href = `${basePath}/auth/login?redirect=${encodeURIComponent(current.pathname + current.search)}`;
           return;
         }
-        message.error(error.message || '请求失败');
+        message.error(error.message || t('requestFailed'));
       },
       onCancel: () => {
         setLoading(false);
@@ -978,8 +980,8 @@ const AiQaContent: React.FC<{
                           })}
                         >
                           {thinking === 2 && index === conversation.length - 1
-                            ? '思考中...'
-                            : '已思考'}
+                            ? t('thinking')
+                            : t('thought')}
                         </Typography>
                       </Stack>
                     </StyledThinkingAccordionSummary>
@@ -1007,7 +1009,11 @@ const AiQaContent: React.FC<{
                     gap={mobile ? 1 : 3}
                   >
                     <Stack direction='row' gap={3} alignItems='center'>
-                      <span>生成于 {dayjs(item.update_time).fromNow()}</span>
+                      <span>
+                        {t('generatedAt', {
+                          time: format.relativeTime(new Date(item.update_time)),
+                        })}
+                      </span>
 
                       <IconCopy
                         sx={{ cursor: 'pointer' }}

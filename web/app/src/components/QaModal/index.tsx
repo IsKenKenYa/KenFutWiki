@@ -17,6 +17,7 @@ import {
 import AiQaContent from './AiQaContent';
 import SearchDocContent from './SearchDocContent';
 import { useStore } from '@/provider';
+import { useTranslations } from 'next-intl';
 
 interface SearchSuggestion {
   id: string;
@@ -76,6 +77,7 @@ const StyledTab = styled(Tab)(({ theme }) => ({
 }));
 
 const QaModal: React.FC<QaModalProps> = () => {
+  const t = useTranslations('qa');
   const { qaModalOpen, setQaModalOpen, kbDetail, mobile, qaMode, setQaMode } =
     useStore();
   const searchMode = qaMode || 'search';
@@ -93,9 +95,9 @@ const QaModal: React.FC<QaModalProps> = () => {
   const placeholder = useMemo(() => {
     return (
       kbDetail?.settings?.web_app_custom_style?.header_search_placeholder ||
-      '搜索...'
+      t('searchingShort')
     );
-  }, [kbDetail]);
+  }, [kbDetail, t]);
 
   const hotSearch = useMemo(() => {
     const bannerConfig = kbDetail?.settings?.web_app_landing_configs?.find(
@@ -279,7 +281,7 @@ const QaModal: React.FC<QaModalProps> = () => {
               {!kbDetail?.settings?.conversation_setting
                 ?.copyright_hide_enabled &&
                 (kbDetail?.settings?.conversation_setting?.copyright_info ||
-                  '本网站由 KenFutWiki 提供技术支持')}
+                  t('poweredBy'))}
             </Box>
           </Typography>
         </Box>

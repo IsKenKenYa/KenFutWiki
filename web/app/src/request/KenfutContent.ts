@@ -15,11 +15,15 @@ import {
   DomainKenFutContentItem,
   DomainKenFutContentListResp,
   DomainKenFutTaxonomies,
+  DomainNodeTranslation,
   DomainPWResponse,
   GetShareKenfutV1ArticlesSlugParams,
   GetShareKenfutV1ContentsNodeIdParams,
   GetShareKenfutV1ContentsNodeIdRelatedParams,
   GetShareKenfutV1ContentsParams,
+  GetShareKenfutV1PagesParams,
+  GetShareKenfutV1TaxonomiesParams,
+  GetShareKenfutV1TranslationsParams,
 } from "./types";
 
 /**
@@ -46,6 +50,7 @@ export const getShareKenfutV1ArticlesSlug = (
   >({
     path: `/share/kenfut/v1/articles/${slug}`,
     method: "GET",
+    query: query,
     ...params,
   });
 
@@ -141,10 +146,14 @@ export const getShareKenfutV1ContentsNodeIdRelated = (
  * @response `200` `DomainPWResponse` OK
  */
 
-export const getShareKenfutV1Pages = (params: RequestParams = {}) =>
+export const getShareKenfutV1Pages = (
+  query: GetShareKenfutV1PagesParams,
+  params: RequestParams = {},
+) =>
   httpRequest<DomainPWResponse>({
     path: `/share/kenfut/v1/pages`,
     method: "GET",
+    query: query,
     ...params,
   });
 
@@ -161,7 +170,10 @@ export const getShareKenfutV1Pages = (params: RequestParams = {}) =>
 })` OK
  */
 
-export const getShareKenfutV1Taxonomies = (params: RequestParams = {}) =>
+export const getShareKenfutV1Taxonomies = (
+  query: GetShareKenfutV1TaxonomiesParams,
+  params: RequestParams = {},
+) =>
   httpRequest<
     DomainPWResponse & {
       data?: DomainKenFutTaxonomies;
@@ -169,5 +181,34 @@ export const getShareKenfutV1Taxonomies = (params: RequestParams = {}) =>
   >({
     path: `/share/kenfut/v1/taxonomies`,
     method: "GET",
+    query: query,
+    ...params,
+  });
+
+/**
+ * No description
+ *
+ * @tags kenfut_content
+ * @name GetShareKenfutV1Translations
+ * @summary Node translations
+ * @request GET:/share/kenfut/v1/translations
+ * @response `200` `(DomainPWResponse & {
+    data?: (DomainNodeTranslation)[],
+
+})` OK
+ */
+
+export const getShareKenfutV1Translations = (
+  query: GetShareKenfutV1TranslationsParams,
+  params: RequestParams = {},
+) =>
+  httpRequest<
+    DomainPWResponse & {
+      data?: DomainNodeTranslation[];
+    }
+  >({
+    path: `/share/kenfut/v1/translations`,
+    method: "GET",
+    query: query,
     ...params,
   });

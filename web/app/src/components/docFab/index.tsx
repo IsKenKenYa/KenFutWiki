@@ -15,6 +15,7 @@ import {
   Zoom,
 } from '@mui/material';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 const DocFab = ({ nodeId }: { nodeId?: string }) => {
@@ -26,12 +27,13 @@ const DocFab = ({ nodeId }: { nodeId?: string }) => {
   const [openSelectContentTypeModal, setOpenSelectContentTypeModal] =
     useState(false);
   const basePath = useBasePath();
+  const t = useTranslations('doc');
   if (mobile) return null;
 
   return (
     <>
       <Modal
-        title='新建文档类型'
+        title={t('newDocType')}
         open={openSelectContentTypeModal}
         onCancel={() => {
           setOpenSelectContentTypeModal(false);
@@ -52,7 +54,7 @@ const DocFab = ({ nodeId }: { nodeId?: string }) => {
           <FormControlLabel
             value='html'
             control={<Radio size='small' />}
-            label='富文本'
+            label={t('richText')}
           />
           <FormControlLabel
             value='md'
@@ -77,7 +79,7 @@ const DocFab = ({ nodeId }: { nodeId?: string }) => {
               in={showActions}
               style={{ transitionDelay: showActions ? '100ms' : '0ms' }}
             >
-              <Tooltip title='创建文档' placement='left' arrow>
+              <Tooltip title={t('createDoc')} placement='left' arrow>
                 <Fab
                   color='primary'
                   size='small'
@@ -94,7 +96,7 @@ const DocFab = ({ nodeId }: { nodeId?: string }) => {
                 in={showActions}
                 style={{ transitionDelay: showActions ? '40ms' : '0ms' }}
               >
-                <Tooltip title='编辑文档' placement='left' arrow>
+                <Tooltip title={t('editDoc')} placement='left' arrow>
                   <Fab
                     color='primary'
                     size='small'

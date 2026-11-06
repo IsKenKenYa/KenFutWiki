@@ -158,7 +158,25 @@ func (u *KenFutContentUsecase) baseURL(ctx context.Context, kbID string) (string
 	return strings.TrimRight(kb.AccessSettings.GetBaseUrl(), "/"), nil
 }
 
+// localizedPath 为非默认语言的站内路径加上语言前缀。
+func localizedPath(path, lang string) string {
+	if lang == "" || lang == domain.DefaultNodeLang {
+		return path
+	}
+	if path == "/" {
+		return "/" + lang
+	}
+	return "/" + lang + path
+}
+
+// localizeSitePath 为非默认语言的内容地址加上语言前缀（默认语言保持裸路径）；
+// baseURL 为站点基地址，站内路径形如 /node/<id>。
+func localizeSitePath(siteURL, lang, baseURL string) string {
+	return baseURL + localizedPath(strings.TrimPrefix(siteURL, baseURL), lang)
+}
+
 func contentItem(row pg.KenFutPublishedRow, baseURL string) domain.KenFutContentItem {
+
 	m := row.Metadata
 	if m.Channel == "" {
 		m = domain.DefaultKenFutContentMetadata(row.ID)
@@ -168,6 +186,7 @@ func contentItem(row pg.KenFutPublishedRow, baseURL string) domain.KenFutContent
 	if m.Channel != "docs" && m.Slug != "" {
 		canonical = baseURL + "/blog/" + url.PathEscape(m.Slug)
 	}
+	canonical = localizeSitePath(canonical, row.Lang, baseURL)
 	content := row.Content
 	if content != "" && row.ContentType != domain.ContentTypeMD && !utils.IsLikelyHTML(content) {
 		content = renderNodeMarkdown(content)
@@ -176,7 +195,7 @@ func contentItem(row pg.KenFutPublishedRow, baseURL string) domain.KenFutContent
 }
 
 func (u *KenFutContentUsecase) related(ctx context.Context, current pg.KenFutPublishedRow, releaseID string, visibility pg.KenFutVisibility, baseURL string) ([]domain.KenFutContentItem, error) {
-	rows, err := u.repo.Candidates(ctx, current.KBID, releaseID, visibility)
+	rows, err := u.repo.Candidates(ctx, current.KBID, releaseID, visibility, current.Lang)
 	if err != nil {
 		return nil, err
 	}
@@ -232,12 +251,22 @@ func relatedContentScore(current, candidate pg.KenFutPublishedRow) int {
 	return score
 }
 
-func (u *KenFutContentUsecase) Pages(ctx context.Context, kbID string, authID uint) ([]domain.KenFutPage, error) {
+func (u *KenFutContentUsecase) Pages(ctx context.Context, kbID, lang string, authID uint) ([]domain.KenFutPage, error) {
 	baseURL, err := u.baseURL(ctx, kbID)
 	if err != nil {
 		return nil, err
 	}
-	pages := []domain.KenFutPage{{ID: "home", Title: "首页", URL: baseURL + "/", Type: "site", Target: domain.KenFutLinkTarget{Type: "site", Page: "home"}}, {ID: "docs", Title: "文档", URL: baseURL + "/node", Type: "site", Target: domain.KenFutLinkTarget{Type: "site", Page: "docs"}}, {ID: "blog", Title: "文章", URL: baseURL + "/blog", Type: "site", Target: domain.KenFutLinkTarget{Type: "site", Page: "blog"}}}
+	title := func(zh, en string) string {
+		if lang == "en" {
+			return en
+		}
+		return zh
+	}
+	pages := []domain.KenFutPage{
+		{ID: "home", Title: title("首页", "Home"), URL: baseURL + localizedPath("/", lang), Type: "site", Target: domain.KenFutLinkTarget{Type: "site", Page: "home"}},
+		{ID: "docs", Title: title("文档", "Docs"), URL: baseURL + localizedPath("/node", lang), Type: "site", Target: domain.KenFutLinkTarget{Type: "site", Page: "docs"}},
+		{ID: "blog", Title: title("文章", "Articles"), URL: baseURL + localizedPath("/blog", lang), Type: "site", Target: domain.KenFutLinkTarget{Type: "site", Page: "blog"}},
+	}
 	releaseID, err := u.repo.LatestReleaseID(ctx, kbID)
 	if err != nil || releaseID == "" {
 		return pages, err
@@ -246,7 +275,7 @@ func (u *KenFutContentUsecase) Pages(ctx context.Context, kbID string, authID ui
 	if err != nil {
 		return nil, err
 	}
-	rows, err := u.repo.Candidates(ctx, kbID, releaseID, visibility)
+	rows, err := u.repo.Candidates(ctx, kbID, releaseID, visibility, lang)
 	if err != nil {
 		return nil, err
 	}
@@ -257,7 +286,7 @@ func (u *KenFutContentUsecase) Pages(ctx context.Context, kbID string, authID ui
 	return pages, nil
 }
 
-func (u *KenFutContentUsecase) Taxonomies(ctx context.Context, kbID string, authID uint) (*domain.KenFutTaxonomies, error) {
+func (u *KenFutContentUsecase) Taxonomies(ctx context.Context, kbID, lang string, authID uint) (*domain.KenFutTaxonomies, error) {
 	result := &domain.KenFutTaxonomies{Categories: []string{}, Tags: []string{}}
 	releaseID, err := u.repo.LatestReleaseID(ctx, kbID)
 	if err != nil || releaseID == "" {
@@ -267,7 +296,7 @@ func (u *KenFutContentUsecase) Taxonomies(ctx context.Context, kbID string, auth
 	if err != nil {
 		return nil, err
 	}
-	rows, err := u.repo.Candidates(ctx, kbID, releaseID, visibility)
+	rows, err := u.repo.Candidates(ctx, kbID, releaseID, visibility, lang)
 	if err != nil {
 		return nil, err
 	}

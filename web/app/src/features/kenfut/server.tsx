@@ -2,8 +2,11 @@ import 'server-only';
 
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
+import { getTranslations } from 'next-intl/server';
 import { getShareV1AppWebInfo } from '@/request/ShareApp';
 import { getBasePath } from '@/utils/getBasePath';
+import { resolveLocale } from '@/i18n/request';
+import { defaultLocale } from '@/i18n/routing';
 import { getContents, getTaxonomies } from './api';
 import BlogListing from './BlogListing';
 import type { ContentQuery, PublishedContent } from './types';
@@ -45,9 +48,10 @@ export async function getContentMetadata(
     languages = {};
     for (const t of content.translations) {
       languages[t.lang] = new URL(
-        t.lang === 'zh'
-          ? localHref(basePath, t.url)
-          : localHref(basePath, `/en${t.url}`),
+        localHref(
+          basePath,
+          t.lang === defaultLocale ? t.url : `/${t.lang}${t.url}`,
+        ),
         origin,
       ).toString();
     }
@@ -78,10 +82,15 @@ export async function getContentMetadata(
 }
 
 export async function ArticleListingPage({ query }: { query: ContentQuery }) {
+  const [t, locale] = await Promise.all([
+    getTranslations('blog'),
+    resolveLocale(),
+  ]);
+  const lang = locale === defaultLocale ? undefined : locale;
   const results = await Promise.allSettled([
-    getContents({ ...query, channel: 'article', page_size: 12 }),
-    getContents({ channel: 'article', featured: true, page_size: 4 }),
-    getTaxonomies(),
+    getContents({ ...query, channel: 'article', page_size: 12, lang }),
+    getContents({ channel: 'article', featured: true, page_size: 4, lang }),
+    getTaxonomies(lang),
   ]);
   return (
     <BlogListing
@@ -98,11 +107,7 @@ export async function ArticleListingPage({ query }: { query: ContentQuery }) {
       tags={
         results[2].status === 'fulfilled' ? results[2].value.tags || [] : []
       }
-      error={
-        results[0].status === 'rejected'
-          ? '文章暂时无法加载，请稍后重试。'
-          : undefined
-      }
+      error={results[0].status === 'rejected' ? t('loadError') : undefined}
     />
   );
 }

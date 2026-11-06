@@ -1,7 +1,7 @@
 import { ITreeItem } from '@/assets/type';
 import { IconXiajiantou, IconWenjianjia, IconWenjian } from '@panda-wiki/icons';
 import { useStore } from '@/provider';
-import { useBasePath } from '@/hooks';
+import { useLocaleBasePath } from '@/hooks';
 import { addOpacityToColor } from '@/utils';
 import { Ellipsis } from '@ctzhian/ui';
 import { Box, Stack, useTheme, IconButton } from '@mui/material';
@@ -18,7 +18,7 @@ const CatalogFolder = ({ item, depth = 1 }: CatalogFolderProps) => {
   const { themeMode = 'light', setTree } = useStore();
   const params = useParams() || {};
   const activeId = params.id as string;
-  const basePath = useBasePath();
+  const basePath = useLocaleBasePath();
 
   return (
     <Stack key={item.id} gap={0.5}>

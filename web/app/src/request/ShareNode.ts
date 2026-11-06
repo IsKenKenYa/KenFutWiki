@@ -14,6 +14,7 @@ import httpRequest, { ContentType, RequestParams } from "./httpClient";
 import {
   DomainResponse,
   GetShareV1NodeDetailParams,
+  GetShareV1NodeListParams,
   V1ShareNodeDetailResp,
 } from "./types";
 
@@ -57,10 +58,14 @@ export const getShareV1NodeDetail = (
  * @response `200` `DomainResponse` OK
  */
 
-export const getShareV1NodeList = (params: RequestParams = {}) =>
+export const getShareV1NodeList = (
+  query: GetShareV1NodeListParams,
+  params: RequestParams = {},
+) =>
   httpRequest<DomainResponse>({
     path: `/share/v1/node/list`,
     method: "GET",
+    query: query,
     type: ContentType.Json,
     format: "json",
     ...params,

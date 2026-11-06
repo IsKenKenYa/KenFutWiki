@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import { IconJinsousuo, IconZhinengwenda } from '@panda-wiki/icons';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import AiQaContent from './AiQaContent';
 import SearchDocContent from './SearchDocContent';
 
@@ -60,6 +61,7 @@ const StyledTab = styled(Tab)(({ theme }) => ({
 }));
 
 const Widget = () => {
+  const t = useTranslations('qa');
   const { widget, mobile } = useStore();
 
   const defaultSearchMode = useMemo(() => {
@@ -73,8 +75,10 @@ const Widget = () => {
   const aiQaInputRef = useRef<HTMLInputElement>(null);
 
   const placeholder = useMemo(() => {
-    return widget?.settings?.widget_bot_settings?.placeholder || '搜索...';
-  }, [widget]);
+    return (
+      widget?.settings?.widget_bot_settings?.placeholder || t('searchingShort')
+    );
+  }, [widget, t]);
 
   const hotSearch = useMemo(() => {
     return widget?.settings?.widget_bot_settings?.recommend_questions || [];
@@ -213,7 +217,7 @@ const Widget = () => {
           >
             <Box>
               {widget?.settings?.widget_bot_settings?.copyright_info ||
-                '本网站由 KenFutWiki 提供技术支持'}
+                t('poweredBy')}
             </Box>
           </Typography>
         </Box>

@@ -14,9 +14,7 @@ import { copyText, findAdjacentDocuments } from '@/utils';
 import { Editor, UseTiptapReturn } from '@ctzhian/tiptap';
 import { message } from '@ctzhian/ui';
 import { Box, alpha } from '@mui/material';
-import dayjs from 'dayjs';
-import 'dayjs/locale/zh-cn';
-import relativeTime from 'dayjs/plugin/relativeTime';
+import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import FolderList from './folderList';
@@ -27,9 +25,6 @@ import ContentEngagement from '@/features/kenfut/ContentEngagement';
 import ContentBreadcrumbs from '@/features/kenfut/ContentBreadcrumbs';
 import { getImagePath } from '@/utils/getImagePath';
 import type { PageTarget, PublishedContent } from '@/features/kenfut/types';
-
-dayjs.extend(relativeTime);
-dayjs.locale('zh-cn');
 
 const DocContent = ({
   info,
@@ -52,6 +47,8 @@ const DocContent = ({
 }) => {
   const { mobile = false, authInfo, kbDetail, catalogWidth, tree } = useStore();
   const basePath = useBasePath();
+  const tComment = useTranslations('comment');
+  const tNode = useTranslations('node');
   const [commentLoading, setCommentLoading] = useState(false);
   const docId = info?.id || '';
   const [commentList, setCommentList] = useState<any[]>(propsCommentList ?? []);
@@ -80,10 +77,10 @@ const DocContent = ({
         const res = await getShareV1CommentList({ id: docId }, { signal });
         setCommentList(res.data ?? []);
       } catch {
-        if (!signal?.aborted) message.error('评论暂时无法加载');
+        if (!signal?.aborted) message.error(tComment('loadError'));
       }
     },
-    [docId],
+    [docId, tComment],
   );
 
   useEffect(() => {
@@ -113,7 +110,7 @@ const DocContent = ({
         const solution = await cap.solve();
         token = solution.token;
       } catch {
-        message.error('验证失败');
+        message.error(tComment('verifyFailed'));
         setCommentLoading(false);
         return;
       }
@@ -135,11 +132,11 @@ const DocContent = ({
         setCommentImages([]);
         message.success(
           appDetail?.web_app_comment_settings?.moderation_enable
-            ? '评论已提交，请耐心等待审核'
-            : '评论成功',
+            ? tComment('submitPending')
+            : tComment('submitSuccess'),
         );
       } catch (error: any) {
-        message.error(error.message || '评论发布失败');
+        message.error(error.message || tComment('submitFailed'));
       } finally {
         setCommentLoading(false);
       }
@@ -158,7 +155,7 @@ const DocContent = ({
     if (
       kbDetail?.settings?.copy_setting === ConstsCopySetting.CopySettingAppend
     ) {
-      context += `\n\n-----------------------------------------\n内容来自 ${typeof window !== 'undefined' ? window.location.href : ''}`;
+      context += `\n\n-----------------------------------------\n${tNode('source')} ${typeof window !== 'undefined' ? window.location.href : ''}`;
     }
     copyText(context);
   };

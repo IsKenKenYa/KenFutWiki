@@ -2,6 +2,7 @@
 
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { Fab, Zoom } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 interface ScrollToTopFabProps {
@@ -14,6 +15,7 @@ const ScrollToTopFab = ({
   scrollContainerId = 'scroll-container',
   threshold = 300,
 }: ScrollToTopFabProps) => {
+  const t = useTranslations('doc');
   const [show, setShow] = useState(false);
   useEffect(() => {
     const element =
@@ -38,7 +40,7 @@ const ScrollToTopFab = ({
     <Zoom in={show}>
       <Fab
         size='small'
-        aria-label='返回顶部'
+        aria-label={t('backToTop')}
         onClick={scrollToTop}
         sx={{
           position: 'fixed',

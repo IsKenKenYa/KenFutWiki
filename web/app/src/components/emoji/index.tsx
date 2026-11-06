@@ -2,6 +2,7 @@
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { Box, IconButton, Popover, SxProps } from '@mui/material';
+import { useLocale } from 'next-intl';
 import React, { useCallback } from 'react';
 import zh from './emoji-data/zh.json';
 import {
@@ -32,6 +33,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null,
   );
+  const locale = useLocale();
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -100,8 +102,8 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({
           data={data}
           set='native'
           theme='light'
-          locale='zh'
-          i18n={zh}
+          locale={locale === 'zh' ? 'zh' : 'en'}
+          i18n={locale === 'zh' ? zh : undefined}
           onEmojiSelect={handleSelect}
           previewPosition='none'
           searchPosition='sticky'

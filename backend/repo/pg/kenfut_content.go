@@ -202,8 +202,13 @@ func (r *KenFutContentRepository) ResolveSlug(ctx context.Context, kbID, slug, l
 	return alias.NodeID, err
 }
 
-func (r *KenFutContentRepository) Candidates(ctx context.Context, kbID, releaseID string, visibility KenFutVisibility) ([]KenFutPublishedRow, error) {
+// Candidates 返回当前发布清单中的全部内容；lang 非空时仅返回该语言版本。
+func (r *KenFutContentRepository) Candidates(ctx context.Context, kbID, releaseID string, visibility KenFutVisibility, lang string) ([]KenFutPublishedRow, error) {
+	q := publishedContentQuery(r.db.WithContext(ctx), kbID, releaseID, visibility)
+	if lang != "" {
+		q = q.Where("n.lang = ?", lang)
+	}
 	rows := []KenFutPublishedRow{}
-	err := publishedContentQuery(r.db.WithContext(ctx), kbID, releaseID, visibility).Select(contentSelect).Order("nr.updated_at DESC,nr.node_id ASC").Scan(&rows).Error
+	err := q.Select(contentSelect).Order("nr.updated_at DESC,nr.node_id ASC").Scan(&rows).Error
 	return rows, err
 }

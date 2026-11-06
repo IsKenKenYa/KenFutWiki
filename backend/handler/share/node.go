@@ -44,6 +44,7 @@ func NewShareNodeHandler(
 //	@Accept			json
 //	@Produce		json
 //	@Param			X-KB-ID	header		string	true	"kb id"
+//	@Param			lang	query		string	false	"内容语言，缺省返回默认语言"
 //	@Success		200		{object}	domain.Response
 //	@Router			/share/v1/node/list [get]
 func (h *ShareNodeHandler) ShareNodeList(c echo.Context) error {
@@ -95,7 +96,7 @@ func (h *ShareNodeHandler) GetNodeDetail(c echo.Context) error {
 
 	// If the node is a folder, return the list of child nodes
 	if node.Type == domain.NodeTypeFolder {
-		childNodes, err := h.usecase.GetNodeReleaseListByParentID(c.Request().Context(), kbID, id, domain.GetAuthID(c))
+		childNodes, err := h.usecase.GetNodeReleaseListByParentID(c.Request().Context(), kbID, id, c.QueryParam("lang"), domain.GetAuthID(c))
 		if err != nil {
 			return h.NewResponseWithError(c, "failed to get child nodes", err)
 		}

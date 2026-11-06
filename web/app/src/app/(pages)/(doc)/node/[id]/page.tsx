@@ -1,13 +1,15 @@
 import { cache } from 'react';
-import { permanentRedirect } from 'next/navigation';
+import { permanentRedirect, redirect } from 'next/navigation';
 import { getShareV1NodeDetail } from '@/request/ShareNode';
 import type { V1ShareNodeDetailResp } from '@/request/types';
 import { formatMeta } from '@/utils';
 import Doc from '@/views/node';
 import type { ResolvingMetadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { getContent, getPageTargets } from '@/features/kenfut/api';
 import { getContentMetadata, getPublicSite } from '@/features/kenfut/server';
 import { resolveLocale } from '@/i18n/request';
+import { defaultLocale } from '@/i18n/routing';
 import {
   localHref,
   withSearchParams,
@@ -19,11 +21,7 @@ export interface PageProps {
   searchParams: Promise<PageSearchParams>;
 }
 
-// 语言维度内容加载：按 proxy 剥离出的 locale 过滤译本
-const loadContent = cache(async (id: string) => {
-  const lang = await resolveLocale();
-  return lang === 'zh' ? getContent(id) : getContent(id, lang);
-});
+const loadContent = cache(async (id: string) => getContent(id));
 
 export async function generateMetadata(
   { params }: PageProps,
@@ -40,7 +38,11 @@ export async function generateMetadata(
         parent,
       );
     } catch {
-      return { title: '内容不可用', robots: { index: false, follow: false } };
+      const t = await getTranslations('error');
+      return {
+        title: t('unavailableTitle'),
+        robots: { index: false, follow: false },
+      };
     }
   }
 }
@@ -50,7 +52,13 @@ export default async function DocPage({ params, searchParams }: PageProps) {
   const [legacy, publication, pageTargets] = await Promise.allSettled([
     getShareV1NodeDetail({ id, format: 'json' }),
     loadContent(id),
-    getPageTargets(),
+    resolveLocale().then(locale =>
+      getPageTargets(locale === defaultLocale ? undefined : locale),
+    ),
+  ]);
+  const [locale, t] = await Promise.all([
+    resolveLocale(),
+    getTranslations('error'),
   ]);
   const legacyNode =
     legacy.status === 'fulfilled'
@@ -58,6 +66,25 @@ export default async function DocPage({ params, searchParams }: PageProps) {
       : undefined;
   const content =
     publication.status === 'fulfilled' ? publication.value : undefined;
+  // 访问到与当前语言不一致的版本时，跳转到该语言的译本
+  const translated =
+    content?.lang && content.lang !== locale
+      ? content.translations?.find(item => item.lang === locale)
+      : undefined;
+  if (translated) {
+    const { basePath } = await getPublicSite();
+    redirect(
+      withSearchParams(
+        localHref(
+          basePath,
+          locale === defaultLocale
+            ? translated.url
+            : `/${locale}${translated.url}`,
+        ),
+        await searchParams,
+      ),
+    );
+  }
   const node: V1ShareNodeDetailResp | undefined = content
     ? {
         ...legacyNode,
@@ -98,7 +125,7 @@ export default async function DocPage({ params, searchParams }: PageProps) {
       }
       publicationError={
         node?.type === 2 && publication.status === 'rejected'
-          ? '内容运营信息暂时无法加载。'
+          ? t('contentUnavailable')
           : undefined
       }
     />

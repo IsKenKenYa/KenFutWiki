@@ -1,6 +1,17 @@
+// 使用相对路径：links.ts 会被 Node 测试直接导入，不能依赖 @/ 别名
+import { DEFAULT_LOCALE } from '../../i18n/constants.ts';
 import type { LinkTarget, PageTarget, PublishedContent } from './types';
 
 export type PageSearchParams = Record<string, string | string[] | undefined>;
+
+// 站内路径加语言前缀：默认语言、外部地址与非绝对路径保持原样
+export const withLocalePrefix = (path: string, lang?: string) =>
+  !lang ||
+  lang === DEFAULT_LOCALE ||
+  !path.startsWith('/') ||
+  path.startsWith('//')
+    ? path
+    : `/${lang}${path}`;
 
 export const hasNavigation = (
   buttons: { url?: string }[] | undefined,
@@ -56,7 +67,7 @@ export const contentHref = (content: PublishedContent, basePath: string) =>
     basePath,
     content.canonical_url ||
       content.url ||
-      `/node/${content.node_id || content.id}`,
+      withLocalePrefix(`/node/${content.node_id || content.id}`, content.lang),
   );
 
 export const resolveTarget = (

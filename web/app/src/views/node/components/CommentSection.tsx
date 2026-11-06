@@ -7,6 +7,7 @@ import CommentInput, {
 import { getImagePath } from '@/utils/getImagePath';
 import { Image } from '@ctzhian/ui';
 import { Box, Button, Divider, Stack, TextField } from '@mui/material';
+import { useFormatter, useTranslations } from 'next-intl';
 import React from 'react';
 import {
   Control,
@@ -14,7 +15,6 @@ import {
   FieldErrors,
   UseFormHandleSubmit,
 } from 'react-hook-form';
-import dayjs from 'dayjs';
 
 interface CommentItem {
   id: string;
@@ -46,8 +46,18 @@ interface CommentSectionProps {
   showNameInput: boolean;
 }
 
-const renderIp = (ip_address: CommentItem['ip_address']) => {
-  const { city = '', country = '未知', province = '', ip } = ip_address || {};
+const IpAddress = ({
+  ip_address,
+}: {
+  ip_address: CommentItem['ip_address'];
+}) => {
+  const t = useTranslations('comment');
+  const {
+    city = '',
+    country = t('unknownLocation'),
+    province = '',
+    ip,
+  } = ip_address || {};
   return (
     <>
       <Box>{ip}</Box>
@@ -72,122 +82,130 @@ const CommentSection = ({
   onImagesChange,
   basePath,
   showNameInput,
-}: CommentSectionProps) => (
-  <>
-    <Divider sx={{ my: 4 }} />
-    <Box sx={{ fontWeight: 700, fontSize: 18, mb: 3 }}>评论</Box>
-    <Box
-      sx={{
-        p: 2,
-        border: '1px solid',
-        borderColor: contentFocused ? 'text.primary' : 'divider',
-        borderRadius: 2,
-        transition: 'all 0.2s ease-in-out',
-      }}
-    >
-      <Controller
-        name='content'
-        control={control}
-        rules={{ required: '请输入评论' }}
-        render={({ field }) => (
-          <CommentInput
-            value={field.value}
-            onChange={field.onChange}
-            onImagesChange={onImagesChange}
-            ref={commentInputRef}
-            onFocus={() => {
-              onContentFocus();
-            }}
-            onBlur={() => {
-              onContentBlur();
-              field.onBlur();
-            }}
-            placeholder='请输入评论'
-            error={!!errors.content}
-            helperText={errors.content?.message}
-          />
-        )}
-      />
-      <Divider sx={{ my: 2 }} />
-      <Stack
-        direction='row-reverse'
-        justifyContent='space-between'
-        alignItems='center'
-        sx={{ fontSize: 14, color: 'text.secondary' }}
+}: CommentSectionProps) => {
+  const t = useTranslations('comment');
+  const format = useFormatter();
+  return (
+    <>
+      <Divider sx={{ my: 4 }} />
+      <Box sx={{ fontWeight: 700, fontSize: 18, mb: 3 }}>{t('title')}</Box>
+      <Box
+        sx={{
+          p: 2,
+          border: '1px solid',
+          borderColor: contentFocused ? 'text.primary' : 'divider',
+          borderRadius: 2,
+          transition: 'all 0.2s ease-in-out',
+        }}
       >
-        <Button variant='contained' onClick={onSubmit} loading={commentLoading}>
-          发送
-        </Button>
-        {showNameInput && (
-          <Controller
-            rules={{ required: '请输入你的昵称' }}
-            name='name'
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                placeholder='你的昵称'
-                size='small'
-                sx={{
-                  '.MuiOutlinedInput-notchedOutline': {
-                    border: '1px solid',
-                    borderColor: 'var(--mui-palette-divider) !important',
-                  },
-                }}
-                error={!!errors.name}
-                helperText={errors.name?.message}
-              />
-            )}
-          />
-        )}
+        <Controller
+          name='content'
+          control={control}
+          rules={{ required: t('commentRequired') }}
+          render={({ field }) => (
+            <CommentInput
+              value={field.value}
+              onChange={field.onChange}
+              onImagesChange={onImagesChange}
+              ref={commentInputRef}
+              onFocus={() => {
+                onContentFocus();
+              }}
+              onBlur={() => {
+                onContentBlur();
+                field.onBlur();
+              }}
+              placeholder={t('placeholder')}
+              error={!!errors.content}
+              helperText={errors.content?.message}
+            />
+          )}
+        />
+        <Divider sx={{ my: 2 }} />
+        <Stack
+          direction='row-reverse'
+          justifyContent='space-between'
+          alignItems='center'
+          sx={{ fontSize: 14, color: 'text.secondary' }}
+        >
+          <Button
+            variant='contained'
+            onClick={onSubmit}
+            loading={commentLoading}
+          >
+            {t('submit')}
+          </Button>
+          {showNameInput && (
+            <Controller
+              rules={{ required: t('nicknameRequired') }}
+              name='name'
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  placeholder={t('nickname')}
+                  size='small'
+                  sx={{
+                    '.MuiOutlinedInput-notchedOutline': {
+                      border: '1px solid',
+                      borderColor: 'var(--mui-palette-divider) !important',
+                    },
+                  }}
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
+                />
+              )}
+            />
+          )}
+        </Stack>
+      </Box>
+      <Stack gap={1} sx={{ mt: 4 }}>
+        {commentList.map((item, index) => (
+          <React.Fragment key={item.id}>
+            <Stack gap={1}>
+              <Box sx={{ fontSize: 14, fontWeight: 700 }}>
+                {item.info.user_name}
+              </Box>
+              <Box sx={{ fontSize: 14 }}>{item.content}</Box>
+              <Stack direction='row' gap={1}>
+                <Image.PreviewGroup>
+                  {(item.pic_urls || []).map((url: string) => (
+                    <Image
+                      key={url}
+                      alt={url}
+                      src={getImagePath(url, basePath)}
+                      width={80}
+                      height={80}
+                      style={{
+                        borderRadius: '4px',
+                        objectFit: 'cover',
+                        boxShadow: '0px 0px 3px 1px rgba(0,0,5,0.15)',
+                        cursor: 'pointer',
+                      }}
+                      referrerPolicy='no-referrer'
+                    />
+                  ))}
+                </Image.PreviewGroup>
+              </Stack>
+              <Stack
+                direction='row'
+                justifyContent='flex-end'
+                alignItems='center'
+                gap={2}
+                sx={{ color: 'text.tertiary', fontSize: 12 }}
+              >
+                <IpAddress ip_address={item.ip_address} />
+                <Box>{format.relativeTime(new Date(item.created_at))}</Box>
+              </Stack>
+            </Stack>
+            <Divider sx={{ my: 3, color: 'text.tertiary', fontSize: 14 }}>
+              {index !== commentList.length - 1 ? '' : t('noMore')}
+            </Divider>
+          </React.Fragment>
+        ))}
       </Stack>
-    </Box>
-    <Stack gap={1} sx={{ mt: 4 }}>
-      {commentList.map((item, index) => (
-        <React.Fragment key={item.id}>
-          <Stack gap={1}>
-            <Box sx={{ fontSize: 14, fontWeight: 700 }}>
-              {item.info.user_name}
-            </Box>
-            <Box sx={{ fontSize: 14 }}>{item.content}</Box>
-            <Stack direction='row' gap={1}>
-              <Image.PreviewGroup>
-                {(item.pic_urls || []).map((url: string) => (
-                  <Image
-                    key={url}
-                    alt={url}
-                    src={getImagePath(url, basePath)}
-                    width={80}
-                    height={80}
-                    style={{
-                      borderRadius: '4px',
-                      objectFit: 'cover',
-                      boxShadow: '0px 0px 3px 1px rgba(0,0,5,0.15)',
-                      cursor: 'pointer',
-                    }}
-                    referrerPolicy='no-referrer'
-                  />
-                ))}
-              </Image.PreviewGroup>
-            </Stack>
-            <Stack
-              direction='row'
-              justifyContent='flex-end'
-              alignItems='center'
-              gap={2}
-              sx={{ color: 'text.tertiary', fontSize: 12 }}
-            >
-              {renderIp(item.ip_address)}
-              <Box>{dayjs(item.created_at).fromNow()}</Box>
-            </Stack>
-          </Stack>
-          <Divider sx={{ my: 3, color: 'text.tertiary', fontSize: 14 }}>
-            {index !== commentList.length - 1 ? '' : '没有更多了'}
-          </Divider>
-        </React.Fragment>
-      ))}
-    </Stack>
-  </>
-);
+    </>
+  );
+};
 
 export default CommentSection;

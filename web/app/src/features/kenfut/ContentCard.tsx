@@ -2,7 +2,8 @@
 
 import { Avatar, Box, Chip, Stack, Typography } from '@mui/material';
 import Link from 'next/link';
-import { useBasePath } from '@/hooks';
+import { useTranslations } from 'next-intl';
+import { useBasePath, useLocaleBasePath } from '@/hooks';
 import { getImagePath } from '@/utils/getImagePath';
 import { contentHref, localHref } from './links';
 import type { PublishedContent } from './types';
@@ -13,7 +14,9 @@ export default function ContentCard({
   content: PublishedContent;
 }) {
   const basePath = useBasePath();
-  const href = contentHref(content, basePath);
+  const linkBasePath = useLocaleBasePath();
+  const t = useTranslations('node');
+  const href = contentHref(content, linkBasePath);
   const date = content.display_date || content.created_at;
   return (
     <Box component='article' sx={{ minWidth: 0, height: '100%' }}>
@@ -63,7 +66,7 @@ export default function ContentCard({
             />
           )}
           <Typography variant='caption'>
-            {content.author_name || '编辑团队'}
+            {content.author_name || t('editorialTeam')}
           </Typography>
           {date && (
             <Typography component='time' dateTime={date} variant='caption'>
@@ -99,7 +102,7 @@ export default function ContentCard({
             component={Link}
             clickable
             href={localHref(
-              basePath,
+              linkBasePath,
               `/blog/category/${encodeURIComponent(content.category)}`,
             )}
             label={content.category}
@@ -112,7 +115,10 @@ export default function ContentCard({
             variant='outlined'
             component={Link}
             clickable
-            href={localHref(basePath, `/blog/tag/${encodeURIComponent(tag)}`)}
+            href={localHref(
+              linkBasePath,
+              `/blog/tag/${encodeURIComponent(tag)}`,
+            )}
             label={tag}
           />
         ))}

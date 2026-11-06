@@ -3934,6 +3934,12 @@ const docTemplate = `{
                         "name": "X-KB-ID",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Content language, default zh",
+                        "name": "lang",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3959,6 +3965,12 @@ const docTemplate = `{
                         "name": "X-KB-ID",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Content language, default zh",
+                        "name": "lang",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -5007,6 +5019,12 @@ const docTemplate = `{
                         "name": "X-KB-ID",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "内容语言，缺省返回默认语言",
+                        "name": "lang",
+                        "in": "query"
                     }
                 ],
                 "responses": {

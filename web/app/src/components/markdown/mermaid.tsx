@@ -3,6 +3,7 @@
 
 import { useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
+import { useTranslations } from 'next-intl';
 import { sanitizeMermaidSvg } from '../markdown2/sanitizeMermaidSvg';
 
 const MERMAID_CONFIG = {
@@ -16,6 +17,7 @@ const MERMAID_CONFIG = {
 const MermaidDiagram = ({ chart }: { chart: string }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isMermaidInitialized = useRef(false);
+  const t = useTranslations('markdown');
 
   useEffect(() => {
     if (!containerRef.current || !chart) return;
@@ -38,14 +40,18 @@ const MermaidDiagram = ({ chart }: { chart: string }) => {
           containerRef.current.innerHTML = safeSvg;
         }
       } catch (error: any) {
-        // 在渲染错误时显示简单文本表示
+        // 渲染失败时显示纯文本提示（textContent 避免 error.message 注入 HTML）
         if (containerRef.current) {
-          containerRef.current.innerHTML = `<div>流程图渲染错误: ${error?.message}</div>`;
+          const container = containerRef.current;
+          container.textContent = '';
+          const tip = document.createElement('div');
+          tip.textContent = `${t('mermaidError')}: ${error?.message ?? ''}`;
+          container.appendChild(tip);
         }
       }
     };
     renderDiagram();
-  }, [chart]);
+  }, [chart, t]);
 
   return <div ref={containerRef} className='mermaid-container' />;
 };

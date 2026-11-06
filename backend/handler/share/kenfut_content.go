@@ -155,10 +155,11 @@ func (h *ShareKenFutContentHandler) Related(c echo.Context) error {
 //	@Summary	Published page catalog
 //	@Tags		kenfut_content
 //	@Param		X-KB-ID	header		string	true	"Knowledge base"
+//	@Param		lang	query		string	false	"Content language, default zh"
 //	@Success	200		{object}	domain.PWResponse
 //	@Router		/share/kenfut/v1/pages [get]
 func (h *ShareKenFutContentHandler) Pages(c echo.Context) error {
-	result, err := h.usecase.Pages(c.Request().Context(), c.Request().Header.Get("X-KB-ID"), domain.GetAuthID(c))
+	result, err := h.usecase.Pages(c.Request().Context(), c.Request().Header.Get("X-KB-ID"), c.QueryParam("lang"), domain.GetAuthID(c))
 	if err != nil {
 		return contentPublicReply(c, nil, err)
 	}
@@ -187,9 +188,10 @@ func (h *ShareKenFutContentHandler) Pages(c echo.Context) error {
 //	@Summary	Published categories and tags
 //	@Tags		kenfut_content
 //	@Param		X-KB-ID	header		string	true	"Knowledge base"
+//	@Param		lang	query		string	false	"Content language, default zh"
 //	@Success	200		{object}	domain.PWResponse{data=domain.KenFutTaxonomies}
 //	@Router		/share/kenfut/v1/taxonomies [get]
 func (h *ShareKenFutContentHandler) Taxonomies(c echo.Context) error {
-	result, err := h.usecase.Taxonomies(c.Request().Context(), c.Request().Header.Get("X-KB-ID"), domain.GetAuthID(c))
+	result, err := h.usecase.Taxonomies(c.Request().Context(), c.Request().Header.Get("X-KB-ID"), c.QueryParam("lang"), domain.GetAuthID(c))
 	return contentPublicReply(c, result, err)
 }

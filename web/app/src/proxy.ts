@@ -21,8 +21,10 @@ const StatPage = {
   auth: 4,
 } as const;
 
-const getFirstNode = async () => {
-  const nodeListResult: any = await getShareV1NodeList();
+const localeQuery = (lang: string) => (lang === 'zh' ? {} : { lang });
+
+const getFirstNode = async (lang: string) => {
+  const nodeListResult: any = await getShareV1NodeList(localeQuery(lang));
   const { isGrouped, navDataMap, defaultNavId } = parseNodeListResponse(
     nodeListResult || [],
   );
@@ -59,6 +61,7 @@ const homeProxy = async (
   if (pathname) {
     url.pathname = pathname;
   }
+  const lang = headers[LOCALE_HEADER] || 'zh';
   const { page, id } = parsePathname(url.pathname);
   const renderHeaders = new Headers(request.headers);
   renderHeaders.set('x-current-path', url.pathname);
@@ -74,7 +77,10 @@ const homeProxy = async (
           renderOptions,
         );
       } else {
-        const [firstNode] = await Promise.all([getFirstNode(), getHomePath()]);
+        const [firstNode] = await Promise.all([
+          getFirstNode(lang),
+          getHomePath(),
+        ]);
         if (firstNode) {
           return NextResponse.rewrite(
             new URL(`/node/${firstNode.id}`, request.url),
@@ -174,6 +180,13 @@ export async function proxy(request: NextRequest) {
   const basePath = getBasePath(kbDetail?.base_url || '');
   let appPathname = stripBasePath(pathname, basePath);
 
+  // 语言前缀剥离：/en/... 在内部重写到对应路由，locale 经请求头传递给 RSC/i18n
+  let locale = 'zh';
+  if (appPathname === '/en' || appPathname.startsWith('/en/')) {
+    locale = 'en';
+    appPathname = appPathname.slice('/en'.length) || '/';
+  }
+
   if (appPathname.startsWith('/widget')) {
     const widgetInfo: any = await getShareV1AppWidgetInfo();
     if (widgetInfo) {
@@ -198,11 +211,6 @@ export async function proxy(request: NextRequest) {
   }
 
   // 语言前缀剥离：/en/... 在内部重写到对应路由，locale 经请求头传递给 RSC/i18n
-  let locale = 'zh';
-  if (appPathname === '/en' || appPathname.startsWith('/en/')) {
-    locale = 'en';
-    appPathname = appPathname.slice('/en'.length) || '/';
-  }
   request.headers.set(LOCALE_HEADER, locale);
   headers[LOCALE_HEADER] = locale;
 

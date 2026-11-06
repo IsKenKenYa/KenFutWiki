@@ -56,19 +56,21 @@ func (u *SitemapUsecase) GetSitemap(ctx context.Context, kbID string) (string, e
 	sb.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
 	sb.WriteString(`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">`)
 
-	// add welcome
-	writeSitemapURL(&sb, baseURL+"/welcome", time.Now(), nil)
-	writeSitemapURL(&sb, baseURL+"/blog", time.Now(), nil)
+	// 固定页面的语言版本互为 alternate
+	now := time.Now()
+	pages := []struct{ zh, en string }{
+		{zh: baseURL + "/welcome", en: baseURL + "/en/welcome"},
+		{zh: baseURL + "/blog", en: baseURL + "/en/blog"},
+	}
+	for _, page := range pages {
+		alternates := map[string]string{domain.DefaultNodeLang: page.zh, "en": page.en}
+		writeSitemapURL(&sb, page.zh, now, alternates)
+		writeSitemapURL(&sb, page.en, now, alternates)
+	}
 
 	// add nodes
 	for _, item := range items {
 		var alternates map[string]string
-		if item.Translations != nil {
-			alternates = map[string]string{}
-			for _, t := range item.Translations {
-				alternates[t.Lang] = baseURL + t.URL
-			}
-		}
 		if node := findSitemapRow(nodes, item.ID); node != nil && node.TranslationGroupID != nil {
 			if langs, ok := alternatesByGroup[*node.TranslationGroupID]; ok {
 				alternates = langs

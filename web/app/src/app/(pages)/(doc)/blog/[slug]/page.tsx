@@ -1,8 +1,10 @@
 import { cache } from 'react';
-import { notFound, permanentRedirect } from 'next/navigation';
+import { notFound, permanentRedirect, redirect } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { getArticle, getPageTargets } from '@/features/kenfut/api';
 import { getContentMetadata, getPublicSite } from '@/features/kenfut/server';
 import { resolveLocale } from '@/i18n/request';
+import { defaultLocale } from '@/i18n/routing';
 import {
   localHref,
   withSearchParams,
@@ -13,7 +15,7 @@ import Doc from '@/views/node';
 // 语言维度文章加载：按 proxy 剥离出的 locale 解析译本 slug
 const loadArticle = cache(async (slug: string) => {
   const lang = await resolveLocale();
-  return lang === 'zh' ? getArticle(slug) : getArticle(slug, lang);
+  return lang === defaultLocale ? getArticle(slug) : getArticle(slug, lang);
 });
 type Props = {
   params: Promise<{ slug: string }>;
@@ -24,7 +26,8 @@ export async function generateMetadata({ params }: Props) {
   try {
     return await getContentMetadata(await loadArticle((await params).slug));
   } catch {
-    return { title: '文章不可用', robots: { index: false, follow: false } };
+    const t = await getTranslations('blog');
+    return { title: t('unavailable'), robots: { index: false, follow: false } };
   }
 }
 
@@ -38,6 +41,25 @@ export default async function Page({ params, searchParams }: Props) {
     throw error;
   }
   const { origin, basePath } = await getPublicSite();
+  // 访问到与当前语言不一致的版本时，跳转到该语言的译本
+  const locale = await resolveLocale();
+  const translated =
+    content.lang && content.lang !== locale
+      ? content.translations?.find(item => item.lang === locale)
+      : undefined;
+  if (translated) {
+    redirect(
+      withSearchParams(
+        localHref(
+          basePath,
+          locale === defaultLocale
+            ? translated.url
+            : `/${locale}${translated.url}`,
+        ),
+        await searchParams,
+      ),
+    );
+  }
   if (content.slug !== slug)
     permanentRedirect(
       withSearchParams(
@@ -45,7 +67,9 @@ export default async function Page({ params, searchParams }: Props) {
         await searchParams,
       ),
     );
-  const pages = await getPageTargets().catch(() => ({ items: [] }));
+  const pages = await getPageTargets(
+    locale === defaultLocale ? undefined : locale,
+  ).catch(() => ({ items: [] }));
   const canonical = new URL(
     localHref(basePath, content.canonical_url || content.url),
     origin,

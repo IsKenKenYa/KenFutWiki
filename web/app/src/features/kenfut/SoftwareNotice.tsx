@@ -1,16 +1,18 @@
 'use client';
 
 import { Box, Link, Stack, Typography } from '@mui/material';
+import { useTranslations } from 'next-intl';
 
 const sourceURL =
   process.env.NEXT_PUBLIC_SOURCE_URL ||
   'https://github.com/IsKenKenYa/KenFutWiki';
 
 export default function SoftwareNotice() {
+  const t = useTranslations('notice');
   return (
     <Box
       component='aside'
-      aria-label='软件许可与源码'
+      aria-label={t('softwareLicense')}
       sx={{
         px: 2,
         py: 2,
@@ -29,7 +31,7 @@ export default function SoftwareNotice() {
       >
         <Typography variant='caption'>KenFutWiki</Typography>
         <Link href={sourceURL} target='_blank' rel='noopener noreferrer'>
-          本版本对应源码
+          {t('versionSource')}
         </Link>
         <Link
           href='https://www.gnu.org/licenses/agpl-3.0.html'
@@ -43,7 +45,7 @@ export default function SoftwareNotice() {
           target='_blank'
           rel='noopener noreferrer'
         >
-          基于上游开源项目 PandaWiki
+          {t('upstream')}
         </Link>
       </Stack>
     </Box>

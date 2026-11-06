@@ -9,6 +9,7 @@ import hljs from 'highlight.js';
 import 'highlight.js/styles/an-old-hope.css';
 import 'katex/dist/katex.min.css';
 import MarkdownIt from 'markdown-it';
+import { useTranslations } from 'next-intl';
 import React, {
   useCallback,
   useEffect,
@@ -75,6 +76,7 @@ const MarkDown2: React.FC<MarkDown2Props> = ({
 }) => {
   const theme = useTheme();
   const themeMode = theme.palette.mode;
+  const t = useTranslations('markdown');
 
   // 状态管理
   const [showThink, setShowThink] = useState(false);
@@ -415,12 +417,13 @@ const MarkDown2: React.FC<MarkDown2Props> = ({
       lastContentRef.current = processedContent;
       scrollToBottom();
     } catch (error) {
-      console.error('Markdown 渲染错误:', error);
+      console.error('Markdown render error:', error);
       if (containerRef.current) {
-        containerRef.current.innerHTML = '<div>Markdown 渲染错误</div>';
+        const container = containerRef.current;
+        container.textContent = t('renderError');
       }
     }
-  }, [content, customizeRenderer, scrollToBottom]);
+  }, [content, customizeRenderer, scrollToBottom, t]);
 
   // 添加代码块点击复制和图片点击预览功能（事件代理）
   useEffect(() => {

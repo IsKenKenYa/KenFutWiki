@@ -6162,6 +6162,10 @@ paths:
         name: X-KB-ID
         required: true
         type: string
+      - description: Content language, default zh
+        in: query
+        name: lang
+        type: string
       responses:
         "200":
           description: OK
@@ -6177,6 +6181,10 @@ paths:
         in: header
         name: X-KB-ID
         required: true
+        type: string
+      - description: Content language, default zh
+        in: query
+        name: lang
         type: string
       responses:
         "200":
@@ -6825,6 +6833,10 @@ paths:
         in: header
         name: X-KB-ID
         required: true
+        type: string
+      - description: 内容语言，缺省返回默认语言
+        in: query
+        name: lang
         type: string
       produces:
       - application/json

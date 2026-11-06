@@ -1,4 +1,5 @@
 import StoreProvider from '@/provider';
+import { resolveLocale } from '@/i18n/request';
 import { getShareV1NodeList } from '@/request/ShareNode';
 import { parsePathname } from '@/utils';
 import { getServerPathname } from '@/utils/getServerHeader';
@@ -12,8 +13,9 @@ import NodeClientLayout from './NodeClientLayout';
 export default async function Layout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await resolveLocale();
   const [nodeListRes, pathname] = await Promise.all([
-    getShareV1NodeList(),
+    getShareV1NodeList(locale === 'zh' ? {} : { lang: locale }),
     getServerPathname(),
   ]);
 

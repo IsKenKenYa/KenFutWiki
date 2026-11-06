@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { ArticleListingPage } from '@/features/kenfut/server';
 
 export async function generateMetadata({
@@ -5,7 +6,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ tag: string }>;
 }) {
-  return { title: `${(await params).tag} · 文章标签` };
+  const [t, { tag }] = await Promise.all([getTranslations('blog'), params]);
+  return { title: t('tagMetadata', { name: tag }) };
 }
 
 export default async function Page({

@@ -36,6 +36,33 @@ func TestKenFutContentKeepsLegacyMarkdownRendering(t *testing.T) {
 	}
 }
 
+func TestContentItemLocalizesNonDefaultLanguageURLs(t *testing.T) {
+	row := pg.KenFutPublishedRow{ID: "node-1", Lang: "en", Metadata: domain.DefaultKenFutContentMetadata("node-1")}
+	if got := contentItem(row, "https://docs.example.test/wiki").CanonicalURL; got != "https://docs.example.test/wiki/en/node/node-1" {
+		t.Fatalf("unexpected localized canonical URL: %s", got)
+	}
+
+	row.Metadata.Channel = "article"
+	row.Metadata.Slug = "release-notes"
+	if got := contentItem(row, "").CanonicalURL; got != "/en/blog/release-notes" {
+		t.Fatalf("unexpected localized article URL without base URL: %s", got)
+	}
+
+	row.Lang = domain.DefaultNodeLang
+	if got := contentItem(row, "").CanonicalURL; got != "/blog/release-notes" {
+		t.Fatalf("default language URL must stay unprefixed: %s", got)
+	}
+}
+
+func TestLocalizedPathKeepsRootClean(t *testing.T) {
+	if got := localizedPath("/", "en"); got != "/en" {
+		t.Fatalf("unexpected localized root: %s", got)
+	}
+	if got := localizedPath("/node", domain.DefaultNodeLang); got != "/node" {
+		t.Fatalf("default language path must stay unprefixed: %s", got)
+	}
+}
+
 func TestValidateKenFutLinkTarget(t *testing.T) {
 	for _, target := range []domain.KenFutLinkTarget{{Type: "url", URL: "javascript:alert(1)"}, {Type: "url", URL: "https://user:password@example.test/path"}, {Type: "site", Page: "../../admin"}, {Type: "product", ProductID: "product"}, {Type: "node", NodeID: "node", Params: map[string]string{"kf_click_id": "spoof"}}} {
 		if ValidateKenFutLinkTarget(target) == nil {

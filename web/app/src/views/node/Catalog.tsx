@@ -4,10 +4,12 @@ import { useStore } from '@/provider';
 import { Box, Stack, SxProps, Tooltip } from '@mui/material';
 import { IconMulu } from '@panda-wiki/icons';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef } from 'react';
 import CatalogFolder from './CatalogFolder';
 
 const Catalog = ({ sx }: { sx?: SxProps }) => {
+  const t = useTranslations('node');
   const params = useParams() || {};
   const id = params.id as string;
   const {
@@ -90,7 +92,7 @@ const Catalog = ({ sx }: { sx?: SxProps }) => {
             ...(docWidth === 'full' ? { ml: 1 } : { mr: 1 }),
           }}
         >
-          <Tooltip title={catalogShow ? null : '展开目录'} arrow>
+          <Tooltip title={catalogShow ? null : t('expandCatalog')} arrow>
             <IconMulu
               sx={{
                 fontSize: 16,

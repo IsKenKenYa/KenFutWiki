@@ -868,7 +868,8 @@ func (r *NodeRepository) GetNodeReleaseListByKBID(ctx context.Context, kbID stri
 		Where("nodes.permissions->>'visible' != ?", consts.NodeAccessPermClosed).
 		Where("COALESCE(kcr.metadata->>'channel','docs') IN ('docs','both')")
 	if lang != "" {
-		qs = qs.Where("nodes.lang = ?", lang)
+		// 文件夹是各语言共享的结构容器（lang 恒为默认值），不参与语言过滤
+		qs = qs.Where("nodes.type = ? OR nodes.lang = ?", domain.NodeTypeFolder, lang)
 	}
 	qs = qs.Select("node_releases.node_id as id, node_releases.name, node_releases.type, node_releases.parent_id, node_releases.position, node_releases.meta->>'emoji' as emoji, node_releases.updated_at, nodes.permissions, node_releases.meta, kb_release_node_releases.nav_id")
 

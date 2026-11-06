@@ -13,11 +13,12 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useBasePath } from '@/hooks';
+import { useLocaleBasePath } from '@/hooks';
 import { useStore } from '@/provider';
 import { getContents } from '@/features/kenfut/api';
 import { contentHref } from '@/features/kenfut/links';
 import type { ContentList } from '@/features/kenfut/types';
+import { useTranslations } from 'next-intl';
 
 interface SearchDocContentProps {
   inputRef: React.RefObject<HTMLInputElement | null>;
@@ -28,7 +29,9 @@ export default function SearchDocContent({
   inputRef,
   placeholder,
 }: SearchDocContentProps) {
-  const basePath = useBasePath();
+  const t = useTranslations('qa');
+  const tCommon = useTranslations('common');
+  const basePath = useLocaleBasePath();
   const { setQaModalOpen, qaModalOpen } = useStore();
   const [input, setInput] = useState('');
   const [scope, setScope] = useState<'all' | 'docs' | 'article'>('all');
@@ -51,7 +54,7 @@ export default function SearchDocContent({
       });
       if (id === request.current) setResult(response);
     } catch {
-      if (id === request.current) setError('搜索暂时不可用，请稍后重试。');
+      if (id === request.current) setError(t('searchUnavailable'));
     } finally {
       if (id === request.current) setLoading(false);
     }
@@ -93,8 +96,8 @@ export default function SearchDocContent({
           value={input}
           onChange={event => setInput(event.target.value)}
           fullWidth
-          placeholder={placeholder || '搜索已发布内容'}
-          inputProps={{ 'aria-label': '搜索已发布内容', maxLength: 200 }}
+          placeholder={placeholder || t('searchPlaceholder')}
+          inputProps={{ 'aria-label': t('searchPlaceholder'), maxLength: 200 }}
           size='small'
         />
         <Button
@@ -102,13 +105,13 @@ export default function SearchDocContent({
           variant='contained'
           disabled={loading || !input.trim()}
         >
-          搜索
+          {tCommon('search')}
         </Button>
       </Stack>
       <TextField
         select
         size='small'
-        label='搜索范围'
+        label={t('searchScope')}
         value={scope}
         onChange={event => {
           const channel = event.target.value as typeof scope;
@@ -117,9 +120,9 @@ export default function SearchDocContent({
         }}
         sx={{ width: 180, mb: 2 }}
       >
-        <MenuItem value='all'>全部内容</MenuItem>
-        <MenuItem value='docs'>文档</MenuItem>
-        <MenuItem value='article'>文章</MenuItem>
+        <MenuItem value='all'>{t('allContent')}</MenuItem>
+        <MenuItem value='docs'>{t('docs')}</MenuItem>
+        <MenuItem value='article'>{t('articles')}</MenuItem>
       </TextField>
       {loading && (
         <Stack alignItems='center' sx={{ py: 3 }}>
@@ -130,7 +133,7 @@ export default function SearchDocContent({
       {!loading && !error && result && (
         <Box sx={{ overflowY: 'auto' }}>
           <Typography variant='caption' color='text.secondary'>
-            找到 {result.total} 条已发布内容
+            {t('foundCount', { count: result.total })}
           </Typography>
           {result.items.length ? (
             result.items.map(item => (
@@ -165,7 +168,7 @@ export default function SearchDocContent({
             ))
           ) : (
             <Alert severity='info' sx={{ mt: 2 }}>
-              没有找到匹配内容。
+              {t('noResults')}
             </Alert>
           )}
           {result.total > result.page_size && (
@@ -183,7 +186,7 @@ export default function SearchDocContent({
       )}
       {!result && !loading && !error && (
         <Typography color='text.secondary' sx={{ py: 3 }}>
-          输入关键词，搜索文档与文章。普通搜索无需配置 AI。
+          {t('searchHint')}
         </Typography>
       )}
     </Stack>

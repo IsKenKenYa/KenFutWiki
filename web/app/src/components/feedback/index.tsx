@@ -1,7 +1,10 @@
+'use client';
+
 import { ConversationItem } from '@/assets/type';
 import { useStore } from '@/provider';
 import { Box, Stack, TextField } from '@mui/material';
 import { Modal } from '@ctzhian/ui';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 interface FeedbackProps {
@@ -24,6 +27,7 @@ const Feedback = ({
   data,
   tags: propsTags,
 }: FeedbackProps) => {
+  const t = useTranslations('feedback');
   const { themeMode, kbDetail } = useStore();
   const [type, setType] = useState<string>('');
   const [content, setContent] = useState('');
@@ -49,9 +53,9 @@ const Feedback = ({
     <Modal
       open={open}
       onCancel={handleCancel}
-      title='反馈意见'
-      cancelText='取消'
-      okText='提交'
+      title={t('title')}
+      cancelText={t('cancel')}
+      okText={t('submit')}
       onOk={handleSubmit}
       cancelButtonProps={{
         sx: {
@@ -107,7 +111,7 @@ const Feedback = ({
           multiline
           rows={4}
           size='small'
-          placeholder='请输入反馈内容'
+          placeholder={t('placeholder')}
           value={content}
           sx={{
             '.MuiInputBase-root': {

@@ -8,9 +8,11 @@ import { Box, Button, Stack, TextField } from '@mui/material';
 import { message } from '@ctzhian/ui';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 const Feedback = () => {
+  const t = useTranslations('feedback');
   const searchParams = useSearchParams();
   const { kbDetail } = useStore();
   const message_id = searchParams.get('message_id') || '';
@@ -35,11 +37,13 @@ const Feedback = () => {
     };
     await postShareV1ChatFeedback(data);
     setSuccess(true);
-    message.success('反馈成功');
+    message.success(t('success'));
   };
 
   useEffect(() => {
     if (score === 1) {
+      // setSuccess 在 await 之后才触发，并非同步 setState
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       handleSubmit();
     }
   }, [score]);
@@ -137,7 +141,7 @@ const Feedback = () => {
                 multiline
                 rows={8}
                 size='small'
-                placeholder='请输入反馈内容'
+                placeholder={t('placeholder')}
                 value={content}
                 sx={{
                   '.MuiInputBase-root': {

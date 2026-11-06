@@ -4,8 +4,9 @@ import { IconWenjianjia, IconWenjian } from '@panda-wiki/icons';
 import { DomainShareNodeDetailItem } from '@/request/types';
 import { ITreeItem } from '@/assets/type';
 import { useStore } from '@/provider';
-import { useBasePath } from '@/hooks';
+import { useLocaleBasePath } from '@/hooks';
 import { findParentPath } from '@/utils/tree';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import {
   Accordion,
@@ -168,7 +169,8 @@ interface FolderListProps {
 
 const FolderList: React.FC<FolderListProps> = ({ list = [] }) => {
   const { tree, setTree } = useStore();
-  const basePath = useBasePath();
+  const basePath = useLocaleBasePath();
+  const t = useTranslations('node');
 
   const handleCatalogExpand = (item: DomainShareNodeDetailItem) => {
     if (!tree || !setTree || !item.id) return;
@@ -294,10 +296,10 @@ const FolderList: React.FC<FolderListProps> = ({ list = [] }) => {
                 prefetch={false}
                 onClick={() => handleCatalogExpand(item)}
               >
-                {item.name || '未命名'}
+                {item.name || t('untitled')}
               </StyledLink>
               {item.type === 2 && (
-                <StyledSummaryBox>{summary || '暂无摘要'}</StyledSummaryBox>
+                <StyledSummaryBox>{summary || t('noSummary')}</StyledSummaryBox>
               )}
             </StyledContentBox>
           </StyledStack>

@@ -5,25 +5,34 @@ import NotFoundImg from '@/assets/images/404.png';
 import BlockImg from '@/assets/images/block.png';
 import { SxProps, Stack } from '@mui/material';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { useStore } from '@/provider';
 
-const CODE_MAP = {
-  40003: {
-    title: '无权限访问',
-    img: NoPermissionImg,
-  },
-  403: {
-    title: '当前网站已关闭访问',
-    img: BlockImg,
-  },
-  40004: {
-    title: '页面不存在',
-    img: NotFoundImg,
-  },
-};
+// 错误码映射到 i18n key，文案随语言切换
+type ErrorTitleKey =
+  | 'forbiddenTitle'
+  | 'closedTitle'
+  | 'notFoundTitle'
+  | 'errorTitle';
+
+const CODE_MAP: Record<string, { title: ErrorTitleKey; img: typeof ErrorPng }> =
+  {
+    '40003': {
+      title: 'forbiddenTitle',
+      img: NoPermissionImg,
+    },
+    '403': {
+      title: 'closedTitle',
+      img: BlockImg,
+    },
+    '40004': {
+      title: 'notFoundTitle',
+      img: NotFoundImg,
+    },
+  };
 
 const DEFAULT_ERROR = {
-  title: '页面出错了',
+  title: 'errorTitle' as ErrorTitleKey,
   img: ErrorPng,
 };
 
@@ -37,6 +46,7 @@ export default function Error({
   sx?: SxProps;
 }) {
   const { mobile } = useStore();
+  const t = useTranslations('error');
   const errorInfo =
     CODE_MAP[(error.code ?? error.message) as '40003'] || DEFAULT_ERROR;
   return (
@@ -68,7 +78,7 @@ export default function Error({
         alignItems='center'
         sx={{ color: 'text.tertiary', fontSize: 14, mt: 3 }}
       >
-        {errorInfo.title}
+        {t(errorInfo.title)}
       </Stack>
     </Stack>
   );

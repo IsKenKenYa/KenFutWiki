@@ -51,6 +51,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useBasePath } from '@/hooks';
 import { getImagePath } from '@/utils/getImagePath';
+import { useTranslations } from 'next-intl';
 function isWeComByUA() {
   if (typeof navigator === 'undefined') {
     return false;
@@ -108,39 +109,39 @@ export default function Login() {
   const [sourceType, setSourceType] = useState<ConstsSourceType>();
   const { kbDetail, themeMode, mobile = false, setNodeList } = useStore();
   const basePath = useBasePath();
+  const t = useTranslations('login');
 
   const redirectUrl =
     typeof window !== 'undefined'
       ? `${window.location.origin}${basePath}${decodeURIComponent(searchParams.get('redirect') || '')}`
       : '';
 
+  const loadNodeList = async () => {
+    const res = await getShareV1NodeList({});
+    const raw = (res as any) ?? [];
+    const { isGrouped, navDataMap, defaultNavId } = parseNodeListResponse(raw);
+    const nodeList = isGrouped
+      ? (navDataMap[defaultNavId || ''] ??
+        navDataMap[Object.keys(navDataMap)[0]] ??
+        [])
+      : raw;
+    setNodeList?.(Array.isArray(nodeList) ? nodeList : []);
+  };
+
   const handleLogin = async () => {
     if (!password.trim()) {
-      message.error('请输入访问口令');
+      message.error(t('passcodeRequired'));
       return;
     }
     setLoading(true);
     try {
       clearCookie();
-      postShareV1AuthLoginSimple({
-        password,
-      }).then(() => {
-        getShareV1NodeList().then(res => {
-          const raw = (res as any) ?? [];
-          const { isGrouped, navDataMap, defaultNavId } =
-            parseNodeListResponse(raw);
-          const nodeList = isGrouped
-            ? (navDataMap[defaultNavId || ''] ??
-              navDataMap[Object.keys(navDataMap)[0]] ??
-              [])
-            : raw;
-          setNodeList?.(Array.isArray(nodeList) ? nodeList : []);
-          message.success('认证成功');
-          window.open(redirectUrl, '_self');
-        });
-      });
-    } catch (error) {
-      message.error('认证失败，请重试');
+      await postShareV1AuthLoginSimple({ password });
+      await loadNodeList();
+      message.success(t('authSuccess'));
+      window.open(redirectUrl, '_self');
+    } catch {
+      message.error(t('authFailed'));
     } finally {
       setLoading(false);
     }
@@ -224,29 +225,18 @@ export default function Login() {
     });
   };
 
-  const handleLDAPLogin = () => {
+  const handleLDAPLogin = async () => {
     setLoading(true);
     try {
-      postShareProV1AuthLdap({
+      await postShareProV1AuthLdap({
         username,
         password,
-      }).then(() => {
-        getShareV1NodeList().then(res => {
-          const raw = (res as any) ?? [];
-          const { isGrouped, navDataMap, defaultNavId } =
-            parseNodeListResponse(raw);
-          const nodeList = isGrouped
-            ? (navDataMap[defaultNavId || ''] ??
-              navDataMap[Object.keys(navDataMap)[0]] ??
-              [])
-            : raw;
-          setNodeList?.(Array.isArray(nodeList) ? nodeList : []);
-          message.success('认证成功');
-          window.open(redirectUrl, '_self');
-        });
       });
-    } catch (error) {
-      message.error('认证失败，请重试');
+      await loadNodeList();
+      message.success(t('authSuccess'));
+      window.open(redirectUrl, '_self');
+    } catch {
+      message.error(t('authFailed'));
     } finally {
       setLoading(false);
     }
@@ -316,7 +306,7 @@ export default function Login() {
                   autoFocus
                   onChange={e => setPassword(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder='请输入访问口令'
+                  placeholder={t('passcodePlaceholder')}
                   disabled={loading}
                   slotProps={{
                     input: {
@@ -356,7 +346,7 @@ export default function Login() {
                   sx={{ mt: 5, height: '50px', fontSize: 16 }}
                   disabled={loading || !password.trim()}
                 >
-                  {loading ? '验证中...' : '认证访问'}
+                  {loading ? t('authenticating') : t('authenticate')}
                 </Button>
               </>
             )}
@@ -461,7 +451,7 @@ export default function Login() {
                             value={username}
                             autoFocus
                             onChange={e => setUsername(e.target.value)}
-                            placeholder='用户名'
+                            placeholder={t('usernamePlaceholder')}
                             disabled={loading}
                             slotProps={{
                               input: {
@@ -486,7 +476,7 @@ export default function Login() {
                             value={password}
                             onChange={e => setPassword(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            placeholder='密码'
+                            placeholder={t('passwordPlaceholder')}
                             disabled={loading}
                             slotProps={{
                               input: {
@@ -535,7 +525,7 @@ export default function Login() {
                               loading || !username.trim() || !password.trim()
                             }
                           >
-                            {loading ? '验证中...' : '登录'}
+                            {loading ? t('authenticating') : t('submit')}
                           </Button>
                         </>
                       );

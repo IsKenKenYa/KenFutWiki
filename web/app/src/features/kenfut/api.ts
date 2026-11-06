@@ -3,6 +3,7 @@ import httpRequest, { ContentType } from '@/request/httpClient';
 import type {
   ContentList,
   ContentQuery,
+  ContentTranslation,
   PageTarget,
   PublishedContent,
 } from './types';
@@ -58,10 +59,14 @@ export const getArticle = (slug: string, lang?: string) =>
 export const getRelated = (nodeId: string) =>
   get<PublishedContent[]>(`/contents/${encodeURIComponent(nodeId)}/related`);
 
-export const getPageTargets = () => get<{ items: PageTarget[] }>('/pages');
+export const getPageTargets = (lang?: string) =>
+  get<{ items: PageTarget[] }>('/pages', { lang });
 
-export const getTaxonomies = () =>
-  get<{ categories: string[]; tags: string[] }>('/taxonomies');
+export const getTaxonomies = (lang?: string) =>
+  get<{ categories: string[]; tags: string[] }>('/taxonomies', { lang });
+
+export const getContentTranslations = (nodeId: string) =>
+  get<ContentTranslation[]>('/translations', { node_id: nodeId });
 
 export const recordContentView = (
   content: PublishedContent,

@@ -3,12 +3,12 @@
 import { ConstsCopySetting, V1ShareNodeDetailResp } from '@/request/types';
 import { Avatar, Box, Chip, IconButton, Stack, Tooltip } from '@mui/material';
 import Link from 'next/link';
+import { useFormatter, useTranslations } from 'next-intl';
 import type { PublishedContent } from '@/features/kenfut/types';
 import { localHref } from '@/features/kenfut/links';
-import { useBasePath } from '@/hooks';
+import { useBasePath, useLocaleBasePath } from '@/hooks';
 import { getImagePath } from '@/utils/getImagePath';
 import { IconFuzhi, IconWenjian, IconWenjianjia } from '@panda-wiki/icons';
-import dayjs from 'dayjs';
 
 interface DocMetaInfoProps {
   info: V1ShareNodeDetailResp;
@@ -28,6 +28,11 @@ const DocMetaInfo = ({
   showPV = false,
 }: DocMetaInfoProps) => {
   const basePath = useBasePath();
+  const linkBasePath = useLocaleBasePath();
+  const t = useTranslations('node');
+  const format = useFormatter();
+  const accountName = (account?: string) =>
+    account === 'admin' ? t('admin') : account;
   return (
     <>
       <Stack
@@ -72,28 +77,24 @@ const DocMetaInfo = ({
                   sx={{ width: 28, height: 28 }}
                 />
               )}
-              <Box>{publication.author_name || '编辑团队'}</Box>
+              <Box>{publication.author_name || t('editorialTeam')}</Box>
               <Box
                 component='time'
                 dateTime={publication.display_date || publication.created_at}
               >
-                {new Date(
-                  publication.display_date || publication.created_at,
-                ).toLocaleDateString('zh-CN', {
-                  timeZone: 'Asia/Shanghai',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
+                {format.dateTime(
+                  new Date(publication.display_date || publication.created_at),
+                  { dateStyle: 'long' },
+                )}
               </Box>
             </>
           )}
           {!publication && info?.created_at && (
             <Box>
-              {info?.creator_account === 'admin'
-                ? '管理员'
-                : info?.creator_account}{' '}
-              {dayjs(info?.created_at).fromNow()}创建
+              {accountName(info?.creator_account)}{' '}
+              {t('createdAgo', {
+                time: format.relativeTime(new Date(info.created_at)),
+              })}
             </Box>
           )}
           {!publication &&
@@ -102,29 +103,31 @@ const DocMetaInfo = ({
               <>
                 <Box>·</Box>
                 <Box>
-                  {info?.publisher_account === 'admin'
-                    ? '管理员'
-                    : info?.publisher_account}{' '}
-                  {dayjs(info.updated_at).fromNow()}更新
+                  {accountName(info?.publisher_account)}{' '}
+                  {t('updatedAgo', {
+                    time: format.relativeTime(new Date(info.updated_at)),
+                  })}
                 </Box>
               </>
             )}
           {!!characterCount && characterCount > 0 && (
             <>
               <Box>·</Box>
-              <Box>{characterCount} 字</Box>
+              <Box>{t('characterCount', { count: characterCount })}</Box>
             </>
           )}
           {showPV && (publication?.pv ?? info.pv ?? 0) > 0 && (
             <>
               <Box>·</Box>
-              <Box>浏览量 {publication?.pv ?? info.pv}</Box>
+              <Box>
+                {t('views', { count: publication?.pv ?? info.pv ?? 0 })}
+              </Box>
             </>
           )}
         </Stack>
         {info?.type === 2 &&
           kbDetailCopySetting !== ConstsCopySetting.CopySettingDisabled && (
-            <Tooltip title='复制 MarkDown 格式' arrow placement='top'>
+            <Tooltip title={t('copyMarkdown')} arrow placement='top'>
               <IconButton size='small' onClick={onCopyDocMd}>
                 <IconFuzhi sx={{ fontSize: 16 }} />
               </IconButton>
@@ -140,7 +143,7 @@ const DocMetaInfo = ({
               component={Link}
               clickable
               href={localHref(
-                basePath,
+                linkBasePath,
                 `/blog/category/${encodeURIComponent(publication.category)}`,
               )}
             />
@@ -153,7 +156,10 @@ const DocMetaInfo = ({
               label={tag}
               component={Link}
               clickable
-              href={localHref(basePath, `/blog/tag/${encodeURIComponent(tag)}`)}
+              href={localHref(
+                linkBasePath,
+                `/blog/tag/${encodeURIComponent(tag)}`,
+              )}
             />
           ))}
         </Stack>

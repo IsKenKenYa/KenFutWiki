@@ -13,8 +13,9 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import { useBasePath } from '@/hooks';
+import { useLocaleBasePath } from '@/hooks';
 import ContentCard from './ContentCard';
 import { localHref } from './links';
 import type { ContentList, ContentQuery, PublishedContent } from './types';
@@ -35,7 +36,9 @@ export default function BlogListing({
   error?: string;
 }) {
   const router = useRouter();
-  const basePath = useBasePath();
+  const basePath = useLocaleBasePath();
+  const t = useTranslations('blog');
+  const tCommon = useTranslations('common');
   const [search, setSearch] = useState(query.q || '');
   const navigate = (page = 1) => {
     const params = new URLSearchParams();
@@ -48,10 +51,10 @@ export default function BlogListing({
     );
   };
   const title = query.category
-    ? `分类：${query.category}`
+    ? t('categoryTitle', { name: query.category })
     : query.tag
-      ? `标签：${query.tag}`
-      : '文章';
+      ? t('tagTitle', { name: query.tag })
+      : t('title');
   return (
     <>
       <Stack
@@ -61,11 +64,11 @@ export default function BlogListing({
         sx={{ mb: 2, color: 'text.secondary', fontSize: 14 }}
       >
         <Link href={localHref(basePath, '/')} style={{ color: 'inherit' }}>
-          首页
+          {tCommon('home')}
         </Link>
         <span>/</span>
         <Link href={localHref(basePath, '/blog')} style={{ color: 'inherit' }}>
-          文章
+          {t('title')}
         </Link>
         {(query.category || query.tag) && (
           <>
@@ -90,14 +93,14 @@ export default function BlogListing({
         <TextField
           value={search}
           onChange={event => setSearch(event.target.value)}
-          label='搜索文章'
-          placeholder='搜索标题、正文或主题'
+          label={t('searchLabel')}
+          placeholder={t('searchPlaceholder')}
           size='small'
           fullWidth
           inputProps={{ maxLength: 200 }}
         />
         <Button type='submit' variant='contained'>
-          搜索
+          {tCommon('search')}
         </Button>
       </Stack>
       {!!categories.length && (
@@ -106,7 +109,7 @@ export default function BlogListing({
             component={Link}
             href={localHref(basePath, '/blog')}
             clickable
-            label='全部分类'
+            label={t('allCategories')}
             color={!query.category ? 'primary' : 'default'}
           />
           {categories.map(category => (
@@ -147,7 +150,7 @@ export default function BlogListing({
             variant='h5'
             sx={{ fontWeight: 600, mb: 3 }}
           >
-            精选文章
+            {t('featured')}
           </Typography>
           <Box
             sx={{
@@ -169,13 +172,11 @@ export default function BlogListing({
       {error ? (
         <Alert severity='error'>{error}</Alert>
       ) : !result?.items?.length ? (
-        <Alert severity='info'>
-          {query.q ? '没有找到匹配的已发布文章。' : '暂时没有已发布文章。'}
-        </Alert>
+        <Alert severity='info'>{query.q ? t('noResults') : t('empty')}</Alert>
       ) : (
         <>
           <Typography color='text.secondary' sx={{ mb: 3 }}>
-            共 {result.total} 篇文章
+            {t('count', { count: result.total })}
           </Typography>
           <Box
             sx={{

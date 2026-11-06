@@ -2,8 +2,10 @@ import notFound from '@/assets/images/404.png';
 import { FooterProvider } from '@/components/footer';
 import { Box, Stack } from '@mui/material';
 import Image from 'next/image';
+import { getTranslations } from 'next-intl/server';
 
-export default function NotFound() {
+export default async function NotFound() {
+  const t = await getTranslations('error');
   return (
     <Box
       sx={{
@@ -28,7 +30,7 @@ export default function NotFound() {
           alignItems='center'
           sx={{ color: 'text.tertiary', fontSize: 14, mt: 3 }}
         >
-          页面不存在
+          {t('notFoundTitle')}
         </Stack>
       </Stack>
       <Box

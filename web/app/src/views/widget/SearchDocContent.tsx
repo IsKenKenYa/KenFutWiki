@@ -26,6 +26,7 @@ import {
   IconWenjian,
 } from '@panda-wiki/icons';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import React, { useState } from 'react';
 
 const StyledSearchResultItem = styled(Stack)(({ theme }) => ({
@@ -82,6 +83,7 @@ const SearchDocContent: React.FC<SearchDocContentProps> = ({
 }) => {
   const { kbDetail } = useStore();
   const basePath = useBasePath();
+  const t = useTranslations('qa');
   // 模糊搜索相关状态
   const [fuzzySuggestions, setFuzzySuggestions] = useState<string[]>([]);
   const [showFuzzySuggestions, setShowFuzzySuggestions] = useState(false);
@@ -146,7 +148,7 @@ const SearchDocContent: React.FC<SearchDocContentProps> = ({
       const solution = await cap.solve();
       token = solution.token;
     } catch (error) {
-      message.error('验证失败');
+      message.error(t('verifyFailed'));
       setIsSearching(false);
       return;
     }
@@ -402,7 +404,7 @@ const SearchDocContent: React.FC<SearchDocContentProps> = ({
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {result.summary || '暂无摘要'}
+                    {result.summary || t('noSummary')}
                   </Typography>
                 </Stack>
                 <IconMianbaoxie sx={{ fontSize: 12 }} />
@@ -414,9 +416,9 @@ const SearchDocContent: React.FC<SearchDocContentProps> = ({
 
       {searchResults.length === 0 && !isSearching && hasSearch && (
         <Box sx={{ my: 5, textAlign: 'center' }}>
-          <Image src={noDocImage} alt='暂无结果' width={250} />
+          <Image src={noDocImage} alt={t('noResults')} width={250} />
           <Typography variant='body2' sx={{ color: 'text.tertiary' }}>
-            暂无相关结果
+            {t('noResults')}
           </Typography>
         </Box>
       )}

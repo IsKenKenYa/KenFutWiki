@@ -27,12 +27,22 @@ export function addOpacityToColor(color: string, opacity: number) {
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
 
+// 复制提示文案：utils 不依赖 next-intl，按根布局写入的 <html lang> 判断语言
+const copyLabels = () => {
+  const lang =
+    typeof document !== 'undefined' ? document.documentElement.lang : 'zh-CN';
+  return lang.startsWith('en')
+    ? { success: 'Copied', failed: 'Copy failed, please copy manually' }
+    : { success: '复制成功', failed: '复制失败，请手动复制' };
+};
+
 /**
  * 复制文本到剪贴板
  * 优先使用现代 Clipboard API（需要安全上下文：HTTPS 或 localhost）
  * 降级使用 document.execCommand（兼容非 HTTPS 环境）
  */
 export const copyText = (text: string, callback?: () => void) => {
+  const labels = copyLabels();
   // 使用降级方案的辅助函数
   const fallbackCopy = () => {
     const textArea = document.createElement('textarea');
@@ -50,15 +60,15 @@ export const copyText = (text: string, callback?: () => void) => {
       document.body.removeChild(textArea);
 
       if (successful) {
-        message.success('复制成功');
+        message.success(labels.success);
         callback?.();
       } else {
-        message.error('复制失败，请手动复制');
+        message.error(labels.failed);
       }
     } catch (err) {
       document.body.removeChild(textArea);
-      console.error('复制失败:', err);
-      message.error('复制失败，请手动复制');
+      console.error('copy failed:', err);
+      message.error(labels.failed);
     }
   };
 
@@ -67,11 +77,11 @@ export const copyText = (text: string, callback?: () => void) => {
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        message.success('复制成功');
+        message.success(labels.success);
         callback?.();
       })
       .catch(err => {
-        console.error('Clipboard API 失败，尝试降级方案:', err);
+        console.error('Clipboard API failed, falling back:', err);
         fallbackCopy();
       });
   } else {

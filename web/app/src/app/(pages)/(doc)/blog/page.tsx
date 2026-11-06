@@ -1,6 +1,10 @@
+import { getTranslations } from 'next-intl/server';
 import { ArticleListingPage } from '@/features/kenfut/server';
 
-export const metadata = { title: '文章' };
+export async function generateMetadata() {
+  const t = await getTranslations('blog');
+  return { title: t('title') };
+}
 
 export default async function Page({
   searchParams,

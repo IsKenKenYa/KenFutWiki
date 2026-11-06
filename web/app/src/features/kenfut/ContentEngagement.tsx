@@ -3,8 +3,9 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { Alert, Box, Button, Stack, Typography } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
-import { useBasePath } from '@/hooks';
+import { useLocaleBasePath } from '@/hooks';
 import { getRelated, recordContentView, recordCTAClick } from './api';
 import ContentCard from './ContentCard';
 import { resolveTarget } from './links';
@@ -19,7 +20,8 @@ export default function ContentEngagement({
   pages?: PageTarget[];
   article?: boolean;
 }) {
-  const basePath = useBasePath();
+  const basePath = useLocaleBasePath();
+  const t = useTranslations('node');
   const view = useRef({ key: '', id: '' });
   const [related, setRelated] = useState(content.related || []);
   const [relatedError, setRelatedError] = useState(false);
@@ -136,11 +138,11 @@ export default function ContentEngagement({
       {!!related.length && (
         <Box
           component='section'
-          aria-label='相关推荐'
+          aria-label={t('related')}
           sx={{ mt: 5, pt: 4, borderTop: '1px solid', borderColor: 'divider' }}
         >
           <Typography variant='h6' sx={{ fontWeight: 600, mb: 3 }}>
-            相关推荐
+            {t('related')}
           </Typography>
           <Box
             sx={{
@@ -160,7 +162,7 @@ export default function ContentEngagement({
       )}
       {relatedError && (
         <Alert severity='info' sx={{ mt: 3 }}>
-          相关推荐暂时无法加载。
+          {t('relatedError')}
         </Alert>
       )}
     </>

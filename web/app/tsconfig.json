@@ -7,6 +7,9 @@
     "allowJs": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    // 允许 .ts 后缀相对导入：links.ts 会被 node:test 以 ESM 直接导入，必须带扩展名
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "jsx": "preserve",
     "plugins": [
       {
