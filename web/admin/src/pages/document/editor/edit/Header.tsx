@@ -26,6 +26,7 @@ import {
 } from '@panda-wiki/icons';
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { WrapContext } from '..';
 import DocAddByCustomText from '../../component/DocAddByCustomText';
@@ -48,6 +49,7 @@ const Header = ({
   handleExport,
   extraActions,
 }: HeaderProps) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const navigate = useNavigate();
   const firstLoad = useRef(true);
@@ -105,7 +107,7 @@ const Header = ({
 
   const handlePublish = useCallback(() => {
     if (nodeDetail?.status === 2 && !edit) {
-      message.info('当前已是最新版本！');
+      message.info(t('editor.alreadyLatest'));
     } else {
       handleSave();
       setTimeout(() => {
@@ -271,7 +273,7 @@ const Header = ({
           >
             <IconBaocun sx={{ fontSize: 12 }} />
             {showSaveTip ? (
-              '已保存'
+              t('editor.saved')
             ) : nodeDetail?.updated_at ? (
               dayjs(nodeDetail.updated_at).format('YYYY-MM-DD HH:mm:ss')
             ) : (
@@ -286,11 +288,13 @@ const Header = ({
               {
                 key: 'copy',
                 textSx: { flex: 1 },
-                label: <StyledMenuSelect>创建副本</StyledMenuSelect>,
+                label: (
+                  <StyledMenuSelect>{t('editor.duplicate')}</StyledMenuSelect>
+                ),
                 onClick: () => {
                   if (kb_id) {
                     postApiV1Node({
-                      name: detail.name + ' [副本]',
+                      name: t('editor.copyNameSuffix', { name: detail.name }),
                       content: detail.content,
                       kb_id,
                       nav_id: nav_id || detail.nav_id || '',
@@ -298,7 +302,7 @@ const Header = ({
                       type: 2,
                       emoji: detail.meta?.emoji,
                     }).then(res => {
-                      message.success('复制成功');
+                      message.success(t('common.copied'));
                       window.open(`/doc/editor/${res.id}`, '_blank');
                     });
                   }
@@ -307,7 +311,11 @@ const Header = ({
               {
                 key: 'translate',
                 textSx: { flex: 1 },
-                label: <StyledMenuSelect>创建译本（English）</StyledMenuSelect>,
+                label: (
+                  <StyledMenuSelect>
+                    {t('editor.createTranslation')}
+                  </StyledMenuSelect>
+                ),
                 disabled: detail.lang === 'en',
                 onClick: () => {
                   if (kb_id) {
@@ -322,7 +330,7 @@ const Header = ({
                       lang: 'en',
                       translate_from_node_id: detail.id,
                     }).then(res => {
-                      message.success('译本已创建，请翻译内容后发布');
+                      message.success(t('editor.translationCreated'));
                       window.open(`/doc/editor/${res.id}`, '_blank');
                     });
                   }
@@ -331,10 +339,12 @@ const Header = ({
               {
                 key: 'front_doc',
                 textSx: { flex: 1 },
-                label: <StyledMenuSelect>前台查看</StyledMenuSelect>,
+                label: (
+                  <StyledMenuSelect>{t('editor.viewOnSite')}</StyledMenuSelect>
+                ),
                 onClick: () => {
                   if (detail.status !== 2 && !detail.publisher_id) {
-                    message.warning('当前文档未发布，无法查看前台文档');
+                    message.warning(t('editor.notPublished'));
                     return;
                   }
                   window.open(
@@ -348,7 +358,7 @@ const Header = ({
                 textSx: { flex: 1 },
                 label: (
                   <StyledMenuSelect disabled={!isBusiness}>
-                    历史版本
+                    {t('editor.versionHistory')}
                     <VersionCanUse permission={BUSINESS_VERSION_PERMISSION} />
                   </StyledMenuSelect>
                 ),
@@ -361,7 +371,9 @@ const Header = ({
               {
                 key: 'rename',
                 textSx: { flex: 1 },
-                label: <StyledMenuSelect>重命名</StyledMenuSelect>,
+                label: (
+                  <StyledMenuSelect>{t('editor.rename')}</StyledMenuSelect>
+                ),
                 onClick: () => {
                   setRenameOpen(true);
                 },
@@ -369,7 +381,11 @@ const Header = ({
               {
                 key: 'delete',
                 textSx: { flex: 1 },
-                label: <StyledMenuSelect type='error'>删除</StyledMenuSelect>,
+                label: (
+                  <StyledMenuSelect type='error'>
+                    {t('common.delete')}
+                  </StyledMenuSelect>
+                ),
                 onClick: () => {
                   setDelOpen(true);
                 },

@@ -1,6 +1,7 @@
 import React from 'react';
 import NoPermissionImg from '@/assets/images/no-permission.png';
 import { styled, Box, Typography, Button } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 const StyledContainer = styled(Box)(({ theme }) => ({
@@ -29,20 +30,21 @@ const StyledActions = styled(Box)(({ theme }) => ({
 }));
 
 const Index = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
     <StyledContainer>
       <StyledImage src={NoPermissionImg} alt='no-permission' />
       <Typography variant='h5' fontWeight={700} textAlign='center'>
-        没有权限访问
+        {t('page401.title')}
       </Typography>
       <Typography variant='body2' color='text.secondary' textAlign='center'>
-        你的账号没有访问相关Wiki站点的权限。如需访问，请联系管理员为你开通。
+        {t('page401.desc')}
       </Typography>
       <StyledActions>
         <Button variant='contained' onClick={() => navigate('/')}>
-          返回首页
+          {t('page401.backHome')}
         </Button>
         {/* <Button variant='outlined' onClick={() => navigate('/login')}>
           去登录

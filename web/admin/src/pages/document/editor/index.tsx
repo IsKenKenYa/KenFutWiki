@@ -17,6 +17,7 @@ import { convertToTree } from '@/utils/drag';
 import { message } from '@ctzhian/ui';
 import { Box, Drawer, Stack, useMediaQuery } from '@mui/material';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Outlet } from 'react-router-dom';
 import Catalog from './Catalog';
 
@@ -37,6 +38,7 @@ export interface WrapContext {
 }
 
 const DocEditor = () => {
+  const { t } = useTranslation();
   const catalogWidth = 292;
   const isWideScreen = useMediaQuery('(min-width:1400px)');
   const dispatch = useAppDispatch();
@@ -113,7 +115,7 @@ const DocEditor = () => {
         content,
         name: nodeDetail.name || '',
       });
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
     } catch (error) {
       console.error(error);
     }

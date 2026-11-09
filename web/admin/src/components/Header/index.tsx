@@ -5,12 +5,15 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { Button, IconButton, Stack, Tooltip } from '@mui/material';
 import { message, Modal } from '@ctzhian/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import System from '../System';
 import Bread from './Bread';
 import { IconDengchu } from '@panda-wiki/icons';
+import LocaleSwitch from './LocaleSwitch';
 
 const Header = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { kb_id } = useAppSelector(state => state.config);
   const dispatch = useAppDispatch();
@@ -77,10 +80,11 @@ const Header = () => {
             }
           }}
         >
-          访问 Wiki 网站
+          {t('header.visitSite')}
         </Button>
         <System />
-        <Tooltip arrow title='退出登录'>
+        <LocaleSwitch />
+        <Tooltip arrow title={t('layout.logout')}>
           <IconButton
             size='small'
             sx={{
@@ -103,7 +107,7 @@ const Header = () => {
         open={logoutConfirmOpen}
         onCancel={() => setLogoutConfirmOpen(false)}
         onOk={() => {
-          message.success('退出登录成功，请重新登录');
+          message.success(t('layout.logoutSuccess'));
           setTimeout(() => {
             localStorage.removeItem('kfw_admin_token');
             navigate('/login');
@@ -124,7 +128,9 @@ const Header = () => {
           <Stack direction='column' gap={3}>
             <Stack direction='row' alignItems='center' gap={1}>
               <ErrorOutlineIcon sx={{ color: 'error.main', fontSize: 24 }} />
-              <span style={{ fontWeight: 'bold' }}>确定要退出当前账号？</span>
+              <span style={{ fontWeight: 'bold' }}>
+                {t('layout.logoutConfirm')}
+              </span>
             </Stack>
           </Stack>
         }

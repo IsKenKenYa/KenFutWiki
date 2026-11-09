@@ -9,6 +9,7 @@ import { Modal, message } from '@ctzhian/ui';
 import { Box, Step, StepLabel, Stepper } from '@mui/material';
 import dayjs from 'dayjs';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import {
   Step1Model,
@@ -23,18 +24,20 @@ import {
 
 // Remove interface as we're using Redux state
 
+// 向导步骤名：i18n key
 const steps = [
-  '模型配置',
-  '文件存储',
-  '配置监听',
-  '录入文档',
-  '发布内容',
-  '问答测试',
-  '装饰页面',
-  '完成配置',
+  'wizard.step.model',
+  'wizard.step.storage',
+  'wizard.step.listen',
+  'wizard.step.import',
+  'wizard.step.publish',
+  'wizard.step.qaTest',
+  'wizard.step.decorate',
+  'wizard.step.done',
 ];
 
 const CreateWikiModal = () => {
+  const { t } = useTranslation();
   const { kb_c, kb_id, kbList } = useAppSelector(state => state.config);
   const dispatch = useAppDispatch();
   const location = useLocation();
@@ -61,7 +64,7 @@ const CreateWikiModal = () => {
   const onPublish = () => {
     return postApiV1KnowledgeBaseRelease({
       kb_id,
-      message: '创建 Wiki 站点',
+      message: t('wizard.releaseMessage'),
       tag: `${dayjs().format('YYYYMMDD')}-${Math.random().toString(36).substring(2, 8)}`,
       node_ids: nodeIds,
     });
@@ -193,11 +196,13 @@ const CreateWikiModal = () => {
     <Modal
       open={open}
       onCancel={onCancel}
-      title='创建 Wiki 站点'
+      title={t('kb.createTitle')}
       width={880}
       closable={activeStep === 2 && (kbList || []).length > 0}
       showCancel={false}
-      okText={activeStep === steps.length - 1 ? '关闭' : '下一步'}
+      okText={
+        activeStep === steps.length - 1 ? t('common.close') : t('common.next')
+      }
       // cancelText='上一步'
       okButtonProps={{ loading }}
       onOk={handleNext}
@@ -262,7 +267,7 @@ const CreateWikiModal = () => {
                     },
                   }}
                 >
-                  {label}
+                  {t(label)}
                 </StepLabel>
               </Step>
             ))}

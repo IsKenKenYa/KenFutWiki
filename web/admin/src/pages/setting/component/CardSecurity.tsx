@@ -19,6 +19,7 @@ import {
   styled,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { FormItem, SettingCardItem } from './Common';
 
@@ -33,6 +34,7 @@ const WatermarkForm = ({
   data?: DomainAppDetailResp;
   refresh: () => void;
 }) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [watermarkIsEdit, setWatermarkIsEdit] = useState(false);
   const { control, handleSubmit, setValue, watch } = useForm({
@@ -57,7 +59,7 @@ const WatermarkForm = ({
         },
       },
     ).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setWatermarkIsEdit(false);
       refresh();
     });
@@ -71,12 +73,12 @@ const WatermarkForm = ({
 
   return (
     <SettingCardItem
-      title='水印'
+      title={t('setting.watermarkTitle')}
       isEdit={watermarkIsEdit}
       onSubmit={handleSaveWatermark}
       permission={BUSINESS_VERSION_PERMISSION}
     >
-      <FormItem label='水印开关'>
+      <FormItem label={t('setting.watermarkSwitch')}>
         <Controller
           control={control}
           name='watermark_setting'
@@ -92,25 +94,38 @@ const WatermarkForm = ({
               <FormControlLabel
                 value={ConstsWatermarkSetting.WatermarkVisible}
                 control={<Radio size='small' />}
-                label={<StyledRadioLabel>显性水印</StyledRadioLabel>}
+                label={
+                  <StyledRadioLabel>
+                    {t('setting.watermarkVisible')}
+                  </StyledRadioLabel>
+                }
               />
               <FormControlLabel
                 value={ConstsWatermarkSetting.WatermarkHidden}
                 control={<Radio size='small' />}
-                label={<StyledRadioLabel>隐形水印</StyledRadioLabel>}
+                label={
+                  <StyledRadioLabel>
+                    {t('setting.watermarkHidden')}
+                  </StyledRadioLabel>
+                }
               />
 
               <FormControlLabel
                 value={ConstsWatermarkSetting.WatermarkDisabled}
                 control={<Radio size='small' />}
-                label={<StyledRadioLabel>禁用</StyledRadioLabel>}
+                label={
+                  <StyledRadioLabel>{t('common.disable')}</StyledRadioLabel>
+                }
               />
             </RadioGroup>
           )}
         />
       </FormItem>
       {watermarkSetting !== ConstsWatermarkSetting.WatermarkDisabled && (
-        <FormItem label='水印内容' sx={{ alignItems: 'flex-start' }}>
+        <FormItem
+          label={t('setting.watermarkContent')}
+          sx={{ alignItems: 'flex-start' }}
+        >
           <Controller
             control={control}
             name='watermark_content'
@@ -118,7 +133,7 @@ const WatermarkForm = ({
               <TextField
                 fullWidth
                 {...field}
-                placeholder='请输入水印内容, 支持多行输入'
+                placeholder={t('setting.watermarkPlaceholder')}
                 multiline
                 minRows={2}
                 onChange={e => {
@@ -135,6 +150,7 @@ const WatermarkForm = ({
 };
 
 const KeywordsForm = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
+  const { t } = useTranslation();
   const { license } = useAppSelector(state => state.config);
   const [questionInputValue, setQuestionInputValue] = useState('');
   const [isEdit, setIsEdit] = useState(false);
@@ -153,7 +169,7 @@ const KeywordsForm = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
       block_words: data.block_words,
     });
 
-    message.success('保存成功');
+    message.success(t('common.saveSuccess'));
     setIsEdit(false);
   });
 
@@ -166,11 +182,15 @@ const KeywordsForm = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
   }, [kb, license.edition]);
 
   return (
-    <SettingCardItem title='内容合规' isEdit={isEdit} onSubmit={onSubmit}>
+    <SettingCardItem
+      title={t('setting.complianceTitle')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
       <FormItem
         vertical
         permission={BUSINESS_VERSION_PERMISSION}
-        label='屏蔽 AI 问答中的关键字'
+        label={t('setting.blockWordsLabel')}
       >
         <Controller
           control={control}
@@ -195,7 +215,7 @@ const KeywordsForm = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
               renderInput={params => (
                 <TextField
                   {...params}
-                  placeholder='屏蔽 AI 问答中的关键字，可输入多个，回车确认'
+                  placeholder={t('setting.blockWordsPlaceholder')}
                   variant='outlined'
                   onBlur={() => {
                     // 失去焦点时自动添加当前输入的值
@@ -223,6 +243,7 @@ const CopyForm = ({
   data?: DomainAppDetailResp;
   refresh: () => void;
 }) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [isEdit, setIsEdit] = useState(false);
   const { control, handleSubmit, setValue } = useForm({
@@ -244,7 +265,7 @@ const CopyForm = ({
       },
     ).then(() => {
       refresh();
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
     });
   });
@@ -256,11 +277,14 @@ const CopyForm = ({
 
   return (
     <SettingCardItem
-      title='内容复制'
+      title={t('setting.copyTitle')}
       isEdit={isEdit}
       onSubmit={handleSaveWatermark}
     >
-      <FormItem label='限制复制' permission={BUSINESS_VERSION_PERMISSION}>
+      <FormItem
+        label={t('setting.copyLimit')}
+        permission={BUSINESS_VERSION_PERMISSION}
+      >
         <Controller
           control={control}
           name='copy_setting'
@@ -276,18 +300,26 @@ const CopyForm = ({
               <FormControlLabel
                 value={ConstsCopySetting.CopySettingNone}
                 control={<Radio size='small' />}
-                label={<StyledRadioLabel>不做限制</StyledRadioLabel>}
+                label={
+                  <StyledRadioLabel>{t('setting.copyNone')}</StyledRadioLabel>
+                }
               />
               <FormControlLabel
                 value={ConstsCopySetting.CopySettingAppend}
                 control={<Radio size='small' />}
-                label={<StyledRadioLabel>增加内容尾巴</StyledRadioLabel>}
+                label={
+                  <StyledRadioLabel>{t('setting.copyAppend')}</StyledRadioLabel>
+                }
               />
 
               <FormControlLabel
                 value={ConstsCopySetting.CopySettingDisabled}
                 control={<Radio size='small' />}
-                label={<StyledRadioLabel>禁止复制内容</StyledRadioLabel>}
+                label={
+                  <StyledRadioLabel>
+                    {t('setting.copyDisabled')}
+                  </StyledRadioLabel>
+                }
               />
             </RadioGroup>
           )}

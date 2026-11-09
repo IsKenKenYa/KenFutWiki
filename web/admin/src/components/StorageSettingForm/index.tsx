@@ -28,23 +28,25 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 
+// 供应商预设：label 为 i18n key，渲染时翻译
 const STORAGE_PROVIDERS = [
   {
     value: 'minio',
-    label: 'MinIO（默认）',
+    label: 'storage.providerMinio',
     endpoint: 'panda-wiki-minio:9000',
     region: 'us-east-1',
     secure: false,
   },
   {
     value: 'aliyun_oss',
-    label: '阿里云 OSS',
+    label: 'storage.providerOss',
     endpoint: 'oss-cn-hangzhou.aliyuncs.com',
     region: 'oss-cn-hangzhou',
     secure: true,
   },
-  { value: 'custom', label: '自定义 S3 兼容存储' },
+  { value: 'custom', label: 'storage.providerCustom' },
 ] as const;
 
 type ProviderValue = (typeof STORAGE_PROVIDERS)[number]['value'];
@@ -71,6 +73,7 @@ const StorageSettingForm = forwardRef<
   StorageSettingFormRef,
   StorageSettingFormProps
 >(({ detail, showActions = true, onSaved, extra }, ref) => {
+  const { t } = useTranslation();
   const initial = detail?.setting ?? {};
   const [provider, setProvider] = useState<ProviderValue>(
     (initial.provider as ProviderValue) ?? 'minio',
@@ -115,22 +118,22 @@ const StorageSettingForm = forwardRef<
       normalizedEndpoint = urlMatch[2].replace(/\/+$/, '');
     }
     if (!normalizedEndpoint) {
-      message.error('请填写服务地址 Endpoint');
+      message.error(t('storage.endpointRequired'));
       return null;
     }
     if (!accessKey.trim()) {
-      message.error('请填写 Access Key');
+      message.error(t('storage.accessKeyRequired'));
       return null;
     }
     const normalizedPublicUrl = publicUrl.trim().replace(/\/+$/, '');
     if (normalizedPublicUrl && !/^https?:\/\//i.test(normalizedPublicUrl)) {
-      message.error('公网访问地址需以 http:// 或 https:// 开头');
+      message.error(t('storage.publicUrlInvalid'));
       return null;
     }
     const normalizedBucket = bucket.trim() || 'static-file';
     // 站点反代按默认桶名前缀 /static-file/* 转发，自定义桶名只能走公网地址直连
     if (normalizedBucket !== 'static-file' && !normalizedPublicUrl) {
-      message.error('使用非默认桶名时必须填写公网访问地址');
+      message.error(t('storage.publicUrlRequiredForBucket'));
       return null;
     }
     return {
@@ -153,7 +156,7 @@ const StorageSettingForm = forwardRef<
     const request = buildRequest();
     if (!request) return;
     if (!secretKey.trim() && !detail?.secret_set) {
-      message.error('请填写 Secret Key');
+      message.error(t('storage.secretRequired'));
       return;
     }
     setTesting(true);
@@ -162,7 +165,7 @@ const StorageSettingForm = forwardRef<
       const res = await postApiV1StorageTest(request);
       setTestResult(res);
       if (res.ok) {
-        message.success('存储连接测试通过');
+        message.success(t('storage.testPassed'));
       }
     } catch {
       // request 封装已弹错
@@ -175,18 +178,17 @@ const StorageSettingForm = forwardRef<
     const request = buildRequest();
     if (!request) return;
     if (!secretKey.trim() && !detail?.secret_set) {
-      message.error('请填写 Secret Key');
+      message.error(t('storage.secretRequired'));
       return;
     }
     Modal.confirm({
-      title: '保存存储配置',
-      content:
-        '保存后新上传的文件将写入新存储，历史文件不会迁移；其他进程最迟约 1 分钟内自动生效。确定保存？',
+      title: t('storage.saveTitle'),
+      content: t('storage.saveContent'),
       onOk: async () => {
         setSaving(true);
         try {
           const res = await postApiV1StorageSetting(request);
-          message.success('存储配置已保存');
+          message.success(t('storage.saved'));
           onSaved?.(res);
         } catch {
           // request 封装已弹错
@@ -202,19 +204,19 @@ const StorageSettingForm = forwardRef<
       {extra}
       <TextField
         select
-        label='存储类型'
+        label={t('storage.typeLabel')}
         value={provider}
         onChange={e => handleProviderChange(e.target.value as ProviderValue)}
       >
         {STORAGE_PROVIDERS.map(p => (
           <MenuItem key={p.value} value={p.value}>
-            {p.label}
+            {t(p.label)}
           </MenuItem>
         ))}
       </TextField>
       <TextField
-        label='服务地址 Endpoint'
-        placeholder='例如 oss-cn-hangzhou.aliyuncs.com（不含协议）'
+        label={t('storage.endpointLabel')}
+        placeholder={t('storage.endpointPlaceholder')}
         value={endpoint}
         onChange={e => setEndpoint(e.target.value)}
       />
@@ -224,7 +226,9 @@ const StorageSettingForm = forwardRef<
         onChange={e => setAccessKey(e.target.value)}
       />
       <TextField
-        label={detail?.secret_set ? 'Secret Key（留空保持不变）' : 'Secret Key'}
+        label={
+          detail?.secret_set ? t('storage.secretKeepPlaceholder') : 'Secret Key'
+        }
         type={showSecret ? 'text' : 'password'}
         value={secretKey}
         onChange={e => setSecretKey(e.target.value)}
@@ -247,7 +251,7 @@ const StorageSettingForm = forwardRef<
       <Stack direction='row' spacing={2}>
         <TextField
           fullWidth
-          label='存储桶 Bucket'
+          label={t('storage.bucketLabel')}
           value={bucket}
           onChange={e => setBucket(e.target.value)}
         />
@@ -259,16 +263,16 @@ const StorageSettingForm = forwardRef<
         />
       </Stack>
       <TextField
-        label='公网访问地址（可选）'
-        placeholder='例如 https://bucket.oss-cn-hangzhou.aliyuncs.com'
+        label={t('storage.publicUrlLabel')}
+        placeholder='https://bucket.oss-cn-hangzhou.aliyuncs.com'
         value={publicUrl}
         onChange={e => setPublicUrl(e.target.value)}
-        helperText='填写后文件 URL 直接指向该地址；留空则经由站点反代路径访问'
+        helperText={t('storage.publicUrlHint')}
       />
       <Stack direction='row' spacing={2} alignItems='center'>
-        <Tooltip title='存储桶不存在时自动创建；云厂商请在控制台预先创建并开放公共读'>
+        <Tooltip title={t('storage.autoBucketHint')}>
           <Typography variant='body2' sx={{ cursor: 'help' }}>
-            桶不存在时自动创建
+            {t('storage.autoBucketLabel')}
           </Typography>
         </Tooltip>
         <Button
@@ -276,9 +280,9 @@ const StorageSettingForm = forwardRef<
           variant={autoBucket ? 'contained' : 'outlined'}
           onClick={() => setAutoBucket(prev => !prev)}
         >
-          {autoBucket ? '已开启' : '已关闭'}
+          {autoBucket ? t('storage.on') : t('storage.off')}
         </Button>
-        <Tooltip title='通过 HTTPS 访问存储服务（云厂商一般为开启）'>
+        <Tooltip title={t('storage.secureHint')}>
           <Typography variant='body2' sx={{ cursor: 'help' }}>
             HTTPS
           </Typography>
@@ -288,7 +292,7 @@ const StorageSettingForm = forwardRef<
           variant={secure ? 'contained' : 'outlined'}
           onClick={() => setSecure(prev => !prev)}
         >
-          {secure ? '已开启' : '已关闭'}
+          {secure ? t('storage.on') : t('storage.off')}
         </Button>
       </Stack>
 
@@ -314,14 +318,14 @@ const StorageSettingForm = forwardRef<
             disabled={testing || saving}
             startIcon={testing ? <CircularProgress size={16} /> : undefined}
           >
-            {testing ? '测试中…' : '测试连接'}
+            {testing ? t('model.testing') : t('model.testConnection')}
           </Button>
           <Button
             variant='contained'
             onClick={handleSave}
             disabled={testing || saving}
           >
-            {saving ? '保存中…' : '保存配置'}
+            {saving ? t('model.saving') : t('storage.saveAction')}
           </Button>
         </Stack>
       )}

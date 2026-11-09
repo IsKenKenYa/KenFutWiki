@@ -10,6 +10,7 @@ import { message, Modal } from '@ctzhian/ui';
 import { Box, Checkbox, Stack } from '@mui/material';
 import { IconWenjianjiaKai } from '@panda-wiki/icons';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface DocDeleteProps {
   open: boolean;
@@ -28,6 +29,7 @@ const MoveDocs = ({
   onMoved,
   refresh,
 }: DocDeleteProps) => {
+  const { t } = useTranslation();
   const { kb_id, nav_id } = useAppSelector(state => state.config);
   const [tree, setTree] = useState<ITreeItem[]>([]);
   const [folderIds, setFolderIds] = useState<string[]>([]);
@@ -72,12 +74,12 @@ const MoveDocs = ({
     // 当前目录内移动：未选择其他目录，或选择的仍是当前目录
     if (!targetNavId || isSameNav) {
       if (folderIds.length === 0) {
-        message.error('请选择移动路径');
+        message.error(t('doc.move.selectPath'));
         return;
       }
       const parent_id = folderIds.includes('root') ? '' : folderIds[0];
       postApiV1NodeBatchMove({ ids, parent_id, kb_id }).then(() => {
-        message.success('移动成功');
+        message.success(t('doc.move.success'));
         onClose();
         onMoved?.({ ids, parentId: parent_id });
         refresh();
@@ -87,7 +89,7 @@ const MoveDocs = ({
 
     // 跨目录移动：选择了不同的目录
     if (!targetNavId) {
-      message.error('请选择目标目录');
+      message.error(t('doc.move.selectTarget'));
       return;
     }
 
@@ -98,7 +100,7 @@ const MoveDocs = ({
     };
 
     postApiV1NodeMoveNav(payload).then(() => {
-      message.success('移动成功');
+      message.success(t('doc.move.success'));
       onClose();
       refresh();
     });
@@ -122,14 +124,19 @@ const MoveDocs = ({
   }, [open]);
 
   return (
-    <Modal title='移动文档' open={open} onCancel={onClose} onOk={handleOk}>
+    <Modal
+      title={t('doc.move.title')}
+      open={open}
+      onCancel={onClose}
+      onOk={handleOk}
+    >
       <Box sx={{ fontSize: 14, color: 'text.secondary', mb: 1 }}>
-        已选中
+        {t('doc.move.selectedPrefix')}
         <Box component={'span'} sx={{ fontWeight: 700, color: 'primary.main' }}>
           {' '}
           {selected.length}{' '}
         </Box>
-        个文档/文件夹，移动到
+        {t('doc.move.selectedSuffix')}
       </Box>
       <Card
         sx={{
@@ -141,7 +148,7 @@ const MoveDocs = ({
       >
         {navLoading ? (
           <Box sx={{ fontSize: 14, color: 'text.secondary', p: 1 }}>
-            目录加载中...
+            {t('doc.move.loadingNavs')}
           </Box>
         ) : (
           <Stack gap={1}>
@@ -209,7 +216,9 @@ const MoveDocs = ({
                           color: 'text.secondary',
                         }}
                       >
-                        {isCurrentNav ? '（当前目录）' : '（其他目录）'}
+                        {isCurrentNav
+                          ? t('doc.move.currentNav')
+                          : t('doc.move.otherNav')}
                       </Box>
                     </Box>
                   </Stack>

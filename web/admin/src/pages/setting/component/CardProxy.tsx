@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { message } from '@ctzhian/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const CardProxy = ({
   kb,
@@ -21,6 +22,7 @@ const CardProxy = ({
   kb: DomainKnowledgeBaseDetail;
   refresh: () => void;
 }) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const [hasProxy, setHasProxy] = useState(
     !!kb.access_settings?.trusted_proxies?.length,
@@ -40,12 +42,12 @@ const CardProxy = ({
             : null,
         },
       }).then(() => {
-        message.success('保存成功');
+        message.success(t('common.saveSuccess'));
         setIsEdit(false);
         refresh();
       });
     } catch (e) {
-      message.error('保存失败');
+      message.error(t('common.saveFailed'));
     }
   };
 
@@ -56,7 +58,7 @@ const CardProxy = ({
 
   return (
     <SettingCardItem
-      title='前置反向代理'
+      title={t('setting.proxyTitle')}
       more={
         <Box
           sx={{
@@ -67,13 +69,13 @@ const CardProxy = ({
             fontWeight: 'normal',
           }}
         >
-          用于修正源 IP 获取错误的问题
+          {t('setting.proxyHint')}
         </Box>
       }
       isEdit={isEdit}
       onSubmit={handleSave}
     >
-      <FormItem label='前置反向代理'>
+      <FormItem label={t('setting.proxyTitle')}>
         <FormControl>
           <RadioGroup
             value={hasProxy}
@@ -89,12 +91,12 @@ const CardProxy = ({
               <FormControlLabel
                 value={false}
                 control={<Radio size='small' />}
-                label='无前置反向代理'
+                label={t('setting.proxyNone')}
               />
               <FormControlLabel
                 value={true}
                 control={<Radio size='small' />}
-                label='有前置反向代理'
+                label={t('setting.proxyPresent')}
               />
             </Stack>
           </RadioGroup>
@@ -102,14 +104,17 @@ const CardProxy = ({
       </FormItem>
 
       {hasProxy && (
-        <FormItem label='可信代理列表' sx={{ alignItems: 'flex-start' }}>
+        <FormItem
+          label={t('setting.trustedProxies')}
+          sx={{ alignItems: 'flex-start' }}
+        >
           <TextField
             fullWidth
-            label='可信代理 IP 或 CIDR（换行分隔）'
+            label={t('setting.trustedProxiesLabel')}
             multiline
             minRows={2}
             value={proxyIPs.join('\n')}
-            helperText='支持填写多个 IP 或 CIDR，每行一个'
+            helperText={t('setting.trustedProxiesHint')}
             onChange={e => {
               const lines = e.target.value.split(/\r?\n/).map(s => s.trim());
               setProxyIPs(lines);

@@ -31,6 +31,7 @@ import {
   IconXiala,
 } from '@panda-wiki/icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import DocAddByCustomText from '../../component/DocAddByCustomText';
 import KBSwitch from './KBSwitch';
@@ -76,6 +77,7 @@ const Catalog = ({
   onRefresh,
   onSaveCurrentDoc,
 }: CatalogProps) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -138,7 +140,7 @@ const Catalog = ({
 
   const ImportContentWays = {
     docFile: {
-      label: '创建文件夹',
+      label: t('doc.createFolder'),
       onClick: (parentId: string) => {
         setOpraParentId(parentId);
         setDocFileKey(1);
@@ -146,7 +148,7 @@ const Catalog = ({
       },
     },
     customDoc: {
-      label: '创建文档',
+      label: t('doc.createDocument'),
       onClick: (parentId: string) => {
         setOpraParentId(parentId);
         setDocFileKey(2);
@@ -484,7 +486,7 @@ const Catalog = ({
           }}
         >
           <Ellipsis sx={{ maxWidth: 140 }}>
-            {currentNav?.name || '目录'}
+            {currentNav?.name || t('doc.catalog')}
           </Ellipsis>
         </Button>
         {data.length > 0 && renderAdd('')}

@@ -12,6 +12,7 @@ import { message, Modal } from '@ctzhian/ui';
 import { Box, Checkbox, IconButton, Stack } from '@mui/material';
 import { IconXiajiantou } from '@panda-wiki/icons';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 function normalizeNavGroupResponse(
   res: any,
@@ -52,6 +53,7 @@ const RagErrorReStart = ({
   onClose,
   refresh,
 }: RagErrorReStartProps) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
 
   const [selected, setSelected] = useState<string[]>([]);
@@ -79,14 +81,14 @@ const RagErrorReStart = ({
         kb_id,
         node_ids: [...selected],
       }).then(() => {
-        message.success('正在学习');
+        message.success(t('doc.restudy.started'));
         setSelected([]);
         onClose();
         refresh();
       });
     } else {
       message.error(
-        list.length > 0 ? '请选择需要学习的文档' : '暂无需要学习的文档',
+        list.length > 0 ? t('doc.restudy.selectFirst') : t('doc.restudy.empty'),
       );
     }
   };
@@ -100,7 +102,12 @@ const RagErrorReStart = ({
   const selectedTotal = list.filter(it => selected.includes(it.id!)).length;
 
   return (
-    <Modal title='学习文档' open={open} onCancel={onClose} onOk={onSubmit}>
+    <Modal
+      title={t('doc.restudy.title')}
+      open={open}
+      onCancel={onClose}
+      onOk={onSubmit}
+    >
       <Stack
         direction='row'
         component='label'
@@ -114,16 +121,21 @@ const RagErrorReStart = ({
         }}
       >
         <Box>
-          未学习/学习失败文档
+          {t('doc.restudy.unstudiedLabel')}
           <Box
             component='span'
             sx={{ color: 'text.tertiary', fontSize: 12, pl: 1 }}
           >
-            共 {list.length} 个，已选中 {selectedTotal} 个
+            {t('doc.restudy.countSummary', {
+              total: list.length,
+              selected: selectedTotal,
+            })}
           </Box>
         </Box>
         <Stack direction='row' alignItems='center'>
-          <Box sx={{ color: 'text.tertiary', fontSize: 12 }}>全选</Box>
+          <Box sx={{ color: 'text.tertiary', fontSize: 12 }}>
+            {t('doc.selectAll')}
+          </Box>
           <Checkbox
             size='small'
             sx={{
@@ -198,14 +210,18 @@ const RagErrorReStart = ({
                       />
                     </IconButton>
                     <Box sx={{ flex: 1 }}>
-                      {nav.nav_name || (nav as any).navName || '未分类'}
+                      {nav.nav_name ||
+                        (nav as any).navName ||
+                        t('doc.uncategorized')}
                       <Box
                         component='span'
                         sx={{ color: 'text.tertiary', fontSize: 12, pl: 1 }}
                       >
-                        共 {navTotal} 个
+                        {t('doc.navCount', { count: navTotal })}
                         {navSelectedCount > 0
-                          ? `，已选中 ${navSelectedCount} 个`
+                          ? t('doc.navSelectedSuffix', {
+                              count: navSelectedCount,
+                            })
                           : ''}
                       </Box>
                     </Box>

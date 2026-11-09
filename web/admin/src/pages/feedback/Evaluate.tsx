@@ -16,9 +16,11 @@ import {
 } from '@panda-wiki/icons';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Detail from './Detail';
 
 const Evaluate = () => {
+  const { t } = useTranslation();
   const { kb_id = '' } = useAppSelector(state => state.config);
   const [searchParams] = useURLSearchParams();
   const subject = searchParams.get('subject') || '';
@@ -36,7 +38,7 @@ const Evaluate = () => {
   const columns: ColumnsType<DomainConversationMessageListItem> = [
     {
       dataIndex: 'question',
-      title: '问题',
+      title: t('feedback.colQuestion'),
       render: (text: string, record) => {
         const AppIcon =
           AppType[record.app_type as keyof typeof AppType]?.icon || '';
@@ -57,7 +59,9 @@ const Evaluate = () => {
               </Ellipsis>
             </Stack>
             <Box sx={{ color: 'text.tertiary', fontSize: 12 }}>
-              {AppType[record.app_type as keyof typeof AppType]?.label || '-'}
+              {t(
+                AppType[record.app_type as keyof typeof AppType]?.label || '',
+              ) || '-'}
             </Box>
           </>
         );
@@ -65,7 +69,7 @@ const Evaluate = () => {
     },
     {
       dataIndex: 'info',
-      title: '用户反馈',
+      title: t('feedback.colFeedback'),
       width: 160,
       render: (value: DomainConversationMessageListItem['info']) => {
         return (
@@ -75,11 +79,11 @@ const Evaluate = () => {
                 <Box>
                   {+value!.feedback_type! > 0 && (
                     <Box>
-                      {
+                      {t(
                         FeedbackType[
                           value?.feedback_type as unknown as keyof typeof FeedbackType
-                        ]
-                      }
+                        ],
+                      )}
                     </Box>
                   )}
                   {value?.feedback_content && (
@@ -123,7 +127,7 @@ const Evaluate = () => {
     },
     {
       dataIndex: 'info',
-      title: '来源用户',
+      title: t('feedback.colUser'),
       width: 200,
       render: (text, record) => {
         const user = record?.conversation_info?.user_info || {};
@@ -137,7 +141,7 @@ const Evaluate = () => {
             >
               <img src={user?.avatar || Logo} width={16} />
               <Box sx={{ fontSize: 14 }}>
-                {user?.real_name || user?.name || '匿名用户'}
+                {user?.real_name || user?.name || t('common.anonymous')}
               </Box>
             </Stack>
             {user?.email && (
@@ -149,7 +153,7 @@ const Evaluate = () => {
     },
     {
       dataIndex: 'remote_ip',
-      title: '来源 IP',
+      title: t('feedback.colIp'),
       width: 200,
       render: (text: string, record) => {
         const {
@@ -169,7 +173,7 @@ const Evaluate = () => {
     },
     {
       dataIndex: 'created_at',
-      title: '问答时间',
+      title: t('feedback.colTime'),
       width: 120,
       render: (text: string, record) => {
         return dayjs(record?.created_at).fromNow();

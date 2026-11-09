@@ -8,6 +8,7 @@ import { Box, Button, MenuItem, Select, Stack, TextField } from '@mui/material';
 import { FormItem } from '@/components/Form';
 import { Modal, message } from '@ctzhian/ui';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { useAppSelector } from '@/store';
 import { PROFESSION_VERSION_PERMISSION } from '@/constant/version';
@@ -17,25 +18,13 @@ import { ConstsLicenseEdition } from '@/request/pro/types';
 
 type Role = 'admin' | 'user';
 
+// 文案存 i18n key，渲染时翻译
 const PERM_MAP = {
-  [ConstsUserKBPermission.UserKBPermissionFullControl]: '完全控制',
-  [ConstsUserKBPermission.UserKBPermissionDocManage]: '文档管理',
-  [ConstsUserKBPermission.UserKBPermissionDataOperate]: '数据运营',
-};
-
-const VERSION_MAP = {
-  [ConstsLicenseEdition.LicenseEditionFree]: {
-    message: '开源版只支持 1 个管理员',
-    max: 1,
-  },
-  [ConstsLicenseEdition.LicenseEditionProfession]: {
-    message: '专业版最多支持 20 个管理员',
-    max: 20,
-  },
-  [ConstsLicenseEdition.LicenseEditionBusiness]: {
-    message: '商业版最多支持 50 个管理员',
-    max: 50,
-  },
+  [ConstsUserKBPermission.UserKBPermissionFullControl]:
+    'member.permFullControl',
+  [ConstsUserKBPermission.UserKBPermissionDocManage]: 'member.permDocManage',
+  [ConstsUserKBPermission.UserKBPermissionDataOperate]:
+    'member.permDataOperate',
 };
 
 const MemberAdd = ({
@@ -45,12 +34,29 @@ const MemberAdd = ({
   refresh: () => void;
   userLen: number;
 }) => {
+  const { t } = useTranslation();
   const [addMember, setAddMember] = useState(false);
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState('');
   const { kbList, license, refreshAdminRequest } = useAppSelector(
     state => state.config,
   );
+
+  // 各版本的管理员上限与提示（i18n key）
+  const VERSION_MAP = {
+    [ConstsLicenseEdition.LicenseEditionFree]: {
+      message: 'member.maxAdminFree',
+      max: 1,
+    },
+    [ConstsLicenseEdition.LicenseEditionProfession]: {
+      message: 'member.maxAdminPro',
+      max: 20,
+    },
+    [ConstsLicenseEdition.LicenseEditionBusiness]: {
+      message: 'member.maxAdminBusiness',
+      max: 50,
+    },
+  };
 
   const {
     control,
@@ -85,10 +91,13 @@ const MemberAdd = ({
     account: string;
     password: string;
   }) => {
-    copyText(`用户名: ${account}\n密码: ${password}`, () => {
-      setPassword('');
-      reset();
-    });
+    copyText(
+      `${t('member.accountLabel')}: ${account}\n${t('member.passwordLabel')}: ${password}`,
+      () => {
+        setPassword('');
+        reset();
+      },
+    );
   };
 
   const onSubmit = handleSubmit(data => {
@@ -113,9 +122,7 @@ const MemberAdd = ({
                 refreshAdminRequest();
             })
             .catch(() => {
-              message.error(
-                '用户已创建，但站点权限分配失败；请保存登录信息后在站点管理员中重新分配权限',
-              );
+              message.error(t('member.permAssignFailed'));
             })
             .finally(onSuccess);
         }
@@ -140,29 +147,29 @@ const MemberAdd = ({
           const maximum =
             capabilities?.limits.max_admin ?? versionLimit?.max ?? 0;
           if (maximum > 0 && userLen >= maximum) {
-            message.error(`当前最多支持 ${maximum} 个管理员`);
+            message.error(t('member.maxAdminReached', { count: maximum }));
             return;
           }
           setAddMember(true);
         }}
       >
-        添加新管理员
+        {t('member.addTitle')}
       </Button>
       <Modal
         title={
           <Stack direction='row' alignItems='center' gap={1}>
             <CheckCircle sx={{ color: 'success.main' }} />
-            新用户创建成功
+            {t('member.createdTitle')}
           </Stack>
         }
         open={!!password}
         closable={false}
-        cancelText='关闭'
+        cancelText={t('common.close')}
         onCancel={() => {
           setPassword('');
           reset();
         }}
-        okText='复制用户信息'
+        okText={t('member.copyUserInfo')}
         okButtonProps={{
           sx: { minWidth: '120px' },
         }}
@@ -170,17 +177,17 @@ const MemberAdd = ({
       >
         <Card sx={{ p: 2, fontSize: 14, bgcolor: 'background.paper3' }}>
           <Stack direction={'row'}>
-            <Box sx={{ width: 80 }}>用户名</Box>
+            <Box sx={{ width: 80 }}>{t('member.accountLabel')}</Box>
             <Box sx={{ fontWeight: 700 }}>{account}</Box>
           </Stack>
           <Stack direction={'row'} sx={{ mt: 1 }}>
-            <Box sx={{ width: 80 }}>密码</Box>
+            <Box sx={{ width: 80 }}>{t('member.passwordLabel')}</Box>
             <Box sx={{ fontWeight: 700 }}>{password}</Box>
           </Stack>
         </Card>
       </Modal>
       <Modal
-        title='添加新管理员'
+        title={t('member.addTitle')}
         open={addMember}
         onCancel={() => {
           setAddMember(false);
@@ -191,14 +198,14 @@ const MemberAdd = ({
           loading,
         }}
       >
-        <FormItem label='用户名' required>
+        <FormItem label={t('member.accountLabel')} required>
           <Controller
             control={control}
             name='account'
             rules={{
               required: {
                 value: true,
-                message: '用户名不能为空',
+                message: t('member.accountRequired'),
               },
             }}
             render={({ field }) => (
@@ -206,7 +213,7 @@ const MemberAdd = ({
                 {...field}
                 fullWidth
                 autoFocus
-                placeholder='输入用户名'
+                placeholder={t('member.accountPlaceholder')}
                 error={!!errors.account}
                 helperText={errors.account?.message}
               />
@@ -214,14 +221,14 @@ const MemberAdd = ({
           />
         </FormItem>
 
-        <FormItem label='角色' required sx={{ mt: 2 }}>
+        <FormItem label={t('member.roleLabel')} required sx={{ mt: 2 }}>
           <Controller
             control={control}
             name='role'
             render={({ field }) => (
               <TextField {...field} fullWidth select>
-                <MenuItem value='user'>普通管理员</MenuItem>
-                <MenuItem value='admin'>超级管理员</MenuItem>
+                <MenuItem value='user'>{t('member.roleUser')}</MenuItem>
+                <MenuItem value='admin'>{t('member.roleAdmin')}</MenuItem>
               </TextField>
             )}
           />
@@ -229,7 +236,7 @@ const MemberAdd = ({
 
         {watchRole === 'user' && (
           <>
-            <FormItem label='wiki 站' sx={{ mt: 2 }}>
+            <FormItem label={t('member.wikiLabel')} sx={{ mt: 2 }}>
               <Controller
                 control={control}
                 name='kb_id'
@@ -242,7 +249,9 @@ const MemberAdd = ({
                       value ? (
                         kbList?.find(i => i.id === value)?.name || value
                       ) : (
-                        <Box sx={{ color: '#9e9fa3' }}>请选择</Box>
+                        <Box sx={{ color: '#9e9fa3' }}>
+                          {t('member.selectPlaceholder')}
+                        </Box>
                       )
                     }
                     sx={{ height: 52 }}
@@ -256,7 +265,7 @@ const MemberAdd = ({
                 )}
               />
             </FormItem>
-            <FormItem label='权限' sx={{ mt: 2 }}>
+            <FormItem label={t('member.permLabel')} sx={{ mt: 2 }}>
               <Controller
                 control={control}
                 name='perm'
@@ -276,23 +285,25 @@ const MemberAdd = ({
                     }}
                     renderValue={(value: V1KBUserInviteReq['perm']) => {
                       return value ? (
-                        PERM_MAP[value]
+                        t(PERM_MAP[value])
                       ) : (
-                        <Box sx={{ color: '#9e9fa3' }}>请选择</Box>
+                        <Box sx={{ color: '#9e9fa3' }}>
+                          {t('member.selectPlaceholder')}
+                        </Box>
                       );
                     }}
                   >
                     <MenuItem
                       value={ConstsUserKBPermission.UserKBPermissionFullControl}
                     >
-                      完全控制
+                      {t('member.permFullControl')}
                     </MenuItem>
 
                     <MenuItem
                       value={ConstsUserKBPermission.UserKBPermissionDocManage}
                       disabled={!isPro}
                     >
-                      文档管理{' '}
+                      {t('member.permDocManage')}{' '}
                       <VersionCanUse
                         permission={PROFESSION_VERSION_PERMISSION}
                         capability='admin_permissions'
@@ -303,7 +314,7 @@ const MemberAdd = ({
                       value={ConstsUserKBPermission.UserKBPermissionDataOperate}
                       disabled={!isPro}
                     >
-                      数据运营{' '}
+                      {t('member.permDataOperate')}{' '}
                       <VersionCanUse
                         permission={PROFESSION_VERSION_PERMISSION}
                         capability='admin_permissions'

@@ -13,6 +13,7 @@ import ShowText from '@/components/ShowText';
 import { getApiV1AppDetail, putApiV1App } from '@/request/App';
 import { Controller, useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FormItem, SettingCardItem, SecretTextField } from './Common';
 import { DomainAppDetailResp } from '@/request/types';
 import { message } from '@ctzhian/ui';
@@ -26,6 +27,7 @@ const CardRobotApi = ({
   kb: DomainKnowledgeBaseDetail;
   url: string;
 }) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const [detail, setDetail] = useState<DomainAppDetailResp | null>(null);
   const { license } = useAppSelector(state => state.config);
@@ -78,7 +80,7 @@ const CardRobotApi = ({
         },
       },
     ).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
       getDetail();
       reset();
@@ -86,8 +88,15 @@ const CardRobotApi = ({
   });
 
   return (
-    <SettingCardItem title='问答机器人 API' isEdit={isEdit} onSubmit={onSubmit}>
-      <FormItem label='问答机器人 API' permission={BUSINESS_VERSION_PERMISSION}>
+    <SettingCardItem
+      title={t('enum.appType.qaApi')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
+      <FormItem
+        label={t('enum.appType.qaApi')}
+        permission={BUSINESS_VERSION_PERMISSION}
+      >
         <FormControl>
           <Controller
             control={control}
@@ -125,7 +134,7 @@ const CardRobotApi = ({
               control={control}
               name='secret_key'
               rules={{
-                required: 'API Token 不能为空',
+                required: t('setting.apiTokenRequired'),
               }}
               render={({ field }) => (
                 <SecretTextField
@@ -142,7 +151,7 @@ const CardRobotApi = ({
               )}
             />
           </FormItem>
-          <FormItem label='API 调用地址'>
+          <FormItem label={t('setting.apiCallUrl')}>
             <ShowText text={[`${url}/share/v1/chat/completions`]} />
           </FormItem>
         </>

@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { message } from '@ctzhian/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { FormItem, SettingCardItem } from './Common';
 import { useAppSelector } from '@/store';
@@ -21,6 +22,7 @@ interface CardCatalogProps {
 }
 
 const CardCatalog = ({ id, data, refresh }: CardCatalogProps) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const { kb_id } = useAppSelector(state => state.config);
   const { control, handleSubmit, setValue } = useForm<CatalogSetting>({
@@ -37,7 +39,7 @@ const CardCatalog = ({ id, data, refresh }: CardCatalogProps) => {
       { settings: { ...data.settings, catalog_settings: value }, kb_id },
     ).then(() => {
       refresh(value);
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
     });
   });
@@ -58,8 +60,12 @@ const CardCatalog = ({ id, data, refresh }: CardCatalogProps) => {
   }, [data]);
 
   return (
-    <SettingCardItem title='左侧目录导航' isEdit={isEdit} onSubmit={onSubmit}>
-      <FormItem label='左侧目录导航'>
+    <SettingCardItem
+      title={t('setting.catalogTitle')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
+      <FormItem label={t('setting.catalogTitle')}>
         <Controller
           control={control}
           name='catalog_visible'
@@ -75,19 +81,23 @@ const CardCatalog = ({ id, data, refresh }: CardCatalogProps) => {
               <FormControlLabel
                 value={1}
                 control={<Radio size='small' />}
-                label={<Box sx={{ width: 100 }}>默认显示</Box>}
+                label={
+                  <Box sx={{ width: 100 }}>{t('setting.defaultShow')}</Box>
+                }
               />
               <FormControlLabel
                 value={2}
                 control={<Radio size='small' />}
-                label={<Box sx={{ width: 100 }}>默认隐藏</Box>}
+                label={
+                  <Box sx={{ width: 100 }}>{t('setting.defaultHide')}</Box>
+                }
               />
             </RadioGroup>
           )}
         />
       </FormItem>
 
-      <FormItem label='文件夹'>
+      <FormItem label={t('doc.folder')}>
         <Controller
           control={control}
           name='catalog_folder'
@@ -103,19 +113,23 @@ const CardCatalog = ({ id, data, refresh }: CardCatalogProps) => {
               <FormControlLabel
                 value={1}
                 control={<Radio size='small' />}
-                label={<Box sx={{ width: 100 }}>默认展开</Box>}
+                label={
+                  <Box sx={{ width: 100 }}>{t('setting.defaultExpand')}</Box>
+                }
               />
               <FormControlLabel
                 value={2}
                 control={<Radio size='small' />}
-                label={<Box sx={{ width: 100 }}>默认折叠</Box>}
+                label={
+                  <Box sx={{ width: 100 }}>{t('setting.defaultCollapse')}</Box>
+                }
               />
             </RadioGroup>
           )}
         />
       </FormItem>
 
-      <FormItem label='导航宽度'>
+      <FormItem label={t('setting.navWidth')}>
         <Controller
           control={control}
           name='catalog_width'

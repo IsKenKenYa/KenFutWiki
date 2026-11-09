@@ -6,6 +6,7 @@ import React, {
   useRef,
 } from 'react';
 import { Box } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { setModelList } from '@/store/slices/config';
 import { getApiV1ModelList } from '@/request/Model';
@@ -19,6 +20,7 @@ interface Step1ModelProps {
 }
 
 const Step1Model: React.FC<Step1ModelProps> = ({ ref }) => {
+  const { t } = useTranslation();
   const { modelList } = useAppSelector(state => state.config);
   const dispatch = useAppDispatch();
 
@@ -77,7 +79,7 @@ const Step1Model: React.FC<Step1ModelProps> = ({ ref }) => {
       !has('rerank') ||
       !has('analysis')
     ) {
-      return Promise.reject(new Error('请先完成必选模型的配置'));
+      return Promise.reject(new Error(t('wizard.modelsIncomplete')));
     }
     return Promise.resolve();
   };

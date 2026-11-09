@@ -170,7 +170,8 @@ function stripVariant(id: string): string {
 
 /**
  * 两段式解析：原样精确 → 别名表 → 归一化后再精确 → 归一化后查别名表。
- * 未收录返回 null（调用方提示手动填写，不猜测默认值）。
+ * id 带 org 前缀（如 deepseek-ai/DeepSeek-V4.1-Flash）时先尝试原样，再剥离
+ * 前缀重试两条路径；全部未命中返回 null（调用方提示手动填写，不猜测默认值）。
  */
 export function resolveModelMeta(rawId: string): ModelMeta | null {
   const id = rawId?.trim().toLowerCase();
@@ -184,7 +185,12 @@ export function resolveModelMeta(rawId: string): ModelMeta | null {
     return null;
   };
 
-  return lookup(id) ?? lookup(normalize(id));
+  const withoutOrg = id.includes('/') ? id.slice(id.lastIndexOf('/') + 1) : '';
+  return (
+    lookup(id) ??
+    lookup(normalize(id)) ??
+    (withoutOrg ? (lookup(withoutOrg) ?? lookup(normalize(withoutOrg))) : null)
+  );
 }
 
 function toMeta(id: string, entry: CatalogEntry): ModelMeta {

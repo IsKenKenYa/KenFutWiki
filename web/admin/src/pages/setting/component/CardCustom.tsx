@@ -18,6 +18,7 @@ import {
   Stack,
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { FormItem, SettingCardItem } from './Common';
 
@@ -44,6 +45,7 @@ const CardCustom = ({ kb, refresh, info }: CardCustomProps) => {
     },
   });
   const [isEdit, setIsEdit] = useState(false);
+  const { t } = useTranslation();
 
   const onSubmit = handleSubmit(value => {
     putApiV1App(
@@ -57,7 +59,7 @@ const CardCustom = ({ kb, refresh, info }: CardCustomProps) => {
       },
     ).then(() => {
       refresh(value);
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
     });
   });
@@ -84,14 +86,14 @@ const CardCustom = ({ kb, refresh, info }: CardCustomProps) => {
 
   const curCustomTitle = useMemo(() => {
     if (curCustomType === 'welcome') {
-      return '定制欢迎页面';
+      return t('setting.customizeWelcome');
     } else if (curCustomType === 'header') {
-      return '定制导航栏';
+      return t('setting.customizeNav');
     } else if (curCustomType === 'footer') {
-      return '定制 Footer';
+      return t('setting.customizeFooter');
     }
     return '';
-  }, [curCustomType]);
+  }, [curCustomType, t]);
 
   const curCustomDisabledComponents = useMemo(() => {
     if (curCustomType === 'welcome') {
@@ -111,11 +113,14 @@ const CardCustom = ({ kb, refresh, info }: CardCustomProps) => {
 
   return (
     <SettingCardItem
-      title='前台网站样式个性化'
+      title={t('setting.customStyleTitle')}
       isEdit={isEdit}
       onSubmit={onSubmit}
     >
-      <FormItem label='默认首页' sx={{ alignItems: 'flex-start' }}>
+      <FormItem
+        label={t('setting.defaultHome')}
+        sx={{ alignItems: 'flex-start' }}
+      >
         <Controller
           control={control}
           name='home_page_setting'
@@ -130,11 +135,16 @@ const CardCustom = ({ kb, refresh, info }: CardCustomProps) => {
               }}
             >
               <Stack sx={{ width: 200, mr: 2 }}>
-                <img src={documentPng} width={200} height={115.28} alt='全屏' />
+                <img
+                  src={documentPng}
+                  width={200}
+                  height={115.28}
+                  alt={t('setting.docPage')}
+                />
                 <FormControlLabel
                   value='doc'
                   control={<Radio size='small' />}
-                  label={<Box sx={{ width: 65 }}>文档页面</Box>}
+                  label={<Box sx={{ width: 65 }}>{t('setting.docPage')}</Box>}
                 />
               </Stack>
               <Stack sx={{ mr: 2 }}>
@@ -142,14 +152,14 @@ const CardCustom = ({ kb, refresh, info }: CardCustomProps) => {
                   src={welcomePng}
                   width={200}
                   height={115.28}
-                  alt='欢迎页面'
+                  alt={t('setting.welcomePage')}
                 />
                 <FormControlLabel
                   value='custom'
                   control={<Radio size='small' />}
                   label={
                     <Stack direction={'row'} alignItems={'center'}>
-                      <Box>欢迎页面</Box>
+                      <Box>{t('setting.welcomePage')}</Box>
                     </Stack>
                   }
                 />
@@ -158,23 +168,23 @@ const CardCustom = ({ kb, refresh, info }: CardCustomProps) => {
           )}
         />
       </FormItem>
-      <FormItem label='自定义样式'>
+      <FormItem label={t('setting.customStyle')}>
         <Stack direction='row' gap={2}>
           <Button
             variant='outlined'
             onClick={() => setCurCustomType('welcome')}
           >
-            定制欢迎页面
+            {t('setting.customizeWelcome')}
           </Button>
           <Button variant='outlined' onClick={() => setCurCustomType('header')}>
-            定制导航栏
+            {t('setting.customizeNav')}
           </Button>
           <Button
             variant='outlined'
             onClick={() => setCurCustomType('footer')}
             sx={{ textTransform: 'none' }}
           >
-            定制 Footer
+            {t('setting.customizeFooter')}
           </Button>
         </Stack>
       </FormItem>

@@ -1,5 +1,6 @@
 import { ConstsCrawlerSource } from '@/request';
 import { Stack, TextField } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { FormData } from '../util';
 
 interface FormInputProps {
@@ -56,12 +57,13 @@ const FormFieldRenderer = ({
 );
 
 const FormInput = ({ type, formData, onChange }: FormInputProps) => {
+  const { t } = useTranslation();
   const formFieldsConfig: Partial<Record<ConstsCrawlerSource, FieldConfig[]>> =
     {
       [ConstsCrawlerSource.CrawlerSourceUrl]: [
         {
-          label: 'URL 地址',
-          placeholder: '每行一个 URL',
+          label: t('addDoc.form.urlLabel'),
+          placeholder: t('addDoc.form.urlPlaceholder'),
           fieldName: 'url',
           multiline: true,
           rows: 20,
@@ -69,15 +71,15 @@ const FormInput = ({ type, formData, onChange }: FormInputProps) => {
       ],
       [ConstsCrawlerSource.CrawlerSourceRSS]: [
         {
-          label: 'RSS 地址',
-          placeholder: 'RSS 地址',
+          label: t('addDoc.form.rssLabel'),
+          placeholder: t('addDoc.form.rssPlaceholder'),
           fieldName: 'url',
         },
       ],
       [ConstsCrawlerSource.CrawlerSourceSitemap]: [
         {
-          label: 'Sitemap 地址',
-          placeholder: 'Sitemap 地址',
+          label: t('addDoc.form.sitemapLabel'),
+          placeholder: t('addDoc.form.sitemapPlaceholder'),
           fieldName: 'url',
         },
       ],
@@ -91,13 +93,12 @@ const FormInput = ({ type, formData, onChange }: FormInputProps) => {
       [ConstsCrawlerSource.CrawlerSourceFeishu]: [
         {
           label: 'App ID',
-          placeholder: '> 飞书开放平台 > 凭证与基础信息 > 应用凭证 > App ID',
+          placeholder: t('addDoc.form.feishuAppIdPath'),
           fieldName: 'app_id',
         },
         {
           label: 'Client Secret',
-          placeholder:
-            '> 飞书开放平台 > 凭证与基础信息 > 应用凭证 > App Secret',
+          placeholder: t('addDoc.form.feishuSecretPath'),
           fieldName: 'app_secret',
         },
         {

@@ -12,11 +12,13 @@ import {
 } from '@mui/material';
 import { message } from '@ctzhian/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { FormItem, SettingCardItem, SecretTextField } from './Common';
 import { useAppSelector } from '@/store';
 
 const CardRobotDing = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false); // 是否启用钉钉机器人
   const [detail, setDetail] = useState<DomainAppDetailResp | null>(null);
@@ -67,7 +69,7 @@ const CardRobotDing = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
         },
       },
     ).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
       getDetail();
       reset();
@@ -79,8 +81,12 @@ const CardRobotDing = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
   }, [kb]);
 
   return (
-    <SettingCardItem title='钉钉机器人' isEdit={isEdit} onSubmit={onSubmit}>
-      <FormItem label='钉钉机器人'>
+    <SettingCardItem
+      title={t('enum.appType.dingtalk')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
+      <FormItem label={t('enum.appType.dingtalk')}>
         <Controller
           control={control}
           name='dingtalk_bot_is_enabled'
@@ -122,7 +128,7 @@ const CardRobotDing = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
                 <TextField
                   {...field}
                   fullWidth
-                  placeholder='> 钉钉开发平台 > 钉钉应用 > 凭证与基础信息 > Client ID'
+                  placeholder={t('robot.dingClientPath')}
                   onChange={e => {
                     field.onChange(e.target.value);
                     setIsEdit(true);
@@ -144,7 +150,7 @@ const CardRobotDing = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
                 <SecretTextField
                   {...field}
                   fullWidth
-                  placeholder='> 钉钉开发平台 > 钉钉应用 > 凭证与基础信息 > Client Secret'
+                  placeholder={t('robot.dingSecretPath')}
                   onChange={e => {
                     field.onChange(e.target.value);
                     setIsEdit(true);
@@ -167,7 +173,7 @@ const CardRobotDing = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
                 <TextField
                   {...field}
                   fullWidth
-                  placeholder='> 钉钉开发平台 > 卡片平台 > 模板列表 > 模板 ID'
+                  placeholder={t('robot.dingTemplatePath')}
                   onChange={e => {
                     field.onChange(e.target.value);
                     setIsEdit(true);
@@ -193,7 +199,7 @@ const CardRobotDing = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
           rows={4}
           fullWidth
           size="small"
-          placeholder={`欢迎使用网站监测 AI 助手，我将回答您关于网站监测的问题，如:\n 1. 网站监测的监控节点 IP 是什么 \n 2. 网站监测大模型落地案例`}
+          placeholder={t('robot.welcomePlaceholder')}
           onChange={(e) => {
             field.onChange(e.target.value)
             setIsEdit(true)

@@ -15,6 +15,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { createContext, useContext, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import VersionMask from '@/components/VersionMask';
 import type { Capabilities } from '@/features/kenfut/types';
 
@@ -273,6 +274,7 @@ export const SettingCardItem = ({
   sx?: SxProps;
   permission?: number[];
 }) => {
+  const { t } = useTranslation();
   const renderMore = (more: SettingCardItemMore) => {
     if (more && typeof more === 'object' && 'type' in more) {
       const linkMore = more as {
@@ -288,7 +290,7 @@ export const SettingCardItem = ({
             href={linkMore.href}
             target={linkMore.target}
           >
-            {linkMore.text ?? '更多'}
+            {linkMore.text ?? t('common.viewMore')}
           </StyledSettingCardItemTitleMore>
         );
       }

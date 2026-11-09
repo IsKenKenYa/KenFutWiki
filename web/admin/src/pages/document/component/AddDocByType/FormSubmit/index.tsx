@@ -2,6 +2,7 @@ import { ConstsCrawlerSource, postApiV1CrawlerParse } from '@/request';
 import { message } from '@ctzhian/ui';
 import { Button, Stack } from '@mui/material';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import { ListDataItem } from '..';
 import { TYPE_CONFIG } from '../constants';
@@ -32,6 +33,7 @@ const FormSubmit = ({
   setLoading,
   queue,
 }: FormSubmitProps) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<FormData>({
     app_id: '',
     app_secret: '',
@@ -42,7 +44,7 @@ const FormSubmit = ({
   const handleSubmitForm = useCallback(async () => {
     const validation = validateFormData(formData, type);
     if (!validation.isValid) {
-      message.error(validation.errorMessage);
+      message.error(t(validation.errorMessage!));
       return;
     }
     setLoading(true);
@@ -106,7 +108,7 @@ const FormSubmit = ({
                             summary:
                               error instanceof Error
                                 ? error.message
-                                : '操作失败，请稍后重试',
+                                : t('common.operationFailed'),
                           }
                         : item,
                     ),
@@ -146,7 +148,7 @@ const FormSubmit = ({
             parent_id: parent_id || '',
             platform_id: resp.id || '',
             id: 'cloud_disk',
-            title: '飞书云盘',
+            title: t('addDoc.feishuCloud'),
             summary: 'cloud_disk',
             file: false,
             status: 'parsed',
@@ -230,7 +232,9 @@ const FormSubmit = ({
           loading={loading}
           onClick={handleSubmitForm}
         >
-          {TYPE_CONFIG[type].okText || '拉取数据'}
+          {TYPE_CONFIG[type].okText
+            ? t(TYPE_CONFIG[type].okText!)
+            : t('addDoc.pullData')}
         </Button>
       </Stack>
     </>

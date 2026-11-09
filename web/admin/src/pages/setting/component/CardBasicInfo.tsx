@@ -5,6 +5,7 @@ import { validateUrl } from '@/utils';
 import { TextField } from '@mui/material';
 import { message } from '@ctzhian/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const CardBasicInfo = ({
   kb,
@@ -13,25 +14,26 @@ const CardBasicInfo = ({
   kb: DomainKnowledgeBaseDetail;
   refresh: () => void;
 }) => {
+  const { t } = useTranslation();
   const [url, setUrl] = useState<string>('');
   const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const handleSave = () => {
     try {
       if (!validateUrl(url) && url.trim() !== '') {
-        throw new Error('请输入正确的网址');
+        throw new Error(t('setting.invalidUrl'));
       }
 
       putApiV1KnowledgeBaseDetail({
         id: kb.id!,
         access_settings: { ...kb.access_settings, base_url: url },
       }).then(() => {
-        message.success('保存成功');
+        message.success(t('common.saveSuccess'));
         setIsEdit(false);
         refresh();
       });
     } catch (e) {
-      message.error('请输入正确的网址');
+      message.error(t('setting.invalidUrl'));
     }
   };
 
@@ -66,11 +68,15 @@ const CardBasicInfo = ({
   };
 
   return (
-    <SettingCardItem title='网站基本信息' isEdit={isEdit} onSubmit={handleSave}>
-      <FormItem label='网址绝对路径前缀'>
+    <SettingCardItem
+      title={t('setting.basicInfoTitle')}
+      isEdit={isEdit}
+      onSubmit={handleSave}
+    >
+      <FormItem label={t('setting.baseUrlPrefix')}>
         <TextField
           fullWidth
-          label='网址绝对路径前缀'
+          label={t('setting.baseUrlPrefix')}
           value={url}
           onChange={e => {
             setUrl(e.target.value);

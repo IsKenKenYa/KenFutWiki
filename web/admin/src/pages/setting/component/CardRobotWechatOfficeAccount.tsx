@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { message } from '@ctzhian/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import {
   DomainKnowledgeBaseDetail,
@@ -24,6 +25,7 @@ const CardRobotWechatOfficeAccount = ({
   kb: DomainKnowledgeBaseDetail;
   url: string;
 }) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const [detail, setDetail] = useState<DomainAppDetailResp | null>(null);
   const [isEnabled, setIsEnabled] = useState(false);
@@ -80,7 +82,7 @@ const CardRobotWechatOfficeAccount = ({
         },
       },
     ).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
       getDetail();
       reset();
@@ -92,8 +94,12 @@ const CardRobotWechatOfficeAccount = ({
   }, [kb]);
 
   return (
-    <SettingCardItem title='微信公众号' isEdit={isEdit} onSubmit={onSubmit}>
-      <FormItem label='微信公众号'>
+    <SettingCardItem
+      title={t('enum.appType.wechatMp')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
+      <FormItem label={t('enum.appType.wechatMp')}>
         <Controller
           control={control}
           name='wechat_official_account_is_enabled'
@@ -124,7 +130,7 @@ const CardRobotWechatOfficeAccount = ({
 
       {isEnabled && (
         <>
-          <FormItem label='回调地址'>
+          <FormItem label={t('robot.callbackUrl')}>
             <ShowText text={[`${url}/share/v1/app/wechat/official_account`]} />
           </FormItem>
           <FormItem label='App ID' required>

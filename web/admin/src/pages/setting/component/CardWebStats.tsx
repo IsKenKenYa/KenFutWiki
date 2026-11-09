@@ -1,6 +1,7 @@
 import { message } from '@ctzhian/ui';
 import { Box, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { DomainAppDetailResp } from '@/request/types';
 import { SettingCardItem, FormItem } from './Common';
@@ -20,6 +21,7 @@ interface StatsFormData {
 }
 
 const CardWebStats = ({ data, id, refresh }: CardWebStatsProps) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const { kb_id } = useAppSelector(state => state.config);
   const { handleSubmit, control, setValue } = useForm<StatsFormData>({
@@ -36,7 +38,7 @@ const CardWebStats = ({ data, id, refresh }: CardWebStatsProps) => {
       { id },
       { kb_id, settings: { ...data.settings, stats_setting: submitValue } },
     ).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       refresh(submitValue);
       setIsEdit(false);
     });
@@ -48,12 +50,16 @@ const CardWebStats = ({ data, id, refresh }: CardWebStatsProps) => {
   }, [data]);
 
   return (
-    <SettingCardItem title='统计分析' isEdit={isEdit} onSubmit={onSubmit}>
+    <SettingCardItem
+      title={t('setting.statsTitle')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
       <VersionMask
         permission={PROFESSION_VERSION_PERMISSION}
         capability='node_stats'
       >
-        <FormItem label='文档浏览量'>
+        <FormItem label={t('setting.pvLabel')}>
           <Controller
             control={control}
             name='pv_enable'
@@ -69,12 +75,12 @@ const CardWebStats = ({ data, id, refresh }: CardWebStatsProps) => {
                 <FormControlLabel
                   value={1}
                   control={<Radio size='small' />}
-                  label={<Box sx={{ width: 100 }}>展示</Box>}
+                  label={<Box sx={{ width: 100 }}>{t('setting.show')}</Box>}
                 />
                 <FormControlLabel
                   value={2}
                   control={<Radio size='small' />}
-                  label={<Box sx={{ width: 100 }}>隐藏</Box>}
+                  label={<Box sx={{ width: 100 }}>{t('setting.hide')}</Box>}
                 />
               </RadioGroup>
             )}

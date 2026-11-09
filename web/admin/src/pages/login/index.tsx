@@ -1,12 +1,15 @@
+import '@/assets/fonts/font.css';
 import { postApiV1UserLogin } from '@/request/User';
 import Bgi from '@/assets/images/login-bgi.png';
 import Logo from '@/assets/images/logo.png';
 import Avatar from '@/components/Avatar';
 import Card from '@/components/Card';
+import LocaleSwitch from '@/components/Header/LocaleSwitch';
 import { useURLSearchParams } from '@/hooks';
 import { Box, Button, IconButton, Stack, TextField } from '@mui/material';
 import { Icon, message } from '@ctzhian/ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
   IconZhanghao,
@@ -17,6 +20,7 @@ import {
 } from '@panda-wiki/icons';
 
 const Login = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useURLSearchParams();
   const redirect = searchParams.get('redirect') || '/';
@@ -30,7 +34,7 @@ const Login = () => {
       .then(res => {
         localStorage.setItem('kfw_admin_token', res.token!);
         navigate(redirect);
-        message.success('登录成功');
+        message.success(t('login.success'));
       })
       .finally(() => {
         setLoading(false);
@@ -57,6 +61,9 @@ const Login = () => {
           height: '100%',
         }}
       >
+        <Box sx={{ position: 'absolute', top: 24, right: 24 }}>
+          <LocaleSwitch />
+        </Box>
         <Card
           sx={{
             mt: -3,
@@ -91,7 +98,7 @@ const Login = () => {
               fullWidth
               sx={{ mb: 4 }}
               onChange={e => setAccount(e.target.value)}
-              placeholder='账号'
+              placeholder={t('login.accountPlaceholder')}
               autoFocus
               tabIndex={1}
               slotProps={{
@@ -126,7 +133,7 @@ const Login = () => {
                   submit();
                 }
               }}
-              placeholder='密码'
+              placeholder={t('login.passwordPlaceholder')}
               type={see ? 'text' : 'password'}
               slotProps={{
                 input: {
@@ -175,7 +182,7 @@ const Login = () => {
               }}
               loading={loading}
             >
-              登录
+              {t('login.submit')}
             </Button>
           </Stack>
         </Card>

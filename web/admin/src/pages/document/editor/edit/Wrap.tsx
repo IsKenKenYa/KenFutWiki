@@ -26,6 +26,7 @@ import IconPageview1 from '@panda-wiki/icons/IconPageview1';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   useLocation,
   useNavigate,
@@ -45,6 +46,7 @@ interface WrapProps {
 }
 
 const Wrap = ({ detail: defaultDetail }: WrapProps) => {
+  const { t } = useTranslation();
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const { license } = useAppSelector(state => state.config);
@@ -234,7 +236,7 @@ const Wrap = ({ detail: defaultDetail }: WrapProps) => {
     a.download = `${nodeDetail?.name}.${type}`;
     a.click();
     URL.revokeObjectURL(url);
-    message.success('导出成功');
+    message.success(t('editor.exportSuccess'));
   };
 
   const handleExport = useCallback(
@@ -283,7 +285,7 @@ const Wrap = ({ detail: defaultDetail }: WrapProps) => {
       const { from, to } = editorRef.editor.state.selection;
       const text = editorRef.editor.state.doc.textBetween(from, to, '\n');
       if (!text) {
-        message.error('请先选择文本');
+        message.error(t('editor.selectTextFirst'));
         return;
       }
       setSelectionText(text);
@@ -425,7 +427,7 @@ const Wrap = ({ detail: defaultDetail }: WrapProps) => {
               </Stack>
             </Tooltip>
           )}
-          <Tooltip arrow title={isBusiness ? '查看历史版本' : ''}>
+          <Tooltip arrow title={isBusiness ? t('editor.viewHistory') : ''}>
             <Stack
               direction={'row'}
               alignItems={'center'}
@@ -521,7 +523,7 @@ const Wrap = ({ detail: defaultDetail }: WrapProps) => {
               value={summary}
               multiline
               fullWidth
-              placeholder='暂无摘要，可在此处输入摘要'
+              placeholder={t('doc.summary.emptyPlaceholderInput')}
               slotProps={{
                 input: {
                   sx: {
@@ -805,7 +807,7 @@ const Wrap = ({ detail: defaultDetail }: WrapProps) => {
               editor={editorRef.editor}
               value={nodeDetail?.content || ''}
               onUpload={handleUpload}
-              placeholder='请输入文档内容'
+              placeholder={t('editor.contentPlaceholder')}
               onAceChange={value => {
                 updateDetail({
                   content: value,

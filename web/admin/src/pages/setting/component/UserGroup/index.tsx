@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SettingCardItem } from '../Common';
 import { Modal, message } from '@ctzhian/ui';
 import { Box } from '@mui/material';
@@ -31,6 +32,7 @@ const UserGroup = ({
   sourceType,
   getAuth,
 }: UserGroupProps) => {
+  const { t } = useTranslation();
   const { license, kb_id } = useAppSelector(state => state.config);
   const [userGroupModalOpen, setUserGroupModalOpen] = useState(false);
   const [userGroupModalType, setUserGroupModalType] = useState<'add' | 'edit'>(
@@ -45,8 +47,8 @@ const UserGroup = ({
 
   const onDeleteUserGroup = (id: number) => {
     Modal.confirm({
-      title: '删除用户组',
-      content: '确定要删除该用户组吗？',
+      title: t('setting.group.deleteTitle'),
+      content: t('setting.group.deleteContent'),
       okButtonProps: {
         color: 'error',
       },
@@ -55,7 +57,7 @@ const UserGroup = ({
           id,
           kb_id,
         }).then(() => {
-          message.success('删除成功');
+          message.success(t('common.deleteSuccess'));
           getUserGroup();
         });
       },
@@ -101,8 +103,8 @@ const UserGroup = ({
 
   const handleSync = () => {
     Modal.confirm({
-      title: '同步组织架构和成员',
-      content: '确定要同步组织架构和成员吗？',
+      title: t('setting.group.syncTitle'),
+      content: t('setting.group.syncContent'),
       onOk: async () => {
         setSyncLoading(true);
         await postApiProV1AuthGroupSync({
@@ -110,7 +112,7 @@ const UserGroup = ({
           source_type: sourceType as 'dingtalk',
         })
           .then(() => {
-            message.success('同步成功');
+            message.success(t('setting.group.syncSuccess'));
             getUserGroup();
             getAuth();
           })
@@ -122,7 +124,10 @@ const UserGroup = ({
   };
 
   return (
-    <SettingCardItem title='用户组' permission={BUSINESS_VERSION_PERMISSION}>
+    <SettingCardItem
+      title={t('setting.group.title')}
+      permission={BUSINESS_VERSION_PERMISSION}
+    >
       <Box
         sx={{
           border: '1px dashed',

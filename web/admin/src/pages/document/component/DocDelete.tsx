@@ -7,6 +7,7 @@ import { convertToTree } from '@/utils/drag';
 import { message, Modal } from '@ctzhian/ui';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { Stack } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 interface DocDeleteProps {
   open: boolean;
@@ -16,6 +17,7 @@ interface DocDeleteProps {
 }
 
 const DocDelete = ({ open, onClose, data, onDeleted }: DocDeleteProps) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   if (!data) return null;
 
@@ -26,7 +28,7 @@ const DocDelete = ({ open, onClose, data, onDeleted }: DocDeleteProps) => {
       kb_id,
       action: 'delete',
     }).then(() => {
-      message.success('删除成功');
+      message.success(t('common.deleteSuccess'));
       onClose();
       onDeleted?.(ids);
     });
@@ -39,12 +41,12 @@ const DocDelete = ({ open, onClose, data, onDeleted }: DocDeleteProps) => {
       title={
         <Stack direction='row' alignItems='center' gap={1}>
           <ErrorOutlineIcon sx={{ color: 'warning.main' }} />
-          确认删除以下文档/文件夹？
+          {t('doc.deleteConfirm')}
         </Stack>
       }
       open={open}
       width={600}
-      okText='删除'
+      okText={t('common.delete')}
       okButtonProps={{ sx: { bgcolor: 'error.main' } }}
       onCancel={onClose}
       onOk={submit}

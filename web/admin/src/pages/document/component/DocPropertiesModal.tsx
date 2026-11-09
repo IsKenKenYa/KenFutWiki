@@ -36,6 +36,7 @@ import {
 import dayjs from 'dayjs';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { BUSINESS_VERSION_PERMISSION } from '@/constant/version';
 import { VersionCanUse } from '@/components/VersionMask';
 import { IconShuaxin } from '@panda-wiki/icons';
@@ -54,26 +55,6 @@ const StyledText = styled('div')(({ theme }) => ({
   fontSize: 16,
 }));
 
-const PER_OPTIONS = [
-  {
-    label: '完全开放',
-    value: ConstsNodeAccessPerm.NodeAccessPermOpen,
-  },
-  {
-    label: (
-      <Stack direction={'row'} alignItems={'center'}>
-        <span>部分开放</span>
-        <VersionCanUse permission={BUSINESS_VERSION_PERMISSION} />
-      </Stack>
-    ),
-    value: ConstsNodeAccessPerm.NodeAccessPermPartial,
-  },
-  {
-    label: '完全禁止',
-    value: ConstsNodeAccessPerm.NodeAccessPermClosed,
-  },
-];
-
 const DocPropertiesModal = ({
   open,
   onCancel,
@@ -81,7 +62,31 @@ const DocPropertiesModal = ({
   onOk,
   isBatch = false,
 }: DocPropertiesModalProps) => {
+  const { t } = useTranslation();
   const { kb_id, nav_id, license } = useAppSelector(state => state.config);
+  // 权限选项依赖 t 与业务版标识，随语言切换重建
+  const PER_OPTIONS = useMemo(
+    () => [
+      {
+        label: t('perm.fullOpen'),
+        value: ConstsNodeAccessPerm.NodeAccessPermOpen,
+      },
+      {
+        label: (
+          <Stack direction={'row'} alignItems={'center'}>
+            <span>{t('perm.partialOpen')}</span>
+            <VersionCanUse permission={BUSINESS_VERSION_PERMISSION} />
+          </Stack>
+        ),
+        value: ConstsNodeAccessPerm.NodeAccessPermPartial,
+      },
+      {
+        label: t('perm.fullClosed'),
+        value: ConstsNodeAccessPerm.NodeAccessPermClosed,
+      },
+    ],
+    [t],
+  );
   const [loading, setLoading] = useState(false);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const sseClientRef = useRef<SSEClient<StreamSummaryEvent> | null>(null);
@@ -123,7 +128,7 @@ const DocPropertiesModal = ({
       onComplete: () => setSummaryLoading(false),
       onError: error => {
         setSummaryLoading(false);
-        message.error(error.message || '生成摘要失败');
+        message.error(error.message || t('doc.summary.generateFailed'));
       },
     });
     setValue('summary', '');
@@ -141,7 +146,9 @@ const DocPropertiesModal = ({
         }
         if (event.type === 'error') {
           setSummaryLoading(false);
-          message.error(event.content || event.error || '生成摘要失败');
+          message.error(
+            event.content || event.error || t('doc.summary.generateFailed'),
+          );
           sseClientRef.current?.unsubscribe();
         }
       },
@@ -181,7 +188,7 @@ const DocPropertiesModal = ({
           })
         : undefined,
     ]).then(() => {
-      message.success('编辑成功');
+      message.success(t('doc.properties.editSuccess'));
       onOk();
     });
   });
@@ -255,7 +262,7 @@ const DocPropertiesModal = ({
 
   return (
     <Modal
-      title={isBatch ? '批量设置权限' : '文档属性'}
+      title={isBatch ? t('doc.batchPermissions') : t('doc.properties.title')}
       open={open}
       onCancel={() => {
         sseClientRef.current?.unsubscribe();
@@ -270,7 +277,7 @@ const DocPropertiesModal = ({
       {isBatch && (
         <>
           <Box sx={{ fontSize: 14, mb: 1, color: 'text.secondary' }}>
-            已选中
+            {t('doc.properties.batchSelectedPrefix')}
             <Box
               component={'span'}
               sx={{ fontWeight: 700, color: 'primary.main', px: 0.5 }}
@@ -281,7 +288,7 @@ const DocPropertiesModal = ({
                 ).length
               }
             </Box>
-            个文档，设置权限
+            {t('doc.properties.batchSelectedSuffix')}
           </Box>
           <Card
             sx={{
@@ -302,11 +309,11 @@ const DocPropertiesModal = ({
       <Form labelWidth={100} gap={3}>
         {!isBatch && (
           <>
-            <FormItem label='文档名称' required>
+            <FormItem label={t('doc.properties.name')} required>
               <Controller
                 name='name'
                 control={control}
-                rules={{ required: '文档名称不能为空' }}
+                rules={{ required: t('doc.properties.nameRequired') }}
                 render={({ field }) => (
                   <TextField
                     {...field}
@@ -317,29 +324,32 @@ const DocPropertiesModal = ({
                 )}
               />
             </FormItem>
-            <FormItem label='创建时间'>
+            <FormItem label={t('doc.properties.createdAt')}>
               <StyledText>
                 {data?.[0]?.created_at
                   ? dayjs(data[0].created_at).format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </StyledText>
             </FormItem>
-            <FormItem label='创建者'>
+            <FormItem label={t('doc.properties.creator')}>
               <StyledText>{data?.[0]?.creator}</StyledText>
             </FormItem>
-            <FormItem label='修改时间'>
+            <FormItem label={t('doc.properties.updatedAt')}>
               <StyledText>
                 {data?.[0]?.updated_at
                   ? dayjs(data[0].updated_at).format('YYYY-MM-DD HH:mm:ss')
                   : '-'}
               </StyledText>
             </FormItem>
-            <FormItem label='修改者'>
+            <FormItem label={t('doc.properties.editor')}>
               <StyledText>{data?.[0]?.editor}</StyledText>
             </FormItem>
           </>
         )}
-        <FormItem label='可被问答' sx={{ mt: isBatch ? 2 : 0 }}>
+        <FormItem
+          label={t('doc.properties.answerable')}
+          sx={{ mt: isBatch ? 2 : 0 }}
+        >
           <Controller
             name='answerable'
             control={control}
@@ -381,7 +391,10 @@ const DocPropertiesModal = ({
                     option.id === value.id
                   }
                   renderInput={params => (
-                    <TextField {...params} placeholder='可被问答的用户组' />
+                    <TextField
+                      {...params}
+                      placeholder={t('doc.properties.answerableGroups')}
+                    />
                   )}
                 />
               )}
@@ -389,7 +402,7 @@ const DocPropertiesModal = ({
           </FormItem>
         )}
 
-        <FormItem label='可被访问'>
+        <FormItem label={t('doc.properties.visitable')}>
           <Controller
             name='visitable'
             control={control}
@@ -431,7 +444,10 @@ const DocPropertiesModal = ({
                     option.id === value.id
                   }
                   renderInput={params => (
-                    <TextField {...params} placeholder='可被访问的用户组' />
+                    <TextField
+                      {...params}
+                      placeholder={t('doc.properties.visitableGroups')}
+                    />
                   )}
                 />
               )}
@@ -439,7 +455,7 @@ const DocPropertiesModal = ({
           </FormItem>
         )}
 
-        <FormItem label='导航内可见'>
+        <FormItem label={t('doc.properties.visible')}>
           <Controller
             name='visible'
             control={control}
@@ -481,7 +497,10 @@ const DocPropertiesModal = ({
                     option.id === value.id
                   }
                   renderInput={params => (
-                    <TextField {...params} placeholder='导航内可见的用户组' />
+                    <TextField
+                      {...params}
+                      placeholder={t('doc.properties.visibleGroups')}
+                    />
                   )}
                 />
               )}
@@ -490,7 +509,10 @@ const DocPropertiesModal = ({
         )}
 
         {!isBatch && (
-          <FormItem label='内容摘要' sx={{ alignItems: 'flex-start' }}>
+          <FormItem
+            label={t('doc.summary.title')}
+            sx={{ alignItems: 'flex-start' }}
+          >
             <Controller
               name='summary'
               control={control}
@@ -519,7 +541,7 @@ const DocPropertiesModal = ({
                       />
                     }
                   >
-                    AI 生成
+                    {t('doc.summary.aiGenerate')}
                   </Button>
                 </Stack>
               )}

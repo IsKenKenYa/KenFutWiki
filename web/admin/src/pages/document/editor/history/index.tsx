@@ -32,6 +32,7 @@ import {
 } from '@panda-wiki/icons';
 import dayjs from 'dayjs';
 import { Fragment, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactDiffViewer from 'react-diff-viewer';
 import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 import { WrapContext } from '..';
@@ -41,6 +42,7 @@ import VersionRollback from '../../component/VersionRollback';
 const CATALOG_WIDTH = 292;
 
 const History = () => {
+  const { t, i18n } = useTranslation();
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const { kb_id, nav_id } = useAppSelector(state => state.config);
@@ -373,20 +375,22 @@ const History = () => {
                     sx={{ cursor: 'default' }}
                   >
                     <IconTianjiawendang sx={{ fontSize: 9 }} />
-                    {curNode.editor_account} 编辑
+                    {t('history.editedBy', { name: curNode.editor_account })}
                   </Stack>
                 ))}
               <Stack direction={'row'} alignItems={'center'} gap={0.5}>
                 <IconAShijian2 sx={{ fontSize: 12 }} />
                 {curVersion?.status !== DomainNodeStatus.NodeStatusPublished
-                  ? dayjs(curVersion?.updated_at).format(
-                      'YYYY 年 MM 月 DD 日 HH 时 mm 分 ss 秒',
-                    ) + ' 编辑'
+                  ? t('history.editedAt', {
+                      time: dayjs(curVersion?.updated_at)
+                        .locale(i18n.language.startsWith('zh') ? 'zh-cn' : 'en')
+                        .format('YYYY-MM-DD HH:mm:ss'),
+                    })
                   : curVersion?.release_message}
               </Stack>
               <Stack direction={'row'} alignItems={'center'} gap={0.5}>
                 <IconZiti sx={{ fontSize: 12 }} />
-                {characterCount} 字
+                {t('history.characterCount', { count: characterCount })}
               </Stack>
             </Stack>
             {(curNode.meta?.summary?.length ?? 0) > 0 && (
@@ -406,7 +410,7 @@ const History = () => {
                     mb: 1,
                   }}
                 >
-                  内容摘要
+                  {t('doc.summary.title')}
                 </Box>
                 <Box
                   sx={{
@@ -507,14 +511,16 @@ const History = () => {
             >
               <Ellipsis sx={{ color: 'text.primary' }}>
                 {item.status !== DomainNodeStatus.NodeStatusPublished
-                  ? '未发布的草稿'
+                  ? t('history.unpublishedDraft')
                   : item.release_name}
               </Ellipsis>
               <Box sx={{ fontSize: 13, color: 'text.tertiary' }}>
                 {item.status !== DomainNodeStatus.NodeStatusPublished
-                  ? dayjs(item.updated_at).format(
-                      'YYYY 年 MM 月 DD 日 HH 时 mm 分 ss 秒',
-                    ) + ' 编辑'
+                  ? t('history.editedAt', {
+                      time: dayjs(item.updated_at)
+                        .locale(i18n.language.startsWith('zh') ? 'zh-cn' : 'en')
+                        .format('YYYY-MM-DD HH:mm:ss'),
+                    })
                   : item.release_message}
               </Box>
               <Stack

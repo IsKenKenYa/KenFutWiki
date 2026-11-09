@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { message } from '@ctzhian/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import VersionMask from '@/components/VersionMask';
 import { Controller, useForm } from 'react-hook-form';
 import { useAppSelector } from '@/store';
@@ -26,6 +27,7 @@ const CardQaCopyright = ({
   data: DomainAppDetailResp;
   refresh: (value: DomainConversationSetting) => void;
 }) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const { kb_id } = useAppSelector(state => state.config);
   const {
@@ -50,7 +52,7 @@ const CardQaCopyright = ({
       { settings: { ...data.settings, conversation_setting: value }, kb_id },
     ).then(() => {
       refresh(value);
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
     });
   });
@@ -68,7 +70,7 @@ const CardQaCopyright = ({
 
   return (
     <SettingCardItem
-      title='智能问答版权信息'
+      title={t('setting.qaCopyrightTitle')}
       isEdit={isEdit}
       onSubmit={onSubmit}
     >
@@ -77,7 +79,7 @@ const CardQaCopyright = ({
         capability='custom_branding'
       >
         <FormItem
-          label='版权信息'
+          label={t('setting.copyrightInfo')}
           sx={{ alignItems: 'flex-start' }}
           labelSx={{ mt: 1 }}
         >
@@ -97,12 +99,12 @@ const CardQaCopyright = ({
                   <FormControlLabel
                     value={false}
                     control={<Radio size='small' />}
-                    label={<Box sx={{ width: 100 }}>显示</Box>}
+                    label={<Box sx={{ width: 100 }}>{t('setting.show')}</Box>}
                   />
                   <FormControlLabel
                     value={true}
                     control={<Radio size='small' />}
-                    label={<Box sx={{ width: 100 }}>隐藏</Box>}
+                    label={<Box sx={{ width: 100 }}>{t('setting.hide')}</Box>}
                   />
                 </RadioGroup>
               );
@@ -111,7 +113,7 @@ const CardQaCopyright = ({
         </FormItem>
         {!copyright_hide_enabled && (
           <FormItem
-            label='版权文字'
+            label={t('setting.copyrightText')}
             sx={{ alignItems: 'flex-start' }}
             labelSx={{ mt: 1 }}
           >
@@ -122,7 +124,7 @@ const CardQaCopyright = ({
                 <TextField
                   fullWidth
                   {...field}
-                  placeholder='本网站由 KenFutWiki 提供技术支持'
+                  placeholder={t('qa.poweredBy')}
                   error={!!errors.copyright_info}
                   helperText={errors.copyright_info?.message}
                   onChange={event => {

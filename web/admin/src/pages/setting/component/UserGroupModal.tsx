@@ -16,6 +16,7 @@ import dayjs from 'dayjs';
 import { Modal, Table, message } from '@ctzhian/ui';
 import NoData from '@/assets/images/nodata.png';
 import { useForm, Controller } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { FormItem } from './Common';
 import { useAppSelector } from '@/store';
 import { ColumnType } from '@ctzhian/ui/dist/Table';
@@ -42,6 +43,7 @@ const UserGroupModal = ({
   onOk,
   type,
 }: UserGroupModalProps) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>(
     data?.auth_ids || [],
@@ -89,7 +91,7 @@ const UserGroupModal = ({
     {
       title: (
         <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-          <Box component={'span'}>用户名</Box>
+          <Box component={'span'}>{t('member.colAccount')}</Box>
           <ClickAwayListener onClickAway={handleUsernameClickAway}>
             <Tooltip
               open={usernameFilterOpen}
@@ -104,7 +106,7 @@ const UserGroupModal = ({
                     value={usernameInput}
                     onChange={e => setUsernameInput(e.target.value)}
                     onKeyDown={handleUsernameInputEnter}
-                    placeholder='输入用户名筛选'
+                    placeholder={t('setting.group.filterPlaceholder')}
                     sx={{ minWidth: 200 }}
                   />
                   <Stack
@@ -120,14 +122,14 @@ const UserGroupModal = ({
                       onClick={handleResetUsernameFilter}
                       disabled={!hasUsernameFilter}
                     >
-                      重置
+                      {t('common.reset')}
                     </Button>
                     <Button
                       variant='contained'
                       size='small'
                       onClick={handleApplyUsernameFilter}
                     >
-                      确定
+                      {t('common.confirm')}
                     </Button>
                   </Stack>
                 </Stack>
@@ -169,13 +171,15 @@ const UserGroupModal = ({
       },
     },
     {
-      title: '时间',
+      title: t('setting.group.timeCol'),
       dataIndex: 'created_at',
       render: (text: string, record) => {
         return (
           <Box sx={{ color: 'text.secondary' }}>
-            {dayjs(text).fromNow()}加入，
-            {dayjs(record.last_login_time).fromNow()}活跃
+            {t('setting.group.joinedAt', { time: dayjs(text).fromNow() })}
+            {t('setting.group.activeAt', {
+              time: dayjs(record.last_login_time).fromNow(),
+            })}
           </Box>
         );
       },
@@ -201,7 +205,7 @@ const UserGroupModal = ({
         kb_id,
         id: data.id!,
       }).then(res => {
-        message.success('编辑成功');
+        message.success(t('common.saveSuccess'));
         onOk();
       });
     } else if (type === 'add') {
@@ -212,7 +216,7 @@ const UserGroupModal = ({
         parent_id:
           (data?.id as 'root' | number) === 'root' ? undefined : data?.id,
       }).then(res => {
-        message.success('添加成功');
+        message.success(t('nav.addSuccess'));
         onOk();
       });
     }
@@ -237,22 +241,26 @@ const UserGroupModal = ({
 
   return (
     <Modal
-      title={type === 'add' ? '添加用户组' : '编辑用户组'}
+      title={
+        type === 'add'
+          ? t('setting.group.addTitle')
+          : t('setting.group.editTitle')
+      }
       open={open}
       onCancel={onCancel}
       onOk={onSubmit}
       width={660}
     >
-      <FormItem label='用户组名称' vertical required>
+      <FormItem label={t('setting.group.nameLabel')} vertical required>
         <Controller
           control={control}
           name='name'
-          rules={{ required: '请输入用户组名称' }}
+          rules={{ required: t('setting.group.nameRequired') }}
           render={({ field }) => (
             <TextField
               {...field}
               fullWidth
-              placeholder='请输入用户组名称'
+              placeholder={t('setting.group.nameRequired')}
               helperText={errors.name?.message}
               error={!!errors.name}
             />

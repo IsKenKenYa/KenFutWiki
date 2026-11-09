@@ -31,6 +31,8 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAppSelector } from '@/store';
 
 export type ModelFormType =
   | 'chat'
@@ -39,12 +41,13 @@ export type ModelFormType =
   | 'analysis'
   | 'analysis-vl';
 
+// 类型名存 i18n key
 const TYPE_LABEL: Record<ModelFormType, string> = {
-  chat: '大语言模型',
-  embedding: '嵌入模型',
-  rerank: '重排模型',
-  analysis: '分析模型',
-  'analysis-vl': '视觉分析模型',
+  chat: 'model.typeChat',
+  embedding: 'model.typeEmbedding',
+  rerank: 'model.typeRerank',
+  analysis: 'model.typeAnalysis',
+  'analysis-vl': 'model.typeAnalysisVl',
 };
 
 const CONTEXT_PRESETS = [128000, 262144, 524288, 1048576];
@@ -62,6 +65,8 @@ interface ProviderConf {
   analysis?: boolean;
   modelDocumentUrl?: string;
   defaultBaseUrl?: string;
+  /** 自定义供应商：由用户命名并手填 Base URL */
+  custom?: boolean;
 }
 
 const PROVIDERS = ModelProvider as unknown as Record<string, ProviderConf>;
@@ -90,9 +95,11 @@ const ModelFormModal = ({
   onClose,
   refresh,
 }: ModelFormModalProps) => {
+  const { t, i18n } = useTranslation();
   const isEdit = !!data?.id;
 
   const [provider, setProvider] = useState<string>('');
+  const [providerName, setProviderName] = useState('');
   const [baseUrl, setBaseUrl] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [showKey, setShowKey] = useState(false);
@@ -105,6 +112,8 @@ const ModelFormModal = ({
   const [fetching, setFetching] = useState(false);
   const [meta, setMeta] = useState<ModelMeta | null>(null);
   const [metaApplied, setMetaApplied] = useState(false);
+  // 选择已有配置的同供应商时自动带出连接信息，提示用户来源
+  const [reusedFrom, setReusedFrom] = useState<string>('');
 
   const [contextWindow, setContextWindow] = useState<string>('');
   const [maxOutput, setMaxOutput] = useState<string>('');
@@ -126,6 +135,10 @@ const ModelFormModal = ({
   const touch = (field: string) => touchedRef.current.add(field);
 
   const providerConf = provider ? (PROVIDERS[provider] ?? null) : null;
+  const isCustomProvider = !!providerConf?.custom;
+
+  // 已保存的模型列表：用于同供应商凭证复用
+  const { modelList } = useAppSelector(state => state.config);
 
   // 按 model_type 过滤可用 provider
   const availableProviders = Object.entries(PROVIDERS).filter(([, conf]) => {
@@ -144,8 +157,12 @@ const ModelFormModal = ({
     setModelOptions([]);
     setTestResult(null);
     setAdvancedOpen(false);
+    setReusedFrom('');
     if (data) {
       setProvider((data.provider as string) ?? '');
+      setProviderName(
+        (data as never as { provider_name?: string }).provider_name ?? '',
+      );
       setBaseUrl(data.base_url ?? '');
       setApiKey(data.api_key ?? '');
       const header = (data.api_header ?? '').split(':');
@@ -153,7 +170,7 @@ const ModelFormModal = ({
       setHeaderValue(header.length > 1 ? header.slice(1).join(':') : '');
       setApiVersion(data.api_version ?? '');
       setModelName(data.model ?? '');
-      setShowName('');
+      setShowName((data as never as { show_name?: string }).show_name ?? '');
       const p = data.parameters ?? {};
       setContextWindow(p.context_window ? String(p.context_window) : '');
       setMaxOutput(p.max_tokens ? String(p.max_tokens) : '');
@@ -161,6 +178,7 @@ const ModelFormModal = ({
       setTemperature(p.temperature != null ? String(p.temperature) : '');
     } else {
       setProvider('');
+      setProviderName('');
       setBaseUrl('');
       setApiKey('');
       setHeaderKey('');
@@ -176,8 +194,31 @@ const ModelFormModal = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, data]);
 
+  // 从已保存的同供应商模型带出连接信息（仅新建模式，且对应字段为空时）
+  const reuseCredentials = (next: string) => {
+    if (isEdit) return;
+    const saved = (modelList ?? []).find(
+      it => it.provider === next && (it.base_url || it.api_key),
+    );
+    if (!saved) {
+      setReusedFrom('');
+      return;
+    }
+    setReusedFrom(saved.show_name || saved.model || '');
+    if (!baseUrl && saved.base_url) setBaseUrl(saved.base_url);
+    if (!apiKey && saved.api_key) setApiKey(saved.api_key);
+    if (!headerKey && !headerValue && saved.api_header) {
+      const header = saved.api_header.split(':');
+      setHeaderKey(header.length > 1 ? header[0] : '');
+      setHeaderValue(header.length > 1 ? header.slice(1).join(':') : '');
+    }
+    if (!apiVersion && saved.api_version) setApiVersion(saved.api_version);
+  };
+
   const handleProviderChange = (next: string) => {
     setProvider(next);
+    setProviderName('');
+    setReusedFrom('');
     const conf = PROVIDERS[next];
     if (!conf) {
       setModelOptions([]);
@@ -190,6 +231,8 @@ const ModelFormModal = ({
     }
     // 内置目录有该厂商的预设模型时直接预填下拉（仍可通过「获取模型列表」拉实时列表覆盖）
     setModelOptions(presetModelIds(next, model_type));
+    // 同供应商已有保存过的模型时自动带出连接信息（用户改过则不覆盖）
+    reuseCredentials(next);
   };
 
   // 模型 id 变化 → 元数据识别与自动填充
@@ -228,7 +271,7 @@ const ModelFormModal = ({
 
   const handleFetchModels = async () => {
     if (!baseUrl.trim()) {
-      message.error('请先填写 Base URL');
+      message.error(t('model.baseUrlFirst'));
       return;
     }
     setFetching(true);
@@ -243,9 +286,9 @@ const ModelFormModal = ({
       const models = (res?.models ?? []).map((m: { model: string }) => m.model);
       setModelOptions(models);
       if (models.length === 0) {
-        message.warning('未获取到模型，请检查配置或手动填写模型 ID');
+        message.warning(t('model.fetchEmpty'));
       } else {
-        message.success(`获取到 ${models.length} 个模型`);
+        message.success(t('model.fetchSuccess', { count: models.length }));
       }
     } catch {
       // request 封装已弹错
@@ -263,6 +306,9 @@ const ModelFormModal = ({
     return {
       type: model_type,
       provider: provider as CreateModelData['provider'],
+      ...(isCustomProvider && providerName.trim()
+        ? { provider_name: providerName.trim() }
+        : {}),
       api_header: headerKey ? `${headerKey}:${headerValue}` : '',
       api_key: apiKey.trim(),
       base_url: processedBaseUrl(baseUrl, providerConf),
@@ -274,16 +320,17 @@ const ModelFormModal = ({
   };
 
   const validate = (): string | null => {
-    if (!provider) return '请选择模型服务商';
-    if (!baseUrl.trim()) return '请填写 Base URL';
+    if (!provider) return t('model.selectProvider');
+    if (!baseUrl.trim()) return t('model.baseUrlRequired');
     if (providerConf?.secretRequired !== false && !apiKey.trim() && !isEdit)
-      return '请填写 API Key';
-    if (!modelName.trim()) return '请填写或选择模型 ID';
+      return t('model.apiKeyRequired');
+    if (!modelName.trim()) return t('model.modelIdRequired');
     if (contextWindow && !/^\d+$/.test(contextWindow.trim()))
-      return '上下文窗口需为数字';
-    if (maxOutput && !/^\d+$/.test(maxOutput.trim())) return '最大输出需为数字';
+      return t('model.contextNumber');
+    if (maxOutput && !/^\d+$/.test(maxOutput.trim()))
+      return t('model.maxOutputNumber');
     if (temperature !== '' && Number.isNaN(Number(temperature)))
-      return '温度需为数字';
+      return t('model.temperatureNumber');
     return null;
   };
 
@@ -297,11 +344,11 @@ const ModelFormModal = ({
     setTestResult(null);
     try {
       await testModel(buildPayload() as never);
-      setTestResult({ ok: true, msg: '连接成功，模型可用' });
+      setTestResult({ ok: true, msg: t('model.testSuccess') });
     } catch (e) {
       setTestResult({
         ok: false,
-        msg: e instanceof Error ? e.message : '连接失败',
+        msg: e instanceof Error ? e.message : t('model.testFailed'),
       });
     } finally {
       setTesting(false);
@@ -323,7 +370,7 @@ const ModelFormModal = ({
       } else {
         await createModel(payload);
       }
-      message.success(isEdit ? '模型已更新' : '模型已添加');
+      message.success(isEdit ? t('model.updated') : t('model.added'));
       await refresh();
     } catch {
       // request 封装已弹错
@@ -335,18 +382,24 @@ const ModelFormModal = ({
   const metaChip =
     metaApplied && meta ? (
       <Alert severity='success' sx={{ py: 0 }}>
-        已识别 <b>{meta.name ?? meta.id}</b>
+        {t('model.recognized', { name: meta.name ?? meta.id })}
         {meta.contextWindow
-          ? ` · ${Math.round(meta.contextWindow / 1024)}K 上下文`
+          ? t('model.metaContext', {
+              size: Math.round(meta.contextWindow / 1024),
+            })
           : ''}
         {meta.maxOutputTokens
-          ? ` · 最大输出 ${Math.round(meta.maxOutputTokens / 1024) || meta.maxOutputTokens}K`
+          ? t('model.metaMaxOutput', {
+              size:
+                Math.round(meta.maxOutputTokens / 1024) || meta.maxOutputTokens,
+            })
           : ''}
-        {meta.supportsImage ? ' · 支持图片' : ''}（自动填充，可修改）
+        {meta.supportsImage ? t('model.metaImage') : ''}
+        {t('model.metaEditable')}
       </Alert>
     ) : modelName ? (
       <Alert severity='info' sx={{ py: 0 }}>
-        模型目录未收录该 ID，高级参数将保持空值，请按需手动填写
+        {t('model.notInCatalog')}
       </Alert>
     ) : null;
 
@@ -354,9 +407,11 @@ const ModelFormModal = ({
     <Modal
       open={open}
       onCancel={onClose}
-      title={`${isEdit ? '编辑' : '添加'}${TYPE_LABEL[model_type]}`}
+      title={t(isEdit ? 'model.editTitle' : 'model.addTitle', {
+        type: t(TYPE_LABEL[model_type]),
+      })}
       width={640}
-      okText={saving ? '保存中…' : '保存'}
+      okText={saving ? t('model.saving') : t('common.save')}
       okButtonProps={{ loading: saving }}
       onOk={handleSave}
       footer={
@@ -368,14 +423,14 @@ const ModelFormModal = ({
         >
           <Button onClick={handleTest} disabled={testing || saving}>
             {testing ? <CircularProgress size={16} sx={{ mr: 1 }} /> : null}
-            {testing ? '测试中…' : '测试连接'}
+            {testing ? t('model.testing') : t('model.testConnection')}
           </Button>
           <Button
             variant='contained'
             onClick={handleSave}
             disabled={testing || saving}
           >
-            {saving ? '保存中…' : '保存'}
+            {saving ? t('model.saving') : t('common.save')}
           </Button>
         </Stack>
       }
@@ -386,24 +441,48 @@ const ModelFormModal = ({
       >
         <TextField
           select
-          label='服务商'
+          label={t('model.providerLabel')}
           value={provider}
           onChange={e => handleProviderChange(e.target.value)}
           size='small'
         >
           {availableProviders.map(([key, conf]) => (
             <MenuItem key={key} value={key}>
-              {conf.cn || key}
+              {(i18n.language?.startsWith('zh') ? conf.cn : conf.label) ||
+                conf.label ||
+                conf.cn ||
+                key}
             </MenuItem>
           ))}
         </TextField>
+
+        {isCustomProvider && (
+          <TextField
+            size='small'
+            label={t('model.providerNameLabel')}
+            placeholder={t('model.providerNamePlaceholder')}
+            value={providerName}
+            onChange={e => setProviderName(e.target.value)}
+          />
+        )}
+
+        {reusedFrom && !isEdit && (
+          <Alert severity='info' sx={{ py: 0 }}>
+            {t('model.reusedCredentials', { model: reusedFrom })}
+          </Alert>
+        )}
 
         <Stack direction='row' spacing={2}>
           <TextField
             fullWidth
             size='small'
             label='Base URL'
-            placeholder='例如 https://api.deepseek.com/v1'
+            placeholder={
+              providerConf?.defaultBaseUrl ||
+              (isCustomProvider
+                ? 'https://your-endpoint.example.com/v1'
+                : 'https://api.deepseek.com/v1')
+            }
             value={baseUrl}
             onChange={e => setBaseUrl(e.target.value)}
           />
@@ -413,7 +492,7 @@ const ModelFormModal = ({
             disabled={fetching}
             sx={{ flexShrink: 0 }}
           >
-            {fetching ? <CircularProgress size={16} /> : '获取模型列表'}
+            {fetching ? <CircularProgress size={16} /> : t('model.fetchList')}
           </Button>
         </Stack>
 
@@ -447,7 +526,15 @@ const ModelFormModal = ({
             rel='noreferrer'
             sx={{ fontSize: 13, alignSelf: 'flex-start' }}
           >
-            获取 {providerConf.cn || provider} API Key ↗
+            {t('model.getApiKey', {
+              provider:
+                (i18n.language?.startsWith('zh')
+                  ? providerConf.cn
+                  : providerConf.label) ||
+                providerConf.label ||
+                providerConf.cn ||
+                provider,
+            })}
           </Link>
         )}
 
@@ -460,8 +547,8 @@ const ModelFormModal = ({
           renderInput={params => (
             <TextField
               {...params}
-              label='模型 ID'
-              placeholder='可获取列表选择，或直接输入'
+              label={t('model.modelIdLabel')}
+              placeholder={t('model.modelIdPlaceholder')}
             />
           )}
         />
@@ -469,8 +556,8 @@ const ModelFormModal = ({
 
         <TextField
           size='small'
-          label='显示名称（可选）'
-          placeholder={meta?.name ?? '留空使用模型 ID'}
+          label={t('model.showNameLabel')}
+          placeholder={meta?.name ?? t('model.showNamePlaceholder')}
           value={showName}
           onChange={e => {
             touch('name');
@@ -491,7 +578,7 @@ const ModelFormModal = ({
               />
             }
           >
-            高级参数
+            {t('model.advanced')}
           </Button>
         </Divider>
 
@@ -500,8 +587,8 @@ const ModelFormModal = ({
             <Stack direction='row' spacing={1} alignItems='center'>
               <TextField
                 size='small'
-                label='上下文窗口'
-                placeholder='例如 128000'
+                label={t('model.contextLabel')}
+                placeholder='128000'
                 value={contextWindow}
                 onChange={e => {
                   touch('cw');
@@ -524,8 +611,8 @@ const ModelFormModal = ({
             </Stack>
             <TextField
               size='small'
-              label='最大输出 Tokens'
-              placeholder='例如 8192'
+              label={t('model.maxOutputLabel')}
+              placeholder='8192'
               value={maxOutput}
               onChange={e => {
                 touch('mo');
@@ -543,12 +630,12 @@ const ModelFormModal = ({
                   }}
                 />
               }
-              label='支持图片输入'
+              label={t('model.imageSupport')}
             />
             <TextField
               size='small'
-              label='温度 Temperature'
-              placeholder='例如 0.7'
+              label={t('model.temperatureLabel')}
+              placeholder='0.7'
               value={temperature}
               onChange={e => setTemperature(e.target.value)}
               sx={{ width: 220 }}
@@ -557,21 +644,21 @@ const ModelFormModal = ({
               <Stack direction='row' spacing={2}>
                 <TextField
                   size='small'
-                  label='自定义 Header Key'
+                  label={t('model.headerKeyLabel')}
                   value={headerKey}
                   onChange={e => setHeaderKey(e.target.value)}
                 />
                 <TextField
                   fullWidth
                   size='small'
-                  label='自定义 Header Value'
+                  label={t('model.headerValueLabel')}
                   value={headerValue}
                   onChange={e => setHeaderValue(e.target.value)}
                 />
               </Stack>
             )}
             {provider === 'AzureOpenAI' && (
-              <Tooltip title='Azure OpenAI 部署的 API 版本，例如 2024-08-01-preview'>
+              <Tooltip title={t('model.apiVersionHint')}>
                 <TextField
                   size='small'
                   label='API Version'
@@ -590,8 +677,7 @@ const ModelFormModal = ({
           </Alert>
         )}
         <Typography variant='caption' color='text.secondary'>
-          保存前会自动进行一次连通性测试；元数据来自内置模型目录（cherry-studio
-          provider-registry，MIT），未收录的模型请手动填写高级参数。
+          {t('model.saveHint')}
         </Typography>
       </Stack>
     </Modal>

@@ -2,21 +2,24 @@ import { useAppSelector } from '@/store';
 import { Box, Stack, useTheme } from '@mui/material';
 import { IconXiala } from '@panda-wiki/icons';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { NavLink, useLocation } from 'react-router-dom';
 import KBSelect from '../KB/KBSelect';
 
-const HomeBread = { title: '文档', to: '/' };
+// title 存 i18n key，渲染时按当前语言翻译
+const HomeBread = { title: 'layout.bread.document', to: '/' };
 const OtherBread = {
-  document: { title: '文档', to: '/' },
-  stat: { title: '统计', to: '/stat' },
-  conversation: { title: '问答', to: '/conversation' },
-  feedback: { title: '反馈', to: '/feedback' },
-  application: { title: '设置', to: '/setting' },
-  release: { title: '发布', to: '/release' },
-  contribution: { title: '贡献', to: '/contribution' },
+  document: { title: 'layout.bread.document', to: '/' },
+  stat: { title: 'layout.bread.stat', to: '/stat' },
+  conversation: { title: 'layout.bread.conversation', to: '/conversation' },
+  feedback: { title: 'layout.bread.feedback', to: '/feedback' },
+  application: { title: 'layout.bread.setting', to: '/setting' },
+  release: { title: 'layout.bread.release', to: '/release' },
+  contribution: { title: 'layout.bread.contribution', to: '/contribution' },
 };
 
 const Bread = () => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { pathname } = useLocation();
   const [breads, setBreads] = useState<{ title: string; to: string }[]>([]);
@@ -39,7 +42,7 @@ const Bread = () => {
       curBreads.push({ title: pageName, to: 'custom' });
     }
     setBreads(curBreads);
-  }, [pathname, pageName]);
+  }, [pathname, pageName, t]);
 
   return (
     <Stack
@@ -91,7 +94,7 @@ const Bread = () => {
                     ':hover': { color: 'primary.main' },
                   }}
                 >
-                  {it.title}
+                  {t(it.title)}
                 </Box>
               </NavLink>
             )}

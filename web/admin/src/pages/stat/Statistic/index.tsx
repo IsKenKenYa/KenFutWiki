@@ -1,6 +1,7 @@
 import { Box, Stack, useMediaQuery } from '@mui/material';
 import { CusTabs } from '@ctzhian/ui';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import AreaMap from './AreaMap';
 import ClientStat from './ClientStat';
 import HostReferer from './HostReferer';
@@ -10,16 +11,18 @@ import RTVisitor from './RTVisitor';
 import TypeCount from './TypeCount';
 import useCapabilities from '@/features/kenfut/useCapabilities';
 
+// 时间范围选项：label 为 i18n key，渲染时翻译
 export const TimeList = [
-  { label: '近 24 小时', value: 1 },
-  { label: '近 7 天', value: 7 },
-  { label: '近 30 天', value: 30 },
-  { label: '近 90 天', value: 90 },
+  { label: 'stat.last24h', value: 1 },
+  { label: 'stat.last7d', value: 7 },
+  { label: 'stat.last30d', value: 30 },
+  { label: 'stat.last90d', value: 90 },
 ];
 
 export type ActiveTab = 1 | 7 | 30 | 90;
 
 const Statistic = () => {
+  const { t } = useTranslation();
   const capabilities = useCapabilities();
   const [tab, setTab] = useState<ActiveTab>(1);
   const isWideScreen = useMediaQuery('(min-width:1190px)');
@@ -28,9 +31,10 @@ const Statistic = () => {
     () =>
       TimeList.map(item => ({
         ...item,
+        label: t(item.label),
         disabled: !(capabilities?.stat_days || [1]).includes(item.value),
       })),
-    [capabilities],
+    [capabilities, t],
   );
 
   return (

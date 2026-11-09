@@ -6,6 +6,7 @@ import { Box, Stack } from '@mui/material';
 import { Ellipsis, message, Modal } from '@ctzhian/ui';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { V1UserListItemResp } from '@/request/types';
+import { useTranslation } from 'react-i18next';
 
 interface MemberDeleteProps {
   open: boolean;
@@ -15,10 +16,11 @@ interface MemberDeleteProps {
 }
 
 const MemberDelete = ({ open, onClose, user, refresh }: MemberDeleteProps) => {
+  const { t } = useTranslation();
   const submit = () => {
     if (!user?.id) return;
     deleteApiV1UserDelete({ user_id: user.id }).then(() => {
-      message.success('删除成功');
+      message.success(t('common.deleteSuccess'));
       refresh();
       onClose();
     });
@@ -29,14 +31,14 @@ const MemberDelete = ({ open, onClose, user, refresh }: MemberDeleteProps) => {
     <Modal
       open={open}
       width={600}
-      okText='删除'
+      okText={t('common.delete')}
       okButtonProps={{ sx: { bgcolor: 'error.main' } }}
       onCancel={onClose}
       onOk={submit}
       title={
         <Stack direction='row' alignItems='center' gap={1}>
           <ErrorOutlineIcon sx={{ color: 'warning.main' }} />
-          确定要删除该用户吗？{' '}
+          {t('member.deleteConfirm')}{' '}
         </Stack>
       }
     >

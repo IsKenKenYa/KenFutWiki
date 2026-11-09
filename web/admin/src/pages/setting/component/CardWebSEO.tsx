@@ -2,6 +2,7 @@ import { SEOSetting } from '@/api';
 import { Checkbox, TextField } from '@mui/material';
 import { message } from '@ctzhian/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { DomainAppDetailResp } from '@/request/types';
 import { SettingCardItem, FormItem } from './Common';
@@ -15,6 +16,7 @@ interface CardWebSEOProps {
 }
 
 const CardWebSEO = ({ data, id, refresh }: CardWebSEOProps) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const { kb_id } = useAppSelector(state => state.config);
   const {
@@ -34,7 +36,7 @@ const CardWebSEO = ({ data, id, refresh }: CardWebSEOProps) => {
       { id },
       { kb_id, settings: { ...data.settings, ...value } },
     ).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       refresh(value);
       setIsEdit(false);
     });
@@ -47,7 +49,7 @@ const CardWebSEO = ({ data, id, refresh }: CardWebSEOProps) => {
 
   return (
     <SettingCardItem title='SEO' isEdit={isEdit} onSubmit={onSubmit}>
-      <FormItem label='网站描述'>
+      <FormItem label={t('setting.siteDesc')}>
         <Controller
           control={control}
           name='desc'
@@ -55,7 +57,7 @@ const CardWebSEO = ({ data, id, refresh }: CardWebSEOProps) => {
             <TextField
               fullWidth
               {...field}
-              placeholder='输入网站描述'
+              placeholder={t('setting.siteDescPlaceholder')}
               error={!!errors.desc}
               helperText={errors.desc?.message}
               onChange={event => {
@@ -67,7 +69,7 @@ const CardWebSEO = ({ data, id, refresh }: CardWebSEOProps) => {
         />
       </FormItem>
 
-      <FormItem label='关键词'>
+      <FormItem label={t('setting.keywords')}>
         <Controller
           control={control}
           name='keyword'
@@ -75,7 +77,7 @@ const CardWebSEO = ({ data, id, refresh }: CardWebSEOProps) => {
             <TextField
               fullWidth
               {...field}
-              placeholder='输入关键词'
+              placeholder={t('setting.keywordsPlaceholder')}
               error={!!errors.keyword}
               helperText={errors.keyword?.message}
               onChange={event => {

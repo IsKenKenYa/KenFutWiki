@@ -38,6 +38,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import TreeMenu from './TreeMenu';
 
 const StyledTag = styled('div')<{ color: keyof Theme['palette'] }>(
@@ -51,47 +52,48 @@ const StyledTag = styled('div')<{ color: keyof Theme['palette'] }>(
   }),
 );
 
+// 权限标签文案为 i18n key，渲染时翻译
 const ANSWERABLE_PERMISSIONS_MAP = {
   [ConstsNodeAccessPerm.NodeAccessPermClosed]: {
-    label: '不可被问答',
+    label: 'perm.answerableClosed',
     color: 'warning',
   },
   [ConstsNodeAccessPerm.NodeAccessPermPartial]: {
-    label: '部分可被问答',
+    label: 'perm.answerablePartial',
     color: 'warning',
   },
   [ConstsNodeAccessPerm.NodeAccessPermOpen]: {
-    label: '可被问答',
+    label: 'perm.answerableOpen',
     color: 'success',
   },
 } as const;
 
 const VISITABLE_PERMISSIONS_MAP = {
   [ConstsNodeAccessPerm.NodeAccessPermClosed]: {
-    label: '不可被访问',
+    label: 'perm.visitableClosed',
     color: 'warning',
   },
   [ConstsNodeAccessPerm.NodeAccessPermPartial]: {
-    label: '部分可被访问',
+    label: 'perm.visitablePartial',
     color: 'warning',
   },
   [ConstsNodeAccessPerm.NodeAccessPermOpen]: {
-    label: '可被访问',
+    label: 'perm.visitableOpen',
     color: 'success',
   },
 } as const;
 
 const VISIBLE_PERMISSIONS_MAP = {
   [ConstsNodeAccessPerm.NodeAccessPermClosed]: {
-    label: '导航内不可见',
+    label: 'perm.visibleClosed',
     color: 'warning',
   },
   [ConstsNodeAccessPerm.NodeAccessPermPartial]: {
-    label: '部分导航内可见',
+    label: 'perm.visiblePartial',
     color: 'warning',
   },
   [ConstsNodeAccessPerm.NodeAccessPermOpen]: {
-    label: '导航内可见',
+    label: 'perm.visibleOpen',
     color: 'success',
   },
 } as const;
@@ -100,11 +102,13 @@ const TreeItem = React.forwardRef<
   HTMLDivElement,
   TreeItemComponentProps<ITreeItem>
 >((props, ref) => {
+  const { t } = useTranslation();
   const { kb_id: id, nav_id } = useAppSelector(state => state.config);
   const { item, collapsed } = props;
   const context = useContext(AppContext);
 
-  if (!context) throw new Error('TreeItem 必须在 AppContext.Provider 内部使用');
+  if (!context)
+    throw new Error('TreeItem must be used inside AppContext.Provider');
 
   const {
     data,
@@ -353,7 +357,7 @@ const TreeItem = React.forwardRef<
                     size='small'
                     value={value}
                     inputRef={inputRef}
-                    placeholder='请输入文档名称'
+                    placeholder={t('editor.namePlaceholder')}
                     sx={{
                       width: 300,
                       input: {
@@ -381,7 +385,7 @@ const TreeItem = React.forwardRef<
                           name: value,
                           emoji,
                         }).then(() => {
-                          message.success('更新成功');
+                          message.success(t('common.saveSuccess'));
                           const temp = [...data];
                           updateTree(temp, item.id, {
                             ...item,
@@ -396,7 +400,7 @@ const TreeItem = React.forwardRef<
                         });
                       } else {
                         if (value === '') {
-                          message.error('文档名称不能为空');
+                          message.error(t('doc.properties.nameRequired'));
                           return;
                         }
                         postApiV1Node({
@@ -409,7 +413,7 @@ const TreeItem = React.forwardRef<
                           emoji,
                           content_type: item.content_type,
                         }).then(res => {
-                          message.success('创建成功');
+                          message.success(t('doc.createSuccess'));
                           const temp = [...data];
                           const newItem = {
                             ...item,
@@ -487,7 +491,7 @@ const TreeItem = React.forwardRef<
                               '',
                             emoji: value,
                           });
-                          message.success('更新成功');
+                          message.success(t('common.saveSuccess'));
                           const temp = [...data];
                           updateTree(temp, item.id, {
                             ...item,
@@ -498,7 +502,7 @@ const TreeItem = React.forwardRef<
                           updateData?.(temp);
                           refresh?.();
                         } catch (error) {
-                          message.error('更新失败');
+                          message.error(t('common.saveFailed'));
                         }
                       }}
                     />
@@ -580,10 +584,14 @@ const TreeItem = React.forwardRef<
                       sx={{ flexShrink: 0, fontSize: 12 }}
                     >
                       {item.status === 0 && (
-                        <StyledTag color='error'>未发布</StyledTag>
+                        <StyledTag color='error'>
+                          {t('doc.tagUnpublished')}
+                        </StyledTag>
                       )}
                       {item.status === 1 && (
-                        <StyledTag color='error'>更新未发布</StyledTag>
+                        <StyledTag color='error'>
+                          {t('doc.tagUpdateUnpublished')}
+                        </StyledTag>
                       )}
                       {item.type === 2 &&
                         item.rag_status &&
@@ -595,7 +603,10 @@ const TreeItem = React.forwardRef<
                                 ('warning' as any)
                               }
                             >
-                              {RAG_SOURCES[item.rag_status]?.name || '处理失败'}
+                              {t(
+                                RAG_SOURCES[item.rag_status]?.name ||
+                                  'rag.failed',
+                              )}
                             </StyledTag>
                           </Tooltip>
                         )}
@@ -613,11 +624,11 @@ const TreeItem = React.forwardRef<
                                   ].color
                                 }
                               >
-                                {
+                                {t(
                                   ANSWERABLE_PERMISSIONS_MAP[
                                     permissions.answerable
-                                  ].label
-                                }
+                                  ].label,
+                                )}
                               </StyledTag>
                             )}
                           {permissions?.visitable &&
@@ -631,11 +642,11 @@ const TreeItem = React.forwardRef<
                                   ].color
                                 }
                               >
-                                {
+                                {t(
                                   VISITABLE_PERMISSIONS_MAP[
                                     permissions.visitable
-                                  ].label
-                                }
+                                  ].label,
+                                )}
                               </StyledTag>
                             )}
                           {permissions?.visible &&
@@ -646,10 +657,10 @@ const TreeItem = React.forwardRef<
                                     .color
                                 }
                               >
-                                {
+                                {t(
                                   VISIBLE_PERMISSIONS_MAP[permissions.visible]
-                                    .label
-                                }
+                                    .label,
+                                )}
                               </StyledTag>
                             )}
                         </>

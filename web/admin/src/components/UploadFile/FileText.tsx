@@ -1,6 +1,7 @@
 import { CheckCircle } from '@mui/icons-material';
 import { Box, Stack, Typography, useTheme, SxProps } from '@mui/material';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDropzone } from 'react-dropzone';
 import { IconShangchuan } from '@panda-wiki/icons';
 
@@ -25,6 +26,7 @@ const FileText = ({
   sx,
   textSx,
 }: FileTextProps) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dropFiles, setDropFiles] = useState<File[]>(file ? [file] : []);
@@ -34,7 +36,7 @@ const FileText = ({
       try {
         const text = await file.text();
         if (size && file.size > size) {
-          throw new Error(`文件大小超过限制 ${size} 字节`);
+          throw new Error(`file size exceeds the limit of ${size} bytes`);
         }
         onChange(text);
       } catch (error) {
@@ -109,7 +111,7 @@ const FileText = ({
               ...textSx,
             }}
           >
-            {dropFiles.length > 0 ? tip : tip || '点击或拖拽文件到区域内'}
+            {dropFiles.length > 0 ? tip : tip || t('upload.dropHint')}
           </Typography>
         </Stack>
       </Stack>

@@ -6,6 +6,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { Box, Stack, useTheme } from '@mui/material';
 import { message, Modal } from '@ctzhian/ui';
+import { useTranslation } from 'react-i18next';
 
 interface KBDeleteProps {
   open: boolean;
@@ -14,6 +15,7 @@ interface KBDeleteProps {
 }
 
 const KBDelete = ({ open, onClose, data }: KBDeleteProps) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const { kb_id, kbList } = useAppSelector(state => state.config);
@@ -21,7 +23,7 @@ const KBDelete = ({ open, onClose, data }: KBDeleteProps) => {
   const handleOk = () => {
     if (!data) return;
     deleteApiV1KnowledgeBaseDetail({ id: data?.id || '' }).then(() => {
-      message.success('删除成功');
+      message.success(t('common.deleteSuccess'));
       const newKbList = kbList?.filter(item => item.id !== data.id) || [];
       dispatch(setKbList(newKbList));
       if (kb_id === data.id && newKbList!.length > 0) {
@@ -45,7 +47,7 @@ const KBDelete = ({ open, onClose, data }: KBDeleteProps) => {
       title={
         <Stack direction='row' alignItems='center' gap={1}>
           <ErrorOutlineIcon sx={{ color: 'warning.main' }} />
-          确定要删除该 Wiki 站吗？
+          {t('kb.deleteConfirm')}
         </Stack>
       }
     >

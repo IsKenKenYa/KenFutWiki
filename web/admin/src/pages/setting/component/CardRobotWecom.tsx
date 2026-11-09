@@ -12,6 +12,7 @@ import { PROFESSION_VERSION_PERMISSION } from '@/constant/version';
 import VersionMask from '@/components/VersionMask';
 import { message, Modal } from '@ctzhian/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import {
   DomainKnowledgeBaseDetail,
@@ -21,7 +22,12 @@ import { getApiV1AppDetail, putApiV1App } from '@/request/App';
 import { FormItem, SettingCardItem, SecretTextField } from './Common';
 import { useAppSelector } from '@/store';
 
-const AI_FEEDBACK_OPTIONS = ['内容不准确', '答非所问', '其他'];
+// AI 评价预置选项：随当前语言生成（选项值会写入站点配置）
+const getAiFeedbackOptions = (t: (key: string) => string) => [
+  t('enum.feedback.inaccurate'),
+  t('setting.feedbackIrrelevant'),
+  t('enum.feedback.other'),
+];
 
 const CardRobotWecom = ({
   kb,
@@ -30,6 +36,7 @@ const CardRobotWecom = ({
   kb: DomainKnowledgeBaseDetail;
   url: string;
 }) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const [detail, setDetail] = useState<DomainAppDetailResp | null>(null);
   const [isEnabled, setIsEnabled] = useState(false);
@@ -107,7 +114,7 @@ const CardRobotWecom = ({
         },
       },
     ).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
       getDetail();
       reset();
@@ -120,8 +127,8 @@ const CardRobotWecom = ({
 
   const onResetPrompt = () => {
     Modal.confirm({
-      title: '提示',
-      content: '确定要重置为默认提示词吗？',
+      title: t('common.tip'),
+      content: t('setting.resetQaPromptConfirm'),
       onOk: () => {
         putApiV1App(
           { id: detail!.id! },
@@ -143,15 +150,19 @@ const CardRobotWecom = ({
               res.settings?.wechat_app_advanced_setting?.prompt ?? '',
             );
           });
-          message.success('保存成功');
+          message.success(t('common.saveSuccess'));
         });
       },
     });
   };
 
   return (
-    <SettingCardItem title='企业微信机器人' isEdit={isEdit} onSubmit={onSubmit}>
-      <FormItem label='企业微信机器人'>
+    <SettingCardItem
+      title={t('enum.appType.wecomBot')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
+      <FormItem label={t('enum.appType.wecomBot')}>
         <Controller
           control={control}
           name='wechat_app_is_enabled'
@@ -182,7 +193,7 @@ const CardRobotWecom = ({
 
       {isEnabled && (
         <>
-          <FormItem label='回调地址'>
+          <FormItem label={t('robot.callbackUrl')}>
             <ShowText text={[`${url}/share/v1/app/wechat/app`]} />
           </FormItem>
 
@@ -209,12 +220,12 @@ const CardRobotWecom = ({
             />
           </FormItem>
 
-          <FormItem label='企业 ID' required>
+          <FormItem label={t('robot.corpId')} required>
             <Controller
               control={control}
               name='wechat_app_corpid'
               rules={{
-                required: '企业 ID',
+                required: t('robot.corpId'),
               }}
               render={({ field }) => (
                 <TextField
@@ -302,7 +313,7 @@ const CardRobotWecom = ({
           </FormItem>
 
           <VersionMask permission={PROFESSION_VERSION_PERMISSION}>
-            <FormItem label='问答返回类型'>
+            <FormItem label={t('setting.answerType')}>
               <Controller
                 control={control}
                 name='text_response_enable'
@@ -329,7 +340,10 @@ const CardRobotWecom = ({
                 )}
               />
             </FormItem>
-            <FormItem label='智能问答提示词' sx={{ alignItems: 'flex-start' }}>
+            <FormItem
+              label={t('setting.qaPromptLabel')}
+              sx={{ alignItems: 'flex-start' }}
+            >
               <Controller
                 control={control}
                 name='prompt'
@@ -361,7 +375,7 @@ const CardRobotWecom = ({
                           sx: { pt: '36px' },
                         },
                       }}
-                      placeholder='智能问答提示词'
+                      placeholder={t('setting.qaPromptPlaceholder')}
                       onChange={e => {
                         field.onChange(e.target.value);
                         setIsEdit(true);
@@ -371,7 +385,7 @@ const CardRobotWecom = ({
                 )}
               />
             </FormItem>
-            <FormItem label='AI 问答评价'>
+            <FormItem label={t('setting.aiFeedbackTitle')}>
               <Controller
                 control={control}
                 name='feedback_type'
@@ -381,7 +395,7 @@ const CardRobotWecom = ({
                     multiple
                     freeSolo
                     fullWidth
-                    options={AI_FEEDBACK_OPTIONS}
+                    options={getAiFeedbackOptions(t)}
                     inputValue={inputValue}
                     onInputChange={(_, newInputValue) =>
                       setInputValue(newInputValue)
@@ -409,7 +423,7 @@ const CardRobotWecom = ({
                     renderInput={params => (
                       <TextField
                         {...params}
-                        placeholder='选择或输入评价，可多选，回车确认'
+                        placeholder={t('setting.aiFeedbackPlaceholder')}
                         variant='outlined'
                       />
                     )}
@@ -417,7 +431,7 @@ const CardRobotWecom = ({
                 )}
               />
             </FormItem>
-            <FormItem label='评价开关'>
+            <FormItem label={t('setting.aiFeedbackSwitch')}>
               <Controller
                 control={control}
                 name='feedback_enable'
@@ -444,7 +458,7 @@ const CardRobotWecom = ({
                 )}
               />
             </FormItem>
-            <FormItem label='免责声明'>
+            <FormItem label={t('setting.disclaimer')}>
               <Controller
                 control={control}
                 name='disclaimer_content'
@@ -453,7 +467,7 @@ const CardRobotWecom = ({
                     {...field}
                     fullWidth
                     value={field.value || ''}
-                    placeholder='请输入免责声明'
+                    placeholder={t('setting.disclaimerPlaceholder')}
                     onChange={e => {
                       setIsEdit(true);
                       field.onChange(e.target.value);

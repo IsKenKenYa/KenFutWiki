@@ -1,4 +1,5 @@
 import { alpha, Box, CircularProgress, Stack, useTheme } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { ListDataItem } from '..';
 
 interface StatusBadgeProps {
@@ -6,6 +7,7 @@ interface StatusBadgeProps {
 }
 
 const StatusBadge = ({ status }: StatusBadgeProps) => {
+  const { t } = useTranslation();
   const theme = useTheme();
 
   type StatusConfigItem = {
@@ -15,41 +17,42 @@ const StatusBadge = ({ status }: StatusBadgeProps) => {
     bgColor?: string;
   };
 
+  // text 为 i18n key，渲染时翻译
   const statusConfig: Record<string, StatusConfigItem> = {
     common: {
-      text: '解析中',
+      text: 'addDoc.status.parsing',
       color: theme.palette.text.secondary,
       loading: true,
     },
     'upload-error': {
-      text: '上传失败',
+      text: 'addDoc.status.uploadError',
       color: theme.palette.error.main,
       loading: false,
     },
     parsing: {
-      text: '解析中',
+      text: 'addDoc.status.parsing',
       color: theme.palette.warning.main,
       loading: true,
     },
     importing: {
-      text: '导入中',
+      text: 'addDoc.status.importing',
       color: theme.palette.warning.main,
       loading: true,
     },
     'parse-error': {
-      text: '解析失败',
+      text: 'addDoc.status.parseError',
       color: 'white',
       bgColor: 'error.main',
       loading: false,
     },
     'import-error': {
-      text: '导入失败',
+      text: 'addDoc.status.importError',
       color: 'white',
       bgColor: 'error.main',
       loading: false,
     },
     imported: {
-      text: '导入成功',
+      text: 'addDoc.status.imported',
       color: 'white',
       bgColor: 'success.main',
       loading: false,
@@ -76,7 +79,7 @@ const StatusBadge = ({ status }: StatusBadgeProps) => {
         }}
       >
         <CircularProgress size={12} sx={{ color: config.color }} />
-        {config.text}
+        {t(config.text)}
       </Stack>
     );
   }
@@ -92,7 +95,7 @@ const StatusBadge = ({ status }: StatusBadgeProps) => {
         borderRadius: 1,
       }}
     >
-      {config.text}
+      {t(config.text)}
     </Box>
   );
 };

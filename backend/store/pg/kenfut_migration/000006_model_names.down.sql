@@ -1,0 +1,2 @@
+ALTER TABLE models DROP COLUMN IF EXISTS show_name;
+ALTER TABLE models DROP COLUMN IF EXISTS provider_name;

@@ -31,6 +31,7 @@ import {
   IconXiajiantou,
 } from '@panda-wiki/icons';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import NavEditModal from './NavEditModal';
 
 const SortableNavItem = ({
@@ -52,6 +53,7 @@ const SortableNavItem = ({
   isLast: boolean;
   selectedItemRef?: React.RefObject<HTMLDivElement | null>;
 }) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const id = nav.id || '';
   const {
@@ -201,7 +203,7 @@ const SortableNavItem = ({
           color: selected ? 'primary.main' : 'text.primary',
         }}
       >
-        {nav.name || '未命名'}
+        {nav.name || t('doc.untitled')}
       </Ellipsis>
       <Box onClick={e => e.stopPropagation()} sx={{ display: 'inline-flex' }}>
         <Cascader
@@ -237,6 +239,7 @@ const DocPageNavs = ({
   isSearching = false,
   loading = false,
 }: DocPageNavsProps) => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { kb_id } = useAppSelector(state => state.config);
   const [searchParams, setSearchParams] = useURLSearchParams();
@@ -373,7 +376,7 @@ const DocPageNavs = ({
     if (!deletingNav) return;
     const nav = deletingNav;
     deleteApiV1NavDelete({ id: nav.id!, kb_id }).then(() => {
-      message.success('删除成功');
+      message.success(t('common.deleteSuccess'));
       handleDeleteConfirmClose();
       const next = (navListProp || []).filter(n => n.id !== nav.id);
       onNavListChange(next);
@@ -424,7 +427,7 @@ const DocPageNavs = ({
         {loading ? (
           <Loading sx={{ py: 4 }} />
         ) : showEmptySearch ? (
-          <EmptyState text='无搜索结果' sx={{ p: 4 }} />
+          <EmptyState text={t('doc.noSearchResults')} sx={{ p: 4 }} />
         ) : (
           <>
             <SortableContext
@@ -516,50 +519,51 @@ const DocPageNavs = ({
         title={
           <Stack direction='row' alignItems='center' gap={1}>
             <ErrorOutlineIcon sx={{ color: 'warning.main' }} />
-            确认删除目录？
+            {t('nav.deleteConfirmTitle')}
           </Stack>
         }
         open={deleteConfirmOpen}
         width={480}
-        okText='确认删除'
+        okText={t('nav.deleteConfirmAction')}
         okButtonProps={{
           sx: { bgcolor: 'error.main' },
-          disabled: deleteConfirmInput !== (deletingNav?.name || '未命名'),
+          disabled:
+            deleteConfirmInput !== (deletingNav?.name || t('doc.untitled')),
         }}
         onCancel={handleDeleteConfirmClose}
         onOk={handleDeleteConfirm}
       >
         <Box sx={{ fontSize: 14, lineHeight: 1.6, color: 'text.secondary' }}>
           <Box component='p' sx={{ m: 0, mb: 1 }}>
-            删除目录「
+            {t('nav.deleteWarningPrefix')}
             <Box component='span' sx={{ fontWeight: 600 }}>
-              {deletingNav?.name || '未命名'}
+              {deletingNav?.name || t('doc.untitled')}
             </Box>
-            」后，将
+            {t('nav.deleteWarningMiddle')}
             <Box component='span' sx={{ color: 'error.main', fontWeight: 600 }}>
-              同步删除该目录下所有文档
+              {t('nav.deleteWarningDocs')}
             </Box>
-            ，且
+            {t('nav.deleteWarningJoin')}
             <Box component='span' sx={{ color: 'error.main', fontWeight: 600 }}>
-              不可恢复
+              {t('nav.deleteWarningIrrecoverable')}
             </Box>
-            ，请谨慎操作。
+            {t('nav.deleteWarningSuffix')}
           </Box>
           <Box sx={{ mt: 2 }}>
             <TextField
               fullWidth
               size='small'
-              placeholder={`请输入当前目录名称，并确认删除`}
+              placeholder={t('nav.deleteConfirmPlaceholder')}
               value={deleteConfirmInput}
               onChange={e => setDeleteConfirmInput(e.target.value)}
               error={
                 deleteConfirmInput.length > 0 &&
-                deleteConfirmInput !== (deletingNav?.name || '未命名')
+                deleteConfirmInput !== (deletingNav?.name || t('doc.untitled'))
               }
               helperText={
                 deleteConfirmInput.length > 0 &&
-                deleteConfirmInput !== (deletingNav?.name || '未命名')
-                  ? '名称不正确，请输入正确的目录名称'
+                deleteConfirmInput !== (deletingNav?.name || t('doc.untitled'))
+                  ? t('nav.deleteNameMismatch')
                   : ''
               }
               sx={{ '& .MuiFormHelperText-root': { m: 0, mt: 0.5 } }}

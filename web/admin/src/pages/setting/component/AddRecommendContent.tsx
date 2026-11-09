@@ -14,6 +14,7 @@ import { Modal } from '@ctzhian/ui';
 import { Box, Checkbox, IconButton, Skeleton, Stack } from '@mui/material';
 import { IconXiajiantou } from '@panda-wiki/icons';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 /** 兼容不同版本 API 返回结构 */
 function normalizeNavGroupResponse(
@@ -88,6 +89,7 @@ const NavGroupCard = memo(
     onGroupSelectAll,
     refresh,
   }: NavGroupCardProps) => {
+    const { t } = useTranslation();
     // 当前组已选数量：只对可选节点计数
     const navSelectedCount = useMemo(
       () => selectableIds.filter(id => selectedSet.has(id)).length,
@@ -132,12 +134,16 @@ const NavGroupCard = memo(
               component='span'
               sx={{ color: 'text.tertiary', fontSize: 12, pl: 1 }}
             >
-              共 {navTotal} 个
-              {navSelectedCount > 0 ? `，已选中 ${navSelectedCount} 个` : ''}
+              {t('doc.navCount', { count: navTotal })}
+              {navSelectedCount > 0
+                ? t('doc.navSelectedSuffix', { count: navSelectedCount })
+                : ''}
             </Box>
           </Box>
           <Stack direction='row' alignItems='center'>
-            <Box sx={{ color: 'text.tertiary', fontSize: 12 }}>全选</Box>
+            <Box sx={{ color: 'text.tertiary', fontSize: 12 }}>
+              {t('doc.selectAll')}
+            </Box>
             <Checkbox
               size='small'
               sx={{
@@ -196,6 +202,7 @@ const AddRecommendContent = ({
   disabled,
   readOnly = true,
 }: AddRecommendContentProps) => {
+  const { t } = useTranslation();
   const [navList, setNavList] = useState<
     GithubComChaitinPandaWikiApiNodeV1NodeListGroupNavResp[]
   >([]);
@@ -250,7 +257,7 @@ const AddRecommendContent = ({
 
         return {
           navId,
-          navName: nav.nav_name || '未分类',
+          navName: nav.nav_name || t('doc.uncategorized'),
           navNodes,
           navTreeList,
           selectableIds,
@@ -301,7 +308,7 @@ const AddRecommendContent = ({
 
   return (
     <Modal
-      title='添加卡片'
+      title={t('setting.addCardTitle')}
       open={open}
       onOk={() => {
         onChange(selectedIds);

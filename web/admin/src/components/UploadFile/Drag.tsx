@@ -1,5 +1,6 @@
 import { Upload as UploadIcon } from '@mui/icons-material';
 import { Box, Button, Stack, Typography, useTheme } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
 import { IconShangchuan } from '@panda-wiki/icons';
@@ -44,6 +45,7 @@ const Upload = ({
   acceptDisplay,
   multiple = true,
 }: UploadProps) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dropFiles, setDropFiles] = useState<File[]>(file || []);
@@ -132,16 +134,18 @@ const Upload = ({
                 lineHeight: 1,
               }}
             >
-              点击浏览文件
+              {t('upload.browse')}
             </Button>
-            或拖拽文件到区域内
+            {t('upload.dragHint')}
           </Typography>
           <Typography
             variant='body2'
             color='text.secondary'
             sx={{ mt: 1, fontSize: 12 }}
           >
-            支持格式 {acceptDisplay || accept || '所有文件'}
+            {t('upload.acceptFormats', {
+              formats: acceptDisplay || accept || t('upload.allFiles'),
+            })}
           </Typography>
           {/* {size && <Typography variant='body2' color='text.secondary' sx={{ mt: 0.5, fontSize: 12 }}>
             支持上传大小不超过 {formatByte(size)} 的文件

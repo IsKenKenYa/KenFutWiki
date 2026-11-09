@@ -18,6 +18,7 @@ import {
   TextField,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { FormItem, SettingCardItem, SecretTextField } from './Common';
 import UploadFile from '@/components/UploadFile';
@@ -31,6 +32,7 @@ const CardRobotWecomService = ({
   kb: DomainKnowledgeBaseDetail;
   url: string;
 }) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const [detail, setDetail] = useState<DomainAppDetailResp | null>(null);
   const [isEnabled, setIsEnabled] = useState(false);
@@ -115,7 +117,7 @@ const CardRobotWecomService = ({
         },
       },
     ).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
       getDetail();
       reset();
@@ -127,8 +129,12 @@ const CardRobotWecomService = ({
   }, [kb]);
 
   return (
-    <SettingCardItem title='企业微信客服' isEdit={isEdit} onSubmit={onSubmit}>
-      <FormItem label='企业微信客服'>
+    <SettingCardItem
+      title={t('enum.appType.wecomService')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
+      <FormItem label={t('enum.appType.wecomService')}>
         <Controller
           control={control}
           name='wechat_service_is_enabled'
@@ -159,15 +165,15 @@ const CardRobotWecomService = ({
 
       {isEnabled && (
         <>
-          <FormItem label='回调地址'>
+          <FormItem label={t('robot.callbackUrl')}>
             <ShowText text={[`${url}/share/v1/app/wechat/service`]} />
           </FormItem>
-          <FormItem label='企业 ID' required>
+          <FormItem label={t('robot.corpId')} required>
             <Controller
               control={control}
               name='wechat_service_corpid'
               rules={{
-                required: '企业 ID',
+                required: t('robot.corpId'),
               }}
               render={({ field }) => (
                 <TextField
@@ -250,7 +256,7 @@ const CardRobotWecomService = ({
               )}
             />
           </FormItem>
-          <FormItem label='卡片 logo'>
+          <FormItem label={t('robot.cardLogo')}>
             <Controller
               control={control}
               name='wechat_service_logo'
@@ -282,32 +288,32 @@ const CardRobotWecomService = ({
             <FormItem
               label={
                 <Box>
-                  提问
+                  {t('robot.questionPrefix')}
                   <Box component={'span'} sx={{ fontWeight: 600 }}>
-                    包含特定
+                    {t('robot.keywordContains')}
                   </Box>
-                  关键词
+                  {t('robot.keywordSuffix')}
                 </Box>
               }
             >
               <FreeSoloAutocomplete
-                placeholder='回车确认，填写下一个'
+                placeholder={t('robot.keywordEnterNext')}
                 {...containKeywordsField}
               />
             </FormItem>
             <FormItem
               label={
                 <Box>
-                  提问
+                  {t('robot.questionPrefix')}
                   <Box component={'span'} sx={{ fontWeight: 600 }}>
-                    完全匹配
+                    {t('robot.keywordExact')}
                   </Box>
-                  关键词
+                  {t('robot.keywordSuffix')}
                 </Box>
               }
             >
               <FreeSoloAutocomplete
-                placeholder='回车确认，填写下一个'
+                placeholder={t('robot.keywordEnterNext')}
                 {...equalKeywordsField}
               />
             </FormItem>

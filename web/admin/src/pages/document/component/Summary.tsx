@@ -8,6 +8,7 @@ import { DomainNodeListItemResp } from '@/request/types';
 import { Button, Stack, TextField } from '@mui/material';
 import { message, Modal } from '@ctzhian/ui';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconShuaxin } from '@panda-wiki/icons';
 import SSEClient from '@/utils/fetch';
 
@@ -20,6 +21,7 @@ interface SummaryProps {
 }
 
 const Summary = ({ open, data, kb_id, onClose, refresh }: SummaryProps) => {
+  const { t } = useTranslation();
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [summary, setSummary] = useState('');
@@ -33,7 +35,7 @@ const Summary = ({ open, data, kb_id, onClose, refresh }: SummaryProps) => {
       onComplete: () => setGenerating(false),
       onError: error => {
         setGenerating(false);
-        message.error(error.message || '生成摘要失败');
+        message.error(error.message || t('doc.summary.generateFailed'));
       },
     });
     subscribeNodeSummaryStream(
@@ -46,7 +48,9 @@ const Summary = ({ open, data, kb_id, onClose, refresh }: SummaryProps) => {
         }
         if (event.type === 'error') {
           setGenerating(false);
-          message.error(event.content || event.error || '生成摘要失败');
+          message.error(
+            event.content || event.error || t('doc.summary.generateFailed'),
+          );
           sseClientRef.current?.unsubscribe();
         }
       },
@@ -62,7 +66,7 @@ const Summary = ({ open, data, kb_id, onClose, refresh }: SummaryProps) => {
       summary,
     })
       .then(() => {
-        message.success('保存成功');
+        message.success(t('common.saveSuccess'));
         refresh?.(summary);
         onClose();
       })
@@ -91,9 +95,9 @@ const Summary = ({ open, data, kb_id, onClose, refresh }: SummaryProps) => {
         onClose();
       }}
       disableEscapeKeyDown
-      title={'文档摘要'}
+      title={t('doc.summary.title')}
       onOk={handleOk}
-      okText='保存'
+      okText={t('common.save')}
       okButtonProps={{ loading: saving, disabled: generating || saving }}
       footer={
         <Stack
@@ -117,7 +121,7 @@ const Summary = ({ open, data, kb_id, onClose, refresh }: SummaryProps) => {
               />
             }
           >
-            AI 生成
+            {t('doc.summary.aiGenerate')}
           </Button>
           <Stack direction={'row'} alignItems={'center'} gap={2}>
             <Button
@@ -127,7 +131,7 @@ const Summary = ({ open, data, kb_id, onClose, refresh }: SummaryProps) => {
               }}
               sx={{ color: 'text.primary' }}
             >
-              取消
+              {t('common.cancel')}
             </Button>
             <Button
               sx={{ width: 100 }}
@@ -136,7 +140,7 @@ const Summary = ({ open, data, kb_id, onClose, refresh }: SummaryProps) => {
               disabled={generating || saving}
               variant='contained'
             >
-              保存
+              {t('common.save')}
             </Button>
           </Stack>
         </Stack>
@@ -149,7 +153,7 @@ const Summary = ({ open, data, kb_id, onClose, refresh }: SummaryProps) => {
         minRows={6}
         maxRows={12}
         value={summary}
-        placeholder='暂无摘要，可在此处编辑'
+        placeholder={t('doc.summary.emptyPlaceholder')}
         disabled={generating || saving}
         onChange={event => {
           setSummary(event.target.value);

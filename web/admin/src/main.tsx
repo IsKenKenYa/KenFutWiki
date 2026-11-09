@@ -2,8 +2,8 @@ import '@/assets/fonts/font.css';
 import '@/assets/styles/index.css';
 import '@/assets/styles/markdown.css';
 import { wrapWindowOpen } from './utils/getBasename';
+import './i18n';
 import dayjs from 'dayjs';
-import 'dayjs/locale/zh-cn';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { createRoot } from 'react-dom/client';
@@ -25,7 +25,6 @@ loadCSS(`${window.__BASENAME__}/panda-wiki.css`);
 wrapWindowOpen(window.__BASENAME__ || '');
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
-dayjs.locale('zh-cn');
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter basename={window.__BASENAME__}>

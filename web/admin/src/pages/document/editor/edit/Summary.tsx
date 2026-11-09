@@ -9,6 +9,7 @@ import SSEClient from '@/utils/fetch';
 import { message, Modal } from '@ctzhian/ui';
 import { Button, CircularProgress, Stack, TextField } from '@mui/material';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useOutletContext } from 'react-router-dom';
 import { WrapContext } from '..';
 import { IconDJzhinengzhaiyao } from '@panda-wiki/icons';
@@ -20,6 +21,7 @@ interface SummaryProps {
 }
 
 const Summary = ({ open, onClose, updateDetail }: SummaryProps) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const { nodeDetail } = useOutletContext<WrapContext>();
   const [summary, setSummary] = useState(nodeDetail?.meta?.summary || '');
@@ -45,7 +47,7 @@ const Summary = ({ open, onClose, updateDetail }: SummaryProps) => {
       onComplete: () => setGenerating(false),
       onError: error => {
         setGenerating(false);
-        message.error(error.message || '生成摘要失败');
+        message.error(error.message || t('doc.summary.generateFailed'));
       },
     });
     subscribeNodeSummaryStream(
@@ -58,7 +60,9 @@ const Summary = ({ open, onClose, updateDetail }: SummaryProps) => {
         }
         if (event.type === 'error') {
           setGenerating(false);
-          message.error(event.content || event.error || '生成摘要失败');
+          message.error(
+            event.content || event.error || t('doc.summary.generateFailed'),
+          );
           sseClientRef.current?.unsubscribe();
         }
       },
@@ -81,8 +85,8 @@ const Summary = ({ open, onClose, updateDetail }: SummaryProps) => {
     <Modal
       open={open}
       onCancel={handleClose}
-      title='智能摘要'
-      okText='保存'
+      title={t('doc.summary.smartTitle')}
+      okText={t('common.save')}
       okButtonProps={{
         loading: saving,
         disabled: generating || saving || !edit,
@@ -103,7 +107,7 @@ const Summary = ({ open, onClose, updateDetail }: SummaryProps) => {
           summary,
         })
           .then(() => {
-            message.success('保存成功');
+            message.success(t('common.saveSuccess'));
             handleClose();
           })
           .finally(() => {
@@ -123,7 +127,7 @@ const Summary = ({ open, onClose, updateDetail }: SummaryProps) => {
             setSummary(e.target.value);
             setEdit(true);
           }}
-          placeholder='请输入摘要'
+          placeholder={t('doc.summary.inputPlaceholder')}
         />
         <Button
           fullWidth
@@ -138,7 +142,7 @@ const Summary = ({ open, onClose, updateDetail }: SummaryProps) => {
             )
           }
         >
-          点击此处，AI 自动生成摘要
+          {t('doc.summary.autoGenerateHint')}
         </Button>
       </Stack>
     </Modal>

@@ -15,6 +15,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { FormItem, SettingCardItem } from './Common';
 
@@ -25,6 +26,7 @@ interface CardStyleProps {
 }
 
 const CardStyle = ({ id, data, refresh }: CardStyleProps) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const { kb_id } = useAppSelector(state => state.config);
   const { control, handleSubmit, setValue } = useForm<
@@ -54,7 +56,7 @@ const CardStyle = ({ id, data, refresh }: CardStyleProps) => {
       },
     ).then(() => {
       refresh(value);
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
     });
   };
@@ -67,7 +69,7 @@ const CardStyle = ({ id, data, refresh }: CardStyleProps) => {
 
   return (
     <SettingCardItem
-      title='样式与风格'
+      title={t('setting.styleTitle')}
       isEdit={isEdit}
       onSubmit={handleSubmit(onSubmit)}
     >
@@ -111,7 +113,10 @@ const CardStyle = ({ id, data, refresh }: CardStyleProps) => {
         />{' '}
       </FormItem> */}
 
-      <FormItem label='页面宽度' sx={{ alignItems: 'flex-start' }}>
+      <FormItem
+        label={t('setting.pageWidth')}
+        sx={{ alignItems: 'flex-start' }}
+      >
         <Controller
           control={control}
           name='doc_width'
@@ -125,31 +130,51 @@ const CardStyle = ({ id, data, refresh }: CardStyleProps) => {
               }}
             >
               <Stack sx={{ width: 200, mr: 2 }}>
-                <img src={doc_width_full} width={200} alt='全屏' />
+                <img
+                  src={doc_width_full}
+                  width={200}
+                  alt={t('enum.docWidth.full')}
+                />
                 <FormControlLabel
                   value={'full'}
                   control={<Radio size='small' />}
-                  label={<Box>全屏</Box>}
+                  label={<Box>{t('enum.docWidth.full')}</Box>}
                 />
               </Stack>
               <Stack sx={{ width: 200, mr: 2, cursor: 'pointer' }}>
-                <Tooltip placement='top' title='适配内容宽度：1120px' arrow>
-                  <img src={doc_width_wide} width={200} alt='超宽' />
+                <Tooltip
+                  placement='top'
+                  title={t('setting.widthHint', { width: 1120 })}
+                  arrow
+                >
+                  <img
+                    src={doc_width_wide}
+                    width={200}
+                    alt={t('enum.docWidth.wide')}
+                  />
                 </Tooltip>
                 <FormControlLabel
                   value={'wide'}
                   control={<Radio size='small' />}
-                  label={<Box>超宽</Box>}
+                  label={<Box>{t('enum.docWidth.wide')}</Box>}
                 />
               </Stack>
               <Stack sx={{ width: 200, cursor: 'pointer' }}>
-                <Tooltip placement='top' title='适配内容宽度：880px' arrow>
-                  <img src={doc_width_normal} width={200} alt='常规' />
+                <Tooltip
+                  placement='top'
+                  title={t('setting.widthHint', { width: 880 })}
+                  arrow
+                >
+                  <img
+                    src={doc_width_normal}
+                    width={200}
+                    alt={t('enum.docWidth.normal')}
+                  />
                 </Tooltip>
                 <FormControlLabel
                   value={'normal'}
                   control={<Radio size='small' />}
-                  label={<Box>常规</Box>}
+                  label={<Box>{t('enum.docWidth.normal')}</Box>}
                 />
               </Stack>
             </RadioGroup>

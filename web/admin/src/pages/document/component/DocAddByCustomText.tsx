@@ -15,6 +15,7 @@ import {
   TextField,
 } from '@mui/material';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 
 type FormValues = {
@@ -24,6 +25,7 @@ type FormValues = {
   lang: string;
 };
 
+// 语言自称（self-naming）不做翻译
 const LANG_OPTIONS: { value: string; label: string }[] = [
   { value: 'zh', label: '中文' },
   { value: 'en', label: 'English' },
@@ -61,8 +63,10 @@ const DocAddByCustomText = ({
   translateFrom,
   onCreated,
 }: DocAddByCustomTextProps) => {
+  const { t } = useTranslation();
   const { kb_id: id, nav_id } = useAppSelector(state => state.config);
-  const text = type === 1 ? '文件夹' : '文档';
+  // 实体类型名：文件夹 / 文档
+  const text = type === 1 ? t('doc.folder') : t('doc.document');
 
   const {
     control,
@@ -93,7 +97,7 @@ const DocAddByCustomText = ({
         name: value.name,
         emoji: value.emoji,
       }).then(() => {
-        message.success('修改成功');
+        message.success(t('common.saveSuccess'));
         reset();
         handleClose();
         refresh?.();
@@ -120,7 +124,7 @@ const DocAddByCustomText = ({
         params.parent_id = parentId;
       }
       postApiV1Node(params).then(({ id }) => {
-        message.success('创建成功');
+        message.success(t('doc.createSuccess'));
         reset();
         handleClose();
         // 回传创建结果给上层，由上层本地追加并滚动
@@ -155,31 +159,41 @@ const DocAddByCustomText = ({
 
   return (
     <Modal
-      title={data ? `编辑${text}` : `创建${text}`}
+      title={
+        data
+          ? t('doc.editEntity', { entity: text })
+          : t('doc.createEntity', { entity: text })
+      }
       open={open}
       width={600}
-      okText={data ? '保存' : '创建'}
+      okText={data ? t('common.save') : t('common.create')}
       onCancel={handleClose}
       onOk={handleSubmit(submit)}
     >
-      <Box sx={{ fontSize: 14, lineHeight: '36px' }}>{text}名称</Box>
+      <Box sx={{ fontSize: 14, lineHeight: '36px' }}>
+        {t('doc.nameLabel', { entity: text })}
+      </Box>
       <Controller
         control={control}
         name='name'
-        rules={{ required: `请输入${text}名称` }}
+        rules={{
+          required: t('doc.nameRequired', { entity: text }),
+        }}
         render={({ field }) => (
           <TextField
             {...field}
             fullWidth
             autoFocus
             size='small'
-            placeholder={`请输入${text}名称`}
+            placeholder={t('doc.nameRequired', { entity: text })}
             error={!!errors.name}
             helperText={errors.name?.message}
           />
         )}
       />
-      <Box sx={{ fontSize: 14, lineHeight: '36px', mt: 1 }}>{text}图标</Box>
+      <Box sx={{ fontSize: 14, lineHeight: '36px', mt: 1 }}>
+        {t('doc.iconLabel', { entity: text })}
+      </Box>
       <Controller
         control={control}
         name='emoji'
@@ -187,7 +201,9 @@ const DocAddByCustomText = ({
       />
       {type === 2 && !data && (
         <>
-          <Box sx={{ fontSize: 14, lineHeight: '36px', mt: 1 }}>文档类型</Box>
+          <Box sx={{ fontSize: 14, lineHeight: '36px', mt: 1 }}>
+            {t('doc.contentType')}
+          </Box>
           <Controller
             control={control}
             name='content_type'
@@ -196,7 +212,7 @@ const DocAddByCustomText = ({
                 <FormControlLabel
                   value='html'
                   control={<Radio size='small' />}
-                  label='富文本'
+                  label={t('doc.createRichText')}
                 />
                 <FormControlLabel
                   value='md'
@@ -206,7 +222,9 @@ const DocAddByCustomText = ({
               </RadioGroup>
             )}
           />
-          <Box sx={{ fontSize: 14, lineHeight: '36px', mt: 1 }}>内容语言</Box>
+          <Box sx={{ fontSize: 14, lineHeight: '36px', mt: 1 }}>
+            {t('doc.contentLang')}
+          </Box>
           <Controller
             control={control}
             name='lang'
@@ -232,7 +250,9 @@ const DocAddByCustomText = ({
           />
           {translateFrom && (
             <Box sx={{ fontSize: 12, color: 'text.secondary', mt: 1 }}>
-              将作为「{translateFrom.name}」的译本加入同一语言组
+              {t('doc.translationGroupHint', {
+                name: translateFrom.name || '',
+              })}
             </Box>
           )}
         </>

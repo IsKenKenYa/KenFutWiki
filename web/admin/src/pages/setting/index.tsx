@@ -9,6 +9,7 @@ import {
 import { useAppSelector } from '@/store';
 import { Box, Tab, Tabs } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import CardAI from './component/CardAI';
 import CardFeedback from './component/CardFeedback';
 import CardKB from './component/CardKB';
@@ -18,18 +19,20 @@ import CardStorage from './component/CardStorage';
 import CardWeb from './component/CardWeb';
 import CardMCP from './component/CardMCP';
 
+// label 存 i18n key，渲染时翻译
 const SettingTabs: { label: string; id: string }[] = [
-  { label: '门户网站', id: 'portal-website' },
-  { label: 'AI 机器人', id: 'robot' },
-  { label: '问答设置', id: 'ai-setting' },
-  { label: '反馈设置', id: 'feedback' },
-  { label: '安全设置', id: 'security' },
-  { label: '访问控制', id: 'backend-info' },
-  { label: 'MCP 设置', id: 'mcp' },
-  { label: '存储配置', id: 'storage' },
+  { label: 'setting.tabPortal', id: 'portal-website' },
+  { label: 'setting.tabRobot', id: 'robot' },
+  { label: 'setting.tabQa', id: 'ai-setting' },
+  { label: 'setting.tabFeedback', id: 'feedback' },
+  { label: 'setting.tabSecurity', id: 'security' },
+  { label: 'setting.tabAccess', id: 'backend-info' },
+  { label: 'setting.tabMcp', id: 'mcp' },
+  { label: 'setting.tabStorage', id: 'storage' },
 ];
 
 const Setting = () => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [searchParams, setSearchParams] = useURLSearchParams();
   const activeTab = searchParams.get('tab') || 'portal-website';
@@ -103,7 +106,7 @@ const Setting = () => {
           aria-label='setting tabs'
         >
           {SettingTabs.map(tab => (
-            <Tab key={tab.id} label={tab.label} value={tab.id} />
+            <Tab key={tab.id} label={t(tab.label)} value={tab.id} />
           ))}
         </Tabs>
       </Card>

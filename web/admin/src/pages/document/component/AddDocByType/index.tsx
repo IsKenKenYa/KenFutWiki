@@ -6,6 +6,7 @@ import {
 import { useAppSelector } from '@/store';
 import { Modal } from '@ctzhian/ui';
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TYPE_CONFIG, UPLOAD_FILE_TYPES } from './constants';
 import FileParse from './FileParse';
 import FormSubmit from './FormSubmit';
@@ -59,6 +60,7 @@ const AddDocByType = ({
   onCancel,
   parentId = null,
 }: AddDocByTypeProps) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [data, setData] = useState<ListDataItem[]>([]);
   const [checked, setChecked] = useState<string[]>([]);
@@ -94,7 +96,7 @@ const AddDocByType = ({
       width={900}
       disableEscapeKeyDown
       onCancel={handleCancel}
-      title={TYPE_CONFIG[type].label}
+      title={t(TYPE_CONFIG[type].label)}
       footer={null}
     >
       {data.length > 0 ? (

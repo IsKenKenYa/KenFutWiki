@@ -20,6 +20,7 @@ import {
   styled,
 } from '@mui/material';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { FormItem, SettingCardItem } from './Common';
 type DomainUpdatePromptReq = Prompt & { kb_id: string };
@@ -33,6 +34,7 @@ const StyledRadioLabel = styled(Box)(({ theme }) => ({
 }));
 
 const CardAI = ({ kb }: CardAIProps) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const capabilities = useCapabilities();
   const [loadedKbId, setLoadedKbId] = useState('');
@@ -91,7 +93,7 @@ const CardAI = ({ kb }: CardAIProps) => {
         enable_preset_reference: data.enable_preset_reference,
       });
       if (version !== requestVersion.current) return;
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
     } catch {
       // The request wrapper already displays the error; preserve unsaved values.
@@ -121,7 +123,7 @@ const CardAI = ({ kb }: CardAIProps) => {
           setLoadError(
             error instanceof Error
               ? error.message
-              : '提示词读取失败，请重试后再编辑',
+              : t('setting.promptLoadFailed'),
           );
       })
       .finally(() => {
@@ -138,8 +140,12 @@ const CardAI = ({ kb }: CardAIProps) => {
     const version = requestVersion.current;
     const kbId = kb.id;
     Modal.confirm({
-      title: '提示',
-      content: `确定要重置为默认${type === 'content' ? '智能问答' : '智能摘要'}提示词吗？`,
+      title: t('common.tip'),
+      content: t(
+        type === 'content'
+          ? 'setting.resetQaPromptConfirm'
+          : 'setting.resetSummaryPromptConfirm',
+      ),
       onOk: async () => {
         if (version !== requestVersion.current) return;
         const params: DomainUpdatePromptReq = {
@@ -161,12 +167,12 @@ const CardAI = ({ kb }: CardAIProps) => {
           if (version !== requestVersion.current) return;
           applyPrompt(result);
           setIsEdit(false);
-          message.success('重置成功');
+          message.success(t('setting.resetSuccess'));
         } catch {
           // A failed reread must not allow stale form values to overwrite the reset.
           if (saved && version === requestVersion.current) {
             setLoadedKbId('');
-            setLoadError('重置已保存，但重新读取失败；请重试读取后再编辑');
+            setLoadError(t('setting.resetReadFailed'));
           }
         } finally {
           if (version === requestVersion.current) setBusy(false);
@@ -184,12 +190,12 @@ const CardAI = ({ kb }: CardAIProps) => {
       }}
     >
       <SettingCardItem
-        title='智能问答'
+        title={t('setting.qaTitle')}
         isEdit={isEdit && canEdit}
         onSubmit={onSubmit}
         extra={
           loading || busy ? (
-            <CircularProgress size={18} aria-label='提示词请求处理中' />
+            <CircularProgress size={18} aria-label={t('setting.promptBusy')} />
           ) : undefined
         }
       >
@@ -202,7 +208,7 @@ const CardAI = ({ kb }: CardAIProps) => {
                 disabled={loading || busy}
                 onClick={() => setReload(value => value + 1)}
               >
-                重试读取
+                {t('common.retry')}
               </Button>
             }
           >
@@ -213,7 +219,7 @@ const CardAI = ({ kb }: CardAIProps) => {
           permission={PROFESSION_VERSION_PERMISSION}
           capability='custom_prompts'
         >
-          <FormItem label='智能问答提示词'>
+          <FormItem label={t('setting.qaPromptLabel')}>
             <Controller
               control={control}
               name='enable_preset'
@@ -230,13 +236,17 @@ const CardAI = ({ kb }: CardAIProps) => {
                     disabled={!canEdit}
                     value={false}
                     control={<Radio size='small' />}
-                    label={<StyledRadioLabel>自定义</StyledRadioLabel>}
+                    label={
+                      <StyledRadioLabel>{t('setting.custom')}</StyledRadioLabel>
+                    }
                   />
                   <FormControlLabel
                     disabled={!canEdit}
                     value={true}
                     control={<Radio size='small' />}
-                    label={<StyledRadioLabel>通用配置</StyledRadioLabel>}
+                    label={
+                      <StyledRadioLabel>{t('setting.preset')}</StyledRadioLabel>
+                    }
                   />
                 </RadioGroup>
               )}
@@ -256,7 +266,7 @@ const CardAI = ({ kb }: CardAIProps) => {
                   }}
                   onClick={() => onResetPrompt('content')}
                 >
-                  重置为默认提示词
+                  {t('setting.resetToDefault')}
                 </Box>
               }
               label=''
@@ -271,7 +281,7 @@ const CardAI = ({ kb }: CardAIProps) => {
                     disabled={!canEdit}
                     multiline
                     rows={20}
-                    placeholder='智能问答提示词'
+                    placeholder={t('setting.qaPromptPlaceholder')}
                     onChange={e => {
                       field.onChange(e.target.value);
                       setIsEdit(true);
@@ -282,7 +292,7 @@ const CardAI = ({ kb }: CardAIProps) => {
             </FormItem>
           ) : (
             <>
-              <FormItem label='自动匹配语言回复'>
+              <FormItem label={t('setting.autoLanguage')}>
                 <Controller
                   control={control}
                   name='enable_preset_auto_language'
@@ -299,19 +309,27 @@ const CardAI = ({ kb }: CardAIProps) => {
                         disabled={!canEdit}
                         value={true}
                         control={<Radio size='small' />}
-                        label={<StyledRadioLabel>启用</StyledRadioLabel>}
+                        label={
+                          <StyledRadioLabel>
+                            {t('common.enable')}
+                          </StyledRadioLabel>
+                        }
                       />
                       <FormControlLabel
                         disabled={!canEdit}
                         value={false}
                         control={<Radio size='small' />}
-                        label={<StyledRadioLabel>禁用</StyledRadioLabel>}
+                        label={
+                          <StyledRadioLabel>
+                            {t('common.disable')}
+                          </StyledRadioLabel>
+                        }
                       />
                     </RadioGroup>
                   )}
                 />
               </FormItem>
-              <FormItem label='结合通用知识补充回答'>
+              <FormItem label={t('setting.generalKnowledge')}>
                 <Controller
                   control={control}
                   name='enable_preset_general_info'
@@ -328,19 +346,27 @@ const CardAI = ({ kb }: CardAIProps) => {
                         disabled={!canEdit}
                         value={true}
                         control={<Radio size='small' />}
-                        label={<StyledRadioLabel>启用</StyledRadioLabel>}
+                        label={
+                          <StyledRadioLabel>
+                            {t('common.enable')}
+                          </StyledRadioLabel>
+                        }
                       />
                       <FormControlLabel
                         disabled={!canEdit}
                         value={false}
                         control={<Radio size='small' />}
-                        label={<StyledRadioLabel>禁用</StyledRadioLabel>}
+                        label={
+                          <StyledRadioLabel>
+                            {t('common.disable')}
+                          </StyledRadioLabel>
+                        }
                       />
                     </RadioGroup>
                   )}
                 />
               </FormItem>
-              <FormItem label='回答中显示引用来源'>
+              <FormItem label={t('setting.showReference')}>
                 <Controller
                   control={control}
                   name='enable_preset_reference'
@@ -357,13 +383,21 @@ const CardAI = ({ kb }: CardAIProps) => {
                         disabled={!canEdit}
                         value={true}
                         control={<Radio size='small' />}
-                        label={<StyledRadioLabel>启用</StyledRadioLabel>}
+                        label={
+                          <StyledRadioLabel>
+                            {t('common.enable')}
+                          </StyledRadioLabel>
+                        }
                       />
                       <FormControlLabel
                         disabled={!canEdit}
                         value={false}
                         control={<Radio size='small' />}
-                        label={<StyledRadioLabel>禁用</StyledRadioLabel>}
+                        label={
+                          <StyledRadioLabel>
+                            {t('common.disable')}
+                          </StyledRadioLabel>
+                        }
                       />
                     </RadioGroup>
                   )}
@@ -383,10 +417,10 @@ const CardAI = ({ kb }: CardAIProps) => {
                 }}
                 onClick={() => onResetPrompt('summary_content')}
               >
-                重置为默认提示词
+                {t('setting.resetToDefault')}
               </Box>
             }
-            label='智能摘要提示词'
+            label={t('setting.summaryPromptLabel')}
           >
             <Controller
               control={control}
@@ -398,7 +432,7 @@ const CardAI = ({ kb }: CardAIProps) => {
                   disabled={!canEdit}
                   multiline
                   rows={5}
-                  placeholder='智能摘要提示词'
+                  placeholder={t('setting.summaryPromptPlaceholder')}
                   onChange={e => {
                     field.onChange(e.target.value);
                     setIsEdit(true);

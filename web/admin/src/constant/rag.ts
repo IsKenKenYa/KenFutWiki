@@ -1,24 +1,25 @@
 import { ConstsNodeRagInfoStatus } from '@/request';
 
+// name 为 i18n key，渲染时用 t() 翻译
 const RAG_SOURCES = {
   [ConstsNodeRagInfoStatus.NodeRagStatusReindexing]: {
-    name: '重新索引中',
+    name: 'rag.reindexing',
     color: 'warning',
   },
   [ConstsNodeRagInfoStatus.NodeRagStatusPending]: {
-    name: '待学习',
+    name: 'rag.pending',
     color: 'warning',
   },
   [ConstsNodeRagInfoStatus.NodeRagStatusRunning]: {
-    name: '正在学习',
+    name: 'rag.running',
     color: 'warning',
   },
   [ConstsNodeRagInfoStatus.NodeRagStatusFailed]: {
-    name: '学习失败',
+    name: 'rag.failed',
     color: 'error',
   },
   [ConstsNodeRagInfoStatus.NodeRagStatusSucceeded]: {
-    name: '学习成功',
+    name: 'rag.succeeded',
     color: 'success',
   },
 };

@@ -4,6 +4,7 @@ import { Box, Button, Stack, Typography, useTheme } from '@mui/material';
 import { ConstsUserKBPermission } from '@/request/types';
 import { Modal } from '@ctzhian/ui';
 import { useState, useMemo, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import Version from './Version';
 import { useAppSelector } from '@/store';
@@ -20,9 +21,10 @@ import {
   IconGithub,
 } from '@panda-wiki/icons';
 
+// label 存 i18n key，渲染时按当前语言翻译
 const MENUS = [
   {
-    label: '运营',
+    label: 'layout.nav.operations',
     value: '/kenfut',
     pathname: 'kenfut',
     icon: IconTongjifenxi1,
@@ -34,7 +36,7 @@ const MENUS = [
     ],
   },
   {
-    label: '文档',
+    label: 'layout.nav.document',
     value: '/',
     pathname: 'document',
     icon: IconNeirongguanli,
@@ -45,7 +47,7 @@ const MENUS = [
     ],
   },
   {
-    label: '统计',
+    label: 'layout.nav.stat',
     value: '/stat',
     pathname: 'stat',
     icon: IconTongjifenxi1,
@@ -56,7 +58,7 @@ const MENUS = [
     ],
   },
   {
-    label: '贡献',
+    label: 'layout.nav.contribution',
     value: '/contribution',
     pathname: 'contribution',
     icon: IconGongxian,
@@ -64,7 +66,7 @@ const MENUS = [
     perms: [ConstsUserKBPermission.UserKBPermissionFullControl],
   },
   {
-    label: '问答',
+    label: 'layout.nav.conversation',
     value: '/conversation',
     pathname: 'conversation',
     icon: IconDuihualishi1,
@@ -75,7 +77,7 @@ const MENUS = [
     ],
   },
   {
-    label: '反馈',
+    label: 'layout.nav.feedback',
     value: '/feedback',
     pathname: 'feedback',
     icon: IconJushou,
@@ -86,7 +88,7 @@ const MENUS = [
     ],
   },
   {
-    label: '发布',
+    label: 'layout.nav.release',
     value: '/release',
     pathname: 'release',
     icon: IconPaperFull,
@@ -97,7 +99,7 @@ const MENUS = [
     ],
   },
   {
-    label: '设置',
+    label: 'layout.nav.setting',
     value: '/setting',
     pathname: 'application-setting',
     icon: IconChilun,
@@ -107,6 +109,7 @@ const MENUS = [
 ];
 
 const Sidebar = () => {
+  const { t } = useTranslation();
   const { pathname } = useLocation();
   const { kbDetail } = useAppSelector(state => state.config);
   const theme = useTheme();
@@ -225,7 +228,7 @@ const Sidebar = () => {
                     color: isActive ? '#FFFFFF' : 'text.disabled',
                   }}
                 />
-                {it.label}
+                {t(it.label)}
               </Button>
             </NavLink>
           );
@@ -258,7 +261,7 @@ const Sidebar = () => {
             window.open('https://github.com/IsKenKenYa/KenFutWiki', '_blank')
           }
         >
-          帮助文档
+          {t('layout.helpDocs')}
         </Button>
         <Button
           variant='outlined'
@@ -309,14 +312,14 @@ const Sidebar = () => {
           onClick={() => setShowQrcode(true)}
           startIcon={<IconGroup sx={{ fontSize: '14px !important' }} />}
         >
-          在线支持
+          {t('layout.onlineSupport')}
         </Button>
         <Version />
       </Stack>
       <Modal
         open={showQrcode}
         onCancel={() => setShowQrcode(false)}
-        title='在线支持'
+        title={t('layout.onlineSupport')}
         footer={null}
         width={600}
       >
@@ -344,7 +347,7 @@ const Sidebar = () => {
                     variant='subtitle1'
                     sx={{ fontWeight: 600, color: '#2d3748' }}
                   >
-                    企业微信交流群
+                    {t('layout.support.wechatGroup')}
                   </Typography>
                   <Box
                     component='img'
@@ -361,7 +364,7 @@ const Sidebar = () => {
                     variant='body2'
                     sx={{ color: '#4a5568', fontSize: 13 }}
                   >
-                    扫码加入企业微信交流群
+                    {t('layout.support.wechatScan')}
                   </Typography>
                 </Stack>
               </Box>
@@ -407,13 +410,13 @@ const Sidebar = () => {
                     variant='subtitle1'
                     sx={{ fontWeight: 600, color: '#2d3748' }}
                   >
-                    社区论坛
+                    {t('layout.support.communityTitle')}
                   </Typography>
                   <Button
                     variant='contained'
                     onClick={() =>
                       window.open(
-                        'https://bbs.baizhi.cloud?ref=KenFutWiki',
+                        'https://github.com/IsKenKenYa/KenFutWiki/discussions',
                         '_blank',
                       )
                     }
@@ -434,13 +437,13 @@ const Sidebar = () => {
                       transition: 'all 0.3s ease',
                     }}
                   >
-                    访问官方论坛
+                    {t('layout.support.communityAction')}
                   </Button>
                   <Typography
                     variant='body2'
                     sx={{ color: '#4a5568', fontSize: 13, textAlign: 'center' }}
                   >
-                    查看更多技术讨论和社区动态
+                    {t('layout.support.communityDesc')}
                   </Typography>
                 </Stack>
               </Box>

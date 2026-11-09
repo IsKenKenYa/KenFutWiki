@@ -46,14 +46,16 @@ func (r *ModelRepository) Update(ctx context.Context, req *domain.UpdateModelReq
 		param = *req.Parameters
 	}
 	updateMap := map[string]any{
-		"model":       req.Model,
-		"api_key":     req.APIKey,
-		"api_header":  req.APIHeader,
-		"base_url":    req.BaseURL,
-		"api_version": req.APIVersion,
-		"provider":    req.Provider,
-		"type":        req.Type,
-		"parameters":  param,
+		"model":         req.Model,
+		"show_name":     req.ShowName,
+		"provider_name": req.ProviderName,
+		"api_key":       req.APIKey,
+		"api_header":    req.APIHeader,
+		"base_url":      req.BaseURL,
+		"api_version":   req.APIVersion,
+		"provider":      req.Provider,
+		"type":          req.Type,
+		"parameters":    param,
 	}
 	if req.IsActive != nil {
 		updateMap["is_active"] = *req.IsActive

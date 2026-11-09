@@ -30,7 +30,9 @@ const (
 type Model struct {
 	ID         string        `json:"id"`
 	Provider   ModelProvider `json:"provider"`
+	ProviderName string      `json:"provider_name"` // 自定义供应商的展示名（provider=Other 时使用）
 	Model      string        `json:"model"`
+	ShowName   string        `json:"show_name"` // 模型展示名（为空时回退显示 model ID）
 	APIKey     string        `json:"api_key"`
 	APIHeader  string        `json:"api_header"`
 	BaseURL    string        `json:"base_url"`
@@ -67,14 +69,16 @@ func (m *Model) ToModelkitModel() (*modelkitDomain.ModelMetadata, error) {
 }
 
 type ModelListItem struct {
-	ID         string        `json:"id"`
-	Provider   ModelProvider `json:"provider"`
-	Model      string        `json:"model"`
-	APIKey     string        `json:"api_key"`
-	APIHeader  string        `json:"api_header"`
-	BaseURL    string        `json:"base_url"`
-	APIVersion string        `json:"api_version"` // for azure openai
-	Type       ModelType     `json:"type"`
+	ID           string        `json:"id"`
+	Provider     ModelProvider `json:"provider"`
+	ProviderName string        `json:"provider_name"`
+	Model        string        `json:"model"`
+	ShowName     string        `json:"show_name"`
+	APIKey       string        `json:"api_key"`
+	APIHeader    string        `json:"api_header"`
+	BaseURL      string        `json:"base_url"`
+	APIVersion   string        `json:"api_version"` // for azure openai
+	Type         ModelType     `json:"type"`
 
 	IsActive bool `json:"is_active" gorm:"default:false"`
 
@@ -145,13 +149,15 @@ func (p *ModelParam) Scan(value interface{}) error {
 }
 
 type BaseModelInfo struct {
-	Provider   ModelProvider `json:"provider" validate:"required"`
-	Model      string        `json:"model" validate:"required"`
-	BaseURL    string        `json:"base_url" validate:"required"`
-	APIKey     string        `json:"api_key"`
-	APIHeader  string        `json:"api_header"`
-	APIVersion string        `json:"api_version"` // for azure openai
-	Type       ModelType     `json:"type" validate:"required,oneof=chat embedding rerank analysis analysis-vl"`
+	Provider     ModelProvider `json:"provider" validate:"required"`
+	ProviderName string        `json:"provider_name"` // 自定义供应商的展示名
+	Model        string        `json:"model" validate:"required"`
+	ShowName     string        `json:"show_name"` // 模型展示名
+	BaseURL      string        `json:"base_url" validate:"required"`
+	APIKey       string        `json:"api_key"`
+	APIHeader    string        `json:"api_header"`
+	APIVersion   string        `json:"api_version"` // for azure openai
+	Type         ModelType     `json:"type" validate:"required,oneof=chat embedding rerank analysis analysis-vl"`
 }
 
 type CheckModelResp struct {

@@ -3,6 +3,7 @@ import { useVersionInfo } from '@/hooks';
 import { ConstsLicenseEdition } from '@/request/types';
 import { styled, SxProps, Tooltip } from '@mui/material';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import useCapabilities from '@/features/kenfut/useCapabilities';
 import type { Capabilities } from '@/features/kenfut/types';
 type CapabilityKey = keyof Omit<Capabilities, 'limits' | 'stat_days'>;
@@ -68,6 +69,7 @@ const VersionMask = ({
   wrapperSx?: SxProps;
   sx?: SxProps;
 }) => {
+  const { t } = useTranslation();
   const versionInfo = useVersionInfo();
   const capabilities = useCapabilities();
   const hasPermission =
@@ -111,6 +113,7 @@ export const VersionCanUse = ({
   sx?: SxProps;
   mode?: 'icon' | 'text';
 }) => {
+  const { t } = useTranslation();
   const versionInfo = useVersionInfo();
   const capabilities = useCapabilities();
   const hasPermission =
@@ -133,11 +136,15 @@ export const VersionCanUse = ({
       }}
     >
       {mode === 'icon' ? (
-        <Tooltip title={nextVersionInfo.label + '可用'} placement='top' arrow>
+        <Tooltip
+          title={t('version.available', { name: t(nextVersionInfo.label) })}
+          placement='top'
+          arrow
+        >
           <img
             src={nextVersionInfo.image}
             style={{ width: 14, objectFit: 'contain' }}
-            alt={nextVersionInfo.label}
+            alt={t(nextVersionInfo.label)}
           />
         </Tooltip>
       ) : (
@@ -145,9 +152,9 @@ export const VersionCanUse = ({
           <img
             src={nextVersionInfo.image}
             style={{ width: 12, objectFit: 'contain', marginTop: 1 }}
-            alt={nextVersionInfo.label}
+            alt={t(nextVersionInfo.label)}
           />
-          {nextVersionInfo?.label}可用
+          {t('version.available', { name: t(nextVersionInfo.label) })}
         </StyledMaskVersion>
       )}
     </StyledMaskContent>

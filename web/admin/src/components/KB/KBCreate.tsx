@@ -9,46 +9,51 @@ import { setKbC, setKbId, setKbList } from '@/store/slices/config';
 import { CheckCircle } from '@mui/icons-material';
 import { Box, Checkbox, Divider, Stack, TextField } from '@mui/material';
 import { message, Modal } from '@ctzhian/ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { useLocation } from 'react-router-dom';
 import Card from '../Card';
 import FileText from '../UploadFile/FileText';
 
-// 验证规则常量
-const VALIDATION_RULES = {
-  name: {
-    required: {
-      value: true,
-      message: 'Wiki 站名称不能为空',
-    },
-  },
-  port: {
-    required: {
-      value: true,
-      message: '端口不能为空',
-    },
-    min: {
-      value: 1,
-      message: '端口号不能小于1',
-    },
-    max: {
-      value: 65535,
-      message: '端口号不能大于65535',
-    },
-  },
-  domain: {
-    pattern: {
-      value:
-        /^(localhost|((([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)\.)+[a-zA-Z]{2,})|(\d{1,3}(?:\.\d{1,3}){3})|(\[[0-9a-fA-F:]+\]))$/,
-      message: '请输入有效的域名、IP 或 localhost',
-    },
-  },
-};
-
 const KBCreate = () => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { kb_c, kbList, modelStatus } = useAppSelector(state => state.config);
+
+  // 验证规则依赖 t，随语言切换重建
+  const VALIDATION_RULES = useMemo(
+    () => ({
+      name: {
+        required: {
+          value: true,
+          message: t('kb.nameEmpty'),
+        },
+      },
+      port: {
+        required: {
+          value: true,
+          message: t('kb.portRequired'),
+        },
+        min: {
+          value: 1,
+          message: t('kb.portMin'),
+        },
+        max: {
+          value: 65535,
+          message: t('kb.portMax'),
+        },
+      },
+      domain: {
+        pattern: {
+          value:
+            /^(localhost|((([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)\.)+[a-zA-Z]{2,})|(\d{1,3}(?:\.\d{1,3}){3})|(\[[0-9a-fA-F:]+\]))$/,
+          message: t('kb.domainInvalid'),
+        },
+      },
+    }),
+    [t],
+  );
 
   const location = useLocation();
   const { pathname } = location;
@@ -86,19 +91,19 @@ const KBCreate = () => {
       formData.ssl_ports = [+value.ssl_port];
       if (value.httpsCert) formData.public_key = value.httpsCert;
       else {
-        message.error('请上传 SSL 证书文件');
+        message.error(t('kb.certRequired'));
         return;
       }
       if (value.httpsKey) formData.private_key = value.httpsKey;
       else {
-        message.error('请上传 SSL 私钥文件');
+        message.error(t('kb.keyRequired'));
         return;
       }
     }
     postApiV1KnowledgeBase(formData)
       // @ts-expect-error 类型错误
       .then(({ id }) => {
-        message.success('创建成功');
+        message.success(t('doc.createSuccess'));
         setOpen(false);
         setSuccess(true);
         getKbList(id);
@@ -139,12 +144,12 @@ const KBCreate = () => {
         title={
           <Stack direction='row' alignItems='center' gap={1}>
             <CheckCircle sx={{ color: 'success.main' }} />
-            {name} 创建成功
+            {t('kb.createSuccessTitle', { name })}
           </Stack>
         }
         open={success}
         showCancel={false}
-        okText='关闭'
+        okText={t('common.close')}
         onCancel={() => {
           setSuccess(false);
           setTimeout(() => {
@@ -158,12 +163,10 @@ const KBCreate = () => {
           }, 1000);
         }}
         closable={false}
-        cancelText='关闭'
+        cancelText={t('common.close')}
       >
         <Card sx={{ p: 2, fontSize: 14, bgcolor: 'background.paper3' }}>
-          <Box sx={{ color: 'text.tertiary', mb: 1 }}>
-            打开以下地址访问门户网站
-          </Box>
+          <Box sx={{ color: 'text.tertiary', mb: 1 }}>{t('kb.visitHint')}</Box>
           {http && (
             <Box>
               <Box
@@ -213,10 +216,10 @@ const KBCreate = () => {
           dispatch(setKbC(false));
           setOpen(false);
         }}
-        okText={'创建'}
+        okText={t('common.create')}
         onOk={handleSubmit(onSubmit)}
         disableEscapeKeyDown={(kbList || []).length === 0}
-        title='创建 Wiki 站'
+        title={t('kb.createTitle')}
         closable={(kbList || []).length > 0}
         showCancel={(kbList || []).length > 0}
         okButtonProps={{ loading, disabled: !(http || https) }}
@@ -231,7 +234,7 @@ const KBCreate = () => {
                 {...field}
                 label={
                   <Box>
-                    知识库名称
+                    {t('kb.nameLabel')}
                     <Box component={'span'} sx={{ color: 'red', ml: 0.5 }}>
                       *
                     </Box>
@@ -254,14 +257,14 @@ const KBCreate = () => {
             color: 'text.tertiary',
           }}
         >
-          服务监听方式
+          {t('kb.listenMode')}
         </Divider>
         <Stack direction={'row'} gap={2} alignItems={'center'} sx={{ mt: 2.5 }}>
           <Box
             component={'label'}
             sx={{ width: 136, flexShrink: 0, cursor: 'pointer', fontSize: 14 }}
           >
-            域名或 IP
+            {t('kb.domainOrIp')}
           </Box>
           <Controller
             control={control}
@@ -270,7 +273,7 @@ const KBCreate = () => {
             render={({ field }) => (
               <TextField
                 {...field}
-                label='域名'
+                label={t('kb.domainLabel')}
                 fullWidth
                 error={!!errors.domain}
                 helperText={errors.domain?.message}
@@ -303,7 +306,7 @@ const KBCreate = () => {
               color: http ? 'text.primary' : 'text.tertiary',
             }}
           >
-            启用 HTTP
+            {t('kb.enableHttp')}
           </Box>
           {
             <Controller
@@ -313,7 +316,7 @@ const KBCreate = () => {
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label='端口'
+                  label={t('kb.portLabel')}
                   fullWidth
                   disabled={!http}
                   type='number'
@@ -350,7 +353,7 @@ const KBCreate = () => {
               color: https ? 'text.primary' : 'text.tertiary',
             }}
           >
-            启用 HTTPS
+            {t('kb.enableHttps')}
           </Box>
           {
             <Controller
@@ -360,7 +363,7 @@ const KBCreate = () => {
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label='端口'
+                  label={t('kb.portLabel')}
                   fullWidth
                   disabled={!https}
                   type='number'
@@ -377,12 +380,16 @@ const KBCreate = () => {
             <Controller
               control={control}
               name='httpsCert'
-              render={({ field }) => <FileText {...field} tip={'证书文件'} />}
+              render={({ field }) => (
+                <FileText {...field} tip={t('kb.certFile')} />
+              )}
             />
             <Controller
               control={control}
               name='httpsKey'
-              render={({ field }) => <FileText {...field} tip={'私钥文件'} />}
+              render={({ field }) => (
+                <FileText {...field} tip={t('kb.keyFile')} />
+              )}
             />
           </Stack>
         )}

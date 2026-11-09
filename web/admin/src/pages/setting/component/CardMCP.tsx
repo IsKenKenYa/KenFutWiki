@@ -12,6 +12,7 @@ import { SettingCardItem, FormItem, SecretTextField } from './Common';
 import ShowText from '@/components/ShowText';
 import { Controller, useForm } from 'react-hook-form';
 import { useMemo, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { message } from '@ctzhian/ui';
 import { getApiV1AppDetail, putApiV1App } from '@/request/App';
 import { DomainAppDetailResp, ConstsLicenseEdition } from '@/request/types';
@@ -21,6 +22,7 @@ interface CardMCPProps {
 }
 
 const CardMCP = ({ kb }: CardMCPProps) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
 
   const {
@@ -35,7 +37,7 @@ const CardMCP = ({ kb }: CardMCPProps) => {
       access: 'open' as 'open' | 'auth',
       token: '',
       tool_name: 'get_docs',
-      tool_desc: '为解决用户的问题从知识库中检索文档',
+      tool_desc: '',
     },
   });
 
@@ -80,7 +82,7 @@ const CardMCP = ({ kb }: CardMCPProps) => {
       },
     };
     putApiV1App({ id: detail.id! }, payload).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
       getDetail();
     });
@@ -104,7 +106,7 @@ const CardMCP = ({ kb }: CardMCPProps) => {
       const toolName = toolNameRaw.trim() ? toolNameRaw : 'get_docs';
       const toolDesc = toolDescRaw.trim()
         ? toolDescRaw
-        : '为解决用户的问题从知识库中检索文档';
+        : t('setting.mcpToolDescDefault');
       setValue('is_enabled', is_enabled);
       setValue('access', accessVal);
       setValue('token', tokenVal);
@@ -121,7 +123,7 @@ const CardMCP = ({ kb }: CardMCPProps) => {
   return (
     <Box sx={{ width: 1000, margin: 'auto', pb: 4 }}>
       <SettingCardItem
-        title='MCP 设置'
+        title={t('setting.mcpTitle')}
         isEdit={isEdit}
         onSubmit={onSubmit}
         permission={[
@@ -146,12 +148,16 @@ const CardMCP = ({ kb }: CardMCPProps) => {
                     <FormControlLabel
                       value={true}
                       control={<Radio size='small' />}
-                      label={<Box sx={{ width: 100 }}>启用</Box>}
+                      label={
+                        <Box sx={{ width: 100 }}>{t('common.enable')}</Box>
+                      }
                     />
                     <FormControlLabel
                       value={false}
                       control={<Radio size='small' />}
-                      label={<Box sx={{ width: 100 }}>禁用</Box>}
+                      label={
+                        <Box sx={{ width: 100 }}>{t('common.disable')}</Box>
+                      }
                     />
                   </Stack>
                 </RadioGroup>
@@ -171,7 +177,7 @@ const CardMCP = ({ kb }: CardMCPProps) => {
               />
             </FormItem>
 
-            <FormItem label='MCP Tool名称'>
+            <FormItem label={t('setting.mcpToolName')}>
               <Controller
                 control={control}
                 name='tool_name'
@@ -179,7 +185,7 @@ const CardMCP = ({ kb }: CardMCPProps) => {
                   <TextField
                     {...field}
                     fullWidth
-                    placeholder='自定义检索文档MCP Tool名称'
+                    placeholder={t('setting.mcpToolNamePlaceholder')}
                     onChange={e => {
                       field.onChange(e.target.value);
                       setIsEdit(true);
@@ -189,7 +195,7 @@ const CardMCP = ({ kb }: CardMCPProps) => {
               />
             </FormItem>
 
-            <FormItem label='MCP Tool描述'>
+            <FormItem label={t('setting.mcpToolDesc')}>
               <Controller
                 control={control}
                 name='tool_desc'
@@ -197,7 +203,7 @@ const CardMCP = ({ kb }: CardMCPProps) => {
                   <TextField
                     {...field}
                     fullWidth
-                    placeholder='自定义检索文档MCP Tool描述'
+                    placeholder={t('setting.mcpToolDescPlaceholder')}
                     onChange={e => {
                       field.onChange(e.target.value);
                       setIsEdit(true);
@@ -207,7 +213,7 @@ const CardMCP = ({ kb }: CardMCPProps) => {
               />
             </FormItem>
 
-            <FormItem label='访问控制'>
+            <FormItem label={t('setting.accessControl')}>
               <FormControl>
                 <Controller
                   control={control}
@@ -224,12 +230,20 @@ const CardMCP = ({ kb }: CardMCPProps) => {
                         <FormControlLabel
                           value={'open'}
                           control={<Radio size='small' />}
-                          label={<Box sx={{ width: 100 }}>完全公开</Box>}
+                          label={
+                            <Box sx={{ width: 100 }}>
+                              {t('setting.accessOpen')}
+                            </Box>
+                          }
                         />
                         <FormControlLabel
                           value={'auth'}
                           control={<Radio size='small' />}
-                          label={<Box sx={{ width: 100 }}>需要认证</Box>}
+                          label={
+                            <Box sx={{ width: 100 }}>
+                              {t('setting.accessAuth')}
+                            </Box>
+                          }
                         />
                       </Stack>
                     </RadioGroup>
@@ -239,16 +253,16 @@ const CardMCP = ({ kb }: CardMCPProps) => {
             </FormItem>
 
             {access === 'auth' && (
-              <FormItem label='访问口令' required>
+              <FormItem label={t('setting.accessToken')} required>
                 <Controller
                   control={control}
                   name='token'
-                  rules={{ required: '访问口令不能为空' }}
+                  rules={{ required: t('setting.accessTokenRequired') }}
                   render={({ field }) => (
                     <SecretTextField
                       {...field}
                       fullWidth
-                      placeholder='访问口令'
+                      placeholder={t('setting.accessToken')}
                       onChange={e => {
                         field.onChange(e.target.value);
                         setIsEdit(true);

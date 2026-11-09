@@ -7,6 +7,7 @@ import { CheckCircle } from '@mui/icons-material';
 import { Box, IconButton, Stack, TextField } from '@mui/material';
 import { IconShuaxin } from '@panda-wiki/icons';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 
 type UpdateMemberProps = {
@@ -16,6 +17,7 @@ type UpdateMemberProps = {
 };
 
 const MemberUpdate = ({ user, refresh, type }: UpdateMemberProps) => {
+  const { t } = useTranslation();
   const [updateOpen, setUpdateOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [password, setPassword] = useState('');
@@ -42,7 +44,10 @@ const MemberUpdate = ({ user, refresh, type }: UpdateMemberProps) => {
   };
 
   const copyUserInfo = () => {
-    copyText(`用户名: ${user.account}\n密码: ${password}`, close);
+    copyText(
+      `${t('member.accountLabel')}: ${user.account}\n${t('member.passwordLabel')}: ${password}`,
+      close,
+    );
   };
 
   const onSumbit = (data: { password: string }) => {
@@ -72,30 +77,32 @@ const MemberUpdate = ({ user, refresh, type }: UpdateMemberProps) => {
         title={
           <Stack direction='row' alignItems='center' gap={1}>
             <CheckCircle sx={{ color: 'success.main' }} />
-            密码修改成功
+            {t('member.passwordChanged')}
           </Stack>
         }
         open={resetOpen}
         onCancel={close}
-        okText={'复制用户信息'}
-        cancelText={'关闭'}
+        okText={t('member.copyUserInfo')}
+        cancelText={t('common.close')}
         closable={false}
         okButtonProps={{ sx: { minWidth: '120px' } }}
         onOk={copyUserInfo}
       >
         <Card sx={{ p: 2, fontSize: 14, bgcolor: 'background.paper3' }}>
           <Stack direction={'row'}>
-            <Box sx={{ width: 80 }}>用户名</Box>
+            <Box sx={{ width: 80 }}>{t('member.accountLabel')}</Box>
             <Box sx={{ fontWeight: 700 }}>{user.account}</Box>
           </Stack>
           <Stack direction={'row'} sx={{ mt: 1 }}>
-            <Box sx={{ width: 80 }}>{'新密码'}</Box>
+            <Box sx={{ width: 80 }}>{t('member.newPassword')}</Box>
             <Box sx={{ fontWeight: 700 }}>{password}</Box>
           </Stack>
         </Card>
       </Modal>
       <Modal
-        title={type === 'reset' ? '重置密码？' : '修改密码'}
+        title={
+          type === 'reset' ? t('member.resetTitle') : t('member.changeTitle')
+        }
         open={updateOpen}
         onOk={handleSubmit(onSumbit)}
         onCancel={close}
@@ -104,7 +111,7 @@ const MemberUpdate = ({ user, refresh, type }: UpdateMemberProps) => {
         }}
       >
         <Box sx={{ fontSize: 14, lineHeight: '32px' }}>
-          用户名{' '}
+          {t('member.accountLabel')}{' '}
           <Box component={'span'} sx={{ color: 'red', mb: 1 }}>
             *
           </Box>
@@ -123,7 +130,7 @@ const MemberUpdate = ({ user, refresh, type }: UpdateMemberProps) => {
           {user.account}
         </Box>
         <Box sx={{ fontSize: 14, lineHeight: '32px', mt: 2, mb: 1 }}>
-          密码{' '}
+          {t('member.passwordLabel')}{' '}
           <Box component={'span'} sx={{ color: 'red' }}>
             *
           </Box>
@@ -135,11 +142,11 @@ const MemberUpdate = ({ user, refresh, type }: UpdateMemberProps) => {
             rules={{
               required: {
                 value: true,
-                message: '密码不能为空',
+                message: t('member.passwordRequired'),
               },
               minLength: {
                 value: 8,
-                message: '密码长度至少 8 位',
+                message: t('member.passwordMinLength'),
               },
             }}
             render={({ field }) => (
@@ -148,7 +155,7 @@ const MemberUpdate = ({ user, refresh, type }: UpdateMemberProps) => {
                 fullWidth
                 autoFocus
                 size='small'
-                placeholder='输入密码'
+                placeholder={t('member.passwordPlaceholder')}
                 error={!!errors.password}
                 helperText={errors.password?.message}
               />

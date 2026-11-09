@@ -18,6 +18,7 @@ import { getApiV1AppDetail, putApiV1App } from '@/request/App';
 import { message } from '@ctzhian/ui';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { FormItem, SettingCardItem } from './Common';
 
@@ -36,6 +37,7 @@ const DocumentComments = ({
   data: DomainAppDetailResp;
   refresh: () => void;
 }) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [isEdit, setIsEdit] = useState(false);
   const { control, handleSubmit, setValue } = useForm({
@@ -71,14 +73,18 @@ const DocumentComments = ({
         },
       },
     ).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
       refresh();
     });
   });
   return (
-    <SettingCardItem title='文档评论' isEdit={isEdit} onSubmit={onSubmit}>
-      <FormItem label='文档评论'>
+    <SettingCardItem
+      title={t('setting.docComments')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
+      <FormItem label={t('setting.docComments')}>
         <Controller
           control={control}
           name='is_open'
@@ -94,19 +100,23 @@ const DocumentComments = ({
               <FormControlLabel
                 value={1}
                 control={<Radio size='small' />}
-                label={<StyledRadioLabel>启用</StyledRadioLabel>}
+                label={
+                  <StyledRadioLabel>{t('common.enable')}</StyledRadioLabel>
+                }
               />
               <FormControlLabel
                 value={0}
                 control={<Radio size='small' />}
-                label={<StyledRadioLabel>禁用</StyledRadioLabel>}
+                label={
+                  <StyledRadioLabel>{t('common.disable')}</StyledRadioLabel>
+                }
               />
             </RadioGroup>
           )}
         />
       </FormItem>
       <FormItem
-        label='评论审核'
+        label={t('setting.commentAudit')}
         permission={PROFESSION_VERSION_PERMISSION}
         capability='comment_audit'
       >
@@ -125,12 +135,16 @@ const DocumentComments = ({
               <FormControlLabel
                 value={1}
                 control={<Radio size='small' />}
-                label={<StyledRadioLabel>启用</StyledRadioLabel>}
+                label={
+                  <StyledRadioLabel>{t('common.enable')}</StyledRadioLabel>
+                }
               />
               <FormControlLabel
                 value={0}
                 control={<Radio size='small' />}
-                label={<StyledRadioLabel>禁用</StyledRadioLabel>}
+                label={
+                  <StyledRadioLabel>{t('common.disable')}</StyledRadioLabel>
+                }
               />
             </RadioGroup>
           )}
@@ -140,7 +154,12 @@ const DocumentComments = ({
   );
 };
 
-const AI_FEEDBACK_OPTIONS = ['内容不准确', '答非所问', '其他'];
+// AI 评价预置选项：随当前语言生成（选项值会写入站点配置）
+const getAiFeedbackOptions = (t: (key: string) => string) => [
+  t('enum.feedback.inaccurate'),
+  t('setting.feedbackIrrelevant'),
+  t('enum.feedback.other'),
+];
 
 const AIQuestion = ({
   data,
@@ -149,6 +168,7 @@ const AIQuestion = ({
   data: DomainAppDetailResp;
   refresh: () => void;
 }) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const { kb_id } = useAppSelector(state => state.config);
   const { control, handleSubmit, setValue } = useForm({
@@ -177,7 +197,7 @@ const AIQuestion = ({
         },
       },
     ).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
       refresh();
     });
@@ -201,8 +221,12 @@ const AIQuestion = ({
   }, [data]);
 
   return (
-    <SettingCardItem title='AI 问答评价' isEdit={isEdit} onSubmit={onSubmit}>
-      <FormItem label='AI 问答评价'>
+    <SettingCardItem
+      title={t('setting.aiFeedbackTitle')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
+      <FormItem label={t('setting.aiFeedbackTitle')}>
         <Controller
           control={control}
           name='ai_feedback_type'
@@ -212,7 +236,7 @@ const AIQuestion = ({
               multiple
               freeSolo
               fullWidth
-              options={AI_FEEDBACK_OPTIONS}
+              options={getAiFeedbackOptions(t)}
               inputValue={inputValue}
               onInputChange={(_, newInputValue) => setInputValue(newInputValue)}
               onChange={(_, newValue) => {
@@ -237,7 +261,7 @@ const AIQuestion = ({
                 <TextField
                   {...params}
                   size='small'
-                  placeholder='选择或输入评价，可多选，回车确认'
+                  placeholder={t('setting.aiFeedbackPlaceholder')}
                   variant='outlined'
                 />
               )}
@@ -245,7 +269,7 @@ const AIQuestion = ({
           )}
         />
       </FormItem>
-      <FormItem label='评价开关'>
+      <FormItem label={t('setting.aiFeedbackSwitch')}>
         <Controller
           control={control}
           name='is_enabled'
@@ -261,19 +285,23 @@ const AIQuestion = ({
               <FormControlLabel
                 value={true}
                 control={<Radio size='small' />}
-                label={<StyledRadioLabel>启用</StyledRadioLabel>}
+                label={
+                  <StyledRadioLabel>{t('common.enable')}</StyledRadioLabel>
+                }
               />
               <FormControlLabel
                 value={false}
                 control={<Radio size='small' />}
-                label={<StyledRadioLabel>禁用</StyledRadioLabel>}
+                label={
+                  <StyledRadioLabel>{t('common.disable')}</StyledRadioLabel>
+                }
               />
             </RadioGroup>
           )}
         />{' '}
       </FormItem>
       <FormItem
-        label='免责声明'
+        label={t('setting.disclaimer')}
         permission={PROFESSION_VERSION_PERMISSION}
         capability='custom_branding'
       >
@@ -285,7 +313,7 @@ const AIQuestion = ({
               {...field}
               fullWidth
               value={field.value || ''}
-              placeholder='请输入免责声明'
+              placeholder={t('setting.disclaimerPlaceholder')}
               onChange={e => {
                 setIsEdit(true);
                 field.onChange(e.target.value);
@@ -305,6 +333,7 @@ const DocumentContribution = ({
   data: DomainAppDetailResp;
   refresh: () => void;
 }) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const { kb_id } = useAppSelector(state => state.config);
   const { control, handleSubmit, setValue } = useForm({
@@ -326,7 +355,7 @@ const DocumentContribution = ({
         },
       },
     ).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
       refresh();
     });
@@ -341,8 +370,15 @@ const DocumentContribution = ({
   }, [data]);
 
   return (
-    <SettingCardItem title='文档贡献' isEdit={isEdit} onSubmit={onSubmit}>
-      <FormItem label='文档贡献' permission={PROFESSION_VERSION_PERMISSION}>
+    <SettingCardItem
+      title={t('setting.contributionTitle')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
+      <FormItem
+        label={t('setting.contributionTitle')}
+        permission={PROFESSION_VERSION_PERMISSION}
+      >
         <Controller
           control={control}
           name='is_enable'
@@ -359,12 +395,16 @@ const DocumentContribution = ({
               <FormControlLabel
                 value={true}
                 control={<Radio size='small' />}
-                label={<StyledRadioLabel>启用</StyledRadioLabel>}
+                label={
+                  <StyledRadioLabel>{t('common.enable')}</StyledRadioLabel>
+                }
               />
               <FormControlLabel
                 value={false}
                 control={<Radio size='small' />}
-                label={<StyledRadioLabel>禁用</StyledRadioLabel>}
+                label={
+                  <StyledRadioLabel>{t('common.disable')}</StyledRadioLabel>
+                }
               />
             </RadioGroup>
           )}

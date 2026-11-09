@@ -20,11 +20,13 @@ import {
   Stack,
 } from '@mui/material';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import KBDelete from './KBDelete';
 import KBModify from './KBModify';
 
 const KBSelect = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const resetPagination = location.pathname.includes('/conversation');
 
@@ -71,7 +73,7 @@ const KBSelect = () => {
             if (e.target.value === kb_id || !e.target.value) return;
             dispatch(setKbId(e.target.value as string));
             if (resetPagination) setSearchParams({ page: '1', pageSize: '20' });
-            message.success('切换成功');
+            message.success(t('kb.switchSuccess'));
           }}
           IconComponent={({ className, ...rest }) => {
             return (
@@ -135,7 +137,7 @@ const KBSelect = () => {
               dispatch(setKbC(true));
             }}
           >
-            创建新 Wiki 站
+            {t('kb.createNew')}
           </Button>
           {(kbList || []).map(item => (
             <MenuItem

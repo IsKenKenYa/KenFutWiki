@@ -13,6 +13,7 @@ import { message, Modal, Table } from '@ctzhian/ui';
 import dayjs from 'dayjs';
 import { ColumnType } from '@ctzhian/ui/dist/Table';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/store';
 import { VersionCanUse } from '@/components/VersionMask';
 import { PROFESSION_VERSION_PERMISSION } from '@/constant/version';
@@ -26,6 +27,7 @@ interface AddRoleProps {
 }
 
 const AddRole = ({ open, onCancel, onOk, selectedIds }: AddRoleProps) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [list, setList] = useState<V1UserListItemResp[]>([]);
   const [loading, setLoading] = useState(false);
@@ -43,7 +45,7 @@ const AddRole = ({ open, onCancel, onOk, selectedIds }: AddRoleProps) => {
         <Tooltip
           arrow
           placement='top'
-          title={selectedIds.includes(text) ? '已添加' : ''}
+          title={selectedIds.includes(text) ? t('member.added') : ''}
         >
           <span>
             <Radio
@@ -65,7 +67,7 @@ const AddRole = ({ open, onCancel, onOk, selectedIds }: AddRoleProps) => {
       ),
     },
     {
-      title: '用户名',
+      title: t('member.colAccount'),
       dataIndex: 'account',
       render: (text: string) => (
         <Stack direction={'row'} alignItems={'center'} gap={2}>
@@ -74,7 +76,7 @@ const AddRole = ({ open, onCancel, onOk, selectedIds }: AddRoleProps) => {
       ),
     },
     {
-      title: '上次使用时间',
+      title: t('member.colLastAccess'),
       dataIndex: 'last_access',
       render: (text: string) => (
         <Box>{text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'}</Box>
@@ -94,7 +96,7 @@ const AddRole = ({ open, onCancel, onOk, selectedIds }: AddRoleProps) => {
 
   const onSubmit = () => {
     if (!selectedRowKeys) {
-      message.error('请选择用户');
+      message.error(t('member.selectUserFirst'));
       return;
     }
     postApiV1KnowledgeBaseUserInvite({
@@ -103,7 +105,7 @@ const AddRole = ({ open, onCancel, onOk, selectedIds }: AddRoleProps) => {
       perm,
     }).then(() => {
       onOk();
-      message.success('添加成功');
+      message.success(t('nav.addSuccess'));
     });
   };
 
@@ -123,7 +125,7 @@ const AddRole = ({ open, onCancel, onOk, selectedIds }: AddRoleProps) => {
 
   return (
     <Modal
-      title='添加 Wiki 站管理员'
+      title={t('member.addSiteAdmin')}
       open={open}
       onCancel={onCancel}
       onOk={onSubmit}
@@ -187,7 +189,7 @@ const AddRole = ({ open, onCancel, onOk, selectedIds }: AddRoleProps) => {
                     color: 'text.tertiary',
                   }}
                 >
-                  暂无数据
+                  {t('common.noData')}
                 </Box>
               </Stack>
             )
@@ -202,7 +204,7 @@ const AddRole = ({ open, onCancel, onOk, selectedIds }: AddRoleProps) => {
             alignItems={'center'}
             gap={0.5}
           >
-            权限
+            {t('member.permLabel')}
           </Stack>
         }
         sx={{ mt: 2 }}
@@ -222,14 +224,14 @@ const AddRole = ({ open, onCancel, onOk, selectedIds }: AddRoleProps) => {
           onChange={e => setPerm(e.target.value as V1KBUserInviteReq['perm'])}
         >
           <MenuItem value={ConstsUserKBPermission.UserKBPermissionFullControl}>
-            完全控制
+            {t('member.permFullControl')}
           </MenuItem>
 
           <MenuItem
             value={ConstsUserKBPermission.UserKBPermissionDocManage}
             disabled={!isPro}
           >
-            文档管理{' '}
+            {t('member.permDocManage')}{' '}
             <VersionCanUse
               permission={PROFESSION_VERSION_PERMISSION}
               capability='admin_permissions'
@@ -239,7 +241,7 @@ const AddRole = ({ open, onCancel, onOk, selectedIds }: AddRoleProps) => {
             value={ConstsUserKBPermission.UserKBPermissionDataOperate}
             disabled={!isPro}
           >
-            数据运营{' '}
+            {t('member.permDataOperate')}{' '}
             <VersionCanUse
               permission={PROFESSION_VERSION_PERMISSION}
               capability='admin_permissions'

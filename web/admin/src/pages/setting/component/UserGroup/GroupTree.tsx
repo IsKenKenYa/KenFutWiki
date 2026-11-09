@@ -10,6 +10,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   SortableTree,
@@ -98,8 +99,10 @@ const TreeItem = React.forwardRef<
   TreeItemComponentProps<TreeNode>
 >((props, ref) => {
   const { item } = props;
+  const { t } = useTranslation();
   const context = useContext(AppContext);
-  if (!context) throw new Error('TreeItem 必须在 AppContext.Provider 内部使用');
+  if (!context)
+    throw new Error('TreeItem must be used inside AppContext.Provider');
   const { onClickMembers, handleMenuOpen, sync, onSync, sourceType } = context;
   return (
     <Box
@@ -223,6 +226,7 @@ const GroupTree = ({
   onSync,
   sourceType,
 }: GroupTreeProps) => {
+  const { t } = useTranslation();
   const itemsData = useMemo(() => mapToTree(data), [data]);
   const { kbDetail } = useAppSelector(state => state.config);
 
@@ -233,7 +237,9 @@ const GroupTree = ({
     return [
       {
         id: 'root',
-        name: sync ? '同步用户组' : '自定义用户组',
+        name: sync
+          ? t('setting.group.syncedRoot')
+          : t('setting.group.customRoot'),
         parentId: null,
         isRoot: true,
         children: attachRootParent(itemsData),
@@ -400,6 +406,7 @@ export const ActionsMenu = ({
   onDelete: () => void;
   anchorPosition?: { top: number; left: number };
 }) => {
+  const { t } = useTranslation();
   return (
     <Menu
       anchorEl={anchorEl}
@@ -422,7 +429,7 @@ export const ActionsMenu = ({
           onAdd();
         }}
       >
-        添加子分组
+        {t('setting.group.addChild')}
       </MenuItem>
       {canEdit && (
         <MenuItem
@@ -432,7 +439,7 @@ export const ActionsMenu = ({
             onEdit();
           }}
         >
-          编辑
+          {t('common.edit')}
         </MenuItem>
       )}
       {canEdit && (
@@ -446,7 +453,7 @@ export const ActionsMenu = ({
             onDelete();
           }}
         >
-          删除
+          {t('common.delete')}
         </MenuItem>
       )}
     </Menu>
@@ -462,11 +469,12 @@ const GroupModal = ({
   onCancel: () => void;
   data: TreeNode;
 }) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [groupList, setGroupList] = useState<any[]>([]);
   const columns: ColumnType<any>[] = [
     {
-      title: '用户名',
+      title: t('member.colAccount'),
       dataIndex: 'name',
       render: (text: string, record) => {
         return (
@@ -497,11 +505,15 @@ const GroupModal = ({
       render: (text: string, record) => {
         return record.type === 'user' ? (
           <Box sx={{ color: 'text.secondary' }}>
-            {dayjs(text).fromNow()}加入，
-            {dayjs(record.last_login_time).fromNow()}活跃
+            {t('setting.group.joinedAt', { time: dayjs(text).fromNow() })}
+            {t('setting.group.activeAt', {
+              time: dayjs(record.last_login_time).fromNow(),
+            })}
           </Box>
         ) : (
-          <Box sx={{ color: 'text.secondary' }}>共 {record.count} 个成员</Box>
+          <Box sx={{ color: 'text.secondary' }}>
+            {t('setting.group.memberCount', { count: record.count })}
+          </Box>
         );
       },
     },
@@ -539,7 +551,7 @@ const GroupModal = ({
       showCancel={false}
       onCancel={onCancel}
       onOk={onCancel}
-      okText='关闭'
+      okText={t('common.close')}
     >
       <Table
         columns={columns}
@@ -571,7 +583,7 @@ const GroupModal = ({
         renderEmpty={
           <Stack alignItems={'center'}>
             <img src={NoData} width={124} />
-            <Box>暂无数据</Box>
+            <Box>{t('common.noData')}</Box>
           </Stack>
         }
       />

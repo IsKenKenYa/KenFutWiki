@@ -17,7 +17,7 @@ export type FormData = {
 };
 
 /**
- * 验证表单数据
+ * 验证表单数据；errorMessage 为 i18n key，由调用方翻译后展示
  */
 export const validateFormData = (
   formData: FormData,
@@ -32,31 +32,31 @@ export const validateFormData = (
     ].includes(type)
   ) {
     if (!formData.url?.trim()) {
-      return { isValid: false, errorMessage: '请输入有效的地址' };
+      return { isValid: false, errorMessage: 'addDoc.validate.enterUrl' };
     }
   }
 
   if (type === ConstsCrawlerSource.CrawlerSourceFeishu) {
     if (!formData.app_id?.trim()) {
-      return { isValid: false, errorMessage: '请输入 App ID' };
+      return { isValid: false, errorMessage: 'addDoc.validate.enterAppId' };
     }
     if (!formData.app_secret?.trim()) {
-      return { isValid: false, errorMessage: '请输入 Client Secret' };
+      return { isValid: false, errorMessage: 'addDoc.validate.enterSecret' };
     }
     if (!formData.user_access_token?.trim()) {
-      return { isValid: false, errorMessage: '请输入 User Access Token' };
+      return { isValid: false, errorMessage: 'addDoc.validate.enterToken' };
     }
   }
 
   if (type === ConstsCrawlerSource.CrawlerSourceDingtalk) {
     if (!formData.app_id?.trim()) {
-      return { isValid: false, errorMessage: '请输入 App ID' };
+      return { isValid: false, errorMessage: 'addDoc.validate.enterAppId' };
     }
     if (!formData.app_secret?.trim()) {
-      return { isValid: false, errorMessage: '请输入 App Secret' };
+      return { isValid: false, errorMessage: 'addDoc.validate.enterSecret' };
     }
     if (!formData.unionid?.trim()) {
-      return { isValid: false, errorMessage: '请输入 Union ID' };
+      return { isValid: false, errorMessage: 'addDoc.validate.enterUnionId' };
     }
   }
 
@@ -81,7 +81,7 @@ export const pollCrawlerResults = async (
 
     const result = resultsResp.list?.[0];
     if (!result) {
-      throw new Error('未获取到结果');
+      throw new Error('no crawler result returned');
     }
 
     // 如果状态是完成或失败，返回结果
@@ -100,7 +100,7 @@ export const pollCrawlerResults = async (
   }
 
   // 超时
-  throw new Error('轮询超时');
+  throw new Error('polling timed out');
 };
 
 export const flattenCrawlerParseResponse = (

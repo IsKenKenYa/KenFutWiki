@@ -8,6 +8,7 @@ import { message, Modal } from '@ctzhian/ui';
 import ErrorIcon from '@mui/icons-material/Error';
 import { Box, Stack } from '@mui/material';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface DocSummaryProps {
   open: boolean;
@@ -18,22 +19,23 @@ interface DocSummaryProps {
 }
 
 const DocSummary = ({ open, kb_id, onClose, data }: DocSummaryProps) => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
 
   const submit = () => {
     if (data.length === 0) {
-      message.warning('请选择文档');
+      message.warning(t('doc.selectDocsFirst'));
       return;
     }
     setLoading(true);
     postApiV1NodeSummary({ kb_id, ids: data.map(it => it.id!) })
       .then(() => {
-        message.success('正在后台生成文档摘要');
+        message.success(t('doc.summary.backgroundStarted'));
         onClose();
       })
       .catch(error => {
         setLoading(false);
-        message.error(error?.message || '生成摘要失败');
+        message.error(error?.message || t('doc.summary.generateFailed'));
       })
       .finally(() => {
         setLoading(false);
@@ -49,12 +51,12 @@ const DocSummary = ({ open, kb_id, onClose, data }: DocSummaryProps) => {
       title={
         <Stack direction='row' alignItems='center' gap={1}>
           <ErrorIcon sx={{ color: 'warning.main' }} />
-          确认为以下文档 AI 生成摘要？
+          {t('doc.summary.confirmBulk')}
         </Stack>
       }
       open={open}
       width={600}
-      okText={'生成摘要'}
+      okText={t('doc.summary.generate')}
       onCancel={onClose}
       onOk={submit}
       okButtonProps={{
@@ -82,7 +84,7 @@ const DocSummary = ({ open, kb_id, onClose, data }: DocSummaryProps) => {
           color: 'warning.main',
         }}
       >
-        AI 生成需要一定的时间，可以稍后查看
+        {t('doc.summary.bulkHint')}
       </Box>
     </Modal>
   );

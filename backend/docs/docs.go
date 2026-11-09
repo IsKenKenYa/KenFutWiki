@@ -7143,6 +7143,14 @@ const docTemplate = `{
                 "provider": {
                     "$ref": "#/definitions/github_com_chaitin_panda-wiki_domain.ModelProvider"
                 },
+                "provider_name": {
+                    "description": "自定义供应商的展示名",
+                    "type": "string"
+                },
+                "show_name": {
+                    "description": "模型展示名",
+                    "type": "string"
+                },
                 "type": {
                     "enum": [
                         "chat",
@@ -9276,6 +9284,14 @@ const docTemplate = `{
                 "provider": {
                     "$ref": "#/definitions/github_com_chaitin_panda-wiki_domain.ModelProvider"
                 },
+                "provider_name": {
+                    "description": "自定义供应商的展示名",
+                    "type": "string"
+                },
+                "show_name": {
+                    "description": "模型展示名",
+                    "type": "string"
+                },
                 "type": {
                     "enum": [
                         "chat",
@@ -9743,6 +9759,14 @@ const docTemplate = `{
                 "provider": {
                     "$ref": "#/definitions/github_com_chaitin_panda-wiki_domain.ModelProvider"
                 },
+                "provider_name": {
+                    "description": "自定义供应商的展示名",
+                    "type": "string"
+                },
+                "show_name": {
+                    "description": "模型展示名",
+                    "type": "string"
+                },
                 "type": {
                     "enum": [
                         "chat",
@@ -9806,6 +9830,12 @@ const docTemplate = `{
                 },
                 "provider": {
                     "$ref": "#/definitions/github_com_chaitin_panda-wiki_domain.ModelProvider"
+                },
+                "provider_name": {
+                    "type": "string"
+                },
+                "show_name": {
+                    "type": "string"
                 },
                 "total_tokens": {
                     "type": "integer"

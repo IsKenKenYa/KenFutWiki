@@ -16,9 +16,11 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const StepStorage = forwardRef<{ onSubmit: () => Promise<void> }>(
   (_props, ref) => {
+    const { t } = useTranslation();
     const [useDefault, setUseDefault] = useState(true);
     const [detail, setDetail] = useState<DomainStorageSettingDetail | null>(
       null,
@@ -44,11 +46,11 @@ const StepStorage = forwardRef<{ onSubmit: () => Promise<void> }>(
         }
         // 安装向导中未保存过配置时 secret 必须显式填写
         if (!request.secret_key) {
-          message.error('请填写 Secret Key');
+          message.error(t('storage.secretRequired'));
           return Promise.reject(new Error('secret key required'));
         }
         await postApiV1StorageSetting(request);
-        message.success('存储配置已保存');
+        message.success(t('storage.saved'));
       },
     }));
 

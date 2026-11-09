@@ -27,6 +27,7 @@ import { getApiV1AuthGet, postApiV1AuthSet } from '@/request/Auth';
 import { message, Table, Icon, Modal } from '@ctzhian/ui';
 import { ColumnType } from '@ctzhian/ui/dist/Table';
 import { useEffect, useMemo, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { useAppSelector } from '@/store';
 import { BUSINESS_VERSION_PERMISSION } from '@/constant/version';
@@ -47,6 +48,7 @@ type ExtendConstsSourceType =
   (typeof EXTEND_CONSTS_SOURCE_TYPE)[keyof typeof EXTEND_CONSTS_SOURCE_TYPE];
 
 const CardAuth = ({ kb, refresh }: CardAuthProps) => {
+  const { t } = useTranslation();
   const { license, kb_id } = useAppSelector(state => state.config);
   const [isEdit, setIsEdit] = useState(false);
   const [scopeInputValue, setScopeInputValue] = useState('');
@@ -91,7 +93,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
   const userInfoUrl = watch('user_info_url');
   const enabled = watch('enabled');
 
-  const tips = '(联创版/企业版可用)';
+  const tips = t('setting.auth.editionTip');
 
   const onSubmit = handleSubmit(value => {
     Promise.all([
@@ -154,7 +156,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
         enabled: value.enabled === '2',
         password: value.password,
       });
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
     });
   });
@@ -235,7 +237,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
 
   const columns: ColumnType<GithubComChaitinPandaWikiProApiAuthV1AuthItem>[] = [
     {
-      title: '用户名',
+      title: t('member.colAccount'),
       dataIndex: 'username',
       render: (text: string, record) => {
         return (
@@ -256,8 +258,10 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
       render: (text: string, record) => {
         return (
           <Box sx={{ color: 'text.secondary' }}>
-            {dayjs(text).fromNow()}加入，
-            {dayjs(record.last_login_time).fromNow()}活跃
+            {t('setting.group.joinedAt', { time: dayjs(text).fromNow() })}
+            {t('setting.group.activeAt', {
+              time: dayjs(record.last_login_time).fromNow(),
+            })}
           </Box>
         );
       },
@@ -272,13 +276,13 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
             control={control}
             name='client_id'
             rules={{
-              required: 'Client ID 不能为空',
+              required: t('auth.clientIdRequired'),
             }}
             render={({ field }) => (
               <TextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 error={!!errors.client_id}
                 helperText={errors.client_id?.message}
                 onChange={e => {
@@ -294,13 +298,13 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
             control={control}
             name='client_secret'
             rules={{
-              required: 'Client Secret 不能为空',
+              required: t('auth.clientSecretRequired'),
             }}
             render={({ field }) => (
               <SecretTextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 error={!!errors.client_secret}
                 helperText={errors.client_secret?.message}
                 onChange={e => {
@@ -311,7 +315,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
             )}
           />
         </FormItem>
-        <FormItem label='代理地址'>
+        <FormItem label={t('setting.proxyTitle')}>
           <Controller
             control={control}
             name='proxy'
@@ -319,7 +323,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
               <TextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 onChange={e => {
                   field.onChange(e.target.value);
                   setIsEdit(true);
@@ -339,14 +343,14 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
           <Controller
             control={control}
             rules={{
-              required: 'Access Token URL 不能为空',
+              required: t('auth.tokenUrlRequired'),
             }}
             name='token_url'
             render={({ field }) => (
               <TextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 error={!!errors.token_url}
                 helperText={errors.token_url?.message}
                 onChange={e => {
@@ -362,13 +366,13 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
             control={control}
             name='authorize_url'
             rules={{
-              required: 'Authorize URL 不能为空',
+              required: t('auth.authorizeUrlRequired'),
             }}
             render={({ field }) => (
               <TextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 error={!!errors.authorize_url}
                 helperText={errors.authorize_url?.message}
                 onChange={e => {
@@ -384,13 +388,13 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
             control={control}
             name='client_id'
             rules={{
-              required: 'Client ID 不能为空',
+              required: t('auth.clientIdRequired'),
             }}
             render={({ field }) => (
               <TextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 error={!!errors.client_id}
                 helperText={errors.client_id?.message}
                 onChange={e => {
@@ -406,13 +410,13 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
             control={control}
             name='client_secret'
             rules={{
-              required: 'Client Secret 不能为空',
+              required: t('auth.clientSecretRequired'),
             }}
             render={({ field }) => (
               <SecretTextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 error={!!errors.client_secret}
                 helperText={errors.client_secret?.message}
                 onChange={e => {
@@ -431,7 +435,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
             rules={{
               validate: value => {
                 if (value.length === 0) {
-                  return 'Scope 不能为空';
+                  return t('auth.scopeRequired');
                 }
                 return true;
               },
@@ -463,7 +467,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
                   <TextField
                     {...params}
                     required
-                    placeholder='请输入（可多个, 回车键确认）'
+                    placeholder={t('auth.scopePlaceholder')}
                     error={Boolean(errors.scopes)}
                     helperText={errors.scopes?.message as string}
                     fullWidth
@@ -483,18 +487,18 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
             )}
           />
         </FormItem>
-        <FormItem label='用户信息 URL' required>
+        <FormItem label={t('auth.userInfoUrl')} required>
           <Controller
             control={control}
             name='user_info_url'
             rules={{
-              required: '用户信息 URL 不能为空',
+              required: t('auth.userInfoUrlRequired'),
             }}
             render={({ field }) => (
               <TextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 error={!!errors.user_info_url}
                 helperText={errors.user_info_url?.message}
                 onChange={e => {
@@ -507,18 +511,18 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
         </FormItem>
         {userInfoUrl && (
           <>
-            <FormItem label='ID 字段' required>
+            <FormItem label={t('auth.idField')} required>
               <Controller
                 control={control}
                 name='id_field'
                 rules={{
-                  required: 'ID 字段 不能为空',
+                  required: t('auth.idFieldRequired'),
                 }}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     fullWidth
-                    placeholder='请输入'
+                    placeholder={t('common.enter')}
                     error={!!errors.id_field}
                     helperText={errors.id_field?.message}
                     onChange={e => {
@@ -529,18 +533,18 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
                 )}
               />
             </FormItem>
-            <FormItem label='用户名字段' required>
+            <FormItem label={t('auth.nameField')} required>
               <Controller
                 control={control}
                 name='name_field'
                 rules={{
-                  required: '用户名字段不能为空',
+                  required: t('auth.nameFieldRequired'),
                 }}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     fullWidth
-                    placeholder='请输入'
+                    placeholder={t('common.enter')}
                     error={!!errors.name_field}
                     helperText={errors.name_field?.message}
                     onChange={e => {
@@ -551,18 +555,18 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
                 )}
               />
             </FormItem>
-            <FormItem label='头像字段' required>
+            <FormItem label={t('auth.avatarField')} required>
               <Controller
                 control={control}
                 name='avatar_field'
                 rules={{
-                  required: '头像字段不能为空',
+                  required: t('auth.avatarFieldRequired'),
                 }}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     fullWidth
-                    placeholder='请输入'
+                    placeholder={t('common.enter')}
                     error={!!errors.avatar_field}
                     helperText={errors.avatar_field?.message}
                     onChange={e => {
@@ -573,18 +577,18 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
                 )}
               />
             </FormItem>
-            <FormItem label='邮箱字段' required>
+            <FormItem label={t('auth.emailField')} required>
               <Controller
                 control={control}
                 name='email_field'
                 rules={{
-                  required: '邮箱字段不能为空',
+                  required: t('auth.emailFieldRequired'),
                 }}
                 render={({ field }) => (
                   <TextField
                     {...field}
                     fullWidth
-                    placeholder='请输入'
+                    placeholder={t('common.enter')}
                     error={!!errors.email_field}
                     helperText={errors.email_field?.message}
                     onChange={e => {
@@ -608,14 +612,14 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
           <Controller
             control={control}
             rules={{
-              required: 'CAS URL 不能为空',
+              required: t('auth.casUrlRequired'),
             }}
             name='cas_url'
             render={({ field }) => (
               <TextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 error={!!errors.cas_url}
                 helperText={errors.cas_url?.message}
                 onChange={e => {
@@ -634,7 +638,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
               <TextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 error={!!errors.cas_version}
                 helperText={errors.cas_version?.message}
                 select
@@ -655,18 +659,18 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
 
   const passwordForm = () => {
     return (
-      <FormItem label='访问口令' required>
+      <FormItem label={t('setting.accessToken')} required>
         <Controller
           control={control}
           rules={{
-            required: '访问口令不能为空',
+            required: t('setting.accessTokenRequired'),
           }}
           name='password'
           render={({ field }) => (
             <SecretTextField
               {...field}
               fullWidth
-              placeholder='请输入'
+              placeholder={t('common.enter')}
               error={!!errors.password}
               helperText={errors.password?.message}
               onChange={e => {
@@ -687,14 +691,14 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
           <Controller
             control={control}
             rules={{
-              required: 'LDAP Server URL 不能为空',
+              required: t('auth.ldapUrlRequired'),
             }}
             name='ldap_server_url'
             render={({ field }) => (
               <TextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 error={!!errors.cas_url}
                 helperText={errors.ldap_server_url?.message}
                 onChange={e => {
@@ -713,7 +717,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
               <TextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 error={!!errors.bind_dn}
                 helperText={errors.bind_dn?.message}
                 onChange={e => {
@@ -732,7 +736,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
               <SecretTextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 error={!!errors.bind_password}
                 helperText={errors.bind_password?.message}
                 onChange={e => {
@@ -743,7 +747,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
             )}
           />
         </FormItem>
-        <FormItem label='用户 Base DN' required>
+        <FormItem label={t('auth.userBaseDn')} required>
           <Controller
             control={control}
             name='user_base_dn'
@@ -751,7 +755,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
               <TextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 error={!!errors.user_base_dn}
                 helperText={errors.user_base_dn?.message}
                 onChange={e => {
@@ -762,7 +766,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
             )}
           />
         </FormItem>
-        <FormItem label='用户查询条件' required>
+        <FormItem label={t('auth.userFilter')} required>
           <Controller
             control={control}
             name='user_filter'
@@ -770,7 +774,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
               <TextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 error={!!errors.user_filter}
                 helperText={errors.user_filter?.message}
                 onChange={e => {
@@ -787,8 +791,12 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
 
   return (
     <>
-      <SettingCardItem title='访问认证' isEdit={isEdit} onSubmit={onSubmit}>
-        <FormItem label='访问控制'>
+      <SettingCardItem
+        title={t('setting.auth.title')}
+        isEdit={isEdit}
+        onSubmit={onSubmit}
+      >
+        <FormItem label={t('setting.accessControl')}>
           <Controller
             control={control}
             name='enabled'
@@ -824,7 +832,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
 
         {enabled === '2' && (
           <>
-            <FormItem label='登录方式'>
+            <FormItem label={t('auth.loginMethod')}>
               <Controller
                 control={control}
                 name='source_type'
@@ -920,7 +928,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
                     rules={{
                       required: {
                         value: true,
-                        message: 'Client Id 不能为空',
+                        message: t('auth.clientIdRequired'),
                       },
                     }}
                     render={({ field }) => (
@@ -931,7 +939,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
                           setIsEdit(true);
                         }}
                         fullWidth
-                        placeholder='请输入'
+                        placeholder={t('common.enter')}
                         error={!!errors.client_id}
                         helperText={errors.client_id?.message}
                       />
@@ -945,7 +953,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
                     rules={{
                       required: {
                         value: true,
-                        message: ' Client Secret 不能为空',
+                        message: t('auth.clientSecretRequired'),
                       },
                     }}
                     render={({ field }) => (
@@ -956,7 +964,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
                           field.onChange(e.target.value);
                           setIsEdit(true);
                         }}
-                        placeholder='请输入'
+                        placeholder={t('common.enter')}
                         error={!!errors.client_secret}
                         helperText={errors.client_secret?.message}
                       />
@@ -971,7 +979,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
                       rules={{
                         required: {
                           value: true,
-                          message: 'Agent ID  不能为空',
+                          message: t('auth.agentIdRequired'),
                         },
                       }}
                       render={({ field }) => (
@@ -982,7 +990,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
                             field.onChange(e.target.value);
                             setIsEdit(true);
                           }}
-                          placeholder='请输入'
+                          placeholder={t('common.enter')}
                           error={!!errors.agent_id}
                           helperText={errors.agent_id?.message}
                         />
@@ -1015,7 +1023,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
               sourceType={source_type}
               getAuth={getAuth}
             />
-            <SettingCardItem title='成员'>
+            <SettingCardItem title={t('setting.group.title')}>
               <Table
                 columns={columns}
                 dataSource={memberList}

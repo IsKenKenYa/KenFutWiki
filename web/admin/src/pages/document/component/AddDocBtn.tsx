@@ -2,6 +2,7 @@ import TreeMenu, { TreeMenuItem } from '@/components/Drag/DragTree/TreeMenu';
 import { ConstsCrawlerSource } from '@/request';
 import { Box, Button } from '@mui/material';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import AddDocByType from './AddDocByType';
 import DocAddByCustomText from './DocAddByCustomText';
 
@@ -33,11 +34,12 @@ const AddDocBtn = ({
   const [uploadOpen, setUploadOpen] = useState(false);
   const [key, setKey] = useState<ConstsCrawlerSource | null>(null);
   const [docFileKey, setDocFileKey] = useState<1 | 2>(1);
+  const { t } = useTranslation();
 
   const menuItems: TreeMenuItem[] = [
     {
       key: 'docFile',
-      label: '创建文件夹',
+      label: t('doc.createFolder'),
       onClick: () => {
         setDocFileKey(1);
         setCustomDocOpen(true);
@@ -45,7 +47,7 @@ const AddDocBtn = ({
     },
     {
       key: 'next-line',
-      label: '创建文档',
+      label: t('doc.createDocument'),
       onClick: () => {
         setDocFileKey(2);
         setCustomDocOpen(true);
@@ -55,7 +57,7 @@ const AddDocBtn = ({
       ? [
           {
             key: ConstsCrawlerSource.CrawlerSourceFile,
-            label: '通过离线文件导入',
+            label: t('doc.import.file'),
             onClick: () => {
               setUploadOpen(true);
               setKey(ConstsCrawlerSource.CrawlerSourceFile);
@@ -63,7 +65,7 @@ const AddDocBtn = ({
           },
           {
             key: ConstsCrawlerSource.CrawlerSourceUrl,
-            label: '通过 URL 导入',
+            label: t('doc.import.url'),
             onClick: () => {
               setKey(ConstsCrawlerSource.CrawlerSourceUrl);
               setUploadOpen(true);
@@ -71,7 +73,7 @@ const AddDocBtn = ({
           },
           {
             key: ConstsCrawlerSource.CrawlerSourceRSS,
-            label: '通过 RSS 导入',
+            label: t('doc.import.rss'),
             onClick: () => {
               setUploadOpen(true);
               setKey(ConstsCrawlerSource.CrawlerSourceRSS);
@@ -79,7 +81,7 @@ const AddDocBtn = ({
           },
           {
             key: ConstsCrawlerSource.CrawlerSourceSitemap,
-            label: '通过 Sitemap 导入',
+            label: t('doc.import.sitemap'),
             onClick: () => {
               setUploadOpen(true);
               setKey(ConstsCrawlerSource.CrawlerSourceSitemap);
@@ -87,7 +89,7 @@ const AddDocBtn = ({
           },
           {
             key: ConstsCrawlerSource.CrawlerSourceNotion,
-            label: '通过 Notion 导入',
+            label: t('doc.import.notion'),
             onClick: () => {
               setUploadOpen(true);
               setKey(ConstsCrawlerSource.CrawlerSourceNotion);
@@ -95,7 +97,7 @@ const AddDocBtn = ({
           },
           {
             key: ConstsCrawlerSource.CrawlerSourceEpub,
-            label: '通过 Epub 导入',
+            label: t('doc.import.epub'),
             onClick: () => {
               setUploadOpen(true);
               setKey(ConstsCrawlerSource.CrawlerSourceEpub);
@@ -103,7 +105,7 @@ const AddDocBtn = ({
           },
           {
             key: ConstsCrawlerSource.CrawlerSourceWikijs,
-            label: '通过 Wiki.js 导入',
+            label: t('doc.import.wikijs'),
             onClick: () => {
               setUploadOpen(true);
               setKey(ConstsCrawlerSource.CrawlerSourceWikijs);
@@ -111,7 +113,7 @@ const AddDocBtn = ({
           },
           {
             key: ConstsCrawlerSource.CrawlerSourceYuque,
-            label: '通过 语雀 导入',
+            label: t('doc.import.yuque'),
             onClick: () => {
               setUploadOpen(true);
               setKey(ConstsCrawlerSource.CrawlerSourceYuque);
@@ -119,7 +121,7 @@ const AddDocBtn = ({
           },
           {
             key: ConstsCrawlerSource.CrawlerSourceSiyuan,
-            label: '通过 思源笔记 导入',
+            label: t('doc.import.siyuan'),
             onClick: () => {
               setUploadOpen(true);
               setKey(ConstsCrawlerSource.CrawlerSourceSiyuan);
@@ -127,7 +129,7 @@ const AddDocBtn = ({
           },
           {
             key: ConstsCrawlerSource.CrawlerSourceMindoc,
-            label: '通过 MinDoc 导入',
+            label: t('doc.import.mindoc'),
             onClick: () => {
               setUploadOpen(true);
               setKey(ConstsCrawlerSource.CrawlerSourceMindoc);
@@ -135,7 +137,7 @@ const AddDocBtn = ({
           },
           {
             key: ConstsCrawlerSource.CrawlerSourceFeishu,
-            label: '通过飞书文档导入',
+            label: t('doc.import.feishu'),
             onClick: () => {
               setUploadOpen(true);
               setKey(ConstsCrawlerSource.CrawlerSourceFeishu);
@@ -143,7 +145,7 @@ const AddDocBtn = ({
           },
           {
             key: ConstsCrawlerSource.CrawlerSourceDingtalk,
-            label: '通过钉钉文档导入',
+            label: t('doc.import.dingtalk'),
             onClick: () => {
               setUploadOpen(true);
               setKey(ConstsCrawlerSource.CrawlerSourceDingtalk);
@@ -151,7 +153,7 @@ const AddDocBtn = ({
           },
           {
             key: ConstsCrawlerSource.CrawlerSourceConfluence,
-            label: '通过 Confluence 导入',
+            label: t('doc.import.confluence'),
             onClick: () => {
               setUploadOpen(true);
               setKey(ConstsCrawlerSource.CrawlerSourceConfluence);

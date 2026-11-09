@@ -16,6 +16,7 @@ import { CusTabs, message, Modal } from '@ctzhian/ui';
 import { IconWenjian, IconIcon_tool_close } from '@panda-wiki/icons';
 import dayjs from 'dayjs';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import LottieIcon from '../LottieIcon';
 import { ConstsLicenseEdition } from '@/request/types';
 
@@ -32,6 +33,7 @@ const AuthTypeModal = ({
   curVersion,
   latestVersion,
 }: AuthTypeModalProps) => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { license } = useAppSelector(state => state.config);
 
@@ -56,7 +58,7 @@ const AuthTypeModal = ({
       license_file: file,
     })
       .then(() => {
-        message.success('激活成功');
+        message.success(t('layout.version.activateSuccess'));
         setUpdateOpen(false);
         setCode('');
         setFile(undefined);
@@ -72,23 +74,23 @@ const AuthTypeModal = ({
 
   const handleUnbind = () => {
     Modal.confirm({
-      title: '确认解绑授权',
-      content: '解绑后将回到社区版，确定要解绑当前授权吗？',
+      title: t('layout.version.unbindTitle'),
+      content: t('layout.version.unbindContent'),
       onOk: () => {
         setUnbindLoading(true);
         deleteApiV1License()
           .then(() => {
-            message.success('解绑成功');
+            message.success(t('layout.version.unbindSuccess'));
             getApiV1License()
               .then(res => {
                 dispatch(setLicense(res));
               })
               .catch(() => {
-                message.error('授权信息刷新失败，请手动刷新页面');
+                message.error(t('layout.version.refreshFailed'));
               });
           })
           .catch(() => {
-            message.error('解绑失败，请重试');
+            message.error(t('layout.version.unbindFailed'));
           })
           .finally(() => {
             setUnbindLoading(false);
@@ -102,17 +104,19 @@ const AuthTypeModal = ({
       <Modal
         open={open}
         footer={null}
-        title='关于 KenFutWiki'
+        title={t('layout.version.about')}
         onCancel={onClose}
       >
         <Stack gap={1} sx={{ fontSize: 14, lineHeight: '32px' }}>
           <Stack direction={'row'} alignItems={'center'}>
-            <Box sx={{ width: 120, flexShrink: 0 }}>当前版本</Box>
+            <Box sx={{ width: 120, flexShrink: 0 }}>
+              {t('layout.version.current')}
+            </Box>
             <Stack direction={'row'} alignItems={'center'} gap={2}>
               <Box sx={{ fontWeight: 700, minWidth: 50 }}>{curVersion}</Box>
               {latestVersion === `v${curVersion}` ? (
                 <Box sx={{ color: 'text.tertiary', fontSize: 12 }}>
-                  已是最新版本，无需更新
+                  {t('layout.version.upToDate')}
                 </Box>
               ) : (
                 <Button
@@ -132,15 +136,17 @@ const AuthTypeModal = ({
                     );
                   }}
                 >
-                  立即更新
+                  {t('layout.version.updateNow')}
                 </Button>
               )}
             </Stack>
           </Stack>
           <Stack direction={'row'} alignItems={'center'}>
-            <Box sx={{ width: 120, flexShrink: 0 }}>产品型号</Box>
+            <Box sx={{ width: 120, flexShrink: 0 }}>
+              {t('layout.version.edition')}
+            </Box>
             <Stack direction={'row'} alignItems={'center'} gap={2}>
-              <Box sx={{ minWidth: 50 }}>{versionInfo.label}</Box>
+              <Box sx={{ minWidth: 50 }}>{t(versionInfo.label)}</Box>
               {license.edition === ConstsLicenseEdition.LicenseEditionFree ? (
                 <Stack direction={'row'} gap={2}>
                   <Button
@@ -156,7 +162,7 @@ const AuthTypeModal = ({
                     }
                     onClick={() => setUpdateOpen(true)}
                   >
-                    激活授权
+                    {t('layout.version.activate')}
                   </Button>
                   <Button
                     size='small'
@@ -173,7 +179,7 @@ const AuthTypeModal = ({
                       window.open('https://baizhi.cloud/consult');
                     }}
                   >
-                    商务咨询
+                    {t('layout.version.consult')}
                   </Button>
                 </Stack>
               ) : (
@@ -191,7 +197,7 @@ const AuthTypeModal = ({
                     }
                     onClick={() => setUpdateOpen(true)}
                   >
-                    切换授权
+                    {t('layout.version.switchLicense')}
                   </Button>
                   <Button
                     size='small'
@@ -207,7 +213,7 @@ const AuthTypeModal = ({
                     }
                     onClick={handleUnbind}
                   >
-                    解绑授权
+                    {t('layout.version.unbind')}
                   </Button>
                   <Button
                     size='small'
@@ -224,7 +230,7 @@ const AuthTypeModal = ({
                       window.open('https://baizhi.cloud/consult');
                     }}
                   >
-                    商务咨询
+                    {t('layout.version.consult')}
                   </Button>
                 </Stack>
               )}
@@ -233,7 +239,9 @@ const AuthTypeModal = ({
           {license.edition! !== ConstsLicenseEdition.LicenseEditionFree && (
             <Box>
               <Stack direction={'row'} alignItems={'center'}>
-                <Box sx={{ width: 120, flexShrink: 0 }}>授权时间</Box>
+                <Box sx={{ width: 120, flexShrink: 0 }}>
+                  {t('layout.version.period')}
+                </Box>
                 <Box>
                   {dayjs.unix(license.started_at!).format('YYYY-MM-DD')}
                 </Box>
@@ -251,7 +259,7 @@ const AuthTypeModal = ({
                     mt: -1,
                   }}
                 >
-                  授权已到期
+                  {t('layout.version.expired')}
                 </Box>
               )}
             </Box>
@@ -259,10 +267,10 @@ const AuthTypeModal = ({
         </Stack>
       </Modal>
       <Modal
-        title='激活授权'
+        title={t('layout.version.activate')}
         open={updateOpen}
         onCancel={() => setUpdateOpen(false)}
-        okText='确认激活'
+        okText={t('layout.version.activateConfirm')}
         okButtonProps={{
           loading,
         }}
@@ -272,8 +280,16 @@ const AuthTypeModal = ({
         <CusTabs
           sx={{ width: '100%', button: { width: '50%' } }}
           list={[
-            { label: '在线激活', value: 'code', disabled: loading },
-            { label: '离线激活', value: 'file', disabled: loading },
+            {
+              label: t('layout.version.onlineActivate'),
+              value: 'code',
+              disabled: loading,
+            },
+            {
+              label: t('layout.version.offlineActivate'),
+              value: 'file',
+              disabled: loading,
+            },
           ]}
           value={selected}
           change={(v: string) => setSelected(v as 'file' | 'code')}
@@ -281,7 +297,7 @@ const AuthTypeModal = ({
         {selected === 'code' && (
           <TextField
             sx={{ mt: 2 }}
-            label='请输入授权码'
+            label={t('layout.version.licenseCode')}
             variant='outlined'
             value={code}
             fullWidth

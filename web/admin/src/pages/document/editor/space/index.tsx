@@ -1,7 +1,9 @@
 import EmptyState from '@/components/EmptyState';
 import { Box } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 const Space = () => {
+  const { t } = useTranslation();
   return (
     <Box
       sx={{
@@ -11,7 +13,7 @@ const Space = () => {
         height: '100vh',
       }}
     >
-      <EmptyState text='暂无数据' />
+      <EmptyState text={t('common.noData')} />
     </Box>
   );
 };

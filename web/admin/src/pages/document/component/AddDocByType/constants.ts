@@ -53,7 +53,7 @@ export const SCRAPE_TYPES: readonly ConstsCrawlerSource[] = [
   ConstsCrawlerSource.CrawlerSourceSitemap,
 ] as const;
 
-// 类型配置
+// 类型配置：label/okText 存 i18n key，渲染时用 t() 翻译
 export const TYPE_CONFIG: Record<
   ConstsCrawlerSource,
   {
@@ -64,52 +64,52 @@ export const TYPE_CONFIG: Record<
   }
 > = {
   [ConstsCrawlerSource.CrawlerSourceFile]: {
-    label: '通过离线文件导入',
-    okText: '导入文件',
+    label: 'doc.import.file',
+    okText: 'addDoc.importFile',
     accept: '.txt, .md, .xls, .xlsx, .docx, .pdf, .html, .pptx',
   },
   [ConstsCrawlerSource.CrawlerSourceUrl]: {
-    label: '通过 URL 导入',
+    label: 'doc.import.url',
   },
   [ConstsCrawlerSource.CrawlerSourceRSS]: {
-    label: '通过 RSS 导入',
+    label: 'doc.import.rss',
   },
   [ConstsCrawlerSource.CrawlerSourceSitemap]: {
-    label: '通过 Sitemap 导入',
+    label: 'doc.import.sitemap',
   },
   [ConstsCrawlerSource.CrawlerSourceNotion]: {
-    label: '通过 Notion 导入',
+    label: 'doc.import.notion',
   },
   [ConstsCrawlerSource.CrawlerSourceEpub]: {
-    label: '通过 Epub 导入',
+    label: 'doc.import.epub',
     accept: '.epub',
   },
   [ConstsCrawlerSource.CrawlerSourceWikijs]: {
-    label: '通过 Wiki.js 导入',
+    label: 'doc.import.wikijs',
     accept: '.zip',
   },
   [ConstsCrawlerSource.CrawlerSourceYuque]: {
-    label: '通过语雀导入',
+    label: 'doc.import.yuque',
     accept: '.lakebook',
   },
   [ConstsCrawlerSource.CrawlerSourceSiyuan]: {
-    label: '通过思源笔记导入',
+    label: 'doc.import.siyuan',
     accept: '.zip',
   },
   [ConstsCrawlerSource.CrawlerSourceMindoc]: {
-    label: '通过 MinDoc 导入',
+    label: 'doc.import.mindoc',
     accept: '.zip',
   },
   [ConstsCrawlerSource.CrawlerSourceFeishu]: {
-    label: '通过飞书文档导入',
-    okText: '拉取知识库',
+    label: 'doc.import.feishu',
+    okText: 'addDoc.pullKb',
   },
   [ConstsCrawlerSource.CrawlerSourceDingtalk]: {
-    label: '通过钉钉文档导入',
-    okText: '拉取知识库',
+    label: 'doc.import.dingtalk',
+    okText: 'addDoc.pullKb',
   },
   [ConstsCrawlerSource.CrawlerSourceConfluence]: {
-    label: '通过 Confluence 导入',
+    label: 'doc.import.confluence',
     accept: '.zip',
   },
 };

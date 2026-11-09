@@ -25,6 +25,7 @@ import {
   TextField,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { FormItem, SettingCardItem } from '../../Common';
 
@@ -33,6 +34,7 @@ interface CardRobotWebComponentProps {
 }
 
 const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false);
   const [detail, setDetail] = useState<DomainAppDetailResp | null>(null);
@@ -110,7 +112,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
         btn_style: widget?.btn_style || 'side_sticky',
         btn_id: widget?.btn_id || '',
         btn_position: widget?.btn_position || 'bottom_right',
-        btn_text: widget?.btn_text || '在线客服',
+        btn_text: widget?.btn_text || t('widget.defaultBtnText'),
         btn_logo: widget?.btn_logo || '',
         modal_position: widget?.modal_position || 'follow',
         search_mode: widget?.search_mode || 'all',
@@ -142,7 +144,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
         },
       },
     ).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
       getDetail();
       reset();
@@ -154,9 +156,13 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
   }, [kb]);
 
   return (
-    <SettingCardItem title='网页挂件机器人' isEdit={isEdit} onSubmit={onSubmit}>
+    <SettingCardItem
+      title={t('enum.appType.widget')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
       <Stack spacing={3}>
-        <FormItem label='网页挂件机器人'>
+        <FormItem label={t('enum.appType.widget')}>
           <Controller
             control={control}
             name='is_open'
@@ -178,7 +184,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                 <FormControlLabel
                   value={0}
                   control={<Radio size='small' />}
-                  label={<Box sx={{ width: 100 }}>禁用</Box>}
+                  label={<Box sx={{ width: 100 }}>{t('common.disable')}</Box>}
                 />
               </RadioGroup>
             )}
@@ -186,7 +192,10 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
         </FormItem>
         {isEnabled && (
           <>
-            <FormItem label='嵌入代码' sx={{ alignItems: 'flex-start' }}>
+            <FormItem
+              label={t('widget.embedCode')}
+              sx={{ alignItems: 'flex-start' }}
+            >
               {url ? (
                 <ShowText
                   noEllipsis
@@ -208,16 +217,16 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                   }}
                 >
                   <IconJinggao sx={{ fontSize: 16 }} />
-                  未配置域名，可在
+                  {t('widget.noDomainPrefix')}
                   <Box component={'span'} sx={{ fontWeight: 500 }}>
-                    门户网站 / 服务监听方式
+                    {t('setting.tabPortal')} / {t('kb.listenMode')}
                   </Box>{' '}
-                  中配置
+                  {t('widget.noDomainSuffix')}
                 </Stack>
               )}
             </FormItem>
             <FormItem
-              label='配色方案'
+              label={t('widget.themeConfig')}
               sx={{ alignItems: 'flex-start' }}
               labelSx={{ mt: 1 }}
             >
@@ -236,19 +245,23 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                     <FormControlLabel
                       value='light'
                       control={<Radio size='small' />}
-                      label={<Box sx={{ width: 100 }}>浅色模式</Box>}
+                      label={
+                        <Box sx={{ width: 100 }}>{t('setting.themeLight')}</Box>
+                      }
                     />
                     <FormControlLabel
                       value='dark'
                       control={<Radio size='small' />}
-                      label={<Box sx={{ width: 100 }}>深色模式</Box>}
+                      label={
+                        <Box sx={{ width: 100 }}>{t('setting.themeDark')}</Box>
+                      }
                     />
                   </RadioGroup>
                 )}
               />
             </FormItem>
             <FormItem
-              label='挂件配置'
+              label={t('widget.widgetConfig')}
               sx={{ alignItems: 'flex-start' }}
               labelSx={{ mt: 1 }}
             >
@@ -260,13 +273,13 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                     onClick={() => setWidgetConfigOpen(true)}
                     endIcon={<ExpandMoreIcon />}
                   >
-                    展开
+                    {t('common.expand')}
                   </Button>
                 )}
                 <Collapse in={widgetConfigOpen}>
                   <Stack spacing={2.5}>
                     <FormItem
-                      label='按钮样式'
+                      label={t('widget.btnStyle')}
                       sx={{ alignItems: 'flex-start' }}
                       labelSx={{ mt: 1 }}
                     >
@@ -289,17 +302,29 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                             <FormControlLabel
                               value='hover_ball'
                               control={<Radio size='small' />}
-                              label={<Box sx={{ width: 100 }}>悬浮球</Box>}
+                              label={
+                                <Box sx={{ width: 100 }}>
+                                  {t('widget.styleHoverBall')}
+                                </Box>
+                              }
                             />
                             <FormControlLabel
                               value='side_sticky'
                               control={<Radio size='small' />}
-                              label={<Box sx={{ width: 100 }}>侧边吸附</Box>}
+                              label={
+                                <Box sx={{ width: 100 }}>
+                                  {t('widget.styleSideSticky')}
+                                </Box>
+                              }
                             />
                             <FormControlLabel
                               value='btn_trigger'
                               control={<Radio size='small' />}
-                              label={<Box sx={{ width: 100 }}>自定义按钮</Box>}
+                              label={
+                                <Box sx={{ width: 100 }}>
+                                  {t('widget.styleCustomBtn')}
+                                </Box>
+                              }
                             />
                           </RadioGroup>
                         )}
@@ -307,7 +332,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                     </FormItem>
                     {isCustomButton ? (
                       <FormItem
-                        label='自定义按钮 ID'
+                        label={t('widget.customBtnId')}
                         required
                         sx={{ alignItems: 'flex-start' }}
                         labelSx={{ mt: 1 }}
@@ -316,13 +341,13 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                           control={control}
                           name='btn_id'
                           rules={{
-                            required: '自定义按钮 ID 不能为空',
+                            required: t('widget.customBtnIdRequired'),
                           }}
                           render={({ field }) => (
                             <TextField
                               {...field}
                               fullWidth
-                              placeholder='嵌入网站中自定义按钮的 #id 点击触发，如: pandawiki-widget-bot-btn'
+                              placeholder={t('widget.customBtnIdPlaceholder')}
                               error={!!errors.btn_id}
                               helperText={errors.btn_id?.message}
                               onChange={event => {
@@ -336,7 +361,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                     ) : (
                       <>
                         <FormItem
-                          label='按钮位置'
+                          label={t('widget.btnPosition')}
                           sx={{ alignItems: 'flex-start' }}
                           labelSx={{ mt: 1 }}
                         >
@@ -378,7 +403,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                         </FormItem>
                         {btn_style !== 'hover_ball' && (
                           <FormItem
-                            label='按钮文字'
+                            label={t('widget.btnText')}
                             sx={{ alignItems: 'flex-start' }}
                             labelSx={{ mt: 1 }}
                           >
@@ -389,7 +414,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                                 <TextField
                                   {...field}
                                   fullWidth
-                                  placeholder='输入按钮文字'
+                                  placeholder={t('widget.btnTextPlaceholder')}
                                   error={!!errors.btn_text}
                                   helperText={errors.btn_text?.message}
                                   onChange={event => {
@@ -402,7 +427,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                           </FormItem>
                         )}
                         <FormItem
-                          label='按钮图标'
+                          label={t('widget.btnIcon')}
                           sx={{ alignItems: 'flex-start' }}
                           labelSx={{ mt: 1 }}
                         >
@@ -443,13 +468,13 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                     onClick={() => setModalConfigOpen(true)}
                     endIcon={<ExpandMoreIcon />}
                   >
-                    展开
+                    {t('common.expand')}
                   </Button>
                 )}
                 <Collapse in={modalConfigOpen}>
                   <Stack spacing={2.5}>
                     <FormItem
-                      label='弹窗位置'
+                      label={t('widget.modalPosition')}
                       sx={{ alignItems: 'flex-start' }}
                       labelSx={{ mt: 1 }}
                     >
@@ -475,14 +500,22 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                                 control={
                                   <Radio size='small' disabled={isDisabled} />
                                 }
-                                label={<Box sx={{ width: 100 }}>跟随按钮</Box>}
+                                label={
+                                  <Box sx={{ width: 100 }}>
+                                    {t('widget.positionFollow')}
+                                  </Box>
+                                }
                               />
                               <FormControlLabel
                                 value='fixed'
                                 control={
                                   <Radio size='small' disabled={isDisabled} />
                                 }
-                                label={<Box sx={{ width: 100 }}>居中展示</Box>}
+                                label={
+                                  <Box sx={{ width: 100 }}>
+                                    {t('widget.positionCenter')}
+                                  </Box>
+                                }
                               />
                             </RadioGroup>
                           );
@@ -490,7 +523,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                       />
                     </FormItem>
                     <FormItem
-                      label='搜索模式'
+                      label={t('widget.searchMode')}
                       sx={{ alignItems: 'flex-start' }}
                       labelSx={{ mt: 1 }}
                     >
@@ -509,20 +542,28 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                             <FormControlLabel
                               value='all'
                               control={<Radio size='small' />}
-                              label={<Box sx={{ width: 100 }}>双模式切换</Box>}
+                              label={
+                                <Box sx={{ width: 100 }}>
+                                  {t('widget.modeBoth')}
+                                </Box>
+                              }
                             />
                             <FormControlLabel
                               value='qa'
                               control={<Radio size='small' />}
                               label={
-                                <Box sx={{ width: 100 }}>智能问答模式</Box>
+                                <Box sx={{ width: 100 }}>
+                                  {t('widget.modeQa')}
+                                </Box>
                               }
                             />
                             <FormControlLabel
                               value='doc'
                               control={<Radio size='small' />}
                               label={
-                                <Box sx={{ width: 100 }}>搜索文档模式</Box>
+                                <Box sx={{ width: 100 }}>
+                                  {t('widget.modeDoc')}
+                                </Box>
                               }
                             />
                           </RadioGroup>
@@ -530,7 +571,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                       />
                     </FormItem>
                     <FormItem
-                      label='搜索提示'
+                      label={t('widget.searchPlaceholderLabel')}
                       sx={{ alignItems: 'flex-start' }}
                       labelSx={{ mt: 1 }}
                     >
@@ -541,7 +582,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                           <TextField
                             fullWidth
                             {...field}
-                            placeholder='问问 AI 吧'
+                            placeholder={t('widget.searchPlaceholderDefault')}
                             error={!!errors.placeholder}
                             helperText={errors.placeholder?.message}
                             onChange={event => {
@@ -553,13 +594,13 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                       />
                     </FormItem>
                     <FormItem
-                      label='推荐问题'
+                      label={t('widget.recommendQuestions')}
                       sx={{ alignItems: 'flex-start' }}
                       labelSx={{ mt: 1 }}
                     >
                       <FreeSoloAutocomplete
                         {...recommendQuestionsField}
-                        placeholder='回车确认，填写下一个推荐问题'
+                        placeholder={t('robot.keywordEnterNext')}
                       />
                     </FormItem>
                     {/* <FormItem
@@ -577,7 +618,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                     </FormItem> */}
                     <VersionMask permission={PROFESSION_VERSION_PERMISSION}>
                       <FormItem
-                        label='版权信息'
+                        label={t('setting.copyrightInfo')}
                         sx={{ alignItems: 'flex-start' }}
                         labelSx={{ mt: 1 }}
                       >
@@ -597,12 +638,20 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                                 <FormControlLabel
                                   value='0'
                                   control={<Radio size='small' />}
-                                  label={<Box sx={{ width: 100 }}>显示</Box>}
+                                  label={
+                                    <Box sx={{ width: 100 }}>
+                                      {t('setting.show')}
+                                    </Box>
+                                  }
                                 />
                                 <FormControlLabel
                                   value='1'
                                   control={<Radio size='small' />}
-                                  label={<Box sx={{ width: 100 }}>隐藏</Box>}
+                                  label={
+                                    <Box sx={{ width: 100 }}>
+                                      {t('setting.hide')}
+                                    </Box>
+                                  }
                                 />
                               </RadioGroup>
                             );
@@ -611,7 +660,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                       </FormItem>
                       {copyright_hide_enabled === '0' && (
                         <FormItem
-                          label='版权文字'
+                          label={t('setting.copyrightText')}
                           sx={{ alignItems: 'flex-start' }}
                           labelSx={{ mt: 1 }}
                         >
@@ -622,7 +671,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                               <TextField
                                 fullWidth
                                 {...field}
-                                placeholder='本网站由 KenFutWiki 提供技术支持'
+                                placeholder={t('qa.poweredBy')}
                                 error={!!errors.copyright_info}
                                 helperText={errors.copyright_info?.message}
                                 onChange={event => {
@@ -635,7 +684,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                         </FormItem>
                       )}
                       <FormItem
-                        label='免责声明'
+                        label={t('setting.disclaimer')}
                         sx={{ alignItems: 'flex-start' }}
                         labelSx={{ mt: 1 }}
                       >
@@ -646,7 +695,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                             <TextField
                               fullWidth
                               {...field}
-                              placeholder='本回答由 KenFutWiki AI 自动生成，仅供参考。'
+                              placeholder={t('qa.aiDisclaimer')}
                               error={!!errors.disclaimer}
                               helperText={errors.disclaimer?.message}
                               onChange={event => {

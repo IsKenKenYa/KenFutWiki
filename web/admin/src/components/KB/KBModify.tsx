@@ -4,6 +4,7 @@ import { setKbList } from '@/store/slices/config';
 import { message, Modal } from '@ctzhian/ui';
 import { TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface KBModifyProps {
   open: boolean;
@@ -12,6 +13,7 @@ interface KBModifyProps {
 }
 
 const KBModify = ({ open, data, onClose }: KBModifyProps) => {
+  const { t } = useTranslation();
   const [kbName, setKbName] = useState(data?.name || '');
   const { kbList } = useAppSelector(state => state.config);
   const dispatch = useAppDispatch();
@@ -24,11 +26,11 @@ const KBModify = ({ open, data, onClose }: KBModifyProps) => {
   const handleSave = () => {
     if (!data?.id) return;
     if (!kbName) {
-      message.warning('请输入知识库名称');
+      message.warning(t('kb.nameRequired'));
       return;
     }
     updateKnowledgeBase({ id: data.id, name: kbName }).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       dispatch(
         setKbList(
           kbList?.map(item =>
@@ -46,17 +48,17 @@ const KBModify = ({ open, data, onClose }: KBModifyProps) => {
 
   return (
     <Modal
-      title='修改知识库名称'
+      title={t('kb.modifyTitle')}
       open={open}
-      okText='保存'
-      cancelText='取消'
+      okText={t('common.save')}
+      cancelText={t('common.cancel')}
       onOk={handleSave}
       onCancel={handleClose}
     >
       <TextField
         fullWidth
         value={kbName}
-        placeholder='请输入知识库名称'
+        placeholder={t('kb.nameRequired')}
         onChange={e => {
           setKbName(e.target.value);
         }}

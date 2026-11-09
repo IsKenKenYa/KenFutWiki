@@ -2,8 +2,10 @@ import { useMemo } from 'react';
 import { Box, Stack, Button } from '@mui/material';
 import complete from '@/assets/images/init/complete.png';
 import { useAppSelector } from '@/store';
+import { useTranslation } from 'react-i18next';
 
 const Step7Complete = () => {
+  const { t } = useTranslation();
   const { kbDetail } = useAppSelector(state => state.config);
 
   const wikiUrl = useMemo(() => {
@@ -41,7 +43,9 @@ const Step7Complete = () => {
       sx={{ height: '100%' }}
     >
       <Box component='img' src={complete} sx={{ width: 274 }}></Box>
-      <Box sx={{ fontSize: 14, color: 'text.tertiary' }}>配置完成</Box>
+      <Box sx={{ fontSize: 14, color: 'text.tertiary' }}>
+        {t('wizard.completed')}
+      </Box>
       <Button
         variant='contained'
         onClick={() => {

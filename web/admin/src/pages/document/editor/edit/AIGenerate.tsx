@@ -3,6 +3,7 @@ import { Editor, useTiptap, UseTiptapReturn } from '@ctzhian/tiptap';
 import { Modal } from '@ctzhian/ui';
 import { Box, Button, Divider, Stack } from '@mui/material';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface AIGenerateProps {
   open: boolean;
@@ -11,6 +12,7 @@ interface AIGenerateProps {
   editorRef: UseTiptapReturn;
 }
 
+// 语言自称（self-naming）不做翻译
 const LANG_TARGETS: { value: string; label: string }[] = [
   { value: 'zh', label: '中文' },
   { value: 'en', label: 'English' },
@@ -22,6 +24,7 @@ const AIGenerate = ({
   onClose,
   editorRef,
 }: AIGenerateProps) => {
+  const { t } = useTranslation();
   const sseClientRef = useRef<SSEClient<string> | null>(null);
 
   const [loading, setLoading] = useState(false);
@@ -140,8 +143,8 @@ const AIGenerate = ({
     <Modal
       open={open}
       onCancel={onCancel}
-      title={'文本润色'}
-      okText='替换'
+      title={t('editor.aiPolish')}
+      okText={t('editor.replace')}
       width={1000}
       onOk={onSubmit}
       okButtonProps={{
@@ -175,7 +178,7 @@ const AIGenerate = ({
                 color: 'text.tertiary',
               }}
             >
-              原文
+              {t('editor.sourceText')}
             </Box>
           </Stack>
           <Box
@@ -204,14 +207,16 @@ const AIGenerate = ({
                 color: 'text.tertiary',
               }}
             >
-              {targetLang == null ? '润色后' : '译文'}
+              {targetLang == null
+                ? t('editor.polished')
+                : t('editor.translated')}
             </Box>
             <Button
               size='small'
               variant={targetLang == null ? 'contained' : 'outlined'}
               onClick={() => handleSwitchLang(null)}
             >
-              润色
+              {t('editor.polish')}
             </Button>
             {LANG_TARGETS.map(option => (
               <Button
@@ -220,7 +225,7 @@ const AIGenerate = ({
                 variant={targetLang === option.value ? 'contained' : 'outlined'}
                 onClick={() => handleSwitchLang(option.value)}
               >
-                译成{option.label}
+                {t('editor.translateTo', { lang: option.label })}
               </Button>
             ))}
           </Stack>

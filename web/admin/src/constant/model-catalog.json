@@ -2841,7 +2841,29 @@
     },
     "moonshot-v1-8k": { "n": "Moonshot v1 8K", "cw": 8192 },
     "moonshot-v1-32k": { "n": "Moonshot v1 32K", "cw": 32768 },
-    "moonshot-v1-128k": { "n": "Moonshot v1 128K", "cw": 131072 }
+    "moonshot-v1-128k": { "n": "Moonshot v1 128K", "cw": 131072 },
+    "glm-5-1-highspeed": { "cw": 200000, "mo": 64000 },
+    "glm-4-6v-flash": { "cw": 131072, "mo": 32768, "img": true },
+    "glm-4-6v-flashx": { "cw": 131072, "mo": 32768, "img": true },
+    "glm-4-1v-thinking-flash": { "cw": 65536, "mo": 32768, "img": true },
+    "glm-4-1v-thinking-flashx": { "cw": 65536, "mo": 32768, "img": true },
+    "glm-4-flashx-250414": { "cw": 131072, "mo": 16384 },
+    "glm-4-flash-250414": { "cw": 131072, "mo": 16384 },
+    "codegeex-4": { "cw": 131072, "mo": 32768 },
+    "charglm-4": { "cw": 8192, "mo": 4096 },
+    "emohaa": { "cw": 8192, "mo": 4096 },
+    "k3": { "cw": 1048576, "mo": 131072, "img": true },
+    "k3-256k": { "cw": 262144, "mo": 131072, "img": true },
+    "moonshot-v1-8k-vision-preview": { "cw": 8192, "mo": 32000, "img": true },
+    "moonshot-v1-32k-vision-preview": { "cw": 32768, "mo": 32000, "img": true },
+    "moonshot-v1-128k-vision-preview": {
+      "cw": 131072,
+      "mo": 32000,
+      "img": true
+    },
+    "minimax-m2-1-highspeed": { "cw": 204800, "mo": 32000 },
+    "qwen3-7-max-2026-06-08": { "img": true },
+    "qwen3-8-omni-flash": { "cw": 65536, "mo": 16384, "img": true }
   },
   "aliases": {
     "claude-haiku-4-5-20251001": "claude-haiku-4-5",
@@ -3733,7 +3755,11 @@
     "glm-5.2-fast": "glm-5-2-fast",
     "deepseek-reasoner": "deepseek-r1",
     "claude-3-5-sonnet-latest": "claude-3-5-sonnet",
-    "claude-3-7-sonnet-latest": "claude-3-7-sonnet"
+    "claude-3-7-sonnet-latest": "claude-3-7-sonnet",
+    "deepseek/deepseek-v4-pro": "deepseek-v4-pro",
+    "openai/gpt-6-luna": "gpt-6-luna",
+    "deepseek/deepseek-v4-flash": "deepseek-v4-flash",
+    "qwen/qwen3-vl-plus": "qwen3-vl-plus"
   },
   "byOwner": {
     "ai21": [

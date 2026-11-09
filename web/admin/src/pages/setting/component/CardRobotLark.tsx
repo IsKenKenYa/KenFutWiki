@@ -15,6 +15,7 @@ import {
   TextField,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { FormItem, SettingCardItem, SecretTextField } from './Common';
 
@@ -25,6 +26,7 @@ const CardRobotLark = ({
   kb: DomainKnowledgeBaseDetail;
   url: string;
 }) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const [detail, setDetail] = useState<DomainAppDetailResp | null>(null);
   const [isEnabled, setIsEnabled] = useState(false);
@@ -75,7 +77,7 @@ const CardRobotLark = ({
         },
       },
     ).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
       getDetail();
       reset();
@@ -87,8 +89,12 @@ const CardRobotLark = ({
   }, [kb]);
 
   return (
-    <SettingCardItem title='Lark 机器人' isEdit={isEdit} onSubmit={onSubmit}>
-      <FormItem label='Lark 机器人'>
+    <SettingCardItem
+      title={t('enum.appType.lark')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
+      <FormItem label={t('enum.appType.lark')}>
         <Controller
           control={control}
           name='is_enabled'
@@ -119,7 +125,7 @@ const CardRobotLark = ({
 
       {isEnabled && (
         <>
-          <FormItem label='回调地址'>
+          <FormItem label={t('robot.callbackUrl')}>
             <ShowText text={[`${url}/share/v1/openapi/lark/bot/${kb_id}`]} />
           </FormItem>
           <FormItem label='App ID' required>

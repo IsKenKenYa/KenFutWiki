@@ -12,10 +12,12 @@ import { ColumnType } from '@ctzhian/ui/dist/Table';
 import { Box, Stack } from '@mui/material';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Detail from './Detail';
 import Search from './Search';
 
 const Conversation = () => {
+  const { t } = useTranslation();
   const { kb_id = '' } = useAppSelector(state => state.config);
   const [searchParams, setSearchParams] = useURLSearchParams();
   const conversion_id = searchParams.get('conversion_id') || '';
@@ -31,7 +33,7 @@ const Conversation = () => {
   const columns: ColumnType<DomainConversationListItem>[] = [
     {
       dataIndex: 'subject',
-      title: '问题',
+      title: t('feedback.colQuestion'),
       render: (text: string, record) => {
         const isGroupChat = record.info?.user_info?.from === 1;
         const AppIcon =
@@ -49,11 +51,13 @@ const Conversation = () => {
                   setOpen(true);
                 }}
               >
-                {text || '图片问答'}
+                {text || t('conversation.imageQa')}
               </Ellipsis>
             </Stack>
             <Box sx={{ color: 'text.tertiary', fontSize: 12 }}>
-              {AppType[record.app_type as keyof typeof AppType]?.label || '-'}
+              {t(
+                AppType[record.app_type as keyof typeof AppType]?.label || '',
+              ) || '-'}
             </Box>
           </>
         );
@@ -61,7 +65,7 @@ const Conversation = () => {
     },
     {
       dataIndex: 'info',
-      title: '来源用户',
+      title: t('feedback.colUser'),
       width: 220,
       render: (text: DomainConversationListItem['info']) => {
         const user = text?.user_info;
@@ -75,7 +79,7 @@ const Conversation = () => {
             >
               <img src={user?.avatar || Logo} width={16} />
               <Box sx={{ fontSize: 14 }}>
-                {user?.real_name || user?.name || '匿名用户'}
+                {user?.real_name || user?.name || t('common.anonymous')}
               </Box>
             </Stack>
             {user?.email && (
@@ -87,7 +91,7 @@ const Conversation = () => {
     },
     {
       dataIndex: 'remote_ip',
-      title: '来源 IP',
+      title: t('feedback.colIp'),
       width: 200,
       render: (text: string, record) => {
         const { city = '', country = '', province = '' } = record.ip_address!;
@@ -103,7 +107,7 @@ const Conversation = () => {
     },
     {
       dataIndex: 'created_at',
-      title: '问答时间',
+      title: t('feedback.colTime'),
       width: 160,
       render: (text: string) => {
         return (

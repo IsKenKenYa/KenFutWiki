@@ -2,14 +2,16 @@ import React, { useImperativeHandle, Ref } from 'react';
 import { Box, Stack, FormControlLabel, Checkbox } from '@mui/material';
 import importDoc from '@/assets/images/init/import.png';
 import { getApiV1NodeListGroupNav, postApiV1Node } from '@/request/Node';
-import { INIT_DOC_DATA } from './initData';
+import { getInitDocData } from './initData';
 import { useAppSelector } from '@/store';
+import { useTranslation } from 'react-i18next';
 
 interface Step3ImportProps {
   ref: Ref<{ onSubmit: () => Promise<Record<'id', string>[]> }>;
 }
 
 const Step3Import: React.FC<Step3ImportProps> = ({ ref }) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const onSubmit = async () => {
     let nav_id = '';
@@ -19,7 +21,7 @@ const Step3Import: React.FC<Step3ImportProps> = ({ ref }) => {
       nav_id = list?.[0]?.nav_id || '';
     }
     return Promise.all(
-      INIT_DOC_DATA.map(item => {
+      getInitDocData().map(item => {
         return postApiV1Node({
           ...item,
           kb_id,
@@ -43,7 +45,7 @@ const Step3Import: React.FC<Step3ImportProps> = ({ ref }) => {
             sx={{ m: 1, color: 'rgba(50, 72, 242, 0.6) !important' }}
           />
         }
-        label='导入样例文档'
+        label={t('wizard.importSample')}
       />
     </Stack>
   );

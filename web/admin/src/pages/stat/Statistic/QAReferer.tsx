@@ -7,9 +7,11 @@ import { AppType, chartColor } from '@/constant/enums';
 import { useAppSelector } from '@/store';
 import { Box, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActiveTab } from '.';
 
 const QAReferer = ({ tab }: { tab: ActiveTab }) => {
+  const { t } = useTranslation();
   const { kb_id = '' } = useAppSelector(state => state.config);
   const [list, setList] = useState<TrendData[]>([]);
 
@@ -21,13 +23,13 @@ const QAReferer = ({ tab }: { tab: ActiveTab }) => {
           .filter(it => AppType[it.app_type as keyof typeof AppType])
           .map((it, idx) => ({
             count: it.count!,
-            name: AppType[it.app_type as keyof typeof AppType].label,
+            name: t(AppType[it.app_type as keyof typeof AppType].label),
             color: chartColor[idx],
           }))
           .sort((a, b) => b.count - a.count),
       );
     });
-  }, [tab, kb_id]);
+  }, [tab, kb_id, t]);
 
   return (
     <Card
@@ -38,7 +40,9 @@ const QAReferer = ({ tab }: { tab: ActiveTab }) => {
         flexShrink: 0,
       }}
     >
-      <Box sx={{ fontSize: 16, fontWeight: 'bold', mb: 2 }}>问答来源</Box>
+      <Box sx={{ fontSize: 16, fontWeight: 'bold', mb: 2 }}>
+        {t('stat.qaSources')}
+      </Box>
       {list.length > 0 ? (
         <Stack
           direction={'row'}

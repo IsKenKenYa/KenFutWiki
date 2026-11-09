@@ -18,6 +18,7 @@ import {
   forwardRef,
   useImperativeHandle,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import ModelFormModal from '@/components/ModelFormModal';
 
 export interface ModelConfigRef {
@@ -40,6 +41,7 @@ interface ModelConfigProps {
 
 const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
   (props, ref) => {
+    const { t, i18n } = useTranslation();
     const theme = useTheme();
     const {
       onCloseModal,
@@ -65,6 +67,31 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
     });
 
     const cacheModelData = useRef<Record<string, any>>({});
+
+    // 供应商显示名：中文界面取 cn，其它语言取品牌名 label；
+    // 自定义供应商（枚举外 key）取用户填写的 provider_name，再回退到 base_url 域名。
+    const providerName = (model: any) => {
+      const conf = ModelProvider[model?.provider as keyof typeof ModelProvider];
+      const zhName = i18n.language?.startsWith('zh') ? conf?.cn : conf?.label;
+      if (zhName) return zhName;
+      if (model?.provider_name) return model.provider_name;
+      try {
+        const host = model?.base_url
+          ? new URL(
+              /^https?:\/\//i.test(model.base_url)
+                ? model.base_url
+                : `https://${model.base_url}`,
+            ).hostname
+          : '';
+        if (host) return host;
+      } catch {
+        // base_url 非法时继续走兜底文案
+      }
+      return t('model.other');
+    };
+
+    // 模型展示名：优先用户填写的 show_name，否则回退模型 ID
+    const modelDisplayName = (model: any) => model?.show_name || model?.model;
 
     const [addOpen, setAddOpen] = useState(false);
     const [addType, setAddType] = useState<
@@ -109,13 +136,13 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
     const handleCloseModal = () => {
       if (hasConfigChanged) {
         Modal.confirm({
-          title: '提示',
-          content: '有未应用的设置，是否确认关闭？',
+          title: t('common.tip'),
+          content: t('model.unsavedConfirm'),
           onOk: () => {
             onCloseModal();
           },
-          okText: '确认',
-          cancelText: '取消',
+          okText: t('common.confirm'),
+          cancelText: t('common.cancel'),
         });
       } else {
         onCloseModal();
@@ -153,13 +180,13 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
         // 修改向量模型需要确认（会触发重新学习）
         if (cacheModelData.current['embedding']) {
           Modal.confirm({
-            title: '确认操作',
-            content: '此操作会触发重新学习，请确认是否继续？',
+            title: t('model.confirmTitle'),
+            content: t('model.relearnConfirm'),
             onOk: async () => {
               await performSave();
             },
-            okText: '确认',
-            cancelText: '取消',
+            okText: t('common.confirm'),
+            cancelText: t('common.cancel'),
           });
         } else {
           await performSave();
@@ -172,7 +199,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
       try {
         await postApiV1ModelSwitchMode({ mode: 'manual' });
         setHasConfigChanged(false);
-        message.success('配置已应用');
+        message.success(t('model.applied'));
         cacheModelData.current = {};
         await getModelList(); // 刷新模型列表
       } finally {
@@ -307,14 +334,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           color: 'text.tertiary',
                         }}
                       >
-                        {ModelProvider[
-                          modelData.chat.provider as keyof typeof ModelProvider
-                        ].cn ||
-                          ModelProvider[
-                            modelData.chat
-                              .provider as keyof typeof ModelProvider
-                          ].label ||
-                          '其他'}
+                        {providerName(modelData.chat)}
                         &nbsp;&nbsp;/
                       </Box>
                       <Box
@@ -325,7 +345,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           ml: -0.5,
                         }}
                       >
-                        {modelData.chat.model}
+                        {modelDisplayName(modelData.chat)}
                       </Box>
                       <Box
                         sx={{
@@ -464,7 +484,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                 loading={openingAdd === 'chat'}
                 onClick={() => handleOpenAdd('chat')}
               >
-                {modelData.chat ? '修改' : '配置'}
+                {modelData.chat ? t('model.edit') : t('model.configure')}
               </Button>
             </Stack>
           </Card>
@@ -505,15 +525,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           color: 'text.tertiary',
                         }}
                       >
-                        {ModelProvider[
-                          modelData.embedding
-                            .provider as keyof typeof ModelProvider
-                        ].cn ||
-                          ModelProvider[
-                            modelData.embedding
-                              .provider as keyof typeof ModelProvider
-                          ].label ||
-                          '其他'}
+                        {providerName(modelData.embedding)}
                         &nbsp;&nbsp;/
                       </Box>
                       <Box
@@ -524,7 +536,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           ml: -0.5,
                         }}
                       >
-                        {modelData.embedding.model}
+                        {modelDisplayName(modelData.embedding)}
                       </Box>
                       <Box
                         sx={{
@@ -668,7 +680,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                 loading={openingAdd === 'embedding'}
                 onClick={() => handleOpenAdd('embedding')}
               >
-                {modelData.embedding ? '修改' : '配置'}
+                {modelData.embedding ? t('model.edit') : t('model.configure')}
               </Button>
             </Stack>
           </Card>
@@ -709,15 +721,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           color: 'text.tertiary',
                         }}
                       >
-                        {ModelProvider[
-                          modelData.rerank
-                            .provider as keyof typeof ModelProvider
-                        ].cn ||
-                          ModelProvider[
-                            modelData.rerank
-                              .provider as keyof typeof ModelProvider
-                          ].label ||
-                          '其他'}
+                        {providerName(modelData.rerank)}
                         &nbsp;&nbsp;/
                       </Box>
                       <Box
@@ -728,7 +732,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           ml: -0.5,
                         }}
                       >
-                        {modelData.rerank.model}
+                        {modelDisplayName(modelData.rerank)}
                       </Box>
                       <Box
                         sx={{
@@ -867,7 +871,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                 loading={openingAdd === 'rerank'}
                 onClick={() => handleOpenAdd('rerank')}
               >
-                {modelData.rerank ? '修改' : '配置'}
+                {modelData.rerank ? t('model.edit') : t('model.configure')}
               </Button>
             </Stack>
           </Card>
@@ -908,15 +912,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           color: 'text.tertiary',
                         }}
                       >
-                        {ModelProvider[
-                          modelData.analysis
-                            .provider as keyof typeof ModelProvider
-                        ].cn ||
-                          ModelProvider[
-                            modelData.analysis
-                              .provider as keyof typeof ModelProvider
-                          ].label ||
-                          '其他'}
+                        {providerName(modelData.analysis)}
                         &nbsp;&nbsp;/
                       </Box>
                       <Box
@@ -927,7 +923,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           ml: -0.5,
                         }}
                       >
-                        {modelData.analysis.model}
+                        {modelDisplayName(modelData.analysis)}
                       </Box>
                       <Box
                         sx={{
@@ -1066,7 +1062,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                 loading={openingAdd === 'analysis'}
                 onClick={() => handleOpenAdd('analysis')}
               >
-                {modelData.analysis ? '修改' : '配置'}
+                {modelData.analysis ? t('model.edit') : t('model.configure')}
               </Button>
             </Stack>
           </Card>
@@ -1106,15 +1102,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           color: 'text.tertiary',
                         }}
                       >
-                        {ModelProvider[
-                          modelData['analysis-vl']
-                            .provider as keyof typeof ModelProvider
-                        ].cn ||
-                          ModelProvider[
-                            modelData['analysis-vl']
-                              .provider as keyof typeof ModelProvider
-                          ].label ||
-                          '其他'}
+                        {providerName(modelData['analysis-vl'])}
                         &nbsp;&nbsp;/
                       </Box>
                       <Box
@@ -1125,7 +1113,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           ml: -0.5,
                         }}
                       >
-                        {modelData['analysis-vl'].model}
+                        {modelDisplayName(modelData['analysis-vl'])}
                       </Box>
                       <Box
                         sx={{
@@ -1191,7 +1179,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           ...modelData['analysis-vl'],
                           is_active: !modelData['analysis-vl'].is_active,
                         }).then(() => {
-                          message.success('修改成功');
+                          message.success(t('common.saveSuccess'));
                           getModelList();
                         });
                       }}
@@ -1254,7 +1242,9 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                 loading={openingAdd === 'analysis-vl'}
                 onClick={() => handleOpenAdd('analysis-vl')}
               >
-                {modelData['analysis-vl'] ? '修改' : '配置'}
+                {modelData['analysis-vl']
+                  ? t('model.edit')
+                  : t('model.configure')}
               </Button>
             </Stack>
           </Card>

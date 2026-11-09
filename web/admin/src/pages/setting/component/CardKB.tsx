@@ -37,6 +37,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import AddRole from './AddRole';
@@ -55,6 +56,7 @@ function maskString(str: string) {
 }
 
 const ApiToken = () => {
+  const { t } = useTranslation();
   const [addOpen, setAddOpen] = useState(false);
   const { license, kb_id, user, kbDetail } = useAppSelector(
     state => state.config,
@@ -79,14 +81,14 @@ const ApiToken = () => {
 
   const onDeleteApiToken = (id: string, name: string) => {
     Modal.confirm({
-      title: '删除 API Token',
+      title: t('setting.apiToken.deleteTitle'),
       content: (
         <>
-          确定删除{' '}
+          {t('setting.apiToken.deletePrefix')}{' '}
           <Box component='span' sx={{ fontWeight: 700, color: 'text.primary' }}>
             {name}
           </Box>{' '}
-          这个 API Token 吗？
+          {t('setting.apiToken.deleteSuffix')}
         </>
       ),
       okButtonProps: {
@@ -97,7 +99,7 @@ const ApiToken = () => {
           id,
           kb_id,
         }).then(() => {
-          message.success('删除成功');
+          message.success(t('common.deleteSuccess'));
           getApiTokenList();
         });
       },
@@ -110,7 +112,7 @@ const ApiToken = () => {
       kb_id,
       permission,
     }).then(() => {
-      message.success('更新成功');
+      message.success(t('common.saveSuccess'));
       getApiTokenList();
     });
   };
@@ -155,7 +157,7 @@ const ApiToken = () => {
             onClick={() => setAddOpen(true)}
             sx={{ textTransform: 'none' }}
           >
-            创建 API Token
+            {t('setting.apiToken.create')}
           </Button>
         </Stack>
       }
@@ -233,17 +235,17 @@ const ApiToken = () => {
                 <MenuItem
                   value={ConstsUserKBPermission.UserKBPermissionFullControl}
                 >
-                  完全控制
+                  {t('member.permFullControl')}
                 </MenuItem>
                 <MenuItem
                   value={ConstsUserKBPermission.UserKBPermissionDocManage}
                 >
-                  文档管理
+                  {t('member.permDocManage')}
                 </MenuItem>
                 <MenuItem
                   value={ConstsUserKBPermission.UserKBPermissionDataOperate}
                 >
-                  数据运营
+                  {t('member.permDataOperate')}
                 </MenuItem>
               </Select>
 
@@ -251,8 +253,8 @@ const ApiToken = () => {
                 title={
                   kbDetail?.perm !==
                   ConstsUserKBPermission.UserKBPermissionFullControl
-                    ? '权限不足'
-                    : '商业版可用'
+                    ? t('member.insufficientPerm')
+                    : t('setting.businessOnly')
                 }
                 placement='top'
                 arrow
@@ -310,36 +312,36 @@ const ApiToken = () => {
             sx={{ my: 2, fontSize: 14, color: 'text.tertiary' }}
           >
             <img src={NoData} width={104} />
-            <Box>暂无数据</Box>
+            <Box>{t('common.noData')}</Box>
           </Stack>
         )}
       </Box>
       <Modal
         open={addOpen}
         onCancel={() => setAddOpen(false)}
-        title='创建 API Token'
+        title={t('setting.apiToken.create')}
         onOk={onConfirmAdd}
       >
         <Form vertical>
-          <FormItem label='API Token 备注' required>
+          <FormItem label={t('setting.apiToken.nameLabel')} required>
             <Controller
               control={control}
               name='name'
               rules={{
-                required: 'API Token 备注不能为空',
+                required: t('setting.apiToken.nameRequired'),
               }}
               render={({ field }) => (
                 <TextField
                   {...field}
                   fullWidth
-                  placeholder='请输入'
+                  placeholder={t('common.enter')}
                   helperText={errors.name?.message}
                   error={!!errors.name}
                 />
               )}
             />
           </FormItem>
-          <FormItem label='权限'>
+          <FormItem label={t('member.permLabel')}>
             <Controller
               control={control}
               name='perm'
@@ -358,18 +360,18 @@ const ApiToken = () => {
                     <MenuItem
                       value={ConstsUserKBPermission.UserKBPermissionFullControl}
                     >
-                      完全控制
+                      {t('member.permFullControl')}
                     </MenuItem>
 
                     <MenuItem
                       value={ConstsUserKBPermission.UserKBPermissionDocManage}
                     >
-                      文档管理
+                      {t('member.permDocManage')}
                     </MenuItem>
                     <MenuItem
                       value={ConstsUserKBPermission.UserKBPermissionDataOperate}
                     >
-                      数据运营
+                      {t('member.permDataOperate')}
                     </MenuItem>
                   </Select>
                 );
@@ -383,6 +385,7 @@ const ApiToken = () => {
 };
 
 const CardKB = () => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const dispatch = useDispatch();
 
@@ -411,8 +414,8 @@ const CardKB = () => {
 
   const onDeleteUser = (id: string) => {
     Modal.confirm({
-      title: '删除管理员',
-      content: '确定删除该管理员吗？',
+      title: t('setting.admin.deleteTitle'),
+      content: t('setting.admin.deleteContent'),
       okButtonProps: {
         color: 'error',
       },
@@ -422,7 +425,7 @@ const CardKB = () => {
           user_id: id,
         }).then(() => {
           getUserList();
-          message.success('删除成功');
+          message.success(t('common.deleteSuccess'));
         });
       },
     });
@@ -438,7 +441,7 @@ const CardKB = () => {
       perm,
     }).then(() => {
       getUserList();
-      message.success('更新成功');
+      message.success(t('common.saveSuccess'));
     });
   };
 
@@ -451,7 +454,7 @@ const CardKB = () => {
       }}
     >
       <SettingCardItem
-        title='Wiki 站管理员'
+        title={t('setting.admin.title')}
         extra={
           <Button
             size='small'
@@ -459,7 +462,7 @@ const CardKB = () => {
             onClick={() => setAddOpen(true)}
             sx={{ color: 'primary.main' }}
           >
-            添加 Wiki 站管理员
+            {t('member.addSiteAdmin')}
           </Button>
         }
       >
@@ -515,25 +518,25 @@ const CardKB = () => {
                   <MenuItem
                     value={ConstsUserKBPermission.UserKBPermissionFullControl}
                   >
-                    完全控制
+                    {t('member.permFullControl')}
                   </MenuItem>
                   <MenuItem
                     value={ConstsUserKBPermission.UserKBPermissionDocManage}
                   >
-                    文档管理
+                    {t('member.permDocManage')}
                   </MenuItem>
                   <MenuItem
                     value={ConstsUserKBPermission.UserKBPermissionDataOperate}
                   >
-                    数据运营
+                    {t('member.permDataOperate')}
                   </MenuItem>
                 </Select>
 
                 <Tooltip
                   title={
                     it.role === 'admin'
-                      ? '超级管理员不可被修改权限'
-                      : '专业版可用'
+                      ? t('setting.admin.superAdminLocked')
+                      : t('setting.proOnly')
                   }
                   placement='top'
                   arrow
@@ -551,7 +554,11 @@ const CardKB = () => {
               </Stack>
 
               <Tooltip
-                title={it.role === 'admin' ? '超级管理员不可被删除' : ''}
+                title={
+                  it.role === 'admin'
+                    ? t('setting.admin.superAdminDeleteLocked')
+                    : ''
+                }
                 placement='top'
                 arrow
               >

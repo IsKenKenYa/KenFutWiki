@@ -2,8 +2,10 @@ import { useURLSearchParams } from '@/hooks';
 import { IconButton, InputAdornment, Stack, TextField } from '@mui/material';
 import { IconIcon_tool_close } from '@panda-wiki/icons';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const DocSearch = () => {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useURLSearchParams();
   const oldSearch = searchParams.get('search') || '';
   const [search, setSearch] = useState(oldSearch);
@@ -11,7 +13,7 @@ const DocSearch = () => {
   return (
     <Stack direction={'row'} alignItems={'center'} gap={2}>
       <TextField
-        label='搜索内容'
+        label={t('doc.searchPlaceholder')}
         size='small'
         sx={{ width: 300 }}
         value={search}

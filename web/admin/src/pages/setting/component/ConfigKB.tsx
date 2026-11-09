@@ -5,8 +5,10 @@ import { setKbList } from '@/store/slices/config';
 import { Box, Button, Stack, TextField } from '@mui/material';
 import { Ellipsis, message } from '@ctzhian/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const ConfigKB = () => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { kb_id, kbList } = useAppSelector(state => state.config);
   const kb = kbList?.find(item => item.id === kb_id);
@@ -17,7 +19,7 @@ const ConfigKB = () => {
   const handleSave = () => {
     if (!kb_id) return;
     updateKnowledgeBase({ id: kb_id, name }).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       dispatch(
         setKbList(
           kbList?.map(item => (item.id === kb_id ? { ...item, name } : item)),
@@ -41,19 +43,19 @@ const ConfigKB = () => {
         justifyContent={'space-between'}
         sx={{ height: '32px' }}
       >
-        <Box>基本信息</Box>
+        <Box>{t('setting.basicInfo')}</Box>
       </Stack>
       <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ mt: 1 }}>
         <Box
           sx={{ fontSize: 14, lineHeight: '36px', height: '36px', width: 150 }}
         >
-          Wiki 站名称
+          {t('kb.nameShortLabel')}
         </Box>
         {editName ? (
           <TextField
             sx={{ width: 300 }}
             size='small'
-            placeholder='Wiki 站名称'
+            placeholder={t('kb.nameShortLabel')}
             autoFocus
             value={name}
             onChange={e => setName(e.target.value)}

@@ -772,6 +772,10 @@ export interface DomainCreateModelReq {
   model: string;
   parameters?: GithubComChaitinPandaWikiDomainModelParam;
   provider: GithubComChaitinPandaWikiDomainModelProvider;
+  /** 自定义供应商的展示名 */
+  provider_name?: string;
+  /** 模型展示名 */
+  show_name?: string;
   type: "chat" | "embedding" | "rerank" | "analysis" | "analysis-vl";
 }
 
@@ -1513,6 +1517,10 @@ export interface DomainUpdateModelReq {
   model: string;
   parameters?: GithubComChaitinPandaWikiDomainModelParam;
   provider: GithubComChaitinPandaWikiDomainModelProvider;
+  /** 自定义供应商的展示名 */
+  provider_name?: string;
+  /** 模型展示名 */
+  show_name?: string;
   type: "chat" | "embedding" | "rerank" | "analysis" | "analysis-vl";
 }
 
@@ -1675,6 +1683,10 @@ export interface GithubComChaitinPandaWikiDomainCheckModelReq {
   model: string;
   parameters?: GithubComChaitinPandaWikiDomainModelParam;
   provider: GithubComChaitinPandaWikiDomainModelProvider;
+  /** 自定义供应商的展示名 */
+  provider_name?: string;
+  /** 模型展示名 */
+  show_name?: string;
   type: "chat" | "embedding" | "rerank" | "analysis" | "analysis-vl";
 }
 
@@ -1696,6 +1708,8 @@ export interface GithubComChaitinPandaWikiDomainModelListItem {
   parameters?: GithubComChaitinPandaWikiDomainModelParam;
   prompt_tokens?: number;
   provider?: GithubComChaitinPandaWikiDomainModelProvider;
+  provider_name?: string;
+  show_name?: string;
   total_tokens?: number;
   type?: DomainModelType;
 }

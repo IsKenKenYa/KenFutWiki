@@ -1,9 +1,10 @@
 import React, { useImperativeHandle, Ref } from 'react';
 import { Box, Stack, FormControlLabel, Checkbox } from '@mui/material';
 import decorate from '@/assets/images/init/decorate.png';
-import { INIT_LADING_DATA } from './initData';
+import { getInitLandingData } from './initData';
 import { getApiV1AppDetail, putApiV1App } from '@/request/App';
 import { useAppSelector } from '@/store';
+import { useTranslation } from 'react-i18next';
 
 interface Step6DecorateProps {
   ref: Ref<{ onSubmit: () => void }>;
@@ -11,8 +12,10 @@ interface Step6DecorateProps {
 }
 
 const Step6Decorate: React.FC<Step6DecorateProps> = ({ ref, nodeIds }) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const onSubmit = () => {
+    const landingData = getInitLandingData();
     return getApiV1AppDetail({
       kb_id: kb_id,
       type: '1',
@@ -23,9 +26,9 @@ const Step6Decorate: React.FC<Step6DecorateProps> = ({ ref, nodeIds }) => {
           kb_id,
           settings: {
             ...res.settings,
-            ...INIT_LADING_DATA,
-            web_app_landing_configs:
-              INIT_LADING_DATA.web_app_landing_configs.map(item => {
+            ...landingData,
+            web_app_landing_configs: landingData.web_app_landing_configs.map(
+              item => {
                 if (item.type === 'basic_doc') {
                   return {
                     ...item,
@@ -33,7 +36,8 @@ const Step6Decorate: React.FC<Step6DecorateProps> = ({ ref, nodeIds }) => {
                   };
                 }
                 return item;
-              }),
+              },
+            ),
           },
         },
       );
@@ -54,7 +58,7 @@ const Step6Decorate: React.FC<Step6DecorateProps> = ({ ref, nodeIds }) => {
             sx={{ m: 1, color: 'rgba(50, 72, 242, 0.6) !important' }}
           />
         }
-        label='使用样例装扮'
+        label={t('wizard.applySampleDecorate')}
       />
     </Stack>
   );

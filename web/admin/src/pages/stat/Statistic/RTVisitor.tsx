@@ -13,8 +13,10 @@ import { Box, Stack } from '@mui/material';
 import { Ellipsis } from '@ctzhian/ui';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const RTVisitor = ({ isWideScreen }: { isWideScreen: boolean }) => {
+  const { t } = useTranslation();
   const { kb_id = '' } = useAppSelector(state => state.config);
   const [count, setCount] = useState<TrendData[]>([]);
   const [pages, setPages] = useState<StatInstantPageItme[]>([]);
@@ -71,8 +73,14 @@ const RTVisitor = ({ isWideScreen }: { isWideScreen: boolean }) => {
     >
       <Stack direction='row' gap={4}>
         <Box sx={{ width: 334 }}>
-          <Box sx={{ fontWeight: 'bold', fontSize: '16px' }}>实时来访</Box>
-          <BarTrend height={148} chartData={count} text={'实时来访'} />
+          <Box sx={{ fontWeight: 'bold', fontSize: '16px' }}>
+            {t('stat.realtimeVisitors')}
+          </Box>
+          <BarTrend
+            height={148}
+            chartData={count}
+            text={t('stat.realtimeVisitors')}
+          />
         </Box>
         <Card
           sx={{
@@ -164,7 +172,7 @@ const RTVisitor = ({ isWideScreen }: { isWideScreen: boolean }) => {
                             borderRadius: '50%',
                           }}
                         />
-                        <Box>{it?.info?.username || '匿名用户'}</Box>
+                        <Box>{it?.info?.username || t('common.anonymous')}</Box>
                       </Stack>
 
                       {/* {it?.info?.email && (

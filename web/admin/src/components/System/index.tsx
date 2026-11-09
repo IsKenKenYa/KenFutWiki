@@ -6,16 +6,19 @@ import { Modal } from '@ctzhian/ui';
 import { IconAChilunshezhisheding } from '@panda-wiki/icons';
 import { Box, Button, Tab, Tabs, useTheme } from '@mui/material';
 import { useEffect, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Member from './component/Member';
 import ModelConfig, { ModelConfigRef } from './component/ModelConfig';
 
+// label 存 i18n key，渲染时翻译
 const SystemTabs = [
-  { label: '模型配置', id: 'model-config' },
-  { label: '用户管理', id: 'user-management' },
+  { label: 'system.tabModel', id: 'model-config' },
+  { label: 'system.tabMember', id: 'user-management' },
 ];
 
 const System = () => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { user, modelList, isCreateWikiModalOpen } = useAppSelector(
     state => state.config,
@@ -84,12 +87,12 @@ const System = () => {
             startIcon={<IconAChilunshezhisheding />}
             onClick={() => setOpen(true)}
           >
-            系统配置
+            {t('system.title')}
           </Button>
         )}
       </Box>
       <Modal
-        title='系统配置'
+        title={t('system.title')}
         width={1100}
         open={open}
         disableEnforceFocus={true}
@@ -139,7 +142,7 @@ const System = () => {
           }}
         >
           {SystemTabs.map(tab => (
-            <Tab key={tab.id} label={tab.label} value={tab.id} />
+            <Tab key={tab.id} label={t(tab.label)} value={tab.id} />
           ))}
         </Tabs>
         {activeTab === 'user-management' && (

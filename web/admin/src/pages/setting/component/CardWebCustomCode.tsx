@@ -2,6 +2,7 @@ import { CustomCodeSetting } from '@/api';
 import { TextField } from '@mui/material';
 import { message } from '@ctzhian/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { DomainKnowledgeBaseDetail } from '@/request/types';
 import { SettingCardItem, FormItem } from './Common';
@@ -15,6 +16,7 @@ interface CardWebCustomCodeProps {
 }
 
 const CardWebCustomCode = ({ id, data, refresh }: CardWebCustomCodeProps) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const { kb_id } = useAppSelector(state => state.config);
   const {
@@ -35,7 +37,7 @@ const CardWebCustomCode = ({ id, data, refresh }: CardWebCustomCodeProps) => {
       // @ts-expect-error 类型不匹配
       { kb_id, settings: { ...data.settings, ...value } },
     ).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       refresh(value);
       setIsEdit(false);
     });
@@ -49,8 +51,12 @@ const CardWebCustomCode = ({ id, data, refresh }: CardWebCustomCodeProps) => {
   }, [data]);
 
   return (
-    <SettingCardItem title='自定义代码' isEdit={isEdit} onSubmit={onSubmit}>
-      <FormItem label='注入到 Head 标签' sx={{ alignItems: 'flex-start' }}>
+    <SettingCardItem
+      title={t('setting.customCode')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
+      <FormItem label={t('setting.headCode')} sx={{ alignItems: 'flex-start' }}>
         <Controller
           control={control}
           name='head_code'
@@ -61,7 +67,7 @@ const CardWebCustomCode = ({ id, data, refresh }: CardWebCustomCodeProps) => {
               multiline
               rows={4}
               {...field}
-              placeholder='输入 Head 代码'
+              placeholder={t('setting.headCodePlaceholder')}
               error={!!errors.head_code}
               helperText={errors.head_code?.message}
               onChange={event => {
@@ -73,7 +79,7 @@ const CardWebCustomCode = ({ id, data, refresh }: CardWebCustomCodeProps) => {
         />
       </FormItem>
 
-      <FormItem label='注入到 Body 标签' sx={{ alignItems: 'flex-start' }}>
+      <FormItem label={t('setting.bodyCode')} sx={{ alignItems: 'flex-start' }}>
         <Controller
           control={control}
           name='body_code'
@@ -84,7 +90,7 @@ const CardWebCustomCode = ({ id, data, refresh }: CardWebCustomCodeProps) => {
               {...field}
               multiline
               rows={4}
-              placeholder='输入 Body 代码'
+              placeholder={t('setting.bodyCodePlaceholder')}
               error={!!errors.body_code}
               helperText={errors.body_code?.message}
               onChange={event => {

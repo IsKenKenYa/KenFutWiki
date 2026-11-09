@@ -4,6 +4,7 @@ import {
   UseTiptapReturn,
 } from '@ctzhian/tiptap';
 import { Box } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import EditorPageLink from '@/features/kenfut/EditorPageLink';
 
 interface ToolbarProps {
@@ -12,6 +13,7 @@ interface ToolbarProps {
 }
 
 const Toolbar = ({ editorRef, handleAiGenerate }: ToolbarProps) => {
+  const { t } = useTranslation();
   return (
     <Box
       sx={{
@@ -32,7 +34,7 @@ const Toolbar = ({ editorRef, handleAiGenerate }: ToolbarProps) => {
         menuInToolbarMore={[
           {
             id: 'ai',
-            label: '文本润色',
+            label: t('editor.aiPolish'),
             icon: <AiGenerate2Icon sx={{ fontSize: '1rem' }} />,
             onClick: handleAiGenerate,
           },

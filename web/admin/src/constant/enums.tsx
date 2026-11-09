@@ -50,25 +50,25 @@ import {
 
 export const PageStatus = {
   1: {
-    label: '正在处理',
+    label: 'enum.pageStatus.processing',
     color: '#3248F2',
     bgcolor: '#EBEFFE',
   },
   2: {
-    label: '已学习',
+    label: 'enum.pageStatus.studied',
     color: '#82DDAF',
     bgcolor: '#F2FBF7',
   },
   3: {
-    label: '处理失败',
+    label: 'enum.pageStatus.failed',
     color: '#FE4545',
     bgcolor: '#FEECEC',
   },
 };
 
 export const PluginType = {
-  1: '内置工具',
-  2: '自定义工具',
+  1: 'enum.pluginType.builtin',
+  2: 'enum.pluginType.custom',
 };
 
 export const IconMap = {
@@ -79,84 +79,84 @@ export const IconMap = {
 
 export const AppType = {
   1: {
-    label: 'Wiki 网站',
+    label: 'enum.appType.wiki',
     icon: IconAWebyingyong,
   },
   2: {
-    label: '网页挂件',
+    label: 'enum.appType.widget',
     icon: IconWangyeguajian,
   },
   3: {
-    label: '钉钉机器人',
+    label: 'enum.appType.dingtalk',
     icon: IconDingdingjiqiren,
   },
   4: {
-    label: '飞书机器人',
+    label: 'enum.appType.feishu',
     icon: IconFeishujiqiren,
   },
   5: {
-    label: '企业微信机器人',
+    label: 'enum.appType.wecomBot',
     icon: IconQiyeweixinjiqiren,
   },
   6: {
-    label: '企业微信客服',
+    label: 'enum.appType.wecomService',
     icon: IconQiyeweixinkefu,
   },
   7: {
-    label: 'Discord 机器人',
+    label: 'enum.appType.discord',
     icon: IconADiscordjiqiren,
   },
   8: {
-    label: '微信公众号',
+    label: 'enum.appType.wechatMp',
     icon: IconWeixingongzhonghaoDaiyanse,
   },
   9: {
-    label: '问答机器人 API',
+    label: 'enum.appType.qaApi',
     icon: IconWendajiqiren,
   },
   10: {
-    label: '企业微信智能机器人',
+    label: 'enum.appType.wecomSmart',
     icon: IconQiyeweixinjiqiren,
   },
   11: {
-    label: 'Lark 机器人',
+    label: 'enum.appType.lark',
     icon: IconFeishujiqiren,
   },
 };
 
 export const AnswerStatus = {
-  1: '正在为您查找结果',
-  2: '正在思考',
-  3: '正在回答',
+  1: 'enum.answer.searching',
+  2: 'enum.answer.thinking',
+  3: 'enum.answer.answering',
   4: '',
-  5: '等待工具确认运行',
+  5: 'enum.answer.awaitingTool',
 };
 
 export const PageType = {
-  1: '在线网页',
-  2: '离线文件',
-  3: '自定义文档',
+  1: 'enum.pageType.online',
+  2: 'enum.pageType.offline',
+  3: 'enum.pageType.custom',
 };
 
 export const VersionMap = {
   free: {
-    label: '免费版',
+    label: 'enum.version.free',
     offlineFileSize: 5,
   },
   contributor: {
-    label: '社区贡献者版',
+    label: 'enum.version.contributor',
     offlineFileSize: 10,
   },
   pro: {
-    label: '专业版',
+    label: 'enum.version.pro',
     offlineFileSize: 20,
   },
   business: {
-    label: '商业版',
+    label: 'enum.version.business',
     offlineFileSize: 20,
   },
   enterprise: {
-    label: '旗舰版',
+    label: 'enum.version.enterprise',
     offlineFileSize: 20,
   },
 };
@@ -213,8 +213,8 @@ export const ModelProvider = {
     customHeader: false,
     chat: true,
     code: true,
-    embedding: false,
-    rerank: false,
+    embedding: true,
+    rerank: true,
     modelDocumentUrl:
       'https://help.aliyun.com/zh/model-studio/getting-started/',
     defaultBaseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
@@ -228,7 +228,7 @@ export const ModelProvider = {
     customHeader: false,
     chat: true,
     code: true,
-    embedding: false,
+    embedding: true,
     rerank: false,
     modelDocumentUrl: 'https://www.volcengine.com/docs/82379/1182403',
     defaultBaseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
@@ -242,7 +242,7 @@ export const ModelProvider = {
     customHeader: false,
     chat: true,
     code: true,
-    embedding: false,
+    embedding: true,
     rerank: false,
     modelDocumentUrl: 'https://platform.openai.com/docs',
     defaultBaseUrl: 'https://api.openai.com/v1',
@@ -256,7 +256,7 @@ export const ModelProvider = {
     customHeader: true,
     chat: true,
     code: true,
-    embedding: false,
+    embedding: true,
     rerank: false,
     modelDocumentUrl: 'https://github.com/ollama/ollama/tree/main/docs',
     defaultBaseUrl: 'http://127.0.0.1:11434',
@@ -270,8 +270,8 @@ export const ModelProvider = {
     customHeader: false,
     chat: true,
     code: true,
-    embedding: false,
-    rerank: false,
+    embedding: true,
+    rerank: true,
     modelDocumentUrl: 'https://docs.siliconflow.cn/',
     defaultBaseUrl: 'https://api.siliconflow.cn/v1',
   },
@@ -515,8 +515,8 @@ export const ModelProvider = {
     customHeader: false,
     chat: true,
     code: false,
-    embedding: false,
-    rerank: false,
+    embedding: true,
+    rerank: true,
     modelDocumentUrl: 'https://cloud.baidu.com/doc/index.html',
     defaultBaseUrl: 'https://qianfan.baidubce.com/v2',
   },
@@ -801,12 +801,17 @@ export const ModelProvider = {
     defaultBaseUrl: 'https://api.hyperbolic.xyz/v1',
   },
   Other: {
-    label: 'Other',
-    cn: '其他',
+    label: 'Custom',
+    cn: '自定义',
     icon: IconAAIshezhi,
-    urlWrite: true,
-    secretRequired: true,
+    urlWrite: false,
+    secretRequired: false,
     customHeader: false,
+    chat: true,
+    code: true,
+    embedding: true,
+    rerank: true,
+    custom: true,
     modelDocumentUrl: '',
     defaultBaseUrl: '',
   },
@@ -828,22 +833,22 @@ export const chartColor = [
 ];
 
 export const FeedbackType = {
-  1: '内容不准确',
-  2: '没有帮助',
-  3: '其他',
+  1: 'enum.feedback.inaccurate',
+  2: 'enum.feedback.unhelpful',
+  3: 'enum.feedback.other',
 };
 
 export const DocWidth = {
   full: {
-    label: '全屏',
+    label: 'enum.docWidth.full',
     value: 0,
   },
   wide: {
-    label: '超宽',
+    label: 'enum.docWidth.wide',
     value: 1120,
   },
   normal: {
-    label: '常规',
+    label: 'enum.docWidth.normal',
     value: 880,
   },
 };

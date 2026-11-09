@@ -3,6 +3,7 @@ import { V1NavListResp } from '@/request/types';
 import { message, Modal } from '@ctzhian/ui';
 import { Box, TextField } from '@mui/material';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 
 type FormValues = { name: string };
@@ -22,8 +23,8 @@ const NavEditModal = ({
   nav,
   kb_id,
 }: NavEditModalProps) => {
+  const { t } = useTranslation();
   const isEdit = !!nav;
-  const text = isEdit ? '修改' : '添加';
 
   const {
     control,
@@ -48,7 +49,7 @@ const NavEditModal = ({
         kb_id,
         name: value.name,
       }).then(() => {
-        message.success('修改成功');
+        message.success(t('common.saveSuccess'));
         onSuccess({ id: nav.id!, name: value.name });
       });
     } else {
@@ -56,7 +57,7 @@ const NavEditModal = ({
         kb_id,
         name: value.name,
       }).then(() => {
-        message.success('添加成功');
+        message.success(t('nav.addSuccess'));
         onSuccess();
       });
     }
@@ -64,25 +65,25 @@ const NavEditModal = ({
 
   return (
     <Modal
-      title={`${text}目录`}
+      title={isEdit ? t('nav.editTitle') : t('nav.addTitle')}
       open={open}
       width={400}
-      okText={isEdit ? '保存' : '添加'}
+      okText={isEdit ? t('common.save') : t('nav.add')}
       onCancel={onClose}
       onOk={handleSubmit(submit)}
     >
-      <Box sx={{ fontSize: 14, lineHeight: '36px' }}>目录名称</Box>
+      <Box sx={{ fontSize: 14, lineHeight: '36px' }}>{t('nav.nameLabel')}</Box>
       <Controller
         control={control}
         name='name'
-        rules={{ required: '请输入目录名称' }}
+        rules={{ required: t('nav.nameRequired') }}
         render={({ field }) => (
           <TextField
             {...field}
             fullWidth
             autoFocus
             size='small'
-            placeholder='请输入目录名称'
+            placeholder={t('nav.nameRequired')}
             error={!!errors.name}
             helperText={errors.name?.message}
           />

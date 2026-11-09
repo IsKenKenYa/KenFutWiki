@@ -98,6 +98,21 @@ export const copyText = (
   duration?: number,
   msgText?: string,
 ) => {
+  // 复制提示文案：utils 不依赖 React，按 <html lang> 判断语言
+  const lang =
+    typeof document !== 'undefined' ? document.documentElement.lang : 'zh-CN';
+  const isEnglish = lang.startsWith('en');
+  const labels = isEnglish
+    ? {
+        httpsRequired: 'Copying requires HTTPS',
+        success: 'Copied',
+        failed: 'Copy failed, please copy manually',
+      }
+    : {
+        httpsRequired: '非 https 协议下不支持复制，请使用 https 协议',
+        success: '复制成功',
+        failed: '复制失败，请手动复制',
+      };
   const isNotHttps = !/^https:\/\//.test(window.location.origin);
   const dur = duration ?? 1.5;
 
@@ -108,17 +123,14 @@ export const copyText = (
   }
 
   if (isNotHttps) {
-    message.error(
-      '非 https 协议下不支持复制，请使用 https 协议' + msgText,
-      dur,
-    );
+    message.error(labels.httpsRequired + msgText, dur);
     return;
   }
 
   try {
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(text);
-      message.success('复制成功' + msgText, dur);
+      message.success(labels.success + msgText, dur);
       callback?.();
     } else {
       const textArea = document.createElement('textarea');
@@ -133,18 +145,18 @@ export const copyText = (
       try {
         const successful = document.execCommand('copy');
         if (successful) {
-          message.success('复制成功' + msgText, duration ?? 1500);
+          message.success(labels.success + msgText, duration ?? 1500);
           callback?.();
         } else {
-          message.error('复制失败，请手动复制' + msgText, duration ?? 1500);
+          message.error(labels.failed + msgText, duration ?? 1500);
         }
       } catch (err) {
-        message.error('复制失败，请手动复制' + msgText, duration ?? 1500);
+        message.error(labels.failed + msgText, duration ?? 1500);
       }
       document.body.removeChild(textArea);
     }
   } catch (err) {
-    message.error('复制失败，请手动复制' + msgText, duration ?? 1500);
+    message.error(labels.failed + msgText, duration ?? 1500);
   }
 };
 

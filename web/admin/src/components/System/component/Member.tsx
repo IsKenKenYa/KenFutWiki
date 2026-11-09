@@ -9,16 +9,19 @@ import { ColumnType } from '@ctzhian/ui/dist/Table';
 import { Box, Button, Stack, Tooltip } from '@mui/material';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import MemberAdd from './MemberAdd';
 import MemberDelete from './MemberDelete';
 import MemberUpdate from './MemberUpdate';
 
+// 角色名存 i18n key，渲染时翻译
 const ConstsUserRoleMap = {
-  [ConstsUserRole.UserRoleAdmin]: '超级管理员',
-  [ConstsUserRole.UserRoleUser]: '普通管理员',
+  [ConstsUserRole.UserRoleAdmin]: 'member.roleAdmin',
+  [ConstsUserRole.UserRoleUser]: 'member.roleUser',
 };
 
 const Member = () => {
+  const { t } = useTranslation();
   const { user } = useAppSelector(state => state.config);
   const [loading, setLoading] = useState(false);
   const [userList, setUserList] = useState<V1UserListItemResp[]>([]);
@@ -29,7 +32,7 @@ const Member = () => {
 
   const columns: ColumnType<V1UserListItemResp>[] = [
     {
-      title: '用户名',
+      title: t('member.colAccount'),
       dataIndex: 'account',
       render: (text: string, record) => (
         <Stack direction={'row'} alignItems={'center'} gap={2}>
@@ -45,19 +48,19 @@ const Member = () => {
                 lineHeight: '18px',
               }}
             >
-              我
+              {t('member.me')}
             </Box>
           ) : null}
         </Stack>
       ),
     },
     {
-      title: '身份',
+      title: t('member.colRole'),
       dataIndex: 'role',
-      render: (text: ConstsUserRole) => <Box>{ConstsUserRoleMap[text]}</Box>,
+      render: (text: ConstsUserRole) => <Box>{t(ConstsUserRoleMap[text])}</Box>,
     },
     {
-      title: '上次使用时间',
+      title: t('member.colLastAccess'),
       dataIndex: 'last_access',
       render: (text: string) => (
         <Box>{text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'}</Box>
@@ -87,7 +90,7 @@ const Member = () => {
                     gap={1}
                     sx={{ mb: 1, whiteSpace: 'nowrap' }}
                   >
-                    修改安装目录下
+                    {t('member.adminEnvPrefix')}
                     <Box
                       sx={{
                         fontWeight: 700,
@@ -100,7 +103,7 @@ const Member = () => {
                     >
                       .env
                     </Box>
-                    文件中的
+                    {t('member.adminEnvField')}
                     <Box
                       sx={{
                         fontWeight: 700,
@@ -113,10 +116,10 @@ const Member = () => {
                     >
                       ADMIN_PASSWORD
                     </Box>
-                    后，
+                    {t('member.adminEnvSuffix')}
                   </Stack>
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    执行
+                    {t('member.adminEnvRun')}
                     <Box
                       sx={{
                         fontWeight: 700,
@@ -129,7 +132,7 @@ const Member = () => {
                     >
                       docker compose up -d
                     </Box>
-                    即可生效。
+                    {t('member.adminEnvEffect')}
                   </Stack>
                 </Box>
               }
@@ -143,7 +146,7 @@ const Member = () => {
                   minWidth: 'auto',
                 }}
               >
-                修改密码
+                {t('member.changePassword')}
               </Button>
             </Tooltip>
           ) : (
@@ -161,7 +164,9 @@ const Member = () => {
                 setCurType('reset-password');
               }}
             >
-              {user?.id === record.id ? '修改密码' : '重置密码'}
+              {user?.id === record.id
+                ? t('member.changePassword')
+                : t('member.resetPassword')}
             </Button>
           )}
           {user?.id !== record.id &&
@@ -176,7 +181,7 @@ const Member = () => {
                   setCurType('delete');
                 }}
               >
-                删除
+                {t('common.delete')}
               </Button>
             )}
         </Stack>
@@ -224,7 +229,7 @@ const Member = () => {
         sx={{ mb: 2, px: 2 }}
       >
         <Box sx={{ fontSize: 14, lineHeight: '24px', fontWeight: 'bold' }}>
-          用户管理
+          {t('member.title')}
         </Box>
         <MemberAdd refresh={getData} userLen={userList.length} />
       </Stack>
@@ -250,7 +255,7 @@ const Member = () => {
                   color: 'text.tertiary',
                 }}
               >
-                暂无数据
+                {t('common.noData')}
               </Box>
             </Stack>
           )

@@ -18,6 +18,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ListDataItem } from '..';
 import { useGlobalQueue } from '../hooks/useGlobalQueue';
 import { pollCrawlerResults } from '../util';
@@ -35,6 +36,7 @@ interface BatchActionBarProps {
 }
 
 const BatchActionBar = (props: BatchActionBarProps) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { kb_id, nav_id } = useAppSelector(state => state.config);
   const {
@@ -133,7 +135,7 @@ const BatchActionBar = (props: BatchActionBarProps) => {
                         summary:
                           error instanceof Error
                             ? error.message
-                            : '操作失败，请稍后重试',
+                            : t('common.operationFailed'),
                       }
                     : prevItem,
                 ),
@@ -163,7 +165,7 @@ const BatchActionBar = (props: BatchActionBarProps) => {
     );
 
     if (itemsToImport.length === 0) {
-      message.warning('请选择需要导入的文档');
+      message.warning(t('addDoc.selectToImport'));
       return;
     }
 
@@ -284,7 +286,7 @@ const BatchActionBar = (props: BatchActionBarProps) => {
                     ? {
                         ...prevItem,
                         status: 'import-error',
-                        summary: '爬取失败',
+                        summary: t('addDoc.scrapeFailed'),
                       }
                     : prevItem,
                 ),
@@ -302,8 +304,8 @@ const BatchActionBar = (props: BatchActionBarProps) => {
                       error instanceof Error
                         ? error.message
                         : item.file
-                          ? '导入文件失败'
-                          : '创建文件夹失败',
+                          ? t('addDoc.importFileFailed')
+                          : t('addDoc.createFolderFailed'),
                   }
                 : prevItem,
             ),
@@ -311,7 +313,7 @@ const BatchActionBar = (props: BatchActionBarProps) => {
         }
       });
     }
-  }, [data, setData, kb_id, isSupportSelect, checked, parent_id, queue]);
+  }, [data, setData, kb_id, isSupportSelect, checked, parent_id, queue, t]);
 
   const handleBatchParse = useCallback(async () => {
     // 筛选所有状态为 'parse-error' 的数据
@@ -323,12 +325,12 @@ const BatchActionBar = (props: BatchActionBarProps) => {
     }
 
     if (itemsToParse.length === 0) {
-      message.warning('请选择需要解析的文档');
+      message.warning(t('addDoc.selectToParse'));
       return;
     }
 
     handleParse(itemsToParse);
-  }, [data, handleParse, isSupportSelect, checked]);
+  }, [data, handleParse, isSupportSelect, checked, t]);
 
   /**
    * 文件上传函数 - 上传文件到服务器
@@ -397,7 +399,7 @@ const BatchActionBar = (props: BatchActionBarProps) => {
                         summary:
                           error instanceof Error
                             ? error.message
-                            : '文件上传失败',
+                            : t('addDoc.uploadFailed'),
                         progress: undefined,
                       }
                     : prevItem,

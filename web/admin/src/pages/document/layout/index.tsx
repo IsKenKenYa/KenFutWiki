@@ -24,12 +24,14 @@ import {
 import { arrayMove } from '@dnd-kit/sortable';
 import { Stack } from '@mui/material';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import RagErrorReStart from '../component/RagErrorReStart';
 import DocPageHeader from './DocPageHeader';
 import DocPageList from './DocPageList';
 import DocPageNavs from './DocPageNavs';
 
 const Content = () => {
+  const { t } = useTranslation();
   const { kb_id, isRefreshDocList, kbList } = useAppSelector(
     state => state.config,
   );
@@ -147,7 +149,7 @@ const Content = () => {
             prev_id: prevId,
             next_id: nextId,
           }).then(() => {
-            message.success('顺序已更新');
+            message.success(t('doc.orderUpdated'));
             refresh();
           });
         }
@@ -173,7 +175,7 @@ const Content = () => {
           kb_id: kb_id!,
           nav_id: over.id as string,
         }).then(() => {
-          message.success('已移动到该目录');
+          message.success(t('doc.move.movedToNav'));
           refresh();
         });
         return;

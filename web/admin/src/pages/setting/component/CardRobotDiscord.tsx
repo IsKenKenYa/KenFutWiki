@@ -7,6 +7,7 @@ import {
 } from '@mui/material';
 import { message } from '@ctzhian/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import {
   DomainKnowledgeBaseDetail,
@@ -17,6 +18,7 @@ import { FormItem, SettingCardItem, SecretTextField } from './Common';
 import { useAppSelector } from '@/store';
 
 const CardRobotDiscord = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
   const [detail, setDetail] = useState<DomainAppDetailResp | null>(null);
   const [isEnabled, setIsEnabled] = useState(false);
@@ -56,7 +58,7 @@ const CardRobotDiscord = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
         },
       },
     ).then(() => {
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
       getDetail();
       reset();
@@ -68,8 +70,12 @@ const CardRobotDiscord = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
   }, [kb]);
 
   return (
-    <SettingCardItem title='Discord 机器人' isEdit={isEdit} onSubmit={onSubmit}>
-      <FormItem label='Discord 机器人'>
+    <SettingCardItem
+      title={t('enum.appType.discord')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
+      <FormItem label={t('enum.appType.discord')}>
         <Controller
           control={control}
           name='discord_bot_is_enabled'
@@ -110,7 +116,7 @@ const CardRobotDiscord = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
               <SecretTextField
                 {...field}
                 fullWidth
-                placeholder='在 Discord 中创建机器人，并获取 Token'
+                placeholder={t('robot.discordTokenHint')}
                 onChange={e => {
                   field.onChange(e.target.value);
                   setIsEdit(true);

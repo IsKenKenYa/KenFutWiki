@@ -7,6 +7,7 @@ import { filterEmptyFolders } from '@/utils/tree';
 import ErrorIcon from '@mui/icons-material/Error';
 import { Stack, Typography } from '@mui/material';
 import { message, Modal } from '@ctzhian/ui';
+import { useTranslation } from 'react-i18next';
 
 interface DocStatusProps {
   open: boolean;
@@ -17,16 +18,19 @@ interface DocStatusProps {
   refresh?: () => void;
 }
 
+// 文案存 i18n key，渲染时按当前语言翻译
 const textMap = {
   public: {
-    title: '确认设置文档为公开状态？',
-    text: '设为公开后，所有用户都可以在前台访问这些文档。',
-    btn: '设为公开',
+    title: 'doc.status.publicTitle',
+    text: 'doc.status.publicText',
+    btn: 'doc.status.publicBtn',
+    doneText: 'doc.status.publicDone',
   },
   private: {
-    title: '确认设置文档为私有状态？',
-    text: '设为私有后，这些文档将不会在前台展示。',
-    btn: '设为私有',
+    title: 'doc.status.privateTitle',
+    text: 'doc.status.privateText',
+    btn: 'doc.status.privateBtn',
+    doneText: 'doc.status.privateDone',
   },
 };
 
@@ -38,13 +42,14 @@ const DocStatus = ({
   data,
   refresh,
 }: DocStatusProps) => {
+  const { t } = useTranslation();
   const submit = () => {
     postApiV1NodeAction({
       ids: data.map(it => it.id!),
       kb_id,
       action: status,
     }).then(() => {
-      message.success('更新成功');
+      message.success(t('common.saveSuccess'));
       onClose();
       refresh?.();
     });
@@ -62,15 +67,15 @@ const DocStatus = ({
         tree.length > 0 ? (
           <Stack direction='row' alignItems='center' gap={1}>
             <ErrorIcon sx={{ color: 'warning.main' }} />
-            {textMap[status as keyof typeof textMap].title}
+            {t(textMap[status as keyof typeof textMap].title)}
           </Stack>
         ) : (
-          textMap[status as keyof typeof textMap].btn
+          t(textMap[status as keyof typeof textMap].btn)
         )
       }
       open={open}
       width={600}
-      okText={textMap[status as keyof typeof textMap].btn}
+      okText={t(textMap[status as keyof typeof textMap].btn)}
       onCancel={onClose}
       onOk={submit}
       okButtonProps={{
@@ -78,7 +83,7 @@ const DocStatus = ({
       }}
     >
       <Typography variant='body1' color='text.secondary'>
-        {textMap[status as keyof typeof textMap].text}
+        {t(textMap[status as keyof typeof textMap].text)}
       </Typography>
       {tree.length > 0 ? (
         <Card
@@ -101,7 +106,7 @@ const DocStatus = ({
           sx={{ color: 'success.main', mt: 1, fontSize: 12 }}
         >
           <ErrorIcon sx={{ fontSize: 16 }} />
-          选中文档都已{textMap[status as keyof typeof textMap].btn}
+          {t(textMap[status as keyof typeof textMap].doneText)}
         </Stack>
       )}
     </Modal>

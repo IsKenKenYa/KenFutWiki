@@ -19,6 +19,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { IconGengduo } from '@panda-wiki/icons';
+import { useTranslation } from 'react-i18next';
 
 export interface DocPageListContentProps {
   data: ITreeItem[];
@@ -76,6 +77,7 @@ const DocPageListContent = ({
   scrollTo,
   registerTreeDragHandlers,
 }: DocPageListContentProps) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const showEmpty = list.length === 0;
 
@@ -145,7 +147,7 @@ const DocPageListContent = ({
                     sx={{ minWidth: 0, p: 0, lineHeight: 1 }}
                     onClick={onDeleteOpen}
                   >
-                    批量删除
+                    {t('doc.batchDelete')}
                   </Button>
                   <Button
                     size='small'
@@ -153,12 +155,14 @@ const DocPageListContent = ({
                     sx={{ minWidth: 0, p: 0, lineHeight: 1 }}
                     onClick={onPropertiesOpen}
                   >
-                    批量设置权限
+                    {t('doc.batchPermissions')}
                   </Button>
                 </Stack>
               </>
             ) : (
-              <Box sx={{ fontSize: 13, color: 'text.secondary' }}>全选</Box>
+              <Box sx={{ fontSize: 13, color: 'text.secondary' }}>
+                {t('doc.selectAll')}
+              </Box>
             )}
             <Button
               size='small'
@@ -247,7 +251,7 @@ const DocPageListContent = ({
           <Loading sx={{ flex: 1, justifyContent: 'center' }} />
         ) : showEmpty ? (
           <EmptyState
-            text={search ? '无搜索结果' : '暂无数据'}
+            text={search ? t('doc.noSearchResults') : t('common.noData')}
             sx={{
               flex: 1,
               justifyContent: 'center',

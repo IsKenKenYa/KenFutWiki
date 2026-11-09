@@ -9,6 +9,7 @@ import { useAppSelector } from '@/store';
 import { collapseAllFolders, convertToTree } from '@/utils/drag';
 import { message } from '@ctzhian/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import DocListModals from './DocListModals';
 import DocPageListContent from './DocPageListContent';
 import type { DocPageListContainerProps } from './types';
@@ -31,6 +32,7 @@ const DocPageListContainer = ({
   onRagOpen,
   registerTreeDragHandlers,
 }: DocPageListContainerProps) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const dragTreeRef = useRef<DragTreeHandle>(null);
 
@@ -97,7 +99,7 @@ const DocPageListContainer = ({
           kb_id,
           node_ids: [item.id],
         }).then(() => {
-          message.success('正在学习');
+          message.success(t('doc.restudy.started'));
           refresh();
         });
       }
@@ -118,7 +120,7 @@ const DocPageListContainer = ({
     (id: string) => {
       const currentNode = list.find(item => item.id === id);
       if (currentNode?.status !== 2 && !currentNode?.publisher_id) {
-        message.warning('当前文档未发布，无法查看前台文档');
+        message.warning(t('editor.notPublished'));
         return;
       }
       window.open(`${wikiUrl}/node/${id}`, '_blank');

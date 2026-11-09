@@ -1,0 +1,108 @@
+- generic [ref=f1e1]:
+  - generic [ref=f1e3]:
+    - generic [ref=f1e4]:
+      - generic [ref=f1e5]: K
+      - generic [ref=f1e7]: KenFutWiki
+      - generic [ref=f1e9]:
+        - button [ref=f1e42] [cursor=pointer]: 帮助文档
+        - button [ref=f1e43] [cursor=pointer]: GitHub
+        - button [ref=f1e44] [cursor=pointer]: 在线支持
+        - generic [ref=f1e23]:
+          - generic [ref=f1e24]: KenFutWiki 2.11.1
+          - link [ref=f1e45] [cursor=pointer]:
+            - /url: https://github.com/IsKenKenYa/KenFutWiki
+            - text: AGPLv3 · 对应源码
+    - generic [ref=f1e27]:
+      - button [ref=f1e46] [cursor=pointer]: 访问 Wiki 网站
+      - button [ref=f1e47] [cursor=pointer]: 系统配置
+      - button [ref=f1e48] [cursor=pointer]: ZH
+      - button [ref=f1e49] [cursor=pointer]
+  - dialog [ref=f1e391]:
+    - heading "创建 Wiki 站" [level=2] [ref=f1e392]
+    - generic [ref=f1e55]:
+      - generic [ref=f1e57]:
+        - generic [ref=f1e58]: 模型配置
+        - generic [ref=f1e67]: 文件存储
+        - generic [ref=f1e76]: 配置监听
+        - generic [ref=f1e85]: 录入文档
+        - generic [ref=f1e94]: 发布内容
+        - generic [ref=f1e103]: 问答测试
+        - generic [ref=f1e112]: 装饰页面
+        - generic [ref=f1e121]: 完成配置
+      - generic [ref=f1e130]:
+        - generic [ref=f1e131]: 模型配置
+        - generic [ref=f1e136]:
+          - generic [ref=f1e137]:
+            - generic [ref=f1e138]:
+              - generic [ref=f1e142]: 硅基流动 /
+              - generic [ref=f1e143]: deepseek-ai/DeepSeek-V4.1-Flash
+              - generic [ref=f1e144]: 智能对话模型
+              - generic [ref=f1e145]: 大模型
+              - generic [ref=f1e146]: 必选
+            - generic [ref=f1e147]:
+              - text: 在
+              - generic [ref=f1e148]: 智能问答
+              - text: 和
+              - generic [ref=f1e149]: 摘要生成
+              - text: 过程中使用。
+          - generic [ref=f1e150]: 状态正常
+          - button "修改" [ref=f1e393] [cursor=pointer]
+        - generic [ref=f1e154]:
+          - generic [ref=f1e155]:
+            - generic [ref=f1e156]:
+              - generic [ref=f1e157]: 向量模型
+              - generic [ref=f1e158]: 小模型
+              - generic [ref=f1e159]: 必选
+            - generic [ref=f1e160]:
+              - text: 在
+              - generic [ref=f1e161]: 内容发布
+              - text: 和
+              - generic [ref=f1e162]: 智能问答
+              - text: 和
+              - generic [ref=f1e163]: 智能搜索
+              - text: 过程中使用。
+          - generic [ref=f1e164]: 必填配置
+          - button "配置" [ref=f1e394] [cursor=pointer]
+        - generic [ref=f1e169]:
+          - generic [ref=f1e170]:
+            - generic [ref=f1e171]:
+              - generic [ref=f1e172]: 重排序模型
+              - generic [ref=f1e173]: 小模型
+              - generic [ref=f1e174]: 必选
+            - generic [ref=f1e175]:
+              - text: 在
+              - generic [ref=f1e176]: 智能问答
+              - text: 和
+              - generic [ref=f1e177]: 智能搜索
+              - text: 过程中使用。
+          - generic [ref=f1e178]: 必填配置
+          - button "配置" [ref=f1e395] [cursor=pointer]
+        - generic [ref=f1e183]:
+          - generic [ref=f1e184]:
+            - generic [ref=f1e185]:
+              - generic [ref=f1e186]: 文档分析模型
+              - generic [ref=f1e187]: 小模型
+              - generic [ref=f1e188]: 必选
+            - generic [ref=f1e189]:
+              - text: 在
+              - generic [ref=f1e190]: 内容发布
+              - text: 和
+              - generic [ref=f1e191]: 智能问答
+              - text: 过程中使用。
+          - generic [ref=f1e192]: 必填配置
+          - button "配置" [ref=f1e396] [cursor=pointer]
+        - generic [ref=f1e197]:
+          - generic [ref=f1e198]:
+            - generic [ref=f1e199]:
+              - generic [ref=f1e200]: 图像分析模型
+              - generic [ref=f1e201]: 视觉模型
+              - generic [ref=f1e202]: 可选
+            - generic [ref=f1e203]:
+              - text: 在
+              - generic [ref=f1e204]: 内容发布
+              - text: 和
+              - generic [ref=f1e205]: 智能问答
+              - text: 过程中使用，启用后图像分析能力可用，可选配置。
+          - generic [ref=f1e206]: 可选模型
+          - button "配置" [ref=f1e397] [cursor=pointer]
+    - button "下一步" [ref=f1e398] [cursor=pointer]

@@ -2,6 +2,7 @@ import { uploadFile } from '@/api';
 import { Box, IconButton, LinearProgress, Stack } from '@mui/material';
 import { message } from '@ctzhian/ui';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import CustomImage from '../CustomImage';
 import { IconShangchuan, IconIcon_tool_close } from '@panda-wiki/icons';
 import { getBasePath } from '@/utils/getBasePath';
@@ -29,8 +30,9 @@ const UploadFile = ({
   width,
   height,
   disabled = false,
-  label = '点击上传',
+  label,
 }: UploadFileProps) => {
+  const { t } = useTranslation();
   const [preview, setPreview] = useState<string>(value);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -81,7 +83,7 @@ const UploadFile = ({
         if (abortController.signal.aborted) return;
 
         console.error(error);
-        message.error('图片处理失败');
+        message.error(t('upload.imageProcessFailed'));
         setPreview(value);
         setUploadProgress(null);
         setIsUploading(false);
@@ -113,7 +115,7 @@ const UploadFile = ({
         }
 
         console.error(error);
-        message.error('上传失败');
+        message.error(t('upload.failed'));
         setPreview(value);
         setUploadProgress(null);
         setIsUploading(false);
@@ -258,7 +260,7 @@ const UploadFile = ({
             <IconShangchuan
               sx={{ fontSize: width ? (width < 40 ? 12 : 18) : 18 }}
             />
-            <Box>{label}</Box>
+            <Box>{label ?? t('upload.clickToUpload')}</Box>
           </Stack>
         )}
       </Box>
@@ -301,7 +303,7 @@ export const compressAndConvertToBase64 = (file: File): Promise<string> => {
         // 绘制压缩后的图片
         const ctx = canvas.getContext('2d');
         if (!ctx) {
-          reject(new Error('无法创建canvas上下文'));
+          reject(new Error('failed to create canvas context'));
           return;
         }
         ctx.drawImage(img, 0, 0, width, height);
@@ -311,12 +313,12 @@ export const compressAndConvertToBase64 = (file: File): Promise<string> => {
         resolve(base64);
       };
       img.onerror = () => {
-        reject(new Error('图片加载失败'));
+        reject(new Error('failed to load image'));
       };
       img.src = event.target?.result as string;
     };
     reader.onerror = () => {
-      reject(new Error('文件读取失败'));
+      reject(new Error('failed to read file'));
     };
     reader.readAsDataURL(file);
   });

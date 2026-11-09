@@ -1,7 +1,9 @@
 import { Box, Stack } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import packageJson from '../../../package.json';
 
 const Version = () => {
+  const { t } = useTranslation();
   const version = import.meta.env.VITE_APP_VERSION || packageJson.version;
   const source =
     import.meta.env.VITE_APP_SOURCE_URL ||
@@ -25,7 +27,7 @@ const Version = () => {
         rel='noopener noreferrer'
         sx={{ color: 'text.secondary' }}
       >
-        AGPLv3 · 对应源码
+        {t('version.sourceCode')}
       </Box>
     </Stack>
   );

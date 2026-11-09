@@ -7,34 +7,36 @@ import { useAppSelector } from '@/store';
 import { addOpacityToColor } from '@/utils';
 import { Box, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActiveTab } from '.';
 import { V1StatCountResp } from '@/request/types';
 
 const TypeCount = ({ tab }: { tab: ActiveTab }) => {
+  const { t } = useTranslation();
   const { kb_id = '' } = useAppSelector(state => state.config);
   const [data, setData] = useState<V1StatCountResp | null>(null);
 
   const list = [
     {
-      label: '访问次数',
+      label: t('stat.visits'),
       value: 'page_visit_count',
       color: '#021D70',
       bg: 'linear-gradient( 180deg, #D7EBFD 0%, #BEDDFD 100%)',
     },
     {
-      label: '问答次数',
+      label: t('stat.qaCount'),
       value: 'conversation_count',
       color: '#021D70',
       bg: 'linear-gradient( 180deg, #D7EBFD 0%, #BEDDFD 100%)',
     },
     {
-      label: '访问用户数',
+      label: t('stat.visitors'),
       value: 'session_count',
       color: '#021D70',
       bg: 'linear-gradient( 180deg, #D7EBFD 0%, #BEDDFD 100%)',
     },
     {
-      label: '来源 IP 数',
+      label: t('stat.ipCount'),
       value: 'ip_count',
       color: '#260A7A',
       bg: 'linear-gradient( 180deg, #F0DDFF 0%, #E6C8FF 100%)',

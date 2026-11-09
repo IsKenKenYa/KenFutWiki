@@ -23,28 +23,28 @@ export const ENTERPRISE_VERSION_PERMISSION = [
 export const VersionInfoMap = {
   [ConstsLicenseEdition.LicenseEditionFree]: {
     permission: ConstsLicenseEdition.LicenseEditionFree,
-    label: '开源版',
+    label: 'enum.license.free',
     image: freeVersion,
     bgColor: '#8E9DAC',
     nextVersion: ConstsLicenseEdition.LicenseEditionProfession,
   },
   [ConstsLicenseEdition.LicenseEditionProfession]: {
     permission: ConstsLicenseEdition.LicenseEditionProfession,
-    label: '专业版',
+    label: 'enum.license.pro',
     image: proVersion,
     bgColor: '#0933BA',
     nextVersion: ConstsLicenseEdition.LicenseEditionBusiness,
   },
   [ConstsLicenseEdition.LicenseEditionBusiness]: {
     permission: ConstsLicenseEdition.LicenseEditionBusiness,
-    label: '商业版',
+    label: 'enum.license.business',
     image: businessVersion,
     bgColor: '#382A79',
     nextVersion: ConstsLicenseEdition.LicenseEditionEnterprise,
   },
   [ConstsLicenseEdition.LicenseEditionEnterprise]: {
     permission: ConstsLicenseEdition.LicenseEditionEnterprise,
-    label: '企业版',
+    label: 'enum.license.enterprise',
     image: enterpriseVersion,
     bgColor: '#21222D',
     nextVersion: undefined,
@@ -127,7 +127,7 @@ export interface VersionInfo {
  */
 export const VERSION_INFO: Record<ConstsLicenseEdition, VersionInfo> = {
   [ConstsLicenseEdition.LicenseEditionFree]: {
-    label: '开源版',
+    label: 'enum.license.free',
     features: {
       wikiCount: 1,
       docCountPerWiki: 300,
@@ -155,7 +155,7 @@ export const VERSION_INFO: Record<ConstsLicenseEdition, VersionInfo> = {
     },
   },
   [ConstsLicenseEdition.LicenseEditionProfession]: {
-    label: '专业版',
+    label: 'enum.license.pro',
     features: {
       wikiCount: 10,
       docCountPerWiki: 10000,
@@ -183,7 +183,7 @@ export const VERSION_INFO: Record<ConstsLicenseEdition, VersionInfo> = {
     },
   },
   [ConstsLicenseEdition.LicenseEditionBusiness]: {
-    label: '商业版',
+    label: 'enum.license.business',
     features: {
       wikiCount: 20,
       docCountPerWiki: 10000,
@@ -211,7 +211,7 @@ export const VERSION_INFO: Record<ConstsLicenseEdition, VersionInfo> = {
     },
   },
   [ConstsLicenseEdition.LicenseEditionEnterprise]: {
-    label: '企业版',
+    label: 'enum.license.enterprise',
     features: {
       wikiCount: Infinity,
       docCountPerWiki: Infinity,
@@ -241,42 +241,42 @@ export const VERSION_INFO: Record<ConstsLicenseEdition, VersionInfo> = {
 };
 
 /**
- * 功能特性标签映射
+ * 功能特性标签映射：值为 i18n key，渲染时用 t() 翻译
  */
 export const FEATURE_LABELS: Record<string, string> = {
-  wikiCount: 'Wiki 站点数量',
-  docCountPerWiki: '每个 Wiki 的文档数量',
-  adminCount: '管理员数量',
-  adminPermissionControl: '管理员分权控制',
-  seoConfig: 'SEO 配置',
-  multiLanguage: '多语言支持',
-  customCopyright: '自定义版权信息',
-  trafficAnalysis: '访问流量分析',
-  customAIPrompt: '自定义 AI 提示词',
-  ssoLogin: 'SSO 登录',
-  visitorPermissionControl: '访客权限控制',
-  pageWatermark: '页面水印',
-  contentNoCopy: '内容不可复制',
-  sensitiveContentFilter: '敏感内容过滤',
-  webWidgetRobot: '网页挂件机器人',
-  feishuQARobot: '飞书问答机器人',
-  dingtalkQARobot: '钉钉问答机器人',
-  wecomQARobot: '企业微信问答机器人',
-  wecomServiceRobot: '企业微信客服机器人',
-  discordQARobot: 'Discord 问答机器人',
-  docVersionHistory: '文档历史版本管理',
-  apiCall: 'API 调用',
-  sourceCode: '项目源码',
+  wikiCount: 'version.wikiCount',
+  docCountPerWiki: 'version.docCountPerWiki',
+  adminCount: 'version.adminCount',
+  adminPermissionControl: 'version.adminPermissionControl',
+  seoConfig: 'version.seoConfig',
+  multiLanguage: 'version.multiLanguage',
+  customCopyright: 'version.customCopyright',
+  trafficAnalysis: 'version.trafficAnalysis',
+  customAIPrompt: 'version.customAIPrompt',
+  ssoLogin: 'version.ssoLogin',
+  visitorPermissionControl: 'version.visitorPermissionControl',
+  pageWatermark: 'version.pageWatermark',
+  contentNoCopy: 'version.contentNoCopy',
+  sensitiveContentFilter: 'version.sensitiveContentFilter',
+  webWidgetRobot: 'version.webWidgetRobot',
+  feishuQARobot: 'version.feishuQARobot',
+  dingtalkQARobot: 'version.dingtalkQARobot',
+  wecomQARobot: 'version.wecomQARobot',
+  wecomServiceRobot: 'version.wecomServiceRobot',
+  discordQARobot: 'version.discordQARobot',
+  docVersionHistory: 'version.docVersionHistory',
+  apiCall: 'version.apiCall',
+  sourceCode: 'version.sourceCode',
 };
 
 /**
- * 功能状态显示文本映射
+ * 功能状态显示文本映射：值为 i18n key
  */
 export const FEATURE_STATUS_LABELS: Record<FeatureStatus, string> = {
-  [FeatureStatus.NOT_SUPPORTED]: '不支持',
-  [FeatureStatus.SUPPORTED]: '支持',
-  [FeatureStatus.BASIC]: '基础配置',
-  [FeatureStatus.ADVANCED]: '高级配置',
+  [FeatureStatus.NOT_SUPPORTED]: 'version.status.notSupported',
+  [FeatureStatus.SUPPORTED]: 'version.status.supported',
+  [FeatureStatus.BASIC]: 'version.status.basic',
+  [FeatureStatus.ADVANCED]: 'version.status.advanced',
 };
 
 /**

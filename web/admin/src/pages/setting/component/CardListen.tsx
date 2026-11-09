@@ -4,33 +4,9 @@ import { DomainKnowledgeBaseDetail } from '@/request/types';
 import { message } from '@ctzhian/ui';
 import { Box, Checkbox, Stack, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { FormItem, SettingCardItem } from './Common';
-
-// 验证规则常量
-const VALIDATION_RULES = {
-  port: {
-    required: {
-      value: true,
-      message: '端口不能为空',
-    },
-    min: {
-      value: 1,
-      message: '端口号不能小于1',
-    },
-    max: {
-      value: 65535,
-      message: '端口号不能大于65535',
-    },
-  },
-  domain: {
-    pattern: {
-      value:
-        /^(localhost|((([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)\.)+[a-zA-Z]{2,})|(\d{1,3}(?:\.\d{1,3}){3})|(\[[0-9a-fA-F:]+\]))$/,
-      message: '请输入有效的域名、IP 或 localhost',
-    },
-  },
-};
 
 const CardListen = ({
   kb,
@@ -39,7 +15,33 @@ const CardListen = ({
   kb: DomainKnowledgeBaseDetail;
   refresh: () => void;
 }) => {
+  const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState<boolean>(false);
+
+  // 验证规则依赖 t，随语言切换重建
+  const VALIDATION_RULES = {
+    port: {
+      required: {
+        value: true,
+        message: t('kb.portRequired'),
+      },
+      min: {
+        value: 1,
+        message: t('kb.portMin'),
+      },
+      max: {
+        value: 65535,
+        message: t('kb.portMax'),
+      },
+    },
+    domain: {
+      pattern: {
+        value:
+          /^(localhost|((([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)\.)+[a-zA-Z]{2,})|(\d{1,3}(?:\.\d{1,3}){3})|(\[[0-9a-fA-F:]+\]))$/,
+        message: t('kb.domainInvalid'),
+      },
+    },
+  };
 
   const {
     control,
@@ -64,7 +66,7 @@ const CardListen = ({
   const onSubmit = handleSubmit(value => {
     const formData: Partial<UpdateKnowledgeBaseData['access_settings']> = {};
     if (!value.http && !value.https) {
-      message.error('至少需要启用一种服务');
+      message.error(t('kb.listenerRequired'));
       return;
     }
     if (value.domain) formData.hosts = [value.domain];
@@ -73,12 +75,12 @@ const CardListen = ({
       formData.ssl_ports = [+value.ssl_port];
       if (value.httpsCert) formData.public_key = value.httpsCert;
       else {
-        message.error('请上传证书文件');
+        message.error(t('kb.certRequired'));
         return;
       }
       if (value.httpsKey) formData.private_key = value.httpsKey;
       else {
-        message.error('请上传私钥文件');
+        message.error(t('kb.keyRequired'));
         return;
       }
     }
@@ -90,7 +92,7 @@ const CardListen = ({
         ...formData,
       },
     }).then(() => {
-      message.success('更新成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
       refresh();
     });
@@ -107,8 +109,12 @@ const CardListen = ({
   }, [kb]);
 
   return (
-    <SettingCardItem title='服务监听方式' isEdit={isEdit} onSubmit={onSubmit}>
-      <FormItem label='域名或 IP'>
+    <SettingCardItem
+      title={t('kb.listenMode')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
+      <FormItem label={t('kb.domainOrIp')}>
         <Controller
           control={control}
           name='domain'
@@ -117,7 +123,7 @@ const CardListen = ({
             <TextField
               {...field}
               fullWidth
-              label='域名或 IP'
+              label={t('kb.domainOrIp')}
               onChange={e => {
                 field.onChange(e.target.value);
                 setIsEdit(true);
@@ -160,7 +166,7 @@ const CardListen = ({
                 color: http ? 'text.primary' : 'text.tertiary',
               }}
             >
-              启用 HTTP
+              {t('kb.enableHttp')}
             </Box>
           </Stack>
         }
@@ -172,7 +178,7 @@ const CardListen = ({
           render={({ field }) => (
             <TextField
               {...field}
-              label='HTTP 端口'
+              label={t('kb.httpPort')}
               fullWidth
               disabled={!http}
               onChange={e => {
@@ -219,7 +225,7 @@ const CardListen = ({
                 color: https ? 'text.primary' : 'text.tertiary',
               }}
             >
-              启用 HTTPS
+              {t('kb.enableHttps')}
             </Box>
           </Stack>
         }
@@ -231,7 +237,7 @@ const CardListen = ({
           render={({ field }) => (
             <TextField
               {...field}
-              label='HTTPS 端口'
+              label={t('kb.httpsPort')}
               fullWidth
               disabled={!https}
               onChange={e => {
@@ -252,7 +258,7 @@ const CardListen = ({
           render={({ field }) => (
             <FileText
               {...field}
-              tip={'证书文件'}
+              tip={t('kb.certFile')}
               disabled={!https}
               onChange={value => {
                 setIsEdit(true);
@@ -267,7 +273,7 @@ const CardListen = ({
           render={({ field }) => (
             <FileText
               {...field}
-              tip={'私钥文件'}
+              tip={t('kb.keyFile')}
               disabled={!https}
               onChange={value => {
                 setIsEdit(true);

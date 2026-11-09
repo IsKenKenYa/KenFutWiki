@@ -17,67 +17,70 @@ import { DomainCreateKnowledgeBaseReq } from '@/request/types';
 import { setKbId, setKbList, setKbDetail } from '@/store/slices/config';
 import { SettingCardItem, FormItem } from '@/pages/setting/component/Common';
 import { Controller, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import FileText from '@/components/UploadFile/FileText';
 import { message } from '@ctzhian/ui';
 import { useAppDispatch } from '@/store';
-
-const VALIDATION_RULES = {
-  name: {
-    required: {
-      value: true,
-      message: 'Wiki 站名称不能为空',
-    },
-  },
-  port: {
-    required: {
-      value: true,
-      message: '端口不能为空',
-    },
-    min: {
-      value: 1,
-      message: '端口号不能小于1',
-    },
-    max: {
-      value: 65535,
-      message: '端口号不能大于65535',
-    },
-  },
-  domain: {
-    pattern: {
-      value:
-        /^(localhost|((([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)\.)+[a-zA-Z]{2,})|(\d{1,3}(?:\.\d{1,3}){3})|(\[[0-9a-fA-F:]+\]))$/,
-      message: '请输入有效的域名、IP 或 localhost',
-    },
-  },
-  http: {
-    validate: (
-      value: boolean,
-      formValues: { http: boolean; https: boolean },
-    ) => {
-      if (!value && !formValues.https) {
-        return 'HTTP 端口和 HTTPS 端口必须有一个启用';
-      }
-      return true;
-    },
-  },
-  https: {
-    validate: (
-      value: boolean,
-      formValues: { http: boolean; https: boolean },
-    ) => {
-      if (!value && !formValues.http) {
-        return 'HTTP 端口和 HTTPS 端口必须有一个启用';
-      }
-      return true;
-    },
-  },
-};
 
 interface Step2ConfigProps {
   ref: Ref<{ onSubmit: () => Promise<unknown> }>;
 }
 
 const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
+  const { t } = useTranslation();
+  // 验证规则依赖 t，随语言切换重建
+  const VALIDATION_RULES = {
+    name: {
+      required: {
+        value: true,
+        message: t('kb.nameEmpty'),
+      },
+    },
+    port: {
+      required: {
+        value: true,
+        message: t('kb.portRequired'),
+      },
+      min: {
+        value: 1,
+        message: t('kb.portMin'),
+      },
+      max: {
+        value: 65535,
+        message: t('kb.portMax'),
+      },
+    },
+    domain: {
+      pattern: {
+        value:
+          /^(localhost|((([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)\.)+[a-zA-Z]{2,})|(\d{1,3}(?:\.\d{1,3}){3})|(\[[0-9a-fA-F:]+\]))$/,
+        message: t('kb.domainInvalid'),
+      },
+    },
+    http: {
+      validate: (
+        value: boolean,
+        formValues: { http: boolean; https: boolean },
+      ) => {
+        if (!value && !formValues.https) {
+          return t('kb.listenerRequired');
+        }
+        return true;
+      },
+    },
+    https: {
+      validate: (
+        value: boolean,
+        formValues: { http: boolean; https: boolean },
+      ) => {
+        if (!value && !formValues.http) {
+          return t('kb.listenerRequired');
+        }
+        return true;
+      },
+    },
+  };
+
   const {
     control,
     formState: { errors },
@@ -132,8 +135,8 @@ const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
     } else {
       const value = getValues();
       if (!value.http && !value.https) {
-        message.error('HTTP 和 HTTPS 至少需要启用一种服务');
-        return Promise.reject(new Error('HTTP 和 HTTPS 至少需要启用一种服务'));
+        message.error(t('kb.listenerRequired'));
+        return Promise.reject(new Error('listener required'));
       }
       const formData: DomainCreateKnowledgeBaseReq = { name: value.name };
       if (value.domain) formData.hosts = [value.domain];
@@ -162,10 +165,10 @@ const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
 
   return (
     <>
-      <SettingCardItem title='WIKI 站'>
+      <SettingCardItem title={t('kb.wikiSection')}>
         {/* Knowledge Base Name Section */}
         <FormItem
-          label='名称'
+          label={t('kb.nameShortLabel')}
           required
           labelWidth={100}
           sx={{ alignItems: 'flex-start' }}
@@ -179,7 +182,7 @@ const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
               <TextField
                 {...field}
                 autoFocus
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 fullWidth
                 error={!!errors.name}
                 helperText={errors.name?.message}
@@ -188,9 +191,9 @@ const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
           />
         </FormItem>
       </SettingCardItem>
-      <SettingCardItem title='服务监听方式'>
+      <SettingCardItem title={t('kb.listenMode')}>
         <FormItem
-          label='域名或 IP'
+          label={t('kb.domainOrIp')}
           labelWidth={100}
           sx={{ alignItems: 'flex-start' }}
           labelSx={{ height: 52 }}
@@ -203,7 +206,7 @@ const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
               <TextField
                 {...field}
                 fullWidth
-                placeholder='请输入'
+                placeholder={t('common.enter')}
                 error={!!errors.domain}
                 helperText={errors.domain?.message}
               />
@@ -211,7 +214,7 @@ const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
           />
         </FormItem>
         <FormItem
-          label='HTTP 端口'
+          label={t('kb.httpPort')}
           labelWidth={100}
           sx={{ alignItems: 'flex-start' }}
           labelSx={{ height: 52 }}
@@ -234,7 +237,7 @@ const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
                     }
                     label={
                       <Typography sx={{ fontSize: '14px', minWidth: '30px' }}>
-                        启用
+                        {t('common.enable')}
                       </Typography>
                     }
                   />
@@ -252,7 +255,7 @@ const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
               render={({ field }) => (
                 <TextField
                   {...field}
-                  placeholder='HTTP 端口'
+                  placeholder={t('kb.httpPort')}
                   disabled={!http}
                   fullWidth
                   error={!!errors.port}
@@ -263,7 +266,7 @@ const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
           </Stack>
         </FormItem>
         <FormItem
-          label='HTTPS 端口'
+          label={t('kb.httpsPort')}
           labelWidth={100}
           sx={{ alignItems: 'flex-start' }}
           labelSx={{ height: 52 }}
@@ -286,7 +289,7 @@ const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
                     }
                     label={
                       <Typography sx={{ fontSize: '14px', minWidth: '30px' }}>
-                        启用
+                        {t('common.enable')}
                       </Typography>
                     }
                   />
@@ -304,7 +307,7 @@ const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
               render={({ field }) => (
                 <TextField
                   {...field}
-                  placeholder='HTTPS 端口'
+                  placeholder={t('kb.httpsPort')}
                   disabled={!https}
                   sx={{ width: 137 }}
                   error={!!errors.ssl_port}
@@ -317,13 +320,13 @@ const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
               <Controller
                 control={control}
                 name='httpsCert'
-                rules={{ required: https ? '请上传' : false }}
+                rules={{ required: https ? t('kb.uploadRequired') : false }}
                 render={({ field }) => (
                   <FileText
                     {...field}
                     sx={{ width: 137 }}
                     textSx={{ fontSize: 14 }}
-                    tip={'证书文件'}
+                    tip={t('kb.certFile')}
                     disabled={!https}
                   />
                 )}
@@ -336,13 +339,13 @@ const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
               <Controller
                 control={control}
                 name='httpsKey'
-                rules={{ required: https ? '请上传' : false }}
+                rules={{ required: https ? t('kb.uploadRequired') : false }}
                 render={({ field }) => (
                   <FileText
                     {...field}
                     sx={{ width: 137 }}
                     textSx={{ fontSize: 14 }}
-                    tip={'私钥文件'}
+                    tip={t('kb.keyFile')}
                     disabled={!https}
                   />
                 )}
