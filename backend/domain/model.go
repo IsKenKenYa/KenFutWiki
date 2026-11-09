@@ -28,16 +28,16 @@ const (
 )
 
 type Model struct {
-	ID         string        `json:"id"`
-	Provider   ModelProvider `json:"provider"`
-	ProviderName string      `json:"provider_name"` // 自定义供应商的展示名（provider=Other 时使用）
-	Model      string        `json:"model"`
-	ShowName   string        `json:"show_name"` // 模型展示名（为空时回退显示 model ID）
-	APIKey     string        `json:"api_key"`
-	APIHeader  string        `json:"api_header"`
-	BaseURL    string        `json:"base_url"`
-	APIVersion string        `json:"api_version"` // for azure openai
-	Type       ModelType     `json:"type" gorm:"default:chat;uniqueIndex"`
+	ID           string        `json:"id"`
+	Provider     ModelProvider `json:"provider"`
+	ProviderName string        `json:"provider_name"` // 自定义供应商的展示名（provider=Other 时使用）
+	Model        string        `json:"model"`
+	ShowName     string        `json:"show_name"` // 模型展示名（为空时回退显示 model ID）
+	APIKey       string        `json:"api_key"`
+	APIHeader    string        `json:"api_header"`
+	BaseURL      string        `json:"base_url"`
+	APIVersion   string        `json:"api_version"` // for azure openai
+	Type         ModelType     `json:"type" gorm:"default:chat;uniqueIndex"`
 
 	IsActive bool `json:"is_active" gorm:"default:false"`
 

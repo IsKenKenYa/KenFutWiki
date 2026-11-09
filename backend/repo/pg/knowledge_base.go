@@ -10,6 +10,8 @@ import (
 	"maps"
 	"net"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/google/go-cmp/cmp"
@@ -95,13 +97,26 @@ func (r *KnowledgeBaseRepository) SyncKBAccessSettingsToCaddy(ctx context.Contex
 	socketPath := r.config.CaddyAPI
 	// sync kb to caddy
 	// create server for each port
-	subnetPrefix := r.config.SubnetPrefix
-	if subnetPrefix == "" {
-		subnetPrefix = "169.254.15"
+	// upstream 地址默认按 SUBNET_PREFIX 网段拼接（生产容器网络固定 IP），
+	// 本地开发用 CADDY_UPSTREAM_* env 覆盖（caddy 容器经 host.docker.internal 访问宿主机）
+	api := r.config.CaddyUpstream.API
+	app := r.config.CaddyUpstream.App
+	staticFile := r.config.CaddyUpstream.Static // minio
+	if api == "" || app == "" || staticFile == "" {
+		subnetPrefix := r.config.SubnetPrefix
+		if subnetPrefix == "" {
+			subnetPrefix = "169.254.15"
+		}
+		if api == "" {
+			api = fmt.Sprintf("%s.2:8000", subnetPrefix)
+		}
+		if app == "" {
+			app = fmt.Sprintf("%s.112:3010", subnetPrefix)
+		}
+		if staticFile == "" {
+			staticFile = fmt.Sprintf("%s.12:9000", subnetPrefix)
+		}
 	}
-	api := fmt.Sprintf("%s.2:8000", subnetPrefix)
-	app := fmt.Sprintf("%s.112:3010", subnetPrefix)
-	staticFile := fmt.Sprintf("%s.12:9000", subnetPrefix) // minio
 	servers := make(map[string]any, 0)
 	for port, hostKBMap := range portHostKBMap {
 		trustProxies := make([]string, 0)
@@ -307,16 +322,46 @@ func (r *KnowledgeBaseRepository) SyncKBAccessSettingsToCaddy(ctx context.Contex
 		"apps": apps,
 	}
 	newBody, _ := json.Marshal(config)
+
+	// CaddyAPI 支持两种形式：
+	//   unix socket：容器部署默认 /app/run/caddy-admin.sock
+	//   tcp 地址：tcp://host:port（本地开发用，Mac Docker bind mount 不支持 unix socket）
+	var dialNetwork, dialAddr, requestURL string
+	if strings.HasPrefix(socketPath, "tcp://") {
+		u, err := url.Parse(socketPath)
+		if err != nil {
+			return fmt.Errorf("invalid caddy api address %s: %w", socketPath, err)
+		}
+		dialNetwork, dialAddr = "tcp", u.Host
+		requestURL = "http://" + u.Host + "/load"
+	} else {
+		dialNetwork, dialAddr = "unix", socketPath
+		requestURL = "http://unix/load"
+	}
+	// /load 是整体替换配置：payload 不含 admin 段时 caddy 会回落到默认
+	// localhost:2019，TCP admin（本地开发）经端口映射后宿主机就连不上了。
+	// unix socket 部署不受影响，保持 payload 不变；TCP 部署显式保住监听段——
+	// 注意不能回显 dialAddr（可能是 127.0.0.1，重绑回环会让端口映射失效），固定 0.0.0.0。
+	if dialNetwork == "tcp" {
+		_, port, splitErr := net.SplitHostPort(dialAddr)
+		if splitErr != nil {
+			return fmt.Errorf("invalid caddy tcp address %s: %w", dialAddr, splitErr)
+		}
+		config["admin"] = map[string]any{
+			"listen": fmt.Sprintf("0.0.0.0:%s", port),
+		}
+		newBody, _ = json.Marshal(config)
+	}
 	tr := &http.Transport{
 		DialContext: func(_ context.Context, _, _ string) (net.Conn, error) {
-			return net.Dial("unix", socketPath)
+			return net.Dial(dialNetwork, dialAddr)
 		},
 	}
 	client := &http.Client{
 		Transport: tr,
 		Timeout:   5 * time.Second,
 	}
-	req, err := http.NewRequest("POST", "http://unix/load", bytes.NewBuffer(newBody))
+	req, err := http.NewRequest("POST", requestURL, bytes.NewBuffer(newBody))
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}

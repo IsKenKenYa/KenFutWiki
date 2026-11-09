@@ -9,18 +9,19 @@ import (
 )
 
 type Config struct {
-	Log           LogConfig    `mapstructure:"log"`
-	HTTP          HTTPConfig   `mapstructure:"http"`
-	AdminPassword string       `mapstructure:"admin_password"`
-	PG            PGConfig     `mapstructure:"pg"`
-	MQ            MQConfig     `mapstructure:"mq"`
-	RAG           RAGConfig    `mapstructure:"rag"`
-	Redis         RedisConfig  `mapstructure:"redis"`
-	Auth          AuthConfig   `mapstructure:"auth"`
-	S3            S3Config     `mapstructure:"s3"`
-	Sentry        SentryConfig `mapstructure:"sentry"`
-	CaddyAPI      string       `mapstructure:"caddy_api"`
-	SubnetPrefix  string       `mapstructure:"subnet_prefix"`
+	Log           LogConfig           `mapstructure:"log"`
+	HTTP          HTTPConfig          `mapstructure:"http"`
+	AdminPassword string              `mapstructure:"admin_password"`
+	PG            PGConfig            `mapstructure:"pg"`
+	MQ            MQConfig            `mapstructure:"mq"`
+	RAG           RAGConfig           `mapstructure:"rag"`
+	Redis         RedisConfig         `mapstructure:"redis"`
+	Auth          AuthConfig          `mapstructure:"auth"`
+	S3            S3Config            `mapstructure:"s3"`
+	Sentry        SentryConfig        `mapstructure:"sentry"`
+	CaddyAPI      string              `mapstructure:"caddy_api"`
+	CaddyUpstream CaddyUpstreamConfig `mapstructure:"caddy_upstream"`
+	SubnetPrefix  string              `mapstructure:"subnet_prefix"`
 }
 
 type LogConfig struct {
@@ -49,6 +50,15 @@ type NATSConfig struct {
 type RAGConfig struct {
 	Provider string      `mapstructure:"provider"`
 	CTRAG    CTRAGConfig `mapstructure:"ct_rag"`
+}
+
+// CaddyUpstreamConfig 知识库监听路由的 caddy upstream 地址。
+// 生产部署各服务在同一容器网络（SUBNET_PREFIX 网段固定 IP），走默认拼接；
+// 本地开发 caddy 容器与宿主机进程不同网络，用 env 覆盖为 host.docker.internal。
+type CaddyUpstreamConfig struct {
+	API    string `mapstructure:"api"`    // Go API
+	App    string `mapstructure:"app"`    // Next 公开站
+	Static string `mapstructure:"static"` // 对象存储（MinIO）
 }
 
 type CTRAGConfig struct {
@@ -136,7 +146,12 @@ func NewConfig() (*Config, error) {
 			Enabled: false,
 			DSN:     "",
 		},
-		CaddyAPI:     "/app/run/caddy-admin.sock",
+		CaddyAPI: "/app/run/caddy-admin.sock",
+		CaddyUpstream: CaddyUpstreamConfig{
+			API:    fmt.Sprintf("%s.2:8000", "169.254.15"),
+			App:    fmt.Sprintf("%s.112:3010", "169.254.15"),
+			Static: fmt.Sprintf("%s.12:9000", "169.254.15"),
+		},
 		SubnetPrefix: "169.254.15",
 	}
 
@@ -235,6 +250,16 @@ func overrideWithEnv(c *Config) {
 	// caddy api
 	if env := os.Getenv("CADDY_API"); env != "" {
 		c.CaddyAPI = env
+	}
+	// caddy upstream（知识库监听路由的反代目标，本地开发 caddy 容器跨网络时覆盖）
+	if env := os.Getenv("CADDY_UPSTREAM_API"); env != "" {
+		c.CaddyUpstream.API = env
+	}
+	if env := os.Getenv("CADDY_UPSTREAM_APP"); env != "" {
+		c.CaddyUpstream.App = env
+	}
+	if env := os.Getenv("CADDY_UPSTREAM_STATIC"); env != "" {
+		c.CaddyUpstream.Static = env
 	}
 	// log level
 	if env := os.Getenv("LOG_LEVEL"); env != "" {
