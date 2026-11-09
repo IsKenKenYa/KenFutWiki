@@ -582,7 +582,9 @@ const ModelFormModal = ({
           </Button>
         </Divider>
 
-        <Collapse in={advancedOpen}>
+        {/* flexShrink:0——父 Stack 是 flex 列容器，内容超高时 Collapse 会被收缩，
+            溢出内容叠到底部提示上（文字错层）；禁止收缩让容器出现滚动条 */}
+        <Collapse in={advancedOpen} sx={{ flexShrink: 0 }}>
           <Stack spacing={2}>
             <Stack direction='row' spacing={1} alignItems='center'>
               <TextField

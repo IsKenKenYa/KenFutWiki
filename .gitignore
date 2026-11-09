@@ -34,3 +34,4 @@ local
 .idea
 __debug*
 .scratch/
+.playwright-mcp/
