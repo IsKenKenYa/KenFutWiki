@@ -8,7 +8,9 @@ import (
 
 	"github.com/chaitin/panda-wiki/domain"
 	"github.com/chaitin/panda-wiki/log"
+	"github.com/chaitin/panda-wiki/repo/ipdb"
 	"github.com/chaitin/panda-wiki/repo/pg"
+	"github.com/samber/lo"
 )
 
 type DocumentFeedbackUsecase struct {
@@ -17,6 +19,7 @@ type DocumentFeedbackUsecase struct {
 	appUsecase  *AppUsecase
 	fileUsecase *FileUsecase
 	authUsecase *AuthUsecase
+	ipRepo      *ipdb.IPAddressRepo
 	logger      *log.Logger
 }
 
@@ -26,6 +29,7 @@ func NewDocumentFeedbackUsecase(
 	appUsecase *AppUsecase,
 	fileUsecase *FileUsecase,
 	authUsecase *AuthUsecase,
+	ipRepo *ipdb.IPAddressRepo,
 	logger *log.Logger,
 ) *DocumentFeedbackUsecase {
 	return &DocumentFeedbackUsecase{
@@ -34,6 +38,7 @@ func NewDocumentFeedbackUsecase(
 		appUsecase:  appUsecase,
 		fileUsecase: fileUsecase,
 		authUsecase: authUsecase,
+		ipRepo:      ipRepo,
 		logger:      logger.WithModule("usecase.document_feedback"),
 	}
 }
@@ -100,6 +105,24 @@ func (u *DocumentFeedbackUsecase) List(ctx context.Context, req *domain.Document
 	if err != nil {
 		return nil, err
 	}
+	// 补充 IP 归属地，与管理员评论列表能力一致
+	ipAddressMap := make(map[string]*domain.IPAddress)
+	lo.Map(items, func(item *domain.DocumentFeedbackListItem, _ int) *domain.DocumentFeedbackListItem {
+		ip := item.Info.RemoteIP
+		if ip == "" {
+			return item
+		}
+		if _, ok := ipAddressMap[ip]; !ok {
+			ipAddress, err := u.ipRepo.GetIPAddress(ctx, ip)
+			if err != nil {
+				u.logger.Error("get ip address failed", log.Error(err), log.String("ip", ip))
+				return item
+			}
+			ipAddressMap[ip] = ipAddress
+		}
+		item.IPAddress = ipAddressMap[ip]
+		return item
+	})
 	return &domain.DocumentFeedbackListResp{Data: items, Total: total}, nil
 }
 

@@ -161,7 +161,7 @@ func createApp() (*App, error) {
 	authGroupUsecase := usecase.NewAuthGroupUsecase(authGroupRepository, authRepo, cacheCache, logger)
 	authGroupHandler := v1.NewAuthGroupHandler(echo, baseHandler, logger, authMiddleware, authGroupUsecase)
 	documentFeedbackRepository := pg2.NewDocumentFeedbackRepository(db, logger)
-	documentFeedbackUsecase := usecase.NewDocumentFeedbackUsecase(documentFeedbackRepository, nodeRepository, appUsecase, fileUsecase, authUsecase, logger)
+	documentFeedbackUsecase := usecase.NewDocumentFeedbackUsecase(documentFeedbackRepository, nodeRepository, appUsecase, fileUsecase, authUsecase, ipAddressRepo, logger)
 	documentFeedbackHandler := v1.NewDocumentFeedbackHandler(echo, baseHandler, logger, authMiddleware, documentFeedbackUsecase)
 	apiHandlers := &v1.APIHandlers{
 		KenFutContentHandler:     kenFutContentHandler,
