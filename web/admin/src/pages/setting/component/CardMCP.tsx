@@ -5,45 +5,67 @@ import {
   FormControlLabel,
   Radio,
   RadioGroup,
-  TextField,
   Stack,
 } from '@mui/material';
-import { SettingCardItem, FormItem, SecretTextField } from './Common';
+import { SettingCardItem, FormItem } from './Common';
 import ShowText from '@/components/ShowText';
 import { Controller, useForm } from 'react-hook-form';
 import { useMemo, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { message } from '@ctzhian/ui';
 import { getApiV1AppDetail, putApiV1App } from '@/request/App';
-import { DomainAppDetailResp, ConstsLicenseEdition } from '@/request/types';
+import { DomainAppDetailResp, DomainMCPCallListItem } from '@/request/types';
+import { getApiV1McpCalls } from '@/request/Mcp';
 
 interface CardMCPProps {
   kb: DomainKnowledgeBaseDetail;
 }
 
+const READ_TOOLS = [
+  'get_wiki_info',
+  'list_navs',
+  'list_docs',
+  'get_doc',
+  'search_docs',
+  'list_releases',
+  'list_doc_versions',
+  'get_doc_version',
+];
+const WRITE_TOOLS = [
+  'create_nav',
+  'update_nav',
+  'delete_nav',
+  'create_doc',
+  'update_doc',
+  'move_doc',
+  'delete_doc',
+  'restore_doc_version',
+  'upload_asset',
+];
+const PUBLISH_TOOLS = ['publish_docs'];
+const OPS_TOOLS = [
+  'list_comments',
+  'moderate_comment',
+  'list_contributions',
+  'audit_contribution',
+  'get_stats',
+];
+
 const CardMCP = ({ kb }: CardMCPProps) => {
   const { t } = useTranslation();
   const [isEdit, setIsEdit] = useState(false);
+  const [detail, setDetail] = useState<DomainAppDetailResp | null>(null);
+  const [calls, setCalls] = useState<DomainMCPCallListItem[]>([]);
 
-  const {
-    control,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm({
+  const { control, handleSubmit, watch, setValue } = useForm({
     defaultValues: {
       is_enabled: false,
-      access: 'open' as 'open' | 'auth',
-      token: '',
-      tool_name: 'get_docs',
-      tool_desc: '',
+      require_auth: false,
     },
   });
 
   const isEnabled = watch('is_enabled');
-  const access = watch('access');
-  const [detail, setDetail] = useState<DomainAppDetailResp | null>(null);
+  const requireAuth = watch('require_auth');
 
   const mcpUrl = useMemo(() => {
     const hostRaw = kb?.access_settings?.hosts?.[0] || window.location.hostname;
@@ -63,20 +85,72 @@ const CardMCP = ({ kb }: CardMCPProps) => {
     return `${protocol}://${host}:${port}/mcp`;
   }, [kb]);
 
+  const mcpUrlWithKb = useMemo(
+    () => `${mcpUrl}?kb_id=${encodeURIComponent(kb.id || '')}`,
+    [mcpUrl, kb.id],
+  );
+
+  const claudeCodeSnippet = `claude mcp add --transport http kenfut-wiki ${mcpUrl} \\\n  --header "Authorization: Bearer <API Token>"`;
+  const cursorSnippet = JSON.stringify(
+    {
+      mcpServers: {
+        'kenfut-wiki': {
+          url: mcpUrl,
+          headers: {
+            Authorization: 'Bearer <API Token>',
+          },
+        },
+      },
+    },
+    null,
+    2,
+  );
+
+  const getDetail = () => {
+    getApiV1AppDetail({ kb_id: kb.id!, type: '12' }).then(res => {
+      setDetail(res);
+      const settings = (res.settings as any)?.mcp_server_settings ?? {};
+      const legacyAuth = settings.sample_auth ?? {};
+      setValue('is_enabled', settings.is_enabled ?? false);
+      setValue(
+        'require_auth',
+        Boolean(
+          settings.require_auth || (legacyAuth.enabled && legacyAuth.password),
+        ),
+      );
+    });
+  };
+
+  const getCalls = () => {
+    if (!kb.id) return;
+    getApiV1McpCalls({ kb_id: kb.id, limit: 20 })
+      .then(items => {
+        setCalls((items as unknown as DomainMCPCallListItem[]) || []);
+      })
+      .catch(() => setCalls([]));
+  };
+
+  useEffect(() => {
+    if (!kb) return;
+    getDetail();
+    getCalls();
+  }, [kb]);
+
   const onSubmit = handleSubmit(() => {
     if (!kb || !detail) return;
+    const currentSettings = (detail.settings as any) ?? {};
     const payload: any = {
       kb_id: kb.id!,
       settings: {
+        ...currentSettings,
         mcp_server_settings: {
+          ...(currentSettings.mcp_server_settings ?? {}),
           is_enabled: isEnabled,
+          require_auth: requireAuth,
+          sample_auth: { enabled: false, password: '' },
           docs_tool_settings: {
-            name: watch('tool_name'),
-            desc: watch('tool_desc'),
-          },
-          sample_auth: {
-            enabled: access === 'auth',
-            password: access === 'auth' ? watch('token') : '',
+            name: 'search_docs',
+            desc: t('setting.mcpToolDescDefault'),
           },
         },
       },
@@ -85,40 +159,32 @@ const CardMCP = ({ kb }: CardMCPProps) => {
       message.success(t('common.saveSuccess'));
       setIsEdit(false);
       getDetail();
+      getCalls();
     });
   });
 
-  const getDetail = () => {
-    getApiV1AppDetail({ kb_id: kb.id!, type: '12' }).then(res => {
-      setDetail(res);
-      const is_enabled =
-        (res.settings as any)?.mcp_server_settings?.is_enabled ?? false;
-      const auth =
-        (res.settings as any)?.mcp_server_settings?.sample_auth ?? {};
-      const accessVal = auth.enabled ? 'auth' : 'open';
-      const tokenVal = auth.password ?? '';
-      const toolNameRaw =
-        (res.settings as any)?.mcp_server_settings?.docs_tool_settings?.name ??
-        '';
-      const toolDescRaw =
-        (res.settings as any)?.mcp_server_settings?.docs_tool_settings?.desc ??
-        '';
-      const toolName = toolNameRaw.trim() ? toolNameRaw : 'get_docs';
-      const toolDesc = toolDescRaw.trim()
-        ? toolDescRaw
-        : t('setting.mcpToolDescDefault');
-      setValue('is_enabled', is_enabled);
-      setValue('access', accessVal);
-      setValue('token', tokenVal);
-      setValue('tool_name', toolName);
-      setValue('tool_desc', toolDesc);
-    });
-  };
-
-  useEffect(() => {
-    if (!kb) return;
-    getDetail();
-  }, [kb]);
+  const renderToolGroup = (title: string, tools: string[]) => (
+    <Box>
+      <Box sx={{ fontSize: 12, color: 'text.tertiary', mb: 0.5 }}>{title}</Box>
+      <Stack direction='row' gap={0.5} flexWrap='wrap'>
+        {tools.map(tool => (
+          <Box
+            key={tool}
+            sx={{
+              px: 1,
+              py: 0.25,
+              borderRadius: 1,
+              bgcolor: 'background.paper3',
+              fontFamily: 'Mono',
+              fontSize: 12,
+            }}
+          >
+            {tool}
+          </Box>
+        ))}
+      </Stack>
+    </Box>
+  );
 
   return (
     <Box sx={{ width: 1000, margin: 'auto', pb: 4 }}>
@@ -126,10 +192,11 @@ const CardMCP = ({ kb }: CardMCPProps) => {
         title={t('setting.mcpTitle')}
         isEdit={isEdit}
         onSubmit={onSubmit}
-        permission={[
-          ConstsLicenseEdition.LicenseEditionBusiness,
-          ConstsLicenseEdition.LicenseEditionEnterprise,
-        ]}
+        more={{
+          type: 'link',
+          href: '/setting?tab=backend-info',
+          text: t('setting.mcpManageTokens'),
+        }}
       >
         <FormItem label='MCP Server'>
           <FormControl>
@@ -169,79 +236,54 @@ const CardMCP = ({ kb }: CardMCPProps) => {
         {isEnabled && (
           <>
             <FormItem label='MCP URL'>
-              <ShowText
-                text={[mcpUrl]}
-                copyable={true}
-                noEllipsis={true}
-                forceCopy={true}
-              />
+              <Stack gap={1} sx={{ width: '100%' }}>
+                <ShowText
+                  text={[mcpUrl]}
+                  copyable={true}
+                  noEllipsis={true}
+                  forceCopy={true}
+                />
+                <ShowText
+                  text={[mcpUrlWithKb]}
+                  copyable={true}
+                  noEllipsis={true}
+                  forceCopy={true}
+                />
+                <Box sx={{ fontSize: 12, color: 'text.tertiary' }}>
+                  {t('setting.mcpUrlHint')}
+                </Box>
+              </Stack>
             </FormItem>
 
-            <FormItem label={t('setting.mcpToolName')}>
-              <Controller
-                control={control}
-                name='tool_name'
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    placeholder={t('setting.mcpToolNamePlaceholder')}
-                    onChange={e => {
-                      field.onChange(e.target.value);
-                      setIsEdit(true);
-                    }}
-                  />
-                )}
-              />
-            </FormItem>
-
-            <FormItem label={t('setting.mcpToolDesc')}>
-              <Controller
-                control={control}
-                name='tool_desc'
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    placeholder={t('setting.mcpToolDescPlaceholder')}
-                    onChange={e => {
-                      field.onChange(e.target.value);
-                      setIsEdit(true);
-                    }}
-                  />
-                )}
-              />
-            </FormItem>
-
-            <FormItem label={t('setting.accessControl')}>
+            <FormItem label={t('setting.mcpAccess')}>
               <FormControl>
                 <Controller
                   control={control}
-                  name='access'
+                  name='require_auth'
                   render={({ field }) => (
                     <RadioGroup
                       {...field}
                       onChange={e => {
-                        field.onChange(e.target.value);
+                        field.onChange(e.target.value === 'true');
                         setIsEdit(true);
                       }}
                     >
                       <Stack direction={'row'}>
                         <FormControlLabel
-                          value={'open'}
+                          value={false}
                           control={<Radio size='small' />}
                           label={
-                            <Box sx={{ width: 100 }}>
-                              {t('setting.accessOpen')}
+                            <Box sx={{ width: 220 }}>
+                              {t('setting.mcpOpenReadOnly')}
                             </Box>
                           }
                         />
                         <FormControlLabel
-                          value={'auth'}
+                          value={true}
                           control={<Radio size='small' />}
                           label={
-                            <Box sx={{ width: 100 }}>
-                              {t('setting.accessAuth')}
+                            <Box sx={{ width: 220 }}>
+                              {t('setting.mcpRequireAuth')}
                             </Box>
                           }
                         />
@@ -252,28 +294,111 @@ const CardMCP = ({ kb }: CardMCPProps) => {
               </FormControl>
             </FormItem>
 
-            {access === 'auth' && (
-              <FormItem label={t('setting.accessToken')} required>
-                <Controller
-                  control={control}
-                  name='token'
-                  rules={{ required: t('setting.accessTokenRequired') }}
-                  render={({ field }) => (
-                    <SecretTextField
-                      {...field}
-                      fullWidth
-                      placeholder={t('setting.accessToken')}
-                      onChange={e => {
-                        field.onChange(e.target.value);
-                        setIsEdit(true);
+            <FormItem label={t('setting.mcpWriteHint')} vertical>
+              <Box sx={{ fontSize: 13, color: 'text.secondary' }}>
+                {t('setting.mcpWriteHintContent')}
+              </Box>
+            </FormItem>
+
+            <FormItem label={t('setting.mcpTools')} vertical>
+              <Stack gap={1.5} sx={{ width: '100%' }}>
+                {renderToolGroup(t('setting.mcpToolRead'), READ_TOOLS)}
+                {renderToolGroup(t('setting.mcpToolWrite'), WRITE_TOOLS)}
+                {renderToolGroup(t('setting.mcpToolPublish'), PUBLISH_TOOLS)}
+                {renderToolGroup(t('setting.mcpToolOps'), OPS_TOOLS)}
+              </Stack>
+            </FormItem>
+
+            <FormItem label={t('setting.mcpClientConfig')} vertical>
+              <Stack gap={1.5} sx={{ width: '100%' }}>
+                <Box sx={{ fontSize: 12, color: 'text.tertiary' }}>
+                  {t('setting.mcpClaudeCode')}
+                </Box>
+                <Box
+                  component='pre'
+                  sx={{
+                    m: 0,
+                    p: 1.5,
+                    borderRadius: 1,
+                    bgcolor: 'background.paper3',
+                    fontSize: 12,
+                    overflow: 'auto',
+                    whiteSpace: 'pre-wrap',
+                  }}
+                >
+                  {claudeCodeSnippet}
+                </Box>
+                <Box sx={{ fontSize: 12, color: 'text.tertiary' }}>
+                  {t('setting.mcpCursor')}
+                </Box>
+                <Box
+                  component='pre'
+                  sx={{
+                    m: 0,
+                    p: 1.5,
+                    borderRadius: 1,
+                    bgcolor: 'background.paper3',
+                    fontSize: 12,
+                    overflow: 'auto',
+                    whiteSpace: 'pre-wrap',
+                  }}
+                >
+                  {cursorSnippet}
+                </Box>
+              </Stack>
+            </FormItem>
+
+            <FormItem label={t('setting.mcpRecentCalls')} vertical>
+              <Stack sx={{ width: '100%' }}>
+                {calls.length === 0 ? (
+                  <Box sx={{ fontSize: 12, color: 'text.tertiary' }}>
+                    {t('setting.mcpNoCalls')}
+                  </Box>
+                ) : (
+                  calls.map((call, index) => (
+                    <Stack
+                      key={call.id ?? index}
+                      direction='row'
+                      alignItems='center'
+                      gap={2}
+                      sx={{
+                        py: 0.75,
+                        borderBottom: '1px solid',
+                        borderColor: 'divider',
+                        '&:last-of-type': { borderBottom: 'none' },
+                        fontSize: 12,
                       }}
-                      error={!!errors.token}
-                      helperText={errors.token?.message}
-                    />
-                  )}
-                />
-              </FormItem>
-            )}
+                    >
+                      <Box sx={{ width: 160, fontFamily: 'Mono' }}>
+                        {call.tool_name || '-'}
+                      </Box>
+                      <Box
+                        sx={{
+                          width: 60,
+                          color:
+                            call.status === 'success'
+                              ? 'success.main'
+                              : 'error.main',
+                        }}
+                      >
+                        {call.status || '-'}
+                      </Box>
+                      <Box sx={{ width: 70, color: 'text.tertiary' }}>
+                        {call.duration_ms ?? 0} ms
+                      </Box>
+                      <Box sx={{ flex: 1, color: 'text.tertiary' }}>
+                        {call.error || call.remote_ip || ''}
+                      </Box>
+                      <Box sx={{ color: 'text.tertiary' }}>
+                        {call.created_at
+                          ? new Date(call.created_at).toLocaleString()
+                          : '-'}
+                      </Box>
+                    </Stack>
+                  ))
+                )}
+              </Stack>
+            </FormItem>
           </>
         )}
       </SettingCardItem>

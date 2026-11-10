@@ -1,6 +1,7 @@
 import { KnowledgeBaseListItem } from '@/api';
 import { DomainLicenseResp } from '@/request/pro/types';
 import {
+  ConstsLicenseEdition,
   DomainAppDetailResp,
   DomainKnowledgeBaseDetail,
   GithubComChaitinPandaWikiDomainModelListItem,
@@ -31,8 +32,8 @@ const initialState: config = {
     created_at: '',
   },
   license: {
-    edition: 0,
-    expired_at: 0,
+    edition: ConstsLicenseEdition.LicenseEditionEnterprise,
+    expired_at: 4102444800,
     started_at: 0,
   },
   kb_id: '',
