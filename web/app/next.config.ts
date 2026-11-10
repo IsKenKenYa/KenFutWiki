@@ -58,6 +58,16 @@ const nextConfig: NextConfig = {
             basePath: false as const,
           },
           {
+            source: '/share/pro/v1/:path*',
+            destination: `${process.env.TARGET}/share/pro/v1/:path*`,
+            basePath: false as const,
+          },
+          {
+            source: '/:basePath/share/pro/v1/:path*',
+            destination: `${process.env.TARGET}/share/pro/v1/:path*`,
+            basePath: false as const,
+          },
+          {
             source: '/integration/kenfut/v1/:path*',
             destination: `${process.env.TARGET}/integration/kenfut/v1/:path*`,
             basePath: false as const,
