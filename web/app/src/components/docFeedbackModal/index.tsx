@@ -1,13 +1,22 @@
 'use client';
 
 import { useStore } from '@/provider';
-import { postShareProV1DocumentFeedback } from '@/request/pro/DocumentFeedback';
-import { Box, Stack, TextField } from '@mui/material';
+import { submitDocumentFeedback } from '@/request/pro/docFeedback';
+import {
+  Box,
+  Button,
+  ButtonBase,
+  IconButton,
+  Stack,
+  TextField,
+} from '@mui/material';
 import { Modal, message } from '@ctzhian/ui';
+import CloseIcon from '@mui/icons-material/Close';
+import ImageIcon from '@mui/icons-material/Image';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
-// 文档反馈弹窗：读者对当前文档提交问题反馈与修改建议
+// 文档反馈弹窗：读者对当前文档提交问题反馈、修改建议与截图
 const DocFeedbackModal = ({
   open,
   nodeId,
@@ -21,7 +30,10 @@ const DocFeedbackModal = ({
   const { themeMode } = useStore();
   const [content, setContent] = useState('');
   const [suggestion, setSuggestion] = useState('');
+  const [screenshot, setScreenshot] = useState<File | null>(null);
+  const [screenshotUrl, setScreenshotUrl] = useState('');
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fieldSx = {
     '.MuiInputBase-root': {
@@ -50,7 +62,24 @@ const DocFeedbackModal = ({
   const handleCancel = () => {
     setContent('');
     setSuggestion('');
+    setScreenshot(null);
+    if (screenshotUrl) URL.revokeObjectURL(screenshotUrl);
+    setScreenshotUrl('');
     onClose();
+  };
+
+  const handleScreenshotChange = (files: FileList | null) => {
+    const file = files?.[0];
+    if (!file) return;
+    setScreenshot(file);
+    setScreenshotUrl(URL.createObjectURL(file));
+  };
+
+  const handleRemoveScreenshot = () => {
+    setScreenshot(null);
+    if (screenshotUrl) URL.revokeObjectURL(screenshotUrl);
+    setScreenshotUrl('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleOk = () => {
@@ -59,10 +88,11 @@ const DocFeedbackModal = ({
       return;
     }
     setLoading(true);
-    postShareProV1DocumentFeedback({
-      node_id: nodeId || '',
+    submitDocumentFeedback({
+      node_id: nodeId,
       content: content.trim(),
       correction_suggestion: suggestion.trim() || undefined,
+      screenshot: screenshot || undefined,
     })
       .then(() => {
         message.success(t('feedbackSuccess'));
@@ -127,6 +157,42 @@ const DocFeedbackModal = ({
             onChange={e => setSuggestion(e.target.value)}
           />
         </Box>
+        <Stack direction='row' alignItems='center' gap={1} flexWrap='wrap'>
+          <Button
+            size='small'
+            variant='outlined'
+            startIcon={<ImageIcon />}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {t('docFeedbackScreenshot')}
+          </Button>
+          {screenshot && (
+            <Stack direction='row' alignItems='center' gap={0.5}>
+              <ButtonBase
+                disableRipple
+                onClick={() => fileInputRef.current?.click()}
+                sx={{ borderRadius: '6px', overflow: 'hidden' }}
+              >
+                <Box
+                  component='img'
+                  src={screenshotUrl}
+                  alt=''
+                  sx={{ height: 40, display: 'block' }}
+                />
+              </ButtonBase>
+              <IconButton size='small' onClick={handleRemoveScreenshot}>
+                <CloseIcon sx={{ fontSize: 14 }} />
+              </IconButton>
+            </Stack>
+          )}
+          <input
+            ref={fileInputRef}
+            type='file'
+            accept='.jpg,.jpeg,.png,.webp'
+            style={{ display: 'none' }}
+            onChange={e => handleScreenshotChange(e.target.files)}
+          />
+        </Stack>
       </Stack>
     </Modal>
   );

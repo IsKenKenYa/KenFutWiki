@@ -186,6 +186,7 @@
     "docFeedbackTitle": "文档反馈",
     "docFeedbackPlaceholder": "请描述你在本文档中遇到的问题",
     "docFeedbackSuggestionPlaceholder": "修改建议（选填）",
+    "docFeedbackScreenshot": "添加截图",
     "feedbackContentRequired": "请填写反馈内容",
     "feedbackSubmit": "提交",
     "feedbackCancel": "取消",

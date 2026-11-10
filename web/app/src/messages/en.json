@@ -186,6 +186,7 @@
     "docFeedbackTitle": "Document feedback",
     "docFeedbackPlaceholder": "Describe the problem you found in this document",
     "docFeedbackSuggestionPlaceholder": "Suggested correction (optional)",
+    "docFeedbackScreenshot": "Add screenshot",
     "feedbackContentRequired": "Please enter your feedback",
     "feedbackSubmit": "Submit",
     "feedbackCancel": "Cancel",
