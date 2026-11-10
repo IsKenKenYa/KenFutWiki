@@ -181,7 +181,15 @@
     "richText": "Rich text",
     "createDoc": "Create document",
     "editDoc": "Edit document",
-    "backToTop": "Back to top"
+    "backToTop": "Back to top",
+    "docFeedbackEntry": "Document feedback",
+    "docFeedbackTitle": "Document feedback",
+    "docFeedbackPlaceholder": "Describe the problem you found in this document",
+    "docFeedbackSuggestionPlaceholder": "Suggested correction (optional)",
+    "feedbackContentRequired": "Please enter your feedback",
+    "feedbackSubmit": "Submit",
+    "feedbackCancel": "Cancel",
+    "feedbackSuccess": "Feedback submitted, thank you"
   },
   "feedback": {
     "title": "Feedback",

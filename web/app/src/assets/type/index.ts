@@ -85,6 +85,7 @@ export interface KBDetail {
     watermark_setting?: ConstsWatermarkSetting;
     copy_setting?: ConstsCopySetting;
     disclaimer_settings?: DomainDisclaimerSettings;
+    document_feedback_is_enabled?: boolean;
     web_app_custom_style: {
       allow_theme_switching?: boolean;
       header_search_placeholder?: string;

@@ -14,9 +14,11 @@ import {
   Tooltip,
   Zoom,
 } from '@mui/material';
+import { IconFankuiwenti } from '@panda-wiki/icons';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import DocFeedbackModal from '@/components/docFeedbackModal';
 
 const DocFab = ({ nodeId }: { nodeId?: string }) => {
   const pathname = usePathname();
@@ -26,12 +28,21 @@ const DocFab = ({ nodeId }: { nodeId?: string }) => {
   const [contentType, setContentType] = useState<'html' | 'md'>('html');
   const [openSelectContentTypeModal, setOpenSelectContentTypeModal] =
     useState(false);
+  const [openFeedbackModal, setOpenFeedbackModal] = useState(false);
   const basePath = useBasePath();
   const t = useTranslations('doc');
   if (mobile) return null;
 
+  const feedbackEnabled =
+    kbDetail?.settings?.document_feedback_is_enabled === true;
+
   return (
     <>
+      <DocFeedbackModal
+        open={openFeedbackModal}
+        nodeId={docId}
+        onClose={() => setOpenFeedbackModal(false)}
+      />
       <Modal
         title={t('newDocType')}
         open={openSelectContentTypeModal}
@@ -73,6 +84,24 @@ const DocFab = ({ nodeId }: { nodeId?: string }) => {
         }}
         onMouseLeave={() => setShowActions(false)}
       >
+        {feedbackEnabled && pathname.startsWith(basePath + '/node/') && (
+          <Zoom
+            in={showActions}
+            style={{ transitionDelay: showActions ? '70ms' : '0ms' }}
+          >
+            <Tooltip title={t('docFeedbackEntry')} placement='left' arrow>
+              <Fab
+                color='primary'
+                size='small'
+                onClick={() => {
+                  setOpenFeedbackModal(true);
+                }}
+              >
+                <IconFankuiwenti sx={{ fontSize: 18 }} />
+              </Fab>
+            </Tooltip>
+          </Zoom>
+        )}
         {kbDetail?.settings.contribute_settings?.is_enable && (
           <>
             <Zoom
