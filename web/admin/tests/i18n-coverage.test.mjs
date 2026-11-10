@@ -20,6 +20,7 @@ const ALLOWLIST = {
   'src/pages/contribution/index.tsx': new Set(['中国']),
   'src/pages/conversation/index.tsx': new Set(['中国']),
   'src/pages/feedback/Comments.tsx': new Set(['中国']),
+  'src/pages/feedback/DocumentFeedback.tsx': new Set(['中国']),
   'src/pages/feedback/Evaluate.tsx': new Set(['中国']),
   'src/pages/stat/Statistic/RTVisitor.tsx': new Set(['中国']),
   // 展示给用户的嵌入代码示例，注释属于代码内容而非界面文案。

@@ -414,6 +414,90 @@ const DocumentContribution = ({
   );
 };
 
+// 文档反馈设置：读者在文档页提交纠错与意见，反馈进入反馈中心的文档反馈列表
+const DocumentFeedbackSetting = ({
+  data,
+  refresh,
+}: {
+  data: DomainAppDetailResp;
+  refresh: () => void;
+}) => {
+  const { t } = useTranslation();
+  const [isEdit, setIsEdit] = useState(false);
+  const { kb_id } = useAppSelector(state => state.config);
+  const { control, handleSubmit, setValue } = useForm({
+    defaultValues: {
+      is_enable: false,
+    },
+  });
+
+  const onSubmit = handleSubmit(formData => {
+    putApiV1App(
+      { id: data.id! },
+      {
+        kb_id,
+        settings: {
+          ...data.settings,
+          document_feedback_is_enabled: formData.is_enable,
+        },
+      },
+    ).then(() => {
+      message.success(t('common.saveSuccess'));
+      setIsEdit(false);
+      refresh();
+    });
+  });
+
+  useEffect(() => {
+    setValue(
+      'is_enable',
+      // @ts-expect-error 忽略类型错误
+      data?.settings?.document_feedback_is_enabled,
+    );
+  }, [data]);
+
+  return (
+    <SettingCardItem
+      title={t('setting.docFeedbackTitle')}
+      isEdit={isEdit}
+      onSubmit={onSubmit}
+    >
+      <FormItem label={t('setting.docFeedbackTitle')}>
+        <Controller
+          control={control}
+          name='is_enable'
+          render={({ field }) => (
+            <RadioGroup
+              row
+              {...field}
+              value={field.value}
+              onChange={e => {
+                setIsEdit(true);
+                field.onChange(e.target.value === 'true');
+              }}
+            >
+              <FormControlLabel
+                value={true}
+                control={<Radio size='small' />}
+                label={
+                  <StyledRadioLabel>{t('common.enable')}</StyledRadioLabel>
+                }
+              />
+              <FormControlLabel
+                value={false}
+                control={<Radio size='small' />}
+                label={
+                  <StyledRadioLabel>{t('common.disable')}</StyledRadioLabel>
+                }
+              />
+            </RadioGroup>
+          )}
+        />
+      </FormItem>
+    </SettingCardItem>
+  );
+};
+
 const CardFeedback = ({ kb }: CardCommentProps) => {
   const [info, setInfo] = useState<DomainAppDetailResp | null>(null);
 
@@ -438,6 +522,7 @@ const CardFeedback = ({ kb }: CardCommentProps) => {
     >
       <AIQuestion data={info} refresh={getInfo} />
       <DocumentComments data={info} refresh={getInfo} />
+      <DocumentFeedbackSetting data={info} refresh={getInfo} />
       <DocumentContribution data={info} refresh={getInfo} />
     </Box>
   );

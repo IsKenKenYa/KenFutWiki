@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Comments from './Comments';
+import DocumentFeedback from './DocumentFeedback';
 import Evaluate from './Evaluate';
 import { Stack, Select, MenuItem } from '@mui/material';
 import { CusTabs } from '@ctzhian/ui';
@@ -39,6 +40,7 @@ const Feedback = () => {
           }}
           list={[
             { label: t('feedback.tabEvaluate'), value: 'evaluate' },
+            { label: t('feedback.tabDocFeedback'), value: 'doc-feedback' },
             { label: t('feedback.tabComments'), value: 'comments' },
           ]}
         />
@@ -63,6 +65,7 @@ const Feedback = () => {
           setShowCommentsFilter={setShowCommentsFilter}
         />
       )}
+      {tab === 'doc-feedback' && <DocumentFeedback />}
       {tab === 'evaluate' && <Evaluate />}
     </Card>
   );
