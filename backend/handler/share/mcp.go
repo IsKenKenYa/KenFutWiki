@@ -321,6 +321,14 @@ func mcpResultText(result *mcp.CallToolResult) string {
 	return ""
 }
 
+func newTool(name string, options ...mcp.ToolOption) mcp.Tool {
+	all := append([]mcp.ToolOption{
+		mcp.WithDestructiveHintAnnotation(false),
+		mcp.WithOpenWorldHintAnnotation(false),
+	}, options...)
+	return mcp.NewTool(name, all...)
+}
+
 func (h *MCPServerHandler) registerTools(s *server.MCPServer) {
 	read := func(tool mcp.Tool, handler server.ToolHandlerFunc) {
 		s.AddTool(tool, handler)
@@ -329,17 +337,17 @@ func (h *MCPServerHandler) registerTools(s *server.MCPServer) {
 		s.AddTool(tool, handler)
 	}
 
-	read(mcp.NewTool("get_wiki_info",
+	read(newTool("get_wiki_info",
 		mcp.WithDescription("Get knowledge base metadata, navigation list, content counts, and current MCP scopes."),
 		mcp.WithReadOnlyHintAnnotation(true),
 	), h.getWikiInfo)
 
-	read(mcp.NewTool("list_navs",
+	read(newTool("list_navs",
 		mcp.WithDescription("List navigations (top-level content sections) of the knowledge base."),
 		mcp.WithReadOnlyHintAnnotation(true),
 	), h.listNavs)
 
-	read(mcp.NewTool("list_docs",
+	read(newTool("list_docs",
 		mcp.WithDescription("List documents and folders. Use status=draft or status=published to filter. parent_id=root returns top-level nodes."),
 		mcp.WithString("nav_id", mcp.Description("Navigation ID")),
 		mcp.WithString("parent_id", mcp.Description("Parent folder ID, or root for top-level nodes")),
@@ -350,7 +358,7 @@ func (h *MCPServerHandler) registerTools(s *server.MCPServer) {
 		mcp.WithReadOnlyHintAnnotation(true),
 	), h.listDocs)
 
-	read(mcp.NewTool("get_doc",
+	read(newTool("get_doc",
 		mcp.WithDescription("Read a document. source=draft reads editable content; source=published reads the latest published version. format=markdown converts HTML content to Markdown."),
 		mcp.WithString("node_id", mcp.Required(), mcp.Description("Document ID")),
 		mcp.WithString("source", mcp.Description("draft or published, default draft")),
@@ -358,7 +366,7 @@ func (h *MCPServerHandler) registerTools(s *server.MCPServer) {
 		mcp.WithReadOnlyHintAnnotation(true),
 	), h.getDoc)
 
-	read(mcp.NewTool("search_docs",
+	read(newTool("search_docs",
 		mcp.WithDescription("Search documents. mode=keyword searches names and content of drafts; mode=semantic searches published content through the configured RAG service."),
 		mcp.WithString("query", mcp.Required(), mcp.Description("Search query")),
 		mcp.WithString("mode", mcp.Description("keyword or semantic, default keyword")),
@@ -367,14 +375,14 @@ func (h *MCPServerHandler) registerTools(s *server.MCPServer) {
 		mcp.WithReadOnlyHintAnnotation(true),
 	), h.searchDocs)
 
-	read(mcp.NewTool("list_releases",
+	read(newTool("list_releases",
 		mcp.WithDescription("List publishing releases of the knowledge base."),
 		mcp.WithNumber("page", mcp.Description("Page number, default 1")),
 		mcp.WithNumber("page_size", mcp.Description("Page size, default 20, max 100")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	), h.listReleases)
 
-	read(mcp.NewTool("list_doc_versions",
+	read(newTool("list_doc_versions",
 		mcp.WithDescription("List published history versions of a document."),
 		mcp.WithString("node_id", mcp.Required(), mcp.Description("Document ID")),
 		mcp.WithNumber("limit", mcp.Description("Maximum number of versions, default 20, max 100")),
@@ -382,32 +390,32 @@ func (h *MCPServerHandler) registerTools(s *server.MCPServer) {
 		mcp.WithReadOnlyHintAnnotation(true),
 	), h.listDocVersions)
 
-	read(mcp.NewTool("get_doc_version",
+	read(newTool("get_doc_version",
 		mcp.WithDescription("Read a published history version by version ID."),
 		mcp.WithString("version_id", mcp.Required(), mcp.Description("Version ID returned by list_doc_versions")),
 		mcp.WithReadOnlyHintAnnotation(true),
 	), h.getDocVersion)
 
-	write(mcp.NewTool("create_nav",
+	write(newTool("create_nav",
 		mcp.WithDescription("Create a navigation section."),
 		mcp.WithString("name", mcp.Required(), mcp.Description("Navigation name")),
 		mcp.WithNumber("position", mcp.Description("Optional position")),
 	), h.createNav)
 
-	write(mcp.NewTool("update_nav",
+	write(newTool("update_nav",
 		mcp.WithDescription("Rename a navigation section."),
 		mcp.WithString("nav_id", mcp.Required(), mcp.Description("Navigation ID")),
 		mcp.WithString("name", mcp.Required(), mcp.Description("New navigation name")),
 	), h.updateNav)
 
-	write(mcp.NewTool("delete_nav",
+	write(newTool("delete_nav",
 		mcp.WithDescription("Delete a navigation and all documents inside it. confirm_name must exactly match the navigation name."),
 		mcp.WithString("nav_id", mcp.Required(), mcp.Description("Navigation ID")),
 		mcp.WithString("confirm_name", mcp.Required(), mcp.Description("Current navigation name")),
 		mcp.WithDestructiveHintAnnotation(true),
 	), h.deleteNav)
 
-	write(mcp.NewTool("create_doc",
+	write(newTool("create_doc",
 		mcp.WithDescription("Create a document draft. Content is stored as Markdown by default."),
 		mcp.WithString("nav_id", mcp.Required(), mcp.Description("Navigation ID")),
 		mcp.WithString("parent_id", mcp.Description("Optional parent folder ID")),
@@ -422,7 +430,7 @@ func (h *MCPServerHandler) registerTools(s *server.MCPServer) {
 		mcp.WithIdempotentHintAnnotation(true),
 	), h.createDoc)
 
-	write(mcp.NewTool("update_doc",
+	write(newTool("update_doc",
 		mcp.WithDescription("Update a document draft. Pass expected_updated_at from get_doc to detect concurrent edits."),
 		mcp.WithString("node_id", mcp.Required(), mcp.Description("Document ID")),
 		mcp.WithString("name", mcp.Description("New title")),
@@ -436,7 +444,7 @@ func (h *MCPServerHandler) registerTools(s *server.MCPServer) {
 		mcp.WithIdempotentHintAnnotation(true),
 	), h.updateDoc)
 
-	write(mcp.NewTool("move_doc",
+	write(newTool("move_doc",
 		mcp.WithDescription("Move a document to another navigation, parent folder, or position."),
 		mcp.WithString("node_id", mcp.Required(), mcp.Description("Document ID")),
 		mcp.WithString("nav_id", mcp.Description("Target navigation ID")),
@@ -445,7 +453,7 @@ func (h *MCPServerHandler) registerTools(s *server.MCPServer) {
 		mcp.WithString("next_id", mcp.Description("Place before this sibling ID")),
 	), h.moveDoc)
 
-	write(mcp.NewTool("delete_doc",
+	write(newTool("delete_doc",
 		mcp.WithDescription("Delete a document. confirm_name must exactly match the document title. Deleting a non-empty folder requires recursive=true."),
 		mcp.WithString("node_id", mcp.Required(), mcp.Description("Document ID")),
 		mcp.WithString("confirm_name", mcp.Required(), mcp.Description("Current document title")),
@@ -454,7 +462,7 @@ func (h *MCPServerHandler) registerTools(s *server.MCPServer) {
 		mcp.WithDestructiveHintAnnotation(true),
 	), h.deleteDoc)
 
-	write(mcp.NewTool("restore_doc_version",
+	write(newTool("restore_doc_version",
 		mcp.WithDescription("Restore a published history version into the editable draft. This does not publish automatically."),
 		mcp.WithString("node_id", mcp.Required(), mcp.Description("Document ID")),
 		mcp.WithString("version_id", mcp.Required(), mcp.Description("Version ID")),
@@ -462,13 +470,13 @@ func (h *MCPServerHandler) registerTools(s *server.MCPServer) {
 		mcp.WithString("idempotency_key", mcp.Description("Optional idempotency key")),
 	), h.restoreDocVersion)
 
-	write(mcp.NewTool("upload_asset",
+	write(newTool("upload_asset",
 		mcp.WithDescription("Upload an image or attachment and return its public URL for use in document content."),
 		mcp.WithString("filename", mcp.Required(), mcp.Description("File name with extension")),
 		mcp.WithString("content_base64", mcp.Required(), mcp.Description("Base64 content or data URL")),
 	), h.uploadAsset)
 
-	write(mcp.NewTool("publish_docs",
+	write(newTool("publish_docs",
 		mcp.WithDescription("Publish the given documents as a new release. The public site and RAG index update from this release."),
 		mcp.WithArray("node_ids", mcp.Required(), mcp.WithStringItems(), mcp.Description("Document IDs to publish")),
 		mcp.WithString("message", mcp.Required(), mcp.Description("Release message")),
@@ -477,7 +485,7 @@ func (h *MCPServerHandler) registerTools(s *server.MCPServer) {
 		mcp.WithIdempotentHintAnnotation(true),
 	), h.publishDocs)
 
-	write(mcp.NewTool("list_comments",
+	write(newTool("list_comments",
 		mcp.WithDescription("List document comments. status can be pending, approved, or rejected."),
 		mcp.WithString("status", mcp.Description("pending, approved, or rejected")),
 		mcp.WithNumber("page", mcp.Description("Page number, default 1")),
@@ -485,14 +493,14 @@ func (h *MCPServerHandler) registerTools(s *server.MCPServer) {
 		mcp.WithReadOnlyHintAnnotation(true),
 	), h.listComments)
 
-	write(mcp.NewTool("moderate_comment",
+	write(newTool("moderate_comment",
 		mcp.WithDescription("Accept or reject comments."),
 		mcp.WithArray("comment_ids", mcp.Required(), mcp.WithStringItems(), mcp.Description("Comment IDs")),
 		mcp.WithString("status", mcp.Required(), mcp.Description("approved or rejected")),
 		mcp.WithIdempotentHintAnnotation(true),
 	), h.moderateComments)
 
-	write(mcp.NewTool("list_contributions",
+	write(newTool("list_contributions",
 		mcp.WithDescription("List document contributions submitted by public users."),
 		mcp.WithString("status", mcp.Description("pending, approved, or rejected")),
 		mcp.WithString("node_name", mcp.Description("Filter by document name")),
@@ -502,7 +510,7 @@ func (h *MCPServerHandler) registerTools(s *server.MCPServer) {
 		mcp.WithReadOnlyHintAnnotation(true),
 	), h.listContributions)
 
-	write(mcp.NewTool("audit_contribution",
+	write(newTool("audit_contribution",
 		mcp.WithDescription("Approve or reject a document contribution. Approving an add request requires nav_id."),
 		mcp.WithString("contribution_id", mcp.Required(), mcp.Description("Contribution ID")),
 		mcp.WithString("status", mcp.Required(), mcp.Description("approved or rejected")),
@@ -513,7 +521,7 @@ func (h *MCPServerHandler) registerTools(s *server.MCPServer) {
 		mcp.WithIdempotentHintAnnotation(true),
 	), h.auditContribution)
 
-	write(mcp.NewTool("get_stats",
+	write(newTool("get_stats",
 		mcp.WithDescription("Get traffic, conversation, and hot document statistics."),
 		mcp.WithNumber("days", mcp.Description("1, 7, 30, or 90; default 30")),
 		mcp.WithReadOnlyHintAnnotation(true),

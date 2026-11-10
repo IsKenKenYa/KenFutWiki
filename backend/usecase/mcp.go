@@ -235,13 +235,20 @@ func (u *MCPUsecase) GetDoc(ctx context.Context, kbID string, req *domain.MCPGet
 		if contentType == "" {
 			contentType = domain.ContentTypeHTML
 		}
+		navID := ""
+		lang := ""
+		if current, err := u.nodeRepo.GetNodeByID(ctx, release.NodeID); err == nil && current.KBID == kbID {
+			navID = current.NavId
+			lang = current.Lang
+		}
 		detail := &domain.MCPDocDetail{
 			ID:          release.NodeID,
 			Name:        release.Name,
 			Type:        release.Type,
 			Status:      domain.NodeStatusPublished,
+			NavID:       navID,
 			ParentID:    release.ParentID,
-			Lang:        "",
+			Lang:        lang,
 			Content:     release.Content,
 			ContentType: contentType,
 			Emoji:       release.Meta.Emoji,
@@ -702,7 +709,7 @@ func (u *MCPUsecase) ListVersions(ctx context.Context, kbID string, req *domain.
 			Name:        release.Name,
 			PublisherID: release.PublisherId,
 			EditorID:    release.EditorId,
-			CreatedAt:   release.CreatedAt,
+			CreatedAt:   release.UpdatedAt,
 		})
 	}
 	return map[string]any{"total": total, "items": items}, nil
