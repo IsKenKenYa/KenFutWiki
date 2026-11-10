@@ -88,19 +88,32 @@ func (u *FileUsecase) UploadFile(ctx context.Context, kbID string, file *multipa
 		return "", err
 	}
 
+	// 嗅探文件头部真实内容，拒绝伪装成图片后缀的 HTML 等文本，
+	// 防止匿名上传把可执行内容送进静态资源（存储型 XSS）
+	head := make([]byte, 512)
+	n, err := src.Read(head)
+	if err != nil && err != io.EOF {
+		return "", fmt.Errorf("failed to read file head: %w", err)
+	}
+	sniffed := utils.SniffImageContentType(head[:n])
+	if sniffed == "" {
+		return "", fmt.Errorf("file content is not a supported image: %s", file.Filename)
+	}
+
 	filename := fmt.Sprintf("%s/%s%s", kbID, uuid.New().String(), ext)
 
 	size := file.Size
 
-	contentType := file.Header.Get("Content-Type")
+	// 对象类型由服务器依据扩展名与嗅探结果推导，不信任客户端提交的 Content-Type
+	contentType := mime.TypeByExtension(ext)
 	if contentType == "" {
-		contentType = mime.TypeByExtension(ext)
+		contentType = sniffed
 	}
 
 	resp, err := u.s3Client.PutObject(
 		ctx,
 		filename,
-		src,
+		io.MultiReader(bytes.NewReader(head[:n]), src),
 		size,
 		minio.PutObjectOptions{
 			ContentType: contentType,
@@ -135,6 +148,11 @@ func (u *FileUsecase) UploadFileFromBytes(ctx context.Context, kbID string, file
 	if contentType == "" {
 		// Fallback content type if extension not recognized
 		contentType = "application/octet-stream"
+	}
+
+	// 图片后缀必须携带真实图片内容，防止伪装图片后缀的文本进入静态资源
+	if utils.IsSupportedImageExt(ext) && utils.SniffImageContentType(fileBytes) != contentType {
+		return "", fmt.Errorf("file content does not match image extension: %s", filename)
 	}
 
 	resp, err := u.s3Client.PutObject(
@@ -215,9 +233,10 @@ func (u *FileUsecase) AnyDocUploadFile(ctx context.Context, file *multipart.File
 
 	size := file.Size
 
-	contentType := file.Header.Get("Content-Type")
+	// 对象类型由服务器依据存储路径的扩展名推导，不信任客户端提交的 Content-Type
+	contentType := mime.TypeByExtension(filepath.Ext(path))
 	if contentType == "" {
-		contentType = mime.TypeByExtension(ext)
+		contentType = "application/octet-stream"
 	}
 
 	resp, err := u.s3Client.PutObject(
