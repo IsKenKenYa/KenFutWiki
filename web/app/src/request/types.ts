@@ -230,6 +230,17 @@ export enum ConstsCopySetting {
   CopySettingDisabled = "disabled",
 }
 
+export enum ConstsContributeType {
+  ContributeTypeAdd = "add",
+  ContributeTypeEdit = "edit",
+}
+
+export enum ConstsContributeStatus {
+  ContributeStatusPending = "pending",
+  ContributeStatusApproved = "approved",
+  ContributeStatusRejected = "rejected",
+}
+
 export enum ConstsAuthType {
   /** 无认证 */
   AuthTypeNull = "",
@@ -275,6 +286,15 @@ export interface ConstsRedeemCaptchaReq {
 export interface DomainAIFeedbackSettings {
   ai_feedback_type?: string[];
   is_enabled?: boolean;
+}
+
+export interface DomainAPITokenListItem {
+  created_at?: string;
+  id?: string;
+  name?: string;
+  permission?: ConstsUserKBPermission;
+  token?: string;
+  updated_at?: string;
 }
 
 export interface DomainAccessSettings {
@@ -494,6 +514,92 @@ export interface DomainAppSettingsResp {
   widget_bot_settings?: DomainWidgetBotSettings;
 }
 
+export interface DomainAuthGroupAuthItem {
+  avatar_url?: string;
+  created_at?: string;
+  email?: string;
+  id?: number;
+  ip?: string;
+  last_login_time?: string;
+  source_type?: ConstsSourceType;
+  username?: string;
+}
+
+export interface DomainAuthGroupCreateReq {
+  ids?: number[];
+  kb_id: string;
+  /** @maxLength 100 */
+  name: string;
+  parent_id?: number;
+  position?: number;
+}
+
+export interface DomainAuthGroupDetailResp {
+  auth_ids?: number[];
+  auths?: DomainAuthGroupAuthItem[];
+  children?: DomainAuthGroupListItem[];
+  created_at?: string;
+  id?: number;
+  name?: string;
+  parent?: DomainAuthGroupListItem;
+  parent_id?: number;
+  position?: number;
+}
+
+export interface DomainAuthGroupListItem {
+  count?: number;
+  created_at?: string;
+  id?: number;
+  name?: string;
+  parent_id?: number;
+  path?: string;
+  position?: number;
+}
+
+export interface DomainAuthGroupListResp {
+  list?: DomainAuthGroupListItem[];
+  total?: number;
+}
+
+export interface DomainAuthGroupMoveReq {
+  id: number;
+  kb_id: string;
+  next_id?: number;
+  parent_id?: number;
+  prev_id?: number;
+}
+
+export interface DomainAuthGroupSyncReq {
+  kb_id: string;
+  source_type: "dingtalk" | "wecom";
+}
+
+export interface DomainAuthGroupTreeItem {
+  auth_ids?: number[];
+  children?: DomainAuthGroupTreeItem[];
+  count?: number;
+  id?: number;
+  level?: number;
+  name?: string;
+  parent_id?: number;
+  position?: number;
+  sync_id?: string;
+}
+
+export interface DomainAuthGroupTreeResp {
+  list?: DomainAuthGroupTreeItem[];
+}
+
+export interface DomainAuthGroupUpdateReq {
+  auth_ids?: number[];
+  id: number;
+  kb_id: string;
+  /** @maxLength 100 */
+  name?: string;
+  parent_id?: number;
+  position?: number;
+}
+
 export interface DomainAuthUserInfo {
   avatar_url?: string;
   email?: string;
@@ -645,6 +751,13 @@ export interface DomainCommentListItem {
   status?: DomainCommentStatus;
 }
 
+export interface DomainCommentModerateListReq {
+  /** @minItems 1 */
+  ids: string[];
+  kb_id: string;
+  status: -1 | 1;
+}
+
 export interface DomainCommentReq {
   captcha_token?: string;
   content: string;
@@ -659,6 +772,67 @@ export interface DomainCompleteReq {
   /** For FIM (Fill in Middle) style completion */
   prefix?: string;
   suffix?: string;
+}
+
+export interface DomainContributeAuditReq {
+  id: string;
+  kb_id: string;
+  nav_id?: string;
+  parent_id?: string;
+  position?: number;
+  status: "approved" | "rejected";
+}
+
+export interface DomainContributeDetailResp {
+  audit_time?: string;
+  audit_user_id?: string;
+  auth_id?: number;
+  auth_name?: string;
+  content?: string;
+  contribute_name?: string;
+  created_at?: string;
+  id?: string;
+  kb_id?: string;
+  meta?: DomainNodeMeta;
+  node_id?: string;
+  node_name?: string;
+  original_node?: DomainContributeOriginalNode;
+  reason?: string;
+  status?: ConstsContributeStatus;
+  type?: ConstsContributeType;
+  updated_at?: string;
+}
+
+export interface DomainContributeListItem {
+  audit_time?: string;
+  audit_user_id?: string;
+  auth_id?: number;
+  auth_name?: string;
+  contribute_name?: string;
+  created_at?: string;
+  id?: string;
+  ip_address?: DomainIPAddress;
+  kb_id?: string;
+  meta?: DomainNodeMeta;
+  node_id?: string;
+  node_name?: string;
+  reason?: string;
+  remote_ip?: string;
+  status?: ConstsContributeStatus;
+  type?: ConstsContributeType;
+  updated_at?: string;
+}
+
+export interface DomainContributeListResp {
+  list?: DomainContributeListItem[];
+  total?: number;
+}
+
+export interface DomainContributeOriginalNode {
+  content?: string;
+  id?: string;
+  meta?: DomainNodeMeta;
+  name?: string;
 }
 
 export interface DomainContributeSettings {
@@ -746,6 +920,13 @@ export interface DomainConversationSetting {
   copyright_info?: string;
 }
 
+export interface DomainCreateAPITokenReq {
+  kb_id: string;
+  /** @maxLength 100 */
+  name: string;
+  permission: "full_control" | "doc_manage" | "data_operate";
+}
+
 export interface DomainCreateKBReleaseReq {
   kb_id: string;
   message: string;
@@ -804,6 +985,33 @@ export interface DomainDirDocConfig {
 
 export interface DomainDisclaimerSettings {
   content?: string;
+}
+
+export interface DomainDocumentFeedbackInfo {
+  auth_user_id?: number;
+  avatar?: string;
+  email?: string;
+  remote_ip?: string;
+  screen_shot?: string;
+  user_name?: string;
+}
+
+export interface DomainDocumentFeedbackListItem {
+  content?: string;
+  correction_suggestion?: string;
+  created_at?: string;
+  id?: string;
+  info?: DomainDocumentFeedbackInfo;
+  ip_address?: DomainIPAddress;
+  kb_id?: string;
+  node_id?: string;
+  node_name?: string;
+  user_id?: string;
+}
+
+export interface DomainDocumentFeedbackListResp {
+  data?: DomainDocumentFeedbackListItem[];
+  total?: number;
 }
 
 export interface DomainEnterpriseAuth {
@@ -1053,9 +1261,21 @@ export interface DomainLink {
   url?: string;
 }
 
+export interface DomainMCPCallListItem {
+  created_at?: string;
+  duration_ms?: number;
+  error?: string;
+  id?: number;
+  remote_ip?: string;
+  status?: string;
+  token_id?: string;
+  tool_name?: string;
+}
+
 export interface DomainMCPServerSettings {
   docs_tool_settings?: DomainMCPToolSettings;
   is_enabled?: boolean;
+  require_auth?: boolean;
   sample_auth?: DomainSimpleAuth;
 }
 
@@ -1452,6 +1672,19 @@ export interface DomainStorageTestStep {
   ok?: boolean;
 }
 
+export interface DomainSubmitContributeReq {
+  captcha_token: string;
+  content: string;
+  content_type: "html" | "md";
+  emoji?: string;
+  kb_id: string;
+  name?: string;
+  node_id?: string;
+  /** @maxLength 500 */
+  reason: string;
+  type: "add" | "edit";
+}
+
 export interface DomainSwitchModeReq {
   /** 百智云 API Key */
   auto_mode_api_key?: string;
@@ -1492,6 +1725,14 @@ export interface DomainTextReq {
 export interface DomainThemeAndStyle {
   bg_image?: string;
   doc_width?: string;
+}
+
+export interface DomainUpdateAPITokenReq {
+  id: string;
+  kb_id: string;
+  /** @maxLength 100 */
+  name?: string;
+  permission?: "full_control" | "doc_manage" | "data_operate";
 }
 
 export interface DomainUpdateAppReq {
@@ -1647,11 +1888,27 @@ export interface DomainWidgetBotSettings {
 }
 
 export interface GithubComChaitinPandaWikiApiAuthV1AuthGetResp {
+  agent_id?: string;
+  authorize_url?: string;
   auths?: V1AuthItem[];
+  avatar_field?: string;
+  bind_dn?: string;
+  bind_password?: string;
+  cas_url?: string;
+  cas_version?: string;
   client_id?: string;
   client_secret?: string;
+  email_field?: string;
+  id_field?: string;
+  ldap_server_url?: string;
+  name_field?: string;
   proxy?: string;
+  scopes?: string[];
   source_type?: ConstsSourceType;
+  token_url?: string;
+  user_base_dn?: string;
+  user_filter?: string;
+  user_info_url?: string;
 }
 
 export interface GithubComChaitinPandaWikiApiNodeV1NodeListGroupNavResp {
@@ -1779,11 +2036,34 @@ export interface V1AuthLoginSimpleReq {
 }
 
 export interface V1AuthSetReq {
+  agent_id?: string;
+  authorize_url?: string;
+  avatar_field?: string;
+  bind_dn?: string;
+  bind_password?: string;
+  cas_url?: string;
+  cas_version?: string;
   client_id?: string;
   client_secret?: string;
+  email_field?: string;
+  id_field?: string;
   kb_id?: string;
+  ldap_server_url?: string;
+  name_field?: string;
   proxy?: string;
-  source_type: "github";
+  scopes?: string[];
+  source_type:
+    | "github"
+    | "dingtalk"
+    | "feishu"
+    | "wecom"
+    | "oauth"
+    | "cas"
+    | "ldap";
+  token_url?: string;
+  user_base_dn?: string;
+  user_filter?: string;
+  user_info_url?: string;
 }
 
 export interface V1CommentLists {
@@ -2066,6 +2346,11 @@ export interface V1WechatAppInfoResp {
   wechat_app_is_enabled?: boolean;
 }
 
+export interface V1BlockWordRequest {
+  block_words?: string[];
+  kb_id: string;
+}
+
 export interface GetApiKenfutV1ContentsNodeIdParams {
   /** Knowledge base */
   kb_id: string;
@@ -2078,6 +2363,81 @@ export interface PutApiKenfutV1ContentsNodeIdParams {
   kb_id: string;
   /** Node ID */
   nodeId: string;
+}
+
+export interface DeleteApiProV1AuthGroupDeleteParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+  /** Auth group ID */
+  id: number;
+}
+
+export interface GetApiProV1AuthGroupDetailParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+  /** Auth group ID */
+  id: number;
+}
+
+export interface GetApiProV1AuthGroupListParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+}
+
+export interface GetApiProV1AuthGroupTreeParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+}
+
+export interface GetApiProV1BlockParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+}
+
+export interface GetApiProV1ContributeDetailParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+  /** Contribution ID */
+  id: string;
+}
+
+export interface GetApiProV1ContributeListParams {
+  authName?: string;
+  kbid: string;
+  nodeName?: string;
+  /** @min 1 */
+  page: number;
+  /** @min 1 */
+  per_page: number;
+  status?: "pending" | "approved" | "rejected";
+}
+
+export interface DeleteApiProV1DocumentFeedbackParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+  /** Feedback IDs */
+  ids: number[];
+}
+
+export interface GetApiProV1DocumentListParams {
+  kbid: string;
+  nodeID?: string;
+  /** @min 1 */
+  page: number;
+  /** @min 1 */
+  per_page: number;
+}
+
+export interface DeleteApiProV1TokenDeleteParams {
+  /** Token ID */
+  id: string;
+  /** Knowledge Base ID */
+  kb_id: string;
+}
+
+export interface GetApiProV1TokenListParams {
+  /** Knowledge Base ID */
+  kb_id: string;
 }
 
 export interface PutApiV1AppParams {
@@ -2209,6 +2569,13 @@ export interface DeleteApiV1KnowledgeBaseUserDeleteParams {
 export interface GetApiV1KnowledgeBaseUserListParams {
   /** Knowledge Base ID */
   kb_id: string;
+}
+
+export interface GetApiV1McpCallsParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+  /** Maximum number of records */
+  limit?: number;
 }
 
 export interface DeleteApiV1NavDeleteParams {
@@ -2343,6 +2710,17 @@ export interface GetShareKenfutV1TaxonomiesParams {
 export interface GetShareKenfutV1TranslationsParams {
   /** Node ID */
   node_id: string;
+}
+
+export interface PostShareProV1DocumentFeedbackPayload {
+  /** Document ID */
+  node_id?: string;
+  /** Feedback content */
+  content?: string;
+  /** Correction suggestion */
+  correction_suggestion?: string;
+  /** Screenshot */
+  screenshot?: File;
 }
 
 export interface GetShareV1AppWechatServiceAnswerParams {
