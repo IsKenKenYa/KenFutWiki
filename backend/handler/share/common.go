@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	echoMiddleware "github.com/labstack/echo/v4/middleware"
 
 	v1 "github.com/chaitin/panda-wiki/api/share/v1"
 	"github.com/chaitin/panda-wiki/consts"
@@ -51,6 +52,22 @@ func NewShareCommonHandler(
 		})
 	share.POST("/file/upload", h.FileUpload, h.ShareAuthMiddleware.Authorize)
 	share.POST("/file/upload/url", h.FileUploadByUrl, h.ShareAuthMiddleware.Authorize)
+
+	proShare := e.Group("share/pro/v1/file",
+		func(next echo.HandlerFunc) echo.HandlerFunc {
+			return func(c echo.Context) error {
+				c.Response().Header().Set("Access-Control-Allow-Origin", "*")
+				c.Response().Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+				c.Response().Header().Set("Access-Control-Allow-Headers", "Content-Type, Origin, Accept")
+				if c.Request().Method == "OPTIONS" {
+					return c.NoContent(http.StatusOK)
+				}
+				return next(c)
+			}
+		},
+		echoMiddleware.BodyLimit("10M"),
+	)
+	proShare.POST("/upload", h.ProFileUpload, h.ShareAuthMiddleware.Authorize)
 	return h
 }
 
@@ -100,6 +117,43 @@ func (h *ShareCommonHandler) FileUpload(c echo.Context) error {
 	}
 
 	key, err := h.fileUsecase.UploadFile(ctx, req.KbId, file)
+	if err != nil {
+		return h.NewResponseWithError(c, "upload failed", err)
+	}
+
+	return h.NewResponseWithData(c, v1.FileUploadResp{
+		Key: key,
+	})
+}
+
+// ProFileUpload 登录用户文件上传
+//
+//	@Tags			ShareFile
+//	@Summary		登录用户文件上传
+//	@Description	SSO 登录用户上传文件，目前只支持图片文件上传，免验证码
+//	@ID				share-ProFileUpload
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Param			X-KB-ID	header		string	true	"kb id"
+//	@Param			file	formData	file	true	"File"
+//	@Success		200		{object}	domain.Response{data=v1.FileUploadResp}
+//	@Router			/share/pro/v1/file/upload [post]
+func (h *ShareCommonHandler) ProFileUpload(c echo.Context) error {
+	kbID := c.Request().Header.Get("X-KB-ID")
+	if kbID == "" {
+		return h.NewResponseWithError(c, "kb_id is required", nil)
+	}
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		return h.NewResponseWithError(c, "failed to get file", err)
+	}
+
+	if !utils.IsImageFile(file.Filename) {
+		return h.NewResponseWithError(c, "只支持图片文件上传", fmt.Errorf("unsupported file type: %s", file.Filename))
+	}
+
+	key, err := h.fileUsecase.UploadFile(c.Request().Context(), kbID, file)
 	if err != nil {
 		return h.NewResponseWithError(c, "upload failed", err)
 	}

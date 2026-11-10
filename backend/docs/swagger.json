@@ -921,6 +921,198 @@
                 }
             }
         },
+        "/api/pro/v1/node/release/detail": {
+            "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "description": "读取指定历史发布版本的完整内容",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "node"
+                ],
+                "summary": "历史发布版本详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge Base ID",
+                        "name": "kb_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Release ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.NodeReleaseHistoryDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pro/v1/node/release/list": {
+            "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "description": "获取指定文档的全部历史发布版本",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "node"
+                ],
+                "summary": "文档历史发布版本列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge Base ID",
+                        "name": "kb_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Node ID",
+                        "name": "node_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/domain.NodeReleaseHistoryItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/pro/v1/prompt": {
+            "get": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "description": "读取问答与总结提示词及预置开关",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "kenfut"
+                ],
+                "summary": "读取知识库提示词配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge Base ID",
+                        "name": "kb_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.Prompt"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "description": "写入问答与总结提示词及预置开关",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "kenfut"
+                ],
+                "summary": "保存知识库提示词配置",
+                "parameters": [
+                    {
+                        "description": "Prompt settings",
+                        "name": "params",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Prompt"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PWResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/pro/v1/token/create": {
             "post": {
                 "security": [
@@ -5087,6 +5279,417 @@
                 }
             }
         },
+        "/share/pro/v1/auth/cas": {
+            "post": {
+                "description": "生成 CAS SSO 授权跳转地址",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ShareAuth"
+                ],
+                "summary": "CAS SSO 登录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "kb_id",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "param",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.SSOAuthReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/v1.SSOAuthResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/share/pro/v1/auth/dingtalk": {
+            "post": {
+                "description": "生成钉钉 SSO 授权跳转地址",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ShareAuth"
+                ],
+                "summary": "钉钉 SSO 登录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "kb_id",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "param",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.SSOAuthReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/v1.SSOAuthResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/share/pro/v1/auth/feishu": {
+            "post": {
+                "description": "生成飞书 SSO 授权跳转地址",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ShareAuth"
+                ],
+                "summary": "飞书 SSO 登录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "kb_id",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "param",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.SSOAuthReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/v1.SSOAuthResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/share/pro/v1/auth/github": {
+            "post": {
+                "description": "生成 GitHub SSO 授权跳转地址",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ShareAuth"
+                ],
+                "summary": "GitHub SSO 登录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "kb_id",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "param",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.SSOAuthReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/v1.SSOAuthResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/share/pro/v1/auth/info": {
+            "get": {
+                "description": "读取当前 SSO 会话的用户信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ShareAuth"
+                ],
+                "summary": "当前登录用户信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/v1.AuthInfoResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/share/pro/v1/auth/ldap": {
+            "post": {
+                "description": "使用 LDAP 账号密码登录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ShareAuth"
+                ],
+                "summary": "LDAP 登录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "kb_id",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "param",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.LDAPAuthReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PWResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/share/pro/v1/auth/logout": {
+            "post": {
+                "description": "清除当前 SSO 会话",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ShareAuth"
+                ],
+                "summary": "退出登录",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PWResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/share/pro/v1/auth/oauth": {
+            "post": {
+                "description": "生成 OAuth2 SSO 授权跳转地址",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ShareAuth"
+                ],
+                "summary": "OAuth2 SSO 登录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "kb_id",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "param",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.SSOAuthReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/v1.SSOAuthResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/share/pro/v1/auth/wecom": {
+            "post": {
+                "description": "生成企业微信 SSO 授权跳转地址",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ShareAuth"
+                ],
+                "summary": "企业微信 SSO 登录",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "kb_id",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "params",
+                        "name": "param",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.SSOAuthReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/v1.SSOAuthResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/share/pro/v1/contribute/submit": {
             "post": {
                 "description": "Submit a document edit or new document contribution",
@@ -5210,6 +5813,244 @@
                                     }
                                 }
                             ]
+                        }
+                    }
+                }
+            }
+        },
+        "/share/pro/v1/file/upload": {
+            "post": {
+                "description": "SSO 登录用户上传文件，目前只支持图片文件上传，免验证码",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ShareFile"
+                ],
+                "summary": "登录用户文件上传",
+                "operationId": "share-ProFileUpload",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "kb id",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "File",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/v1.FileUploadResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/share/pro/v1/openapi/cas/callback": {
+            "get": {
+                "description": "处理 CAS 授权回调并建立会话后重定向",
+                "tags": [
+                    "ShareAuth"
+                ],
+                "summary": "CAS SSO 回调",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "CAS ticket",
+                        "name": "ticket",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "state",
+                        "name": "state",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "redirect",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/share/pro/v1/openapi/dingtalk/callback": {
+            "get": {
+                "description": "处理钉钉授权回调并建立会话后重定向",
+                "tags": [
+                    "ShareAuth"
+                ],
+                "summary": "钉钉 SSO 回调",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "authorization code",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "state",
+                        "name": "state",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "redirect",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/share/pro/v1/openapi/feishu/callback": {
+            "get": {
+                "description": "处理飞书授权回调并建立会话后重定向",
+                "tags": [
+                    "ShareAuth"
+                ],
+                "summary": "飞书 SSO 回调",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "authorization code",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "state",
+                        "name": "state",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "redirect",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/share/pro/v1/openapi/github/callback": {
+            "get": {
+                "description": "处理 GitHub 授权回调并建立会话后重定向",
+                "tags": [
+                    "ShareAuth"
+                ],
+                "summary": "GitHub SSO 回调",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "authorization code",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "state",
+                        "name": "state",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "redirect",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/share/pro/v1/openapi/oauth/callback": {
+            "get": {
+                "description": "处理 OAuth2 授权回调并建立会话后重定向",
+                "tags": [
+                    "ShareAuth"
+                ],
+                "summary": "OAuth2 SSO 回调",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "authorization code",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "state",
+                        "name": "state",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "redirect",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/share/pro/v1/openapi/wecom/callback": {
+            "get": {
+                "description": "处理企业微信授权回调并建立会话后重定向",
+                "tags": [
+                    "ShareAuth"
+                ],
+                "summary": "企业微信 SSO 回调",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "authorization code",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "state",
+                        "name": "state",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "redirect",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -10097,6 +10938,91 @@
                 }
             }
         },
+        "domain.NodeReleaseHistoryDetail": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "creator_account": {
+                    "type": "string"
+                },
+                "creator_id": {
+                    "type": "string"
+                },
+                "editor_account": {
+                    "type": "string"
+                },
+                "editor_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "meta": {
+                    "$ref": "#/definitions/domain.NodeMeta"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "node_id": {
+                    "type": "string"
+                },
+                "publisher_account": {
+                    "type": "string"
+                },
+                "publisher_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.NodeReleaseHistoryItem": {
+            "type": "object",
+            "properties": {
+                "creator_account": {
+                    "type": "string"
+                },
+                "creator_id": {
+                    "type": "string"
+                },
+                "editor_account": {
+                    "type": "string"
+                },
+                "editor_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "meta": {
+                    "$ref": "#/definitions/domain.NodeMeta"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "node_id": {
+                    "type": "string"
+                },
+                "publisher_account": {
+                    "type": "string"
+                },
+                "publisher_id": {
+                    "type": "string"
+                },
+                "release_id": {
+                    "type": "string"
+                },
+                "release_message": {
+                    "type": "string"
+                },
+                "release_name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.NodeStatus": {
             "type": "integer",
             "format": "int32",
@@ -10504,6 +11430,32 @@
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "domain.Prompt": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "enable_preset": {
+                    "type": "boolean"
+                },
+                "enable_preset_auto_language": {
+                    "description": "允许AI自动匹配用户提问的语言进行回复",
+                    "type": "boolean"
+                },
+                "enable_preset_general_info": {
+                    "description": "允许AI结合通用知识进行补充回答",
+                    "type": "boolean"
+                },
+                "enable_preset_reference": {
+                    "description": "在回答中显示引用来源",
+                    "type": "boolean"
+                },
+                "summary_content": {
+                    "type": "string"
                 }
             }
         },
@@ -11941,6 +12893,23 @@
                 }
             }
         },
+        "v1.AuthInfoResp": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "v1.AuthItem": {
             "type": "object",
             "properties": {
@@ -12348,6 +13317,25 @@
                 }
             }
         },
+        "v1.LDAPAuthReq": {
+            "type": "object",
+            "required": [
+                "kb_id",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "kb_id": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "v1.LoginReq": {
             "type": "object",
             "required": [
@@ -12669,6 +13657,28 @@
                 "new_password": {
                     "type": "string",
                     "minLength": 8
+                }
+            }
+        },
+        "v1.SSOAuthReq": {
+            "type": "object",
+            "properties": {
+                "is_app": {
+                    "type": "boolean"
+                },
+                "kb_id": {
+                    "type": "string"
+                },
+                "redirect_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.SSOAuthResp": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
                 }
             }
         },

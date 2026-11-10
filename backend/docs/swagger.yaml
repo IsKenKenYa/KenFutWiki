@@ -2517,6 +2517,62 @@ definitions:
         - $ref: '#/definitions/consts.NodeAccessPerm'
         description: 可被访问
     type: object
+  domain.NodeReleaseHistoryDetail:
+    properties:
+      content:
+        type: string
+      creator_account:
+        type: string
+      creator_id:
+        type: string
+      editor_account:
+        type: string
+      editor_id:
+        type: string
+      id:
+        type: string
+      meta:
+        $ref: '#/definitions/domain.NodeMeta'
+      name:
+        type: string
+      node_id:
+        type: string
+      publisher_account:
+        type: string
+      publisher_id:
+        type: string
+    type: object
+  domain.NodeReleaseHistoryItem:
+    properties:
+      creator_account:
+        type: string
+      creator_id:
+        type: string
+      editor_account:
+        type: string
+      editor_id:
+        type: string
+      id:
+        type: string
+      meta:
+        $ref: '#/definitions/domain.NodeMeta'
+      name:
+        type: string
+      node_id:
+        type: string
+      publisher_account:
+        type: string
+      publisher_id:
+        type: string
+      release_id:
+        type: string
+      release_message:
+        type: string
+      release_name:
+        type: string
+      updated_at:
+        type: string
+    type: object
   domain.NodeStatus:
     enum:
     - 0
@@ -2788,6 +2844,24 @@ definitions:
         type: array
       total:
         type: integer
+    type: object
+  domain.Prompt:
+    properties:
+      content:
+        type: string
+      enable_preset:
+        type: boolean
+      enable_preset_auto_language:
+        description: 允许AI自动匹配用户提问的语言进行回复
+        type: boolean
+      enable_preset_general_info:
+        description: 允许AI结合通用知识进行补充回答
+        type: boolean
+      enable_preset_reference:
+        description: 在回答中显示引用来源
+        type: boolean
+      summary_content:
+        type: string
     type: object
   domain.ProviderModelListItem:
     properties:
@@ -3742,6 +3816,17 @@ definitions:
       url:
         type: string
     type: object
+  v1.AuthInfoResp:
+    properties:
+      avatar_url:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      username:
+        type: string
+    type: object
   v1.AuthItem:
     properties:
       avatar_url:
@@ -4007,6 +4092,19 @@ definitions:
     - perm
     - user_id
     type: object
+  v1.LDAPAuthReq:
+    properties:
+      kb_id:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - kb_id
+    - password
+    - username
+    type: object
   v1.LoginReq:
     properties:
       account:
@@ -4225,6 +4323,20 @@ definitions:
     required:
     - id
     - new_password
+    type: object
+  v1.SSOAuthReq:
+    properties:
+      is_app:
+        type: boolean
+      kb_id:
+        type: string
+      redirect_url:
+        type: string
+    type: object
+  v1.SSOAuthResp:
+    properties:
+      url:
+        type: string
     type: object
   v1.ShareFileUploadUrlReq:
     properties:
@@ -4913,6 +5025,119 @@ paths:
       summary: List document feedback
       tags:
       - documentFeedback
+  /api/pro/v1/node/release/detail:
+    get:
+      description: 读取指定历史发布版本的完整内容
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      - description: Release ID
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.NodeReleaseHistoryDetail'
+              type: object
+      security:
+      - bearerAuth: []
+      summary: 历史发布版本详情
+      tags:
+      - node
+  /api/pro/v1/node/release/list:
+    get:
+      description: 获取指定文档的全部历史发布版本
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      - description: Node ID
+        in: query
+        name: node_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.NodeReleaseHistoryItem'
+                  type: array
+              type: object
+      security:
+      - bearerAuth: []
+      summary: 文档历史发布版本列表
+      tags:
+      - node
+  /api/pro/v1/prompt:
+    get:
+      description: 读取问答与总结提示词及预置开关
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Prompt'
+              type: object
+      security:
+      - bearerAuth: []
+      summary: 读取知识库提示词配置
+      tags:
+      - kenfut
+    put:
+      consumes:
+      - application/json
+      description: 写入问答与总结提示词及预置开关
+      parameters:
+      - description: Prompt settings
+        in: body
+        name: params
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Prompt'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      security:
+      - bearerAuth: []
+      summary: 保存知识库提示词配置
+      tags:
+      - kenfut
   /api/pro/v1/token/create:
     post:
       consumes:
@@ -7450,6 +7675,256 @@ paths:
       summary: Node translations
       tags:
       - kenfut_content
+  /share/pro/v1/auth/cas:
+    post:
+      consumes:
+      - application/json
+      description: 生成 CAS SSO 授权跳转地址
+      parameters:
+      - description: kb_id
+        in: header
+        name: X-KB-ID
+        required: true
+        type: string
+      - description: params
+        in: body
+        name: param
+        required: true
+        schema:
+          $ref: '#/definitions/v1.SSOAuthReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.SSOAuthResp'
+              type: object
+      summary: CAS SSO 登录
+      tags:
+      - ShareAuth
+  /share/pro/v1/auth/dingtalk:
+    post:
+      consumes:
+      - application/json
+      description: 生成钉钉 SSO 授权跳转地址
+      parameters:
+      - description: kb_id
+        in: header
+        name: X-KB-ID
+        required: true
+        type: string
+      - description: params
+        in: body
+        name: param
+        required: true
+        schema:
+          $ref: '#/definitions/v1.SSOAuthReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.SSOAuthResp'
+              type: object
+      summary: 钉钉 SSO 登录
+      tags:
+      - ShareAuth
+  /share/pro/v1/auth/feishu:
+    post:
+      consumes:
+      - application/json
+      description: 生成飞书 SSO 授权跳转地址
+      parameters:
+      - description: kb_id
+        in: header
+        name: X-KB-ID
+        required: true
+        type: string
+      - description: params
+        in: body
+        name: param
+        required: true
+        schema:
+          $ref: '#/definitions/v1.SSOAuthReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.SSOAuthResp'
+              type: object
+      summary: 飞书 SSO 登录
+      tags:
+      - ShareAuth
+  /share/pro/v1/auth/github:
+    post:
+      consumes:
+      - application/json
+      description: 生成 GitHub SSO 授权跳转地址
+      parameters:
+      - description: kb_id
+        in: header
+        name: X-KB-ID
+        required: true
+        type: string
+      - description: params
+        in: body
+        name: param
+        required: true
+        schema:
+          $ref: '#/definitions/v1.SSOAuthReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.SSOAuthResp'
+              type: object
+      summary: GitHub SSO 登录
+      tags:
+      - ShareAuth
+  /share/pro/v1/auth/info:
+    get:
+      description: 读取当前 SSO 会话的用户信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.AuthInfoResp'
+              type: object
+      summary: 当前登录用户信息
+      tags:
+      - ShareAuth
+  /share/pro/v1/auth/ldap:
+    post:
+      consumes:
+      - application/json
+      description: 使用 LDAP 账号密码登录
+      parameters:
+      - description: kb_id
+        in: header
+        name: X-KB-ID
+        required: true
+        type: string
+      - description: params
+        in: body
+        name: param
+        required: true
+        schema:
+          $ref: '#/definitions/v1.LDAPAuthReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      summary: LDAP 登录
+      tags:
+      - ShareAuth
+  /share/pro/v1/auth/logout:
+    post:
+      description: 清除当前 SSO 会话
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      summary: 退出登录
+      tags:
+      - ShareAuth
+  /share/pro/v1/auth/oauth:
+    post:
+      consumes:
+      - application/json
+      description: 生成 OAuth2 SSO 授权跳转地址
+      parameters:
+      - description: kb_id
+        in: header
+        name: X-KB-ID
+        required: true
+        type: string
+      - description: params
+        in: body
+        name: param
+        required: true
+        schema:
+          $ref: '#/definitions/v1.SSOAuthReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.SSOAuthResp'
+              type: object
+      summary: OAuth2 SSO 登录
+      tags:
+      - ShareAuth
+  /share/pro/v1/auth/wecom:
+    post:
+      consumes:
+      - application/json
+      description: 生成企业微信 SSO 授权跳转地址
+      parameters:
+      - description: kb_id
+        in: header
+        name: X-KB-ID
+        required: true
+        type: string
+      - description: params
+        in: body
+        name: param
+        required: true
+        schema:
+          $ref: '#/definitions/v1.SSOAuthReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.SSOAuthResp'
+              type: object
+      summary: 企业微信 SSO 登录
+      tags:
+      - ShareAuth
   /share/pro/v1/contribute/submit:
     post:
       consumes:
@@ -7529,6 +8004,158 @@ paths:
       summary: Submit document feedback
       tags:
       - documentFeedback
+  /share/pro/v1/file/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: SSO 登录用户上传文件，目前只支持图片文件上传，免验证码
+      operationId: share-ProFileUpload
+      parameters:
+      - description: kb id
+        in: header
+        name: X-KB-ID
+        required: true
+        type: string
+      - description: File
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.FileUploadResp'
+              type: object
+      summary: 登录用户文件上传
+      tags:
+      - ShareFile
+  /share/pro/v1/openapi/cas/callback:
+    get:
+      description: 处理 CAS 授权回调并建立会话后重定向
+      parameters:
+      - description: CAS ticket
+        in: query
+        name: ticket
+        type: string
+      - description: state
+        in: query
+        name: state
+        type: string
+      responses:
+        "302":
+          description: redirect
+          schema:
+            type: string
+      summary: CAS SSO 回调
+      tags:
+      - ShareAuth
+  /share/pro/v1/openapi/dingtalk/callback:
+    get:
+      description: 处理钉钉授权回调并建立会话后重定向
+      parameters:
+      - description: authorization code
+        in: query
+        name: code
+        type: string
+      - description: state
+        in: query
+        name: state
+        type: string
+      responses:
+        "302":
+          description: redirect
+          schema:
+            type: string
+      summary: 钉钉 SSO 回调
+      tags:
+      - ShareAuth
+  /share/pro/v1/openapi/feishu/callback:
+    get:
+      description: 处理飞书授权回调并建立会话后重定向
+      parameters:
+      - description: authorization code
+        in: query
+        name: code
+        type: string
+      - description: state
+        in: query
+        name: state
+        type: string
+      responses:
+        "302":
+          description: redirect
+          schema:
+            type: string
+      summary: 飞书 SSO 回调
+      tags:
+      - ShareAuth
+  /share/pro/v1/openapi/github/callback:
+    get:
+      description: 处理 GitHub 授权回调并建立会话后重定向
+      parameters:
+      - description: authorization code
+        in: query
+        name: code
+        type: string
+      - description: state
+        in: query
+        name: state
+        type: string
+      responses:
+        "302":
+          description: redirect
+          schema:
+            type: string
+      summary: GitHub SSO 回调
+      tags:
+      - ShareAuth
+  /share/pro/v1/openapi/oauth/callback:
+    get:
+      description: 处理 OAuth2 授权回调并建立会话后重定向
+      parameters:
+      - description: authorization code
+        in: query
+        name: code
+        type: string
+      - description: state
+        in: query
+        name: state
+        type: string
+      responses:
+        "302":
+          description: redirect
+          schema:
+            type: string
+      summary: OAuth2 SSO 回调
+      tags:
+      - ShareAuth
+  /share/pro/v1/openapi/wecom/callback:
+    get:
+      description: 处理企业微信授权回调并建立会话后重定向
+      parameters:
+      - description: authorization code
+        in: query
+        name: code
+        type: string
+      - description: state
+        in: query
+        name: state
+        type: string
+      responses:
+        "302":
+          description: redirect
+          schema:
+            type: string
+      summary: 企业微信 SSO 回调
+      tags:
+      - ShareAuth
   /share/v1/app/web/info:
     get:
       consumes:

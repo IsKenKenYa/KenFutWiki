@@ -50,14 +50,47 @@ func NewShareSSOHandler(e *echo.Echo, baseHandler *handler.BaseHandler, logger *
 	return h
 }
 
+// DingTalk 钉钉 SSO 登录
+//
+//	@Tags			ShareAuth
+//	@Summary		钉钉 SSO 登录
+//	@Description	生成钉钉 SSO 授权跳转地址
+//	@Accept			json
+//	@Produce		json
+//	@Param			X-KB-ID	header		string			true	"kb_id"
+//	@Param			param	body		v1.SSOAuthReq	true	"params"
+//	@Success		200		{object}	domain.PWResponse{data=v1.SSOAuthResp}
+//	@Router			/share/pro/v1/auth/dingtalk [post]
 func (h *ShareSSOHandler) DingTalk(c echo.Context) error {
 	return h.generateURL(c, consts.SourceTypeDingTalk, false)
 }
 
+// Feishu 飞书 SSO 登录
+//
+//	@Tags			ShareAuth
+//	@Summary		飞书 SSO 登录
+//	@Description	生成飞书 SSO 授权跳转地址
+//	@Accept			json
+//	@Produce		json
+//	@Param			X-KB-ID	header		string			true	"kb_id"
+//	@Param			param	body		v1.SSOAuthReq	true	"params"
+//	@Success		200		{object}	domain.PWResponse{data=v1.SSOAuthResp}
+//	@Router			/share/pro/v1/auth/feishu [post]
 func (h *ShareSSOHandler) Feishu(c echo.Context) error {
 	return h.generateURL(c, consts.SourceTypeFeishu, false)
 }
 
+// WeCom 企业微信 SSO 登录
+//
+//	@Tags			ShareAuth
+//	@Summary		企业微信 SSO 登录
+//	@Description	生成企业微信 SSO 授权跳转地址
+//	@Accept			json
+//	@Produce		json
+//	@Param			X-KB-ID	header		string			true	"kb_id"
+//	@Param			param	body		v1.SSOAuthReq	true	"params"
+//	@Success		200		{object}	domain.PWResponse{data=v1.SSOAuthResp}
+//	@Router			/share/pro/v1/auth/wecom [post]
 func (h *ShareSSOHandler) WeCom(c echo.Context) error {
 	var req v1.SSOAuthReq
 	if err := c.Bind(&req); err != nil {
@@ -66,14 +99,47 @@ func (h *ShareSSOHandler) WeCom(c echo.Context) error {
 	return h.generateURLWithRequest(c, consts.SourceTypeWeCom, &req)
 }
 
+// OAuth OAuth2 SSO 登录
+//
+//	@Tags			ShareAuth
+//	@Summary		OAuth2 SSO 登录
+//	@Description	生成 OAuth2 SSO 授权跳转地址
+//	@Accept			json
+//	@Produce		json
+//	@Param			X-KB-ID	header		string			true	"kb_id"
+//	@Param			param	body		v1.SSOAuthReq	true	"params"
+//	@Success		200		{object}	domain.PWResponse{data=v1.SSOAuthResp}
+//	@Router			/share/pro/v1/auth/oauth [post]
 func (h *ShareSSOHandler) OAuth(c echo.Context) error {
 	return h.generateURL(c, consts.SourceTypeOAuth, false)
 }
 
+// CAS CAS SSO 登录
+//
+//	@Tags			ShareAuth
+//	@Summary		CAS SSO 登录
+//	@Description	生成 CAS SSO 授权跳转地址
+//	@Accept			json
+//	@Produce		json
+//	@Param			X-KB-ID	header		string			true	"kb_id"
+//	@Param			param	body		v1.SSOAuthReq	true	"params"
+//	@Success		200		{object}	domain.PWResponse{data=v1.SSOAuthResp}
+//	@Router			/share/pro/v1/auth/cas [post]
 func (h *ShareSSOHandler) CAS(c echo.Context) error {
 	return h.generateURL(c, consts.SourceTypeCAS, false)
 }
 
+// GitHub GitHub SSO 登录
+//
+//	@Tags			ShareAuth
+//	@Summary		GitHub SSO 登录
+//	@Description	生成 GitHub SSO 授权跳转地址
+//	@Accept			json
+//	@Produce		json
+//	@Param			X-KB-ID	header		string			true	"kb_id"
+//	@Param			param	body		v1.SSOAuthReq	true	"params"
+//	@Success		200		{object}	domain.PWResponse{data=v1.SSOAuthResp}
+//	@Router			/share/pro/v1/auth/github [post]
 func (h *ShareSSOHandler) GitHub(c echo.Context) error {
 	return h.generateURL(c, consts.SourceTypeGitHub, false)
 }
@@ -101,6 +167,17 @@ func (h *ShareSSOHandler) generateURLWithRequest(c echo.Context, sourceType cons
 	return h.NewResponseWithData(c, v1.SSOAuthResp{URL: url})
 }
 
+// LDAP LDAP 登录
+//
+//	@Tags			ShareAuth
+//	@Summary		LDAP 登录
+//	@Description	使用 LDAP 账号密码登录
+//	@Accept			json
+//	@Produce		json
+//	@Param			X-KB-ID	header		string			true	"kb_id"
+//	@Param			param	body		v1.LDAPAuthReq	true	"params"
+//	@Success		200		{object}	domain.PWResponse
+//	@Router			/share/pro/v1/auth/ldap [post]
 func (h *ShareSSOHandler) LDAP(c echo.Context) error {
 	var req v1.LDAPAuthReq
 	if err := c.Bind(&req); err != nil {
@@ -122,6 +199,14 @@ func (h *ShareSSOHandler) LDAP(c echo.Context) error {
 	return h.NewResponseWithData(c, nil)
 }
 
+// Info 当前登录用户信息
+//
+//	@Tags			ShareAuth
+//	@Summary		当前登录用户信息
+//	@Description	读取当前 SSO 会话的用户信息
+//	@Produce		json
+//	@Success		200	{object}	domain.PWResponse{data=v1.AuthInfoResp}
+//	@Router			/share/pro/v1/auth/info [get]
 func (h *ShareSSOHandler) Info(c echo.Context) error {
 	sess, err := session.Get(domain.SessionName, c)
 	if err != nil {
@@ -144,6 +229,14 @@ func (h *ShareSSOHandler) Info(c echo.Context) error {
 	})
 }
 
+// Logout 退出登录
+//
+//	@Tags			ShareAuth
+//	@Summary		退出登录
+//	@Description	清除当前 SSO 会话
+//	@Produce		json
+//	@Success		200	{object}	domain.PWResponse
+//	@Router			/share/pro/v1/auth/logout [post]
 func (h *ShareSSOHandler) Logout(c echo.Context) error {
 	sess, err := session.Get(domain.SessionName, c)
 	if err != nil {
@@ -156,26 +249,80 @@ func (h *ShareSSOHandler) Logout(c echo.Context) error {
 	return h.NewResponseWithData(c, nil)
 }
 
+// DingTalkCallback 钉钉 SSO 回调
+//
+//	@Tags			ShareAuth
+//	@Summary		钉钉 SSO 回调
+//	@Description	处理钉钉授权回调并建立会话后重定向
+//	@Param			code	query		string	false	"authorization code"
+//	@Param			state	query		string	false	"state"
+//	@Success		302		{string}	string	"redirect"
+//	@Router			/share/pro/v1/openapi/dingtalk/callback [get]
 func (h *ShareSSOHandler) DingTalkCallback(c echo.Context) error {
 	return h.callback(c, consts.SourceTypeDingTalk)
 }
 
+// FeishuCallback 飞书 SSO 回调
+//
+//	@Tags			ShareAuth
+//	@Summary		飞书 SSO 回调
+//	@Description	处理飞书授权回调并建立会话后重定向
+//	@Param			code	query		string	false	"authorization code"
+//	@Param			state	query		string	false	"state"
+//	@Success		302		{string}	string	"redirect"
+//	@Router			/share/pro/v1/openapi/feishu/callback [get]
 func (h *ShareSSOHandler) FeishuCallback(c echo.Context) error {
 	return h.callback(c, consts.SourceTypeFeishu)
 }
 
+// WeComCallback 企业微信 SSO 回调
+//
+//	@Tags			ShareAuth
+//	@Summary		企业微信 SSO 回调
+//	@Description	处理企业微信授权回调并建立会话后重定向
+//	@Param			code	query		string	false	"authorization code"
+//	@Param			state	query		string	false	"state"
+//	@Success		302		{string}	string	"redirect"
+//	@Router			/share/pro/v1/openapi/wecom/callback [get]
 func (h *ShareSSOHandler) WeComCallback(c echo.Context) error {
 	return h.callback(c, consts.SourceTypeWeCom)
 }
 
+// OAuthCallback OAuth2 SSO 回调
+//
+//	@Tags			ShareAuth
+//	@Summary		OAuth2 SSO 回调
+//	@Description	处理 OAuth2 授权回调并建立会话后重定向
+//	@Param			code	query		string	false	"authorization code"
+//	@Param			state	query		string	false	"state"
+//	@Success		302		{string}	string	"redirect"
+//	@Router			/share/pro/v1/openapi/oauth/callback [get]
 func (h *ShareSSOHandler) OAuthCallback(c echo.Context) error {
 	return h.callback(c, consts.SourceTypeOAuth)
 }
 
+// CASCallback CAS SSO 回调
+//
+//	@Tags			ShareAuth
+//	@Summary		CAS SSO 回调
+//	@Description	处理 CAS 授权回调并建立会话后重定向
+//	@Param			ticket	query		string	false	"CAS ticket"
+//	@Param			state	query		string	false	"state"
+//	@Success		302		{string}	string	"redirect"
+//	@Router			/share/pro/v1/openapi/cas/callback [get]
 func (h *ShareSSOHandler) CASCallback(c echo.Context) error {
 	return h.callback(c, consts.SourceTypeCAS)
 }
 
+// GitHubCallback GitHub SSO 回调
+//
+//	@Tags			ShareAuth
+//	@Summary		GitHub SSO 回调
+//	@Description	处理 GitHub 授权回调并建立会话后重定向
+//	@Param			code	query		string	false	"authorization code"
+//	@Param			state	query		string	false	"state"
+//	@Success		302		{string}	string	"redirect"
+//	@Router			/share/pro/v1/openapi/github/callback [get]
 func (h *ShareSSOHandler) GitHubCallback(c echo.Context) error {
 	return h.callback(c, consts.SourceTypeGitHub)
 }

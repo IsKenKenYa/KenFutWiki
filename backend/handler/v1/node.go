@@ -568,6 +568,17 @@ func (h *NodeHandler) NodeRestudy(c echo.Context) error {
 	return h.NewResponseWithData(c, nil)
 }
 
+// GetNodeReleaseHistory 文档历史发布版本列表
+//
+//	@Tags			node
+//	@Summary		文档历史发布版本列表
+//	@Description	获取指定文档的全部历史发布版本
+//	@Produce		json
+//	@Security		bearerAuth
+//	@Param			kb_id	query		string	true	"Knowledge Base ID"
+//	@Param			node_id	query		string	true	"Node ID"
+//	@Success		200		{object}	domain.PWResponse{data=[]domain.NodeReleaseHistoryItem}
+//	@Router			/api/pro/v1/node/release/list [get]
 func (h *NodeHandler) GetNodeReleaseHistory(c echo.Context) error {
 	var req struct {
 		KBID   string `query:"kb_id" validate:"required"`
@@ -586,6 +597,17 @@ func (h *NodeHandler) GetNodeReleaseHistory(c echo.Context) error {
 	return h.NewResponseWithData(c, items)
 }
 
+// GetNodeReleaseHistoryDetail 历史发布版本详情
+//
+//	@Tags			node
+//	@Summary		历史发布版本详情
+//	@Description	读取指定历史发布版本的完整内容
+//	@Produce		json
+//	@Security		bearerAuth
+//	@Param			kb_id	query		string	true	"Knowledge Base ID"
+//	@Param			id		query		string	true	"Release ID"
+//	@Success		200		{object}	domain.PWResponse{data=domain.NodeReleaseHistoryDetail}
+//	@Router			/api/pro/v1/node/release/detail [get]
 func (h *NodeHandler) GetNodeReleaseHistoryDetail(c echo.Context) error {
 	var req struct {
 		KBID string `query:"kb_id" validate:"required"`

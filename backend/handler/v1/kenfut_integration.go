@@ -151,10 +151,33 @@ func (h *KenFutIntegrationHandler) CreateCredential(c echo.Context) error {
 func (h *KenFutIntegrationHandler) RevokeCredential(c echo.Context) error {
 	return kenFutResponse(c, nil, h.u.RevokeCredential(c.Request().Context(), kenFutKBID(c), c.Param("id"), c.Param("key")))
 }
+
+// GetPrompt 读取知识库提示词配置
+//
+//	@Tags			kenfut
+//	@Summary		读取知识库提示词配置
+//	@Description	读取问答与总结提示词及预置开关
+//	@Produce		json
+//	@Security		bearerAuth
+//	@Param			kb_id	query		string	true	"Knowledge Base ID"
+//	@Success		200		{object}	domain.PWResponse{data=domain.Prompt}
+//	@Router			/api/pro/v1/prompt [get]
 func (h *KenFutIntegrationHandler) GetPrompt(c echo.Context) error {
 	p, err := h.u.GetPrompt(c.Request().Context(), kenFutKBID(c))
 	return kenFutResponse(c, p, err)
 }
+
+// SavePrompt 保存知识库提示词配置
+//
+//	@Tags			kenfut
+//	@Summary		保存知识库提示词配置
+//	@Description	写入问答与总结提示词及预置开关
+//	@Accept			json
+//	@Produce		json
+//	@Security		bearerAuth
+//	@Param			params	body		domain.Prompt	true	"Prompt settings"
+//	@Success		200		{object}	domain.PWResponse
+//	@Router			/api/pro/v1/prompt [put]
 func (h *KenFutIntegrationHandler) SavePrompt(c echo.Context) error {
 	var p domain.Prompt
 	if err := c.Bind(&p); err != nil {
