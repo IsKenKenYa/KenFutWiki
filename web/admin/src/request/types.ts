@@ -1384,6 +1384,37 @@ export interface DomainNodePermissions {
   visitable?: ConstsNodeAccessPerm;
 }
 
+export interface DomainNodeReleaseHistoryDetail {
+  content?: string;
+  creator_account?: string;
+  creator_id?: string;
+  editor_account?: string;
+  editor_id?: string;
+  id?: string;
+  meta?: DomainNodeMeta;
+  name?: string;
+  node_id?: string;
+  publisher_account?: string;
+  publisher_id?: string;
+}
+
+export interface DomainNodeReleaseHistoryItem {
+  creator_account?: string;
+  creator_id?: string;
+  editor_account?: string;
+  editor_id?: string;
+  id?: string;
+  meta?: DomainNodeMeta;
+  name?: string;
+  node_id?: string;
+  publisher_account?: string;
+  publisher_id?: string;
+  release_id?: string;
+  release_message?: string;
+  release_name?: string;
+  updated_at?: string;
+}
+
 export interface DomainNodeSummaryReq {
   ids: string[];
   kb_id: string;
@@ -1518,6 +1549,18 @@ export interface DomainPWResponse {
 export interface DomainPaginatedResultArrayDomainConversationMessageListItem {
   data?: DomainConversationMessageListItem[];
   total?: number;
+}
+
+export interface DomainPrompt {
+  content?: string;
+  enable_preset?: boolean;
+  /** 允许AI自动匹配用户提问的语言进行回复 */
+  enable_preset_auto_language?: boolean;
+  /** 允许AI结合通用知识进行补充回答 */
+  enable_preset_general_info?: boolean;
+  /** 在回答中显示引用来源 */
+  enable_preset_reference?: boolean;
+  summary_content?: string;
 }
 
 export interface DomainProviderModelListItem {
@@ -2021,6 +2064,13 @@ export interface V1AuthGitHubResp {
   url?: string;
 }
 
+export interface V1AuthInfoResp {
+  avatar_url?: string;
+  email?: string;
+  id?: number;
+  username?: string;
+}
+
 export interface V1AuthItem {
   avatar_url?: string;
   created_at?: string;
@@ -2160,6 +2210,12 @@ export interface V1KBUserUpdateReq {
   user_id: string;
 }
 
+export interface V1LDAPAuthReq {
+  kb_id: string;
+  password: string;
+  username: string;
+}
+
 export interface V1LoginReq {
   account: string;
   password: string;
@@ -2273,6 +2329,16 @@ export interface V1ResetPasswordReq {
   id: string;
   /** @minLength 8 */
   new_password: string;
+}
+
+export interface V1SSOAuthReq {
+  is_app?: boolean;
+  kb_id?: string;
+  redirect_url?: string;
+}
+
+export interface V1SSOAuthResp {
+  url?: string;
 }
 
 export interface V1ShareFileUploadUrlReq {
@@ -2426,6 +2492,25 @@ export interface GetApiProV1DocumentListParams {
   page: number;
   /** @min 1 */
   per_page: number;
+}
+
+export interface GetApiProV1NodeReleaseDetailParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+  /** Release ID */
+  id: string;
+}
+
+export interface GetApiProV1NodeReleaseListParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+  /** Node ID */
+  node_id: string;
+}
+
+export interface GetApiProV1PromptParams {
+  /** Knowledge Base ID */
+  kb_id: string;
 }
 
 export interface DeleteApiProV1TokenDeleteParams {
@@ -2721,6 +2806,53 @@ export interface PostShareProV1DocumentFeedbackPayload {
   correction_suggestion?: string;
   /** Screenshot */
   screenshot?: File;
+}
+
+export interface PostShareProV1FileUploadPayload {
+  /** File */
+  file: File;
+}
+
+export interface GetShareProV1OpenapiCasCallbackParams {
+  /** CAS ticket */
+  ticket?: string;
+  /** state */
+  state?: string;
+}
+
+export interface GetShareProV1OpenapiDingtalkCallbackParams {
+  /** authorization code */
+  code?: string;
+  /** state */
+  state?: string;
+}
+
+export interface GetShareProV1OpenapiFeishuCallbackParams {
+  /** authorization code */
+  code?: string;
+  /** state */
+  state?: string;
+}
+
+export interface GetShareProV1OpenapiGithubCallbackParams {
+  /** authorization code */
+  code?: string;
+  /** state */
+  state?: string;
+}
+
+export interface GetShareProV1OpenapiOauthCallbackParams {
+  /** authorization code */
+  code?: string;
+  /** state */
+  state?: string;
+}
+
+export interface GetShareProV1OpenapiWecomCallbackParams {
+  /** authorization code */
+  code?: string;
+  /** state */
+  state?: string;
 }
 
 export interface GetShareV1AppWechatServiceAnswerParams {

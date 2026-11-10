@@ -254,7 +254,7 @@ const ApiToken = () => {
                   kbDetail?.perm !==
                   ConstsUserKBPermission.UserKBPermissionFullControl
                     ? t('member.insufficientPerm')
-                    : t('setting.businessOnly')
+                    : t('setting.admin.permSelectable')
                 }
                 placement='top'
                 arrow
@@ -536,7 +536,7 @@ const CardKB = () => {
                   title={
                     it.role === 'admin'
                       ? t('setting.admin.superAdminLocked')
-                      : t('setting.proOnly')
+                      : t('setting.admin.permSelectable')
                   }
                   placement='top'
                   arrow

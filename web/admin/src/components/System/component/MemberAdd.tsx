@@ -14,7 +14,6 @@ import { useAppSelector } from '@/store';
 import { PROFESSION_VERSION_PERMISSION } from '@/constant/version';
 import { VersionCanUse } from '@/components/VersionMask';
 import { ConstsUserKBPermission, V1KBUserInviteReq } from '@/request/types';
-import { ConstsLicenseEdition } from '@/request/pro/types';
 
 type Role = 'admin' | 'user';
 
@@ -38,25 +37,7 @@ const MemberAdd = ({
   const [addMember, setAddMember] = useState(false);
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState('');
-  const { kbList, license, refreshAdminRequest } = useAppSelector(
-    state => state.config,
-  );
-
-  // 各版本的管理员上限与提示（i18n key）
-  const VERSION_MAP = {
-    [ConstsLicenseEdition.LicenseEditionFree]: {
-      message: 'member.maxAdminFree',
-      max: 1,
-    },
-    [ConstsLicenseEdition.LicenseEditionProfession]: {
-      message: 'member.maxAdminPro',
-      max: 20,
-    },
-    [ConstsLicenseEdition.LicenseEditionBusiness]: {
-      message: 'member.maxAdminBusiness',
-      max: 50,
-    },
-  };
+  const { kbList, refreshAdminRequest } = useAppSelector(state => state.config);
 
   const {
     control,
@@ -142,10 +123,7 @@ const MemberAdd = ({
         size='small'
         variant='outlined'
         onClick={() => {
-          const versionLimit =
-            VERSION_MAP[license.edition as keyof typeof VERSION_MAP];
-          const maximum =
-            capabilities?.limits.max_admin ?? versionLimit?.max ?? 0;
+          const maximum = capabilities?.limits.max_admin ?? 0;
           if (maximum > 0 && userLen >= maximum) {
             message.error(t('member.maxAdminReached', { count: maximum }));
             return;

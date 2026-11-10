@@ -260,9 +260,6 @@
     "added": "已添加",
     "selectUserFirst": "请选择用户",
     "addSiteAdmin": "添加 Wiki 站管理员",
-    "maxAdminFree": "开源版只支持 1 个管理员",
-    "maxAdminPro": "专业版最多支持 20 个管理员",
-    "maxAdminBusiness": "商业版最多支持 50 个管理员",
     "maxAdminReached": "当前最多支持 {{count}} 个管理员",
     "passwordChanged": "密码修改成功",
     "resetTitle": "重置密码？",
@@ -494,7 +491,6 @@
     "testStepMessage": "{{name}}：{{message}}"
   },
   "auth": {
-    "editionTip": "（联创版/企业版可用）",
     "title": "访问认证",
     "loginMethod": "登录方式",
     "clientIdRequired": "Client ID 不能为空",
@@ -623,8 +619,6 @@
     "promptLoadFailed": "提示词读取失败，请重试后再编辑",
     "promptBusy": "提示词请求处理中",
     "viewMore": "更多",
-    "businessOnly": "商业版可用",
-    "proOnly": "专业版可用",
     "apiToken": {
       "create": "创建 API Token",
       "deleteTitle": "删除 API Token",
@@ -638,6 +632,7 @@
       "deleteTitle": "删除管理员",
       "deleteContent": "确定删除该管理员吗？",
       "superAdminLocked": "超级管理员不可被修改权限",
+      "permSelectable": "可调整成员的权限角色",
       "superAdminDeleteLocked": "超级管理员不可被删除"
     },
     "watermarkTitle": "水印",
@@ -733,7 +728,6 @@
     },
     "auth": {
       "title": "访问认证",
-      "editionTip": "（联创版/企业版可用）",
       "password": "密码认证",
       "dingtalk": "钉钉登录",
       "feishu": "飞书登录",
@@ -1004,29 +998,6 @@
       "communityTitle": "社区讨论",
       "communityAction": "访问社区讨论区",
       "communityDesc": "查看更多技术讨论和社区动态"
-    },
-    "version": {
-      "about": "关于 KenFutWiki",
-      "activate": "激活授权",
-      "activateConfirm": "确认激活",
-      "onlineActivate": "在线激活",
-      "offlineActivate": "离线激活",
-      "licenseCode": "请输入授权码",
-      "activateSuccess": "激活成功",
-      "unbindTitle": "确认解绑授权",
-      "unbindContent": "解绑后将回到社区版，确定要解绑当前授权吗？",
-      "unbindSuccess": "解绑成功",
-      "refreshFailed": "授权信息刷新失败，请手动刷新页面",
-      "unbindFailed": "解绑失败，请重试",
-      "unbind": "解绑授权",
-      "switchLicense": "切换授权",
-      "consult": "商务咨询",
-      "current": "当前版本",
-      "upToDate": "已是最新版本，无需更新",
-      "updateNow": "立即更新",
-      "edition": "产品型号",
-      "period": "授权时间",
-      "expired": "授权已到期"
     },
     "sourceCode": "AGPLv3 · 对应源码"
   },

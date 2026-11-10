@@ -90,9 +90,6 @@
     "added": "Already added",
     "selectUserFirst": "Select a user first",
     "addSiteAdmin": "Add a wiki site admin",
-    "maxAdminFree": "The open-source edition supports only 1 admin",
-    "maxAdminPro": "The Pro edition supports up to 20 admins",
-    "maxAdminBusiness": "The Business edition supports up to 50 admins",
     "maxAdminReached": "Up to {{count}} admins are supported",
     "passwordChanged": "Password changed",
     "resetTitle": "Reset password?",
@@ -494,7 +491,6 @@
     "testStepMessage": "{{name}}: {{message}}"
   },
   "auth": {
-    "editionTip": "(Unite edition / Enterprise edition only)",
     "title": "Access authentication",
     "loginMethod": "Login method",
     "clientIdRequired": "Client ID is required",
@@ -623,8 +619,6 @@
     "promptLoadFailed": "Failed to load prompts. Retry before editing.",
     "promptBusy": "Prompt request in progress",
     "viewMore": "More",
-    "businessOnly": "Business edition only",
-    "proOnly": "Pro edition only",
     "apiToken": {
       "create": "Create API Token",
       "deleteTitle": "Delete API Token",
@@ -638,6 +632,7 @@
       "deleteTitle": "Remove admin",
       "deleteContent": "Remove this admin?",
       "superAdminLocked": "Super admin permissions cannot be changed",
+      "permSelectable": "You can adjust the member's permission role",
       "superAdminDeleteLocked": "The super admin cannot be removed"
     },
     "watermarkTitle": "Watermark",
@@ -733,7 +728,6 @@
     },
     "auth": {
       "title": "Access authentication",
-      "editionTip": "(Unite edition / Enterprise edition only)",
       "password": "Password",
       "dingtalk": "DingTalk",
       "feishu": "Feishu",
@@ -1004,29 +998,6 @@
       "communityTitle": "Community",
       "communityAction": "Visit the community forum",
       "communityDesc": "More technical discussions and community updates"
-    },
-    "version": {
-      "about": "About KenFutWiki",
-      "activate": "Activate license",
-      "activateConfirm": "Activate",
-      "onlineActivate": "Online activation",
-      "offlineActivate": "Offline activation",
-      "licenseCode": "Enter the license code",
-      "activateSuccess": "Activated",
-      "unbindTitle": "Unbind license",
-      "unbindContent": "Unbinding reverts to the community edition. Unbind the current license?",
-      "unbindSuccess": "Unbound",
-      "refreshFailed": "Failed to refresh license info, please reload the page",
-      "unbindFailed": "Unbind failed, please try again",
-      "unbind": "Unbind license",
-      "switchLicense": "Switch license",
-      "consult": "Contact sales",
-      "current": "Version",
-      "upToDate": "Already up to date",
-      "updateNow": "Update now",
-      "edition": "Edition",
-      "period": "License period",
-      "expired": "License expired"
     },
     "sourceCode": "AGPLv3 · Source code"
   },

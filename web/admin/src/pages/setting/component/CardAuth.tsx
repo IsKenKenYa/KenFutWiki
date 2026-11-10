@@ -93,8 +93,6 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
   const userInfoUrl = watch('user_info_url');
   const enabled = watch('enabled');
 
-  const tips = t('setting.auth.editionTip');
-
   const onSubmit = handleSubmit(value => {
     Promise.all([
       putApiV1KnowledgeBaseDetail({
@@ -838,7 +836,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
 
         {enabled === '2' && (
           <>
-            <FormItem label={t('auth.loginMethod')} tooltip={tips}>
+            <FormItem label={t('auth.loginMethod')}>
               <Controller
                 control={control}
                 name='source_type'
