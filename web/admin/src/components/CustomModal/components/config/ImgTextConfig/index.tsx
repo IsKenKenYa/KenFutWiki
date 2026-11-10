@@ -3,6 +3,7 @@ import { CommonItem, StyledCommonWrapper } from '../../components/StyledCommon';
 import { Stack, TextField } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 import type { ConfigProps } from '../type';
+import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/store';
 import useDebounceAppPreviewData from '@/hooks/useDebounceAppPreviewData';
 import { DEFAULT_DATA } from '../../../constants';
@@ -10,6 +11,7 @@ import { findConfigById, handleLandingConfigs } from '../../../utils';
 import UploadFile from '@/components/UploadFile';
 
 const Config = ({ setIsEdit, id }: ConfigProps) => {
+  const { t } = useTranslation();
   const { appPreviewData } = useAppSelector(state => state.config);
   const debouncedDispatch = useDebounceAppPreviewData();
   const { control, setValue, watch, subscribe, reset } = useForm<
@@ -59,16 +61,23 @@ const Config = ({ setIsEdit, id }: ConfigProps) => {
 
   return (
     <StyledCommonWrapper>
-      <CommonItem title='标题'>
+      <CommonItem title={t('customModal.common.title')}>
         <Controller
           control={control}
           name='title'
           render={({ field }) => (
-            <TextField label='文字' {...field} placeholder='请输入' />
+            <TextField
+              label={t('customModal.common.text')}
+              {...field}
+              placeholder={t('customModal.common.inputPlaceholder')}
+            />
           )}
         />
       </CommonItem>
-      <CommonItem title='图片' desc='(推荐 350*350，1 : 1 )'>
+      <CommonItem
+        title={t('customModal.common.image')}
+        desc={t('customModal.common.recommendedSize', { size: '350*350, 1:1' })}
+      >
         <Controller
           control={control}
           name='item.url'
@@ -90,15 +99,15 @@ const Config = ({ setIsEdit, id }: ConfigProps) => {
           )}
         />
       </CommonItem>
-      <CommonItem title='内容'>
+      <CommonItem title={t('customModal.common.content')}>
         <Controller
           control={control}
           name='item.name'
           render={({ field }) => (
             <TextField
-              label='标题'
+              label={t('customModal.common.title')}
               {...field}
-              placeholder='请输入'
+              placeholder={t('customModal.common.inputPlaceholder')}
               onChange={e => {
                 setIsEdit(true);
                 field.onChange(e.target.value);
@@ -111,9 +120,9 @@ const Config = ({ setIsEdit, id }: ConfigProps) => {
           name='item.desc'
           render={({ field }) => (
             <TextField
-              label='描述'
+              label={t('customModal.common.description')}
               {...field}
-              placeholder='请输入'
+              placeholder={t('customModal.common.inputPlaceholder')}
               onChange={e => {
                 setIsEdit(true);
                 field.onChange(e.target.value);

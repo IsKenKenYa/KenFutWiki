@@ -11,6 +11,7 @@ import { Box, Button, Stack } from '@mui/material';
 import { IconWenjian } from '@panda-wiki/icons';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactDiffViewer from 'react-diff-viewer';
 
 type MarkdownPreviewModalProps = {
@@ -28,6 +29,7 @@ const MarkdownPreviewModal = ({
   onAccept,
   onReject,
 }: MarkdownPreviewModalProps) => {
+  const { t } = useTranslation();
   const { kb_id = '' } = useAppSelector(state => state.config);
   const [data, setData] =
     useState<GithubComChaitinPandaWikiProApiContributeV1ContributeDetailResp | null>(
@@ -56,10 +58,12 @@ const MarkdownPreviewModal = ({
       title={
         <Stack direction='row' alignItems='center' gap={2}>
           <Box>
-            来自 {row?.auth_name || '匿名用户'} 的
-            {row?.type === ConstsContributeType.ContributeTypeAdd
-              ? '新增'
-              : '修改'}
+            {t(
+              row?.type === ConstsContributeType.ContributeTypeAdd
+                ? 'contribution.fromUserAdd'
+                : 'contribution.fromUserEdit',
+              { name: row?.auth_name || t('common.anonymous') },
+            )}
           </Box>
           <Box sx={{ fontSize: 14, color: 'text.tertiary', fontWeight: 400 }}>
             {dayjs(row?.created_at).fromNow()}
@@ -83,15 +87,15 @@ const MarkdownPreviewModal = ({
                   color='error'
                   onClick={onReject}
                 >
-                  拒绝
+                  {t('contribution.reject')}
                 </Button>
                 <Button size='small' variant='contained' onClick={onAccept}>
-                  采纳
+                  {t('contribution.accept')}
                 </Button>
               </>
             ) : (
               <Button onClick={onClose} size='small' variant='contained'>
-                关闭
+                {t('common.close')}
               </Button>
             )}
           </Stack>
@@ -112,7 +116,7 @@ const MarkdownPreviewModal = ({
             sx={{ bgcolor: 'background.paper2', p: 1, borderRadius: '10px' }}
           >
             <Box sx={{ fontSize: 14, fontWeight: 'bold', flexShrink: 0 }}>
-              提交说明：
+              {t('contribution.submitNote')}
             </Box>
 
             <Box sx={{ fontSize: 14, color: 'text.tertiary' }}>

@@ -14,6 +14,7 @@ import { Modal } from '@ctzhian/ui';
 import { Box, Checkbox, IconButton, Skeleton, Stack } from '@mui/material';
 import { IconXiajiantou } from '@panda-wiki/icons';
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface AddNavContentProps {
   open: boolean;
@@ -141,6 +142,7 @@ const AddNavContent = ({
   onChange,
   onClose,
 }: AddNavContentProps) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [loading, setLoading] = useState(false);
   const [navList, setNavList] = useState<
@@ -184,13 +186,13 @@ const AddNavContent = ({
         return {
           navId,
           id: navId,
-          name: nav.nav_name || '未分类',
-          navName: nav.nav_name || '未分类',
+          name: nav.nav_name || t('customModal.navDoc.uncategorized'),
+          navName: nav.nav_name || t('customModal.navDoc.uncategorized'),
           navNodes,
           navTreeList,
         };
       });
-  }, [navList]);
+  }, [navList, t]);
 
   const isEmpty = !loading && navGroups.length === 0;
 
@@ -215,7 +217,12 @@ const AddNavContent = ({
   };
 
   return (
-    <Modal title='选择目录' open={open} onOk={handleConfirm} onCancel={onClose}>
+    <Modal
+      title={t('customModal.navDoc.selectNav')}
+      open={open}
+      onOk={handleConfirm}
+      onCancel={onClose}
+    >
       {loading ? (
         <Stack gap={2}>
           {new Array(5).fill(0).map((_, index) => (
@@ -233,7 +240,7 @@ const AddNavContent = ({
               mt: 1,
             }}
           >
-            暂无目录数据
+            {t('customModal.navDoc.noNavData')}
           </Box>
         </Stack>
       ) : (

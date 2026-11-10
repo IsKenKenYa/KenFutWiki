@@ -25,7 +25,7 @@ import {
   TextField,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { Controller, useForm } from 'react-hook-form';
 import { FormItem, SettingCardItem } from '../../Common';
 
@@ -179,7 +179,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                 <FormControlLabel
                   value={1}
                   control={<Radio size='small' />}
-                  label={<Box sx={{ width: 100 }}>启用</Box>}
+                  label={<Box sx={{ width: 100 }}>{t('common.enable')}</Box>}
                 />
                 <FormControlLabel
                   value={0}
@@ -217,11 +217,15 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                   }}
                 >
                   <IconJinggao sx={{ fontSize: 16 }} />
-                  {t('widget.noDomainPrefix')}
-                  <Box component={'span'} sx={{ fontWeight: 500 }}>
-                    {t('setting.tabPortal')} / {t('kb.listenMode')}
-                  </Box>{' '}
-                  {t('widget.noDomainSuffix')}
+                  <Trans
+                    i18nKey='widget.noDomainHint'
+                    values={{
+                      path: `${t('setting.tabPortal')} / ${t('kb.listenMode')}`,
+                    }}
+                    components={{
+                      path: <Box component={'span'} sx={{ fontWeight: 500 }} />,
+                    }}
+                  />
                 </Stack>
               )}
             </FormItem>
@@ -380,22 +384,38 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
                                 <FormControlLabel
                                   value='top_left'
                                   control={<Radio size='small' />}
-                                  label={<Box sx={{ width: 100 }}>左上</Box>}
+                                  label={
+                                    <Box sx={{ width: 100 }}>
+                                      {t('widget.positionTopLeft')}
+                                    </Box>
+                                  }
                                 />
                                 <FormControlLabel
                                   value='top_right'
                                   control={<Radio size='small' />}
-                                  label={<Box sx={{ width: 100 }}>右上</Box>}
+                                  label={
+                                    <Box sx={{ width: 100 }}>
+                                      {t('widget.positionTopRight')}
+                                    </Box>
+                                  }
                                 />
                                 <FormControlLabel
                                   value='bottom_left'
                                   control={<Radio size='small' />}
-                                  label={<Box sx={{ width: 100 }}>左下</Box>}
+                                  label={
+                                    <Box sx={{ width: 100 }}>
+                                      {t('widget.positionBottomLeft')}
+                                    </Box>
+                                  }
                                 />
                                 <FormControlLabel
                                   value='bottom_right'
                                   control={<Radio size='small' />}
-                                  label={<Box sx={{ width: 100 }}>右下</Box>}
+                                  label={
+                                    <Box sx={{ width: 100 }}>
+                                      {t('widget.positionBottomRight')}
+                                    </Box>
+                                  }
                                 />
                               </RadioGroup>
                             )}
@@ -456,7 +476,7 @@ const CardRobotWebComponent = ({ kb }: CardRobotWebComponentProps) => {
               </Box>
             </FormItem>
             <FormItem
-              label='弹框配置'
+              label={t('widget.modalConfig')}
               sx={{ alignItems: 'flex-start' }}
               labelSx={{ mt: 1 }}
             >

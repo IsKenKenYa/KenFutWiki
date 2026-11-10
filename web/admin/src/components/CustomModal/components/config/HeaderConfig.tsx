@@ -7,6 +7,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useAppSelector } from '@/store';
 import useDebounceAppPreviewData from '@/hooks/useDebounceAppPreviewData';
 import { IconTianjia } from '@panda-wiki/icons';
+import { useTranslation } from 'react-i18next';
 
 interface CardWebHeaderProps {
   data?: AppDetail | null;
@@ -15,6 +16,7 @@ interface CardWebHeaderProps {
 }
 
 const HeaderConfig = ({ data, setIsEdit, isEdit }: CardWebHeaderProps) => {
+  const { t } = useTranslation();
   const { appPreviewData } = useAppSelector(state => state.config);
   const debouncedDispatch = useDebounceAppPreviewData();
   const {
@@ -49,7 +51,9 @@ const HeaderConfig = ({ data, setIsEdit, isEdit }: CardWebHeaderProps) => {
       variant: 'outlined' as const,
       showIcon: true,
       icon: '',
-      text: '按钮' + (btns.length + 1),
+      text: t('customModal.header.defaultButtonText', {
+        index: btns.length + 1,
+      }),
       target: '_self' as const,
     };
 
@@ -178,7 +182,7 @@ const HeaderConfig = ({ data, setIsEdit, isEdit }: CardWebHeaderProps) => {
               },
             }}
           >
-            页面标题 / Logo文本
+            {t('customModal.header.titleAndLogo')}
           </Box>
           <Controller
             control={control}
@@ -187,7 +191,7 @@ const HeaderConfig = ({ data, setIsEdit, isEdit }: CardWebHeaderProps) => {
               <TextField
                 fullWidth
                 {...field}
-                placeholder='请输入'
+                placeholder={t('customModal.common.inputPlaceholder')}
                 error={!!errors.title}
                 helperText={errors.title?.message?.toString()}
                 onChange={e => {
@@ -217,7 +221,7 @@ const HeaderConfig = ({ data, setIsEdit, isEdit }: CardWebHeaderProps) => {
               },
             }}
           >
-            搜索框提示文字
+            {t('customModal.header.searchPlaceholder')}
           </Box>
           <Controller
             control={control}
@@ -226,7 +230,7 @@ const HeaderConfig = ({ data, setIsEdit, isEdit }: CardWebHeaderProps) => {
               <TextField
                 fullWidth
                 {...field}
-                placeholder='请输入'
+                placeholder={t('customModal.common.inputPlaceholder')}
                 error={!!errors.placeholder}
                 helperText={errors.placeholder?.message?.toString()}
                 onChange={e => {
@@ -256,7 +260,7 @@ const HeaderConfig = ({ data, setIsEdit, isEdit }: CardWebHeaderProps) => {
               },
             }}
           >
-            按钮
+            {t('customModal.header.buttons')}
             <Stack
               direction={'row'}
               sx={{
@@ -270,7 +274,7 @@ const HeaderConfig = ({ data, setIsEdit, isEdit }: CardWebHeaderProps) => {
                 sx={{ fontSize: '10px !important', color: '#5F58FE' }}
               />
               <Box sx={{ fontSize: 14, lineHeight: '22px', marginLeft: 0.5 }}>
-                添加
+                {t('customModal.common.add')}
               </Box>
             </Stack>
           </Box>

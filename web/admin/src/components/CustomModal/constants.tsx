@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+import i18n from '@/i18n';
 import {
   IconMulushu,
   IconJichuwendang,
@@ -23,10 +24,10 @@ import {
 
 export const DEFAULT_DATA = {
   text: {
-    title: '标题',
+    title: i18n.t('customModal.defaults.textTitle'),
   },
   metrics: {
-    title: '指标卡片',
+    title: i18n.t('customModal.defaults.metricsTitle'),
     list: [] as {
       name: string;
       number: string;
@@ -34,7 +35,7 @@ export const DEFAULT_DATA = {
     }[],
   },
   case: {
-    title: '案例卡片',
+    title: i18n.t('customModal.defaults.caseTitle'),
     list: [] as {
       id: string;
       name: string;
@@ -42,7 +43,7 @@ export const DEFAULT_DATA = {
     }[],
   },
   feature: {
-    title: '产品特性',
+    title: i18n.t('customModal.defaults.featureTitle'),
     list: [] as {
       id: string;
       name: string;
@@ -50,7 +51,7 @@ export const DEFAULT_DATA = {
     }[],
   },
   img_text: {
-    title: '图文卡片',
+    title: i18n.t('customModal.defaults.imgTextTitle'),
     item: {
       url: '',
       name: '',
@@ -58,7 +59,7 @@ export const DEFAULT_DATA = {
     },
   },
   text_img: {
-    title: '图文卡片',
+    title: i18n.t('customModal.defaults.textImgTitle'),
     item: {
       url: '',
       name: '',
@@ -66,7 +67,7 @@ export const DEFAULT_DATA = {
     },
   },
   comment: {
-    title: '点评卡片',
+    title: i18n.t('customModal.defaults.commentTitle'),
     list: [] as {
       id: string;
       user_name: string;
@@ -76,7 +77,7 @@ export const DEFAULT_DATA = {
     }[],
   },
   block_grid: {
-    title: '区块网格',
+    title: i18n.t('customModal.defaults.blockGridTitle'),
     list: [] as {
       id: string;
       url: string;
@@ -97,25 +98,25 @@ export const DEFAULT_DATA = {
     }[],
   },
   basic_doc: {
-    title: '文档摘要卡片',
+    title: i18n.t('customModal.defaults.basicDocTitle'),
     nodes: [] as DomainRecommendNodeListResp[],
   },
   dir_doc: {
-    title: '文件夹卡片',
+    title: i18n.t('customModal.defaults.dirDocTitle'),
     nodes: [] as DomainRecommendNodeListResp[],
   },
   nav_doc: {
-    title: '目录卡片',
+    title: i18n.t('customModal.defaults.navDocTitle'),
     nodes: [] as (GithubComChaitinPandaWikiApiNodeV1NodeListGroupNavResp & {
       id: string;
     })[],
   },
   simple_doc: {
-    title: '简易文档卡片',
+    title: i18n.t('customModal.defaults.simpleDocTitle'),
     nodes: [] as DomainRecommendNodeListResp[],
   },
   carousel: {
-    title: '轮播图',
+    title: i18n.t('customModal.defaults.carouselTitle'),
     list: [] as {
       id: string;
       title: string;
@@ -124,7 +125,7 @@ export const DEFAULT_DATA = {
     }[],
   },
   faq: {
-    title: '链接组',
+    title: i18n.t('customModal.defaults.faqTitle'),
     list: [] as {
       id: string;
       question: string;
@@ -132,7 +133,7 @@ export const DEFAULT_DATA = {
     }[],
   },
   question: {
-    title: '常见问题',
+    title: i18n.t('customModal.defaults.questionTitle'),
     list: [] as {
       id: string;
       question: string;
@@ -143,7 +144,7 @@ export const DEFAULT_DATA = {
 export const COMPONENTS_MAP = {
   header: {
     name: 'header',
-    title: '顶部导航',
+    title: 'customModal.components.header',
     component: lazy(() => import('@panda-wiki/ui/welcomeHeader')),
     config: lazy(() => import('./components/config/HeaderConfig')),
     fixed: true,
@@ -152,7 +153,7 @@ export const COMPONENTS_MAP = {
   },
   banner: {
     name: 'banner',
-    title: '欢迎组件',
+    title: 'customModal.components.banner',
     component: lazy(() => import('@panda-wiki/ui/banner')),
     config: lazy(() => import('./components/config/BannerConfig')),
     fixed: true,
@@ -161,7 +162,7 @@ export const COMPONENTS_MAP = {
   },
   basic_doc: {
     name: 'basic_doc',
-    title: '文档摘要卡片',
+    title: 'customModal.components.basicDoc',
     icon: IconJichuwendang,
     component: lazy(() => import('@panda-wiki/ui/basicDoc')),
     config: lazy(() => import('./components/config/BasicDocConfig')),
@@ -171,7 +172,7 @@ export const COMPONENTS_MAP = {
   },
   dir_doc: {
     name: 'dir_doc',
-    title: '文件夹卡片',
+    title: 'customModal.components.dirDoc',
     icon: IconWenjianjia1,
     component: lazy(() => import('@panda-wiki/ui/dirDoc')),
     config: lazy(() => import('./components/config/DirDocConfig')),
@@ -181,7 +182,7 @@ export const COMPONENTS_MAP = {
   },
   nav_doc: {
     name: 'nav_doc',
-    title: '目录卡片',
+    title: 'customModal.components.navDoc',
     icon: IconMulushu,
     component: lazy(() => import('@panda-wiki/ui/navDoc')),
     config: lazy(() => import('./components/config/NavDocConfig')),
@@ -191,7 +192,7 @@ export const COMPONENTS_MAP = {
   },
   simple_doc: {
     name: 'simple_doc',
-    title: '简易文档卡片',
+    title: 'customModal.components.simpleDoc',
     icon: IconJianyiwendang,
     component: lazy(() => import('@panda-wiki/ui/simpleDoc')),
     config: lazy(() => import('./components/config/SimpleDocConfig')),
@@ -201,7 +202,7 @@ export const COMPONENTS_MAP = {
   },
   carousel: {
     name: 'carousel',
-    title: '轮播图',
+    title: 'customModal.components.carousel',
     icon: IconLunbotu,
     component: lazy(() => import('@panda-wiki/ui/carousel')),
     config: lazy(() => import('./components/config/CarouselConfig')),
@@ -211,7 +212,7 @@ export const COMPONENTS_MAP = {
   },
   faq: {
     name: 'faq',
-    title: '链接组',
+    title: 'customModal.components.faq',
     icon: IconLianjiezu1,
     component: lazy(() => import('@panda-wiki/ui/faq')),
     config: lazy(() => import('./components/config/FaqConfig')),
@@ -221,7 +222,7 @@ export const COMPONENTS_MAP = {
   },
   footer: {
     name: 'footer',
-    title: '底部导航',
+    title: 'customModal.components.footer',
     component: lazy(() => import('@panda-wiki/ui/welcomeFooter')),
     config: lazy(() => import('./components/config/FooterConfig')),
     fixed: true,
@@ -230,7 +231,7 @@ export const COMPONENTS_MAP = {
   },
   text: {
     name: 'text',
-    title: '标题',
+    title: 'customModal.components.text',
     icon: IconDanwenzi,
     component: lazy(() => import('@panda-wiki/ui/text')),
     config: lazy(() => import('./components/config/TextConfig')),
@@ -240,7 +241,7 @@ export const COMPONENTS_MAP = {
   },
   case: {
     name: 'case',
-    title: '案例卡片',
+    title: 'customModal.components.case',
     icon: IconKehuanli,
     component: lazy(() => import('@panda-wiki/ui/case')),
     config: lazy(() => import('./components/config/CaseConfig')),
@@ -250,7 +251,7 @@ export const COMPONENTS_MAP = {
   },
   metrics: {
     name: 'metrics',
-    title: '指标卡片',
+    title: 'customModal.components.metrics',
     icon: IconShuzikapian,
     component: lazy(() => import('@panda-wiki/ui/metrics')),
     config: lazy(() => import('./components/config/MetricsConfig')),
@@ -260,7 +261,7 @@ export const COMPONENTS_MAP = {
   },
   feature: {
     name: 'feature',
-    title: '产品特性',
+    title: 'customModal.components.feature',
     icon: IconTexing,
     component: lazy(() => import('@panda-wiki/ui/feature')),
     config: lazy(() => import('./components/config/FeatureConfig')),
@@ -270,7 +271,7 @@ export const COMPONENTS_MAP = {
   },
   img_text: {
     name: 'img_text',
-    title: '左图右字',
+    title: 'customModal.components.imgText',
     icon: IconZuotuyouzi,
     component: lazy(() => import('@panda-wiki/ui/imgText')),
     config: lazy(() => import('./components/config/ImgTextConfig')),
@@ -280,7 +281,7 @@ export const COMPONENTS_MAP = {
   },
   text_img: {
     name: 'text_img',
-    title: '右图左字',
+    title: 'customModal.components.textImg',
     icon: IconYoutuzuozi,
     component: lazy(() => import('@panda-wiki/ui/imgText')),
     config: lazy(() => import('./components/config/ImgTextConfig')),
@@ -290,7 +291,7 @@ export const COMPONENTS_MAP = {
   },
   comment: {
     name: 'comment',
-    title: '评论卡片',
+    title: 'customModal.components.comment',
     icon: IconKehupingjia,
     component: lazy(() => import('@panda-wiki/ui/comment')),
     config: lazy(() => import('./components/config/CommentConfig')),
@@ -300,7 +301,7 @@ export const COMPONENTS_MAP = {
   },
   block_grid: {
     name: 'block_grid',
-    title: '区块网格',
+    title: 'customModal.components.blockGrid',
     icon: IconJiugongge,
     component: lazy(() => import('@panda-wiki/ui/blockGrid')),
     config: lazy(() => import('./components/config/BlockGridConfig')),
@@ -310,7 +311,7 @@ export const COMPONENTS_MAP = {
   },
   question: {
     name: 'question',
-    title: '常见问题',
+    title: 'customModal.components.question',
     icon: IconChangjianwenti,
     component: lazy(() => import('@panda-wiki/ui/question')),
     config: lazy(() => import('./components/config/QuestionConfig')),

@@ -7,6 +7,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import Version from './Version';
+import { SIDEBAR_WIDTH } from '@/constant/layout';
 import { useAppSelector } from '@/store';
 import {
   IconBangzhuwendang1,
@@ -137,7 +138,7 @@ const Sidebar = () => {
   return (
     <Stack
       sx={{
-        width: 138,
+        width: SIDEBAR_WIDTH,
         m: 2,
         zIndex: 999,
         p: 2,
@@ -197,6 +198,7 @@ const Sidebar = () => {
             <NavLink
               key={it.pathname}
               to={it.value}
+              title={t(it.label)}
               style={{
                 zIndex: isActive ? 2 : 1,
               }}
@@ -206,9 +208,12 @@ const Sidebar = () => {
                 color='dark'
                 sx={{
                   width: '100%',
+                  minWidth: 0,
                   height: 50,
                   px: 2,
                   justifyContent: 'flex-start',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
                   color: isActive ? '#FFFFFF' : 'text.primary',
                   fontWeight: isActive ? '500' : '400',
                   boxShadow: isActive
@@ -225,10 +230,19 @@ const Sidebar = () => {
                   sx={{
                     fontSize: 14,
                     mr: 1,
+                    flexShrink: 0,
                     color: isActive ? '#FFFFFF' : 'text.disabled',
                   }}
                 />
-                {t(it.label)}
+                <Box
+                  component='span'
+                  sx={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {t(it.label)}
+                </Box>
               </Button>
             </NavLink>
           );
@@ -242,6 +256,8 @@ const Sidebar = () => {
             fontSize: 14,
             flexShrink: 0,
             fontWeight: 400,
+            minWidth: 0,
+            whiteSpace: 'nowrap',
             pr: 1.5,
             pl: 1.5,
             gap: 0.5,
@@ -270,11 +286,13 @@ const Sidebar = () => {
             fontSize: 14,
             flexShrink: 0,
             fontWeight: 400,
+            minWidth: 0,
+            textTransform: 'none',
+            whiteSpace: 'nowrap',
             pr: 1.5,
             pl: 1.5,
             gap: 0.5,
             justifyContent: 'flex-start',
-            textTransform: 'none',
             border: `1px solid ${theme.palette.divider}`,
             '.MuiButton-startIcon': {
               mr: '3px',
@@ -297,6 +315,8 @@ const Sidebar = () => {
             fontSize: 14,
             flexShrink: 0,
             fontWeight: 400,
+            minWidth: 0,
+            whiteSpace: 'nowrap',
             pr: 1.5,
             pl: 1.5,
             gap: 0.5,

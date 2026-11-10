@@ -12,6 +12,7 @@ import { Box, Button, Divider, Stack, Typography } from '@mui/material';
 import { IconWenjian } from '@panda-wiki/icons';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type ContributePreviewModalProps = {
   open: boolean;
@@ -25,6 +26,7 @@ export default function ContributePreviewModal(
   props: ContributePreviewModalProps,
 ) {
   const [activeTab, setActiveTab] = useState('diff');
+  const { t } = useTranslation();
   const { open, row, onClose, onAccept, onReject } = props;
   const { kb_id = '' } = useAppSelector(state => state.config);
   const [data, setData] =
@@ -79,10 +81,12 @@ export default function ContributePreviewModal(
       title={
         <Stack direction='row' alignItems='center' gap={2}>
           <Box>
-            来自 {row?.auth_name || '匿名用户'} 的
-            {row?.type === ConstsContributeType.ContributeTypeAdd
-              ? '新增'
-              : '修改'}
+            {t(
+              row?.type === ConstsContributeType.ContributeTypeAdd
+                ? 'contribution.fromUserAdd'
+                : 'contribution.fromUserEdit',
+              { name: row?.auth_name || t('common.anonymous') },
+            )}
           </Box>
           <Box sx={{ fontSize: 14, color: 'text.tertiary', fontWeight: 400 }}>
             {dayjs(row?.created_at).fromNow()}
@@ -109,15 +113,15 @@ export default function ContributePreviewModal(
                   color='error'
                   onClick={onReject}
                 >
-                  拒绝
+                  {t('contribution.reject')}
                 </Button>
                 <Button size='small' variant='contained' onClick={onAccept}>
-                  采纳
+                  {t('contribution.accept')}
                 </Button>
               </>
             ) : (
               <Button onClick={onClose} size='small' variant='contained'>
-                关闭
+                {t('common.close')}
               </Button>
             )}
           </Stack>
@@ -141,7 +145,7 @@ export default function ContributePreviewModal(
             sx={{ bgcolor: 'background.paper2', p: 1, borderRadius: '10px' }}
           >
             <Box sx={{ fontSize: 14, fontWeight: 'bold', flexShrink: 0 }}>
-              提交说明：
+              {t('contribution.submitNote')}
             </Box>
 
             <Box sx={{ fontSize: 14, color: 'text.tertiary' }}>
@@ -179,7 +183,7 @@ export default function ContributePreviewModal(
             <Stack justifyContent='space-between' sx={{ width: 220, pl: 2 }}>
               <Box>
                 <Typography sx={{ fontSize: 16, fontWeight: 600, pb: 2 }}>
-                  对比
+                  {t('contribution.compare')}
                 </Typography>
                 <Stack gap={2}>
                   <Button
@@ -195,9 +199,9 @@ export default function ContributePreviewModal(
                     }}
                   >
                     <Stack alignItems='flex-start' spacing={0.25}>
-                      <Box>差异对比</Box>
+                      <Box>{t('contribution.diffView')}</Box>
                       <Typography variant='caption' sx={{ opacity: 0.8 }}>
-                        直观查看变更点
+                        {t('contribution.diffViewDesc')}
                       </Typography>
                     </Stack>
                   </Button>
@@ -215,9 +219,9 @@ export default function ContributePreviewModal(
                     }}
                   >
                     <Stack alignItems='flex-start' spacing={0.25}>
-                      <Box>修改后</Box>
+                      <Box>{t('contribution.afterChange')}</Box>
                       <Typography variant='caption' sx={{ opacity: 0.8 }}>
-                        当前候选内容
+                        {t('contribution.afterChangeDesc')}
                       </Typography>
                     </Stack>
                   </Button>
@@ -237,9 +241,9 @@ export default function ContributePreviewModal(
                     }}
                   >
                     <Stack alignItems='flex-start' spacing={0.25}>
-                      <Box>修改前</Box>
+                      <Box>{t('contribution.beforeChange')}</Box>
                       <Typography variant='caption' sx={{ opacity: 0.8 }}>
-                        原始文档内容
+                        {t('contribution.beforeChangeDesc')}
                       </Typography>
                     </Stack>
                   </Button>
@@ -258,19 +262,19 @@ export default function ContributePreviewModal(
                         color='error'
                         onClick={onReject}
                       >
-                        拒绝
+                        {t('contribution.reject')}
                       </Button>
                       <Button
                         size='small'
                         variant='contained'
                         onClick={onAccept}
                       >
-                        采纳
+                        {t('contribution.accept')}
                       </Button>
                     </>
                   ) : (
                     <Button onClick={onClose} size='small' variant='contained'>
-                      关闭
+                      {t('common.close')}
                     </Button>
                   )}
                 </Stack>

@@ -253,7 +253,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
       },
     },
     {
-      title: 'created_at',
+      title: t('setting.group.timeCol'),
       dataIndex: 'created_at',
       render: (text: string, record) => {
         return (
@@ -813,17 +813,23 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
                 <FormControlLabel
                   value={'1'}
                   control={<Radio size='small' />}
-                  label={<Box sx={{ width: 65 }}>完全公开</Box>}
+                  label={
+                    <Box sx={{ width: 65 }}>{t('setting.accessOpen')}</Box>
+                  }
                 />
                 <FormControlLabel
                   value={'2'}
                   control={<Radio size='small' />}
-                  label={<Box sx={{ width: 65 }}>需要认证</Box>}
+                  label={
+                    <Box sx={{ width: 65 }}>{t('setting.accessAuth')}</Box>
+                  }
                 />
                 <FormControlLabel
                   value={'3'}
                   control={<Radio size='small' />}
-                  label={<Box sx={{ width: 65 }}>禁止访问</Box>}
+                  label={
+                    <Box sx={{ width: 65 }}>{t('setting.accessForbidden')}</Box>
+                  }
                 />
               </RadioGroup>
             )}
@@ -832,7 +838,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
 
         {enabled === '2' && (
           <>
-            <FormItem label={t('auth.loginMethod')}>
+            <FormItem label={t('auth.loginMethod')} tooltip={tips}>
               <Controller
                 control={control}
                 name='source_type'
@@ -859,55 +865,55 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
                     <MenuItem
                       value={EXTEND_CONSTS_SOURCE_TYPE.SourceTypePassword}
                     >
-                      密码认证
+                      {t('setting.auth.password')}
                     </MenuItem>
                     <MenuItem
                       value={EXTEND_CONSTS_SOURCE_TYPE.SourceTypeDingTalk}
                       disabled={!isBusiness}
                     >
-                      钉钉登录{' '}
+                      {t('setting.auth.dingtalk')}{' '}
                       <VersionCanUse permission={BUSINESS_VERSION_PERMISSION} />
                     </MenuItem>
                     <MenuItem
                       value={EXTEND_CONSTS_SOURCE_TYPE.SourceTypeFeishu}
                       disabled={!isBusiness}
                     >
-                      飞书登录{' '}
+                      {t('setting.auth.feishu')}{' '}
                       <VersionCanUse permission={BUSINESS_VERSION_PERMISSION} />
                     </MenuItem>
                     <MenuItem
                       value={EXTEND_CONSTS_SOURCE_TYPE.SourceTypeWeCom}
                       disabled={!isBusiness}
                     >
-                      企业微信登录{' '}
+                      {t('setting.auth.wecom')}{' '}
                       <VersionCanUse permission={BUSINESS_VERSION_PERMISSION} />
                     </MenuItem>
                     <MenuItem
                       value={EXTEND_CONSTS_SOURCE_TYPE.SourceTypeOAuth}
                       disabled={!isBusiness}
                     >
-                      OAuth 登录{' '}
+                      {t('setting.auth.oauth')}{' '}
                       <VersionCanUse permission={BUSINESS_VERSION_PERMISSION} />
                     </MenuItem>
                     <MenuItem
                       value={EXTEND_CONSTS_SOURCE_TYPE.SourceTypeCAS}
                       disabled={!isBusiness}
                     >
-                      CAS 登录{' '}
+                      {t('setting.auth.cas')}{' '}
                       <VersionCanUse permission={BUSINESS_VERSION_PERMISSION} />
                     </MenuItem>
                     <MenuItem
                       value={EXTEND_CONSTS_SOURCE_TYPE.SourceTypeLDAP}
                       disabled={!isBusiness}
                     >
-                      LDAP 登录{' '}
+                      {t('setting.auth.ldap')}{' '}
                       <VersionCanUse permission={BUSINESS_VERSION_PERMISSION} />
                     </MenuItem>
                     <MenuItem
                       value={EXTEND_CONSTS_SOURCE_TYPE.SourceTypeGitHub}
                       disabled={!isBusiness}
                     >
-                      GitHub 登录{' '}
+                      {t('setting.auth.github')}{' '}
                       <VersionCanUse permission={BUSINESS_VERSION_PERMISSION} />
                     </MenuItem>
                   </Select>
@@ -1054,7 +1060,7 @@ const CardAuth = ({ kb, refresh }: CardAuthProps) => {
                 renderEmpty={
                   <Stack alignItems={'center'}>
                     <img src={NoData} width={124} />
-                    <Box>暂无数据</Box>
+                    <Box>{t('common.noData')}</Box>
                   </Stack>
                 }
               />

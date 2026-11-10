@@ -196,7 +196,7 @@ const Conversation = () => {
           ) : (
             <Stack alignItems={'center'} sx={{ mt: 20 }}>
               <img src={NoData} width={174} />
-              <Box>暂无数据</Box>
+              <Box>{t('common.noData')}</Box>
             </Stack>
           )
         }

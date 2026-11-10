@@ -18,6 +18,7 @@ import {
 import { ConstsUserRole } from '@/request/types';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SIDEBAR_OFFSET } from '@/constant/layout';
 
 const useAuth = (hasAuth: boolean) => {
   const { pathname } = useLocation();
@@ -103,9 +104,9 @@ export const MainLayout = () => {
         <Box
           sx={{
             pr: 2,
-            width: 'calc(100% - 170px)',
+            width: `calc(100% - ${SIDEBAR_OFFSET}px)`,
             pt: '64px',
-            ml: '170px',
+            ml: `${SIDEBAR_OFFSET}px`,
             color: 'text.primary',
           }}
         >

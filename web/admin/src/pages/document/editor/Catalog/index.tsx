@@ -555,7 +555,7 @@ const Catalog = ({
                 textTransform: 'none',
               }}
             >
-              添加文件夹
+              {t('doc.createFolder')}
             </Button>
             <Button
               variant='outlined'
@@ -570,7 +570,7 @@ const Catalog = ({
                 textTransform: 'none',
               }}
             >
-              添加文档
+              {t('doc.createDocument')}
             </Button>
           </Stack>
         ) : (

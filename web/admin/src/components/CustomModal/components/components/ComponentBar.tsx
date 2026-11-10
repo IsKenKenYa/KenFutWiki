@@ -35,6 +35,7 @@ import AddCircleRoundedIcon from '@mui/icons-material/AddCircleRounded';
 import { IconShanchu } from '@panda-wiki/icons';
 import { DEFAULT_DATA, COMPONENTS_MAP } from '../../constants';
 import { THEME_LIST, THEME_TO_PALETTE } from '@panda-wiki/themes/constants';
+import { useTranslation } from 'react-i18next';
 interface ComponentBarProps {
   components: Component[];
   setComponents: Dispatch<SetStateAction<Component[]>>;
@@ -90,6 +91,7 @@ const ComponentBar = ({
   setIsEdit,
   allowAdd = true,
 }: ComponentBarProps) => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const appPreviewData = useAppSelector(state => state.config.appPreviewData);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -209,7 +211,7 @@ const ComponentBar = ({
             fontWeight: 500,
           }}
         >
-          {item.title}
+          {t(item.title)}
         </Typography>
         <IconShanchu
           className='icon-shanchu'
@@ -262,7 +264,7 @@ const ComponentBar = ({
                 fontWeight: 600,
               }}
             >
-              配色方案
+              {t('customModal.sidebar.colorScheme')}
             </Typography>
           </Stack>
           <Stack sx={{ pr: '20px', marginTop: '15px' }}>
@@ -335,7 +337,7 @@ const ComponentBar = ({
               fontWeight: 600,
             }}
           >
-            组件
+            {t('customModal.sidebar.components')}
           </Typography>
           <IconButton
             size='small'
@@ -445,7 +447,7 @@ const ComponentBar = ({
                     return <IconComponent sx={{ fontSize: '24px' }} />;
                   })()}
               </Box>
-              <Typography sx={{ fontSize: '12px' }}>{item.title}</Typography>
+              <Typography sx={{ fontSize: '12px' }}>{t(item.title)}</Typography>
             </Stack>
           ))}
         </Stack>

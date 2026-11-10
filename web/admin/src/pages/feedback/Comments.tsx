@@ -25,22 +25,24 @@ import { Ellipsis, Table, Modal, message } from '@ctzhian/ui';
 import { IconGengduo } from '@panda-wiki/icons';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 // 自定义状态标签组件
 const StatusTag = ({ status }: { status: number }) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const getStatusConfig = (status: number) => {
     switch (status) {
       case 1:
         return {
-          label: '已通过',
+          label: t('feedback.statusApproved'),
           bgColor: alpha(theme.palette.success.main, 0.8),
           textColor: theme.palette.text.secondary,
           borderColor: alpha(theme.palette.success.main, 0.0001),
         };
       case -1:
         return {
-          label: '已拒绝',
+          label: t('feedback.statusRejected'),
           bgColor: alpha(theme.palette.error.main, 0.8),
           textColor: theme.palette.text.secondary,
           borderColor: alpha(theme.palette.error.main, 0.0001),
@@ -48,7 +50,7 @@ const StatusTag = ({ status }: { status: number }) => {
       case 0:
       default:
         return {
-          label: '待审核',
+          label: t('feedback.statusPending'),
           bgColor: '#f8f9fa',
           textColor: theme.palette.text.secondary,
           borderColor: '#dee2e6',
@@ -92,6 +94,7 @@ const ActionMenu = ({
   onRejectComment: (id: string) => void;
   onApproveComment: (id: string) => void;
 }) => {
+  const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -127,12 +130,12 @@ const ActionMenu = ({
       </IconButton>
       <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
         {record.status! !== 1 && (
-          <MenuItem onClick={handleApprove}>通过</MenuItem>
+          <MenuItem onClick={handleApprove}>{t('feedback.approve')}</MenuItem>
         )}
         {record.status! !== -1 && (
-          <MenuItem onClick={handleReject}>拒绝</MenuItem>
+          <MenuItem onClick={handleReject}>{t('feedback.reject')}</MenuItem>
         )}
-        <MenuItem onClick={handleDelete}>删除</MenuItem>
+        <MenuItem onClick={handleDelete}>{t('common.delete')}</MenuItem>
       </Menu>
     </>
   );
@@ -145,6 +148,7 @@ const Comments = ({
   commentStatus: number;
   setShowCommentsFilter: (show: boolean) => void;
 }) => {
+  const { t } = useTranslation();
   const { kb_id = '' } = useAppSelector(state => state.config);
   const capabilities = useCapabilities();
   const [data, setData] = useState<DomainCommentListItem[]>([]);
@@ -162,9 +166,9 @@ const Comments = ({
 
   const onDeleteComment = (id: string) => {
     Modal.confirm({
-      title: '删除评论',
-      content: '确定要删除该评论吗？',
-      okText: '删除',
+      title: t('feedback.deleteCommentTitle'),
+      content: t('feedback.deleteCommentConfirm'),
+      okText: t('common.delete'),
       okButtonProps: {
         color: 'error',
       },
@@ -173,7 +177,7 @@ const Comments = ({
       },
       onOk: () => {
         postApiV1CommentDelete({ kb_id, ids: [id] }).then(() => {
-          message.success('删除成功');
+          message.success(t('common.deleteSuccess'));
           if (page === 1) {
             getData({});
           } else {
@@ -186,14 +190,14 @@ const Comments = ({
 
   const onRejectComment = (id: string) => {
     Modal.confirm({
-      title: '拒绝评论',
-      content: '确定要拒绝该评论吗？',
-      okText: '拒绝',
+      title: t('feedback.rejectCommentTitle'),
+      content: t('feedback.rejectCommentConfirm'),
+      okText: t('feedback.reject'),
       onOk: async () => {
         setLoading(true);
         try {
           await moderateComment(id, kb_id, -1);
-          message.success('拒绝成功');
+          message.success(t('feedback.rejectSuccess'));
           await getData({});
         } catch {
           // Request wrappers display errors; leave rows unchanged on failed moderation.
@@ -206,14 +210,14 @@ const Comments = ({
 
   const onApproveComment = (id: string) => {
     Modal.confirm({
-      title: '通过评论',
-      content: '确定要通过该评论吗？',
-      okText: '通过',
+      title: t('feedback.approveCommentTitle'),
+      content: t('feedback.approveCommentConfirm'),
+      okText: t('feedback.approve'),
       onOk: async () => {
         setLoading(true);
         try {
           await moderateComment(id, kb_id, 1);
-          message.success('通过成功');
+          message.success(t('feedback.approveSuccess'));
           await getData({});
         } catch {
           // Request wrappers display errors; leave rows unchanged on failed moderation.
@@ -227,7 +231,7 @@ const Comments = ({
   const columns = [
     {
       dataIndex: 'node_name',
-      title: '文档',
+      title: t('feedback.colDoc'),
       width: 300,
       render: (text: string, record: DomainCommentListItem) => {
         return (
@@ -247,7 +251,7 @@ const Comments = ({
     },
     isEnableReview && {
       dataIndex: 'status',
-      title: '状态',
+      title: t('feedback.colStatus'),
       width: 160,
       render: (status: number) => {
         return <StatusTag status={status} />;
@@ -255,7 +259,7 @@ const Comments = ({
     },
     {
       dataIndex: 'info',
-      title: '姓名',
+      title: t('feedback.colName'),
       width: 160,
       render: (text: DomainCommentListItem['info']) => {
         return <Box>{text?.user_name}</Box>;
@@ -263,14 +267,14 @@ const Comments = ({
     },
     {
       dataIndex: 'content',
-      title: '评论内容',
+      title: t('feedback.colContent'),
       render: (text: DomainCommentListItem['content']) => {
         return text;
       },
     },
     {
       dataIndex: 'ip_address',
-      title: '来源 IP',
+      title: t('feedback.colIp'),
       width: 220,
       render: (ip_address: DomainCommentListItem['ip_address']) => {
         const {
@@ -291,7 +295,7 @@ const Comments = ({
     },
     {
       dataIndex: 'created_at',
-      title: '发布时间',
+      title: t('feedback.colPublishedAt'),
       width: 220,
       render: (text: string) => {
         return text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '';
@@ -300,7 +304,7 @@ const Comments = ({
 
     {
       dataIndex: 'opt',
-      title: '操作',
+      title: t('feedback.colActions'),
       width: 120,
       render: (text: string, record: DomainCommentListItem) => {
         return isEnableReview && record.status === 0 ? (
@@ -323,7 +327,7 @@ const Comments = ({
               onDeleteComment(record.id!);
             }}
           >
-            删除
+            {t('common.delete')}
           </ButtonBase>
         );
       },
@@ -450,7 +454,7 @@ const Comments = ({
         ) : (
           <Stack alignItems={'center'} sx={{ mt: 20 }}>
             <img src={NoData} width={174} />
-            <Box>暂无数据</Box>
+            <Box>{t('common.noData')}</Box>
           </Stack>
         )
       }

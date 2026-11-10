@@ -17,6 +17,7 @@ import {
   HTMLAttributes,
   SetStateAction,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Item = {
   id: string;
@@ -50,6 +51,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation();
     const inlineStyles: CSSProperties = {
       opacity: withOpacity ? '0.5' : '1',
       borderRadius: '10px',
@@ -82,7 +84,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
             }}
           >
             <TextField
-              label='文字'
+              label={t('customModal.common.text')}
               slotProps={{
                 inputLabel: {
                   shrink: true,
@@ -90,7 +92,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
               }}
               size='small'
               fullWidth
-              placeholder='请输入'
+              placeholder={t('customModal.common.inputPlaceholder')}
               variant='outlined'
               value={item.text}
               onChange={e => {
@@ -100,7 +102,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
               }}
             />
             <LinkTextField
-              label='按钮链接'
+              label={t('customModal.common.buttonLink')}
               slotProps={{
                 inputLabel: {
                   shrink: true,
@@ -108,7 +110,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
               }}
               size='small'
               fullWidth
-              placeholder='请输入'
+              placeholder={t('customModal.common.inputPlaceholder')}
               variant='outlined'
               value={item.href}
               onChange={e => {
@@ -125,20 +127,26 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                   },
                 }}
               >
-                按钮样式
+                {t('customModal.common.buttonStyle')}
               </InputLabel>
               <Select
                 value={item.type}
-                label='按钮样式'
+                label={t('customModal.common.buttonStyle')}
                 onChange={e => {
                   const updatedItem = { ...item, type: e.target.value };
                   handleUpdateItem?.(updatedItem);
                   setIsEdit(true);
                 }}
               >
-                <MenuItem value={'contained'}>实心</MenuItem>
-                <MenuItem value={'outlined'}>描边</MenuItem>
-                <MenuItem value={'text'}>文字</MenuItem>
+                <MenuItem value={'contained'}>
+                  {t('customModal.common.buttonStyleSolid')}
+                </MenuItem>
+                <MenuItem value={'outlined'}>
+                  {t('customModal.common.buttonStyleOutlined')}
+                </MenuItem>
+                <MenuItem value={'text'}>
+                  {t('customModal.common.buttonStyleText')}
+                </MenuItem>
               </Select>
             </FormControl>
           </Stack>

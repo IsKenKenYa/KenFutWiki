@@ -1,5 +1,6 @@
 import { styled, Stack } from '@mui/material';
 import { IconTianjia } from '@panda-wiki/icons';
+import { useTranslation } from 'react-i18next';
 
 export const StyledCommonWrapper = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -58,6 +59,7 @@ export const CommonItem = ({
   desc?: string;
   onAdd?: () => void;
 }) => {
+  const { t } = useTranslation();
   return (
     <Stack direction={'column'} gap={2}>
       <StyledCommonItemTitle>
@@ -73,7 +75,9 @@ export const CommonItem = ({
             <IconTianjia
               sx={{ fontSize: '10px !important', color: 'primary.main' }}
             />
-            <StyledCommonItemTitleAddText>添加</StyledCommonItemTitleAddText>
+            <StyledCommonItemTitleAddText>
+              {t('customModal.common.add')}
+            </StyledCommonItemTitleAddText>
           </StyledCommonItemTitleAdd>
         )}
       </StyledCommonItemTitle>

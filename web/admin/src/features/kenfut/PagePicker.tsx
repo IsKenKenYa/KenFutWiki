@@ -18,6 +18,7 @@ import {
   TextField,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getProducts } from './api';
 import type { LinkTarget, PageOption } from './types';
 
@@ -40,6 +41,7 @@ export default function PagePicker({
   nodeOnly = false,
   excludeIds = [],
 }: PagePickerProps) {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [pages, setPages] = useState<PageOption[]>([]);
   const [query, setQuery] = useState('');
@@ -70,7 +72,7 @@ export default function PagePicker({
           .filter(node => node.type === 2 && node.id)
           .map(node => ({
             id: node.id!,
-            title: node.name || '未命名',
+            title: node.name || t('doc.untitled'),
             url: `/node/${node.id}`,
             type: 'node' as const,
             target: { type: 'node' as const, node_id: node.id },
@@ -83,21 +85,21 @@ export default function PagePicker({
           : [
               {
                 id: 'home',
-                title: '站点首页',
+                title: t('kenfut.picker.siteHome'),
                 url: '/',
                 type: 'site',
                 target: { type: 'site', page: 'home' },
               },
               {
                 id: 'docs',
-                title: '文档入口',
+                title: t('kenfut.picker.docsEntry'),
                 url: '/node',
                 type: 'site',
                 target: { type: 'site', page: 'docs' },
               },
               {
                 id: 'blog',
-                title: '文章频道',
+                title: t('kenfut.picker.blogChannel'),
                 url: '/blog',
                 type: 'site',
                 target: { type: 'site', page: 'blog' },
@@ -122,24 +124,26 @@ export default function PagePicker({
       })
       .catch(err => {
         if (!cancelled)
-          setError(err instanceof Error ? err.message : '无法加载页面');
+          setError(
+            err instanceof Error ? err.message : t('kenfut.picker.loadFailed'),
+          );
       });
     return () => {
       cancelled = true;
     };
-  }, [open, kb_id, nodeOnly]);
+  }, [open, kb_id, nodeOnly, t]);
   const select = (page: PageOption) => {
     onSelect(page.target, page);
     onClose();
   };
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth='sm'>
-      <DialogTitle>链接到页面</DialogTitle>
+      <DialogTitle>{t('kenfut.picker.title')}</DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
           fullWidth
-          label='搜索页面'
+          label={t('kenfut.picker.searchPlaceholder')}
           value={query}
           onChange={event => setQuery(event.target.value)}
           sx={{ mt: 1, mb: 2 }}
@@ -150,10 +154,10 @@ export default function PagePicker({
             onChange={(_, value) => setTab(value)}
             variant='scrollable'
           >
-            <Tab value='all' label='全部页面' />
-            <Tab value='node' label='文档与文章' />
-            <Tab value='product' label='产品页面' />
-            <Tab value='url' label='外部链接' />
+            <Tab value='all' label={t('kenfut.picker.tabAll')} />
+            <Tab value='node' label={t('kenfut.common.docsAndArticles')} />
+            <Tab value='product' label={t('kenfut.picker.tabProduct')} />
+            <Tab value='url' label={t('kenfut.picker.tabUrl')} />
           </Tabs>
         )}
         {error && (
@@ -164,12 +168,12 @@ export default function PagePicker({
         {tab === 'url' && !nodeOnly ? (
           <Stack spacing={2} sx={{ mt: 2 }}>
             <TextField
-              label='链接文字'
+              label={t('kenfut.picker.linkText')}
               value={urlTitle}
               onChange={event => setUrlTitle(event.target.value)}
             />
             <TextField
-              label='HTTPS 或站内链接'
+              label={t('kenfut.picker.linkUrl')}
               value={url}
               onChange={event => setUrl(event.target.value)}
             />
@@ -185,7 +189,7 @@ export default function PagePicker({
                 })
               }
             >
-              选择链接
+              {t('kenfut.picker.selectLink')}
             </Button>
           </Stack>
         ) : (
@@ -208,10 +212,10 @@ export default function PagePicker({
                     size='small'
                     label={
                       page.type === 'node'
-                        ? '内容'
+                        ? t('kenfut.picker.typeContent')
                         : page.type === 'product'
-                          ? '产品'
-                          : '站点'
+                          ? t('kenfut.common.product')
+                          : t('kenfut.picker.typeSite')
                     }
                   />
                 </ListItemButton>
@@ -220,12 +224,12 @@ export default function PagePicker({
         )}
         {nodeOnly && (
           <Box sx={{ color: 'text.secondary', mt: 1 }}>
-            仅选择已发布内容，保持页面身份关联。
+            {t('kenfut.picker.nodeOnlyHint')}
           </Box>
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>取消</Button>
+        <Button onClick={onClose}>{t('common.cancel')}</Button>
       </DialogActions>
     </Dialog>
   );
@@ -236,11 +240,12 @@ export function PagePickerButton({
 }: {
   onSelect: (href: string, title: string) => void;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   return (
     <>
       <Button size='small' onClick={() => setOpen(true)}>
-        选择页面
+        {t('kenfut.picker.selectPage')}
       </Button>
       <PagePicker
         open={open}

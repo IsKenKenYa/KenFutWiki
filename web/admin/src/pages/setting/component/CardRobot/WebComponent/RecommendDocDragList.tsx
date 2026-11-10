@@ -6,6 +6,7 @@ import {
 import { useAppSelector } from '@/store';
 import { Box, Button, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import AddRecommendContent from '../../AddRecommendContent';
 
 const RecommendDocDragList = ({
@@ -15,6 +16,7 @@ const RecommendDocDragList = ({
   ids: string[];
   onChange: (ids: string[]) => void;
 }) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [data, setData] = useState<DomainRecommendNodeListResp[]>([]);
   const [open, setOpen] = useState(false);
@@ -53,7 +55,7 @@ const RecommendDocDragList = ({
           alignSelf: 'flex-start',
         }}
       >
-        添加文档
+        {t('setting.addDocument')}
       </Button>
       <AddRecommendContent
         open={open}

@@ -10,6 +10,7 @@ import {
 import { Ellipsis } from '@ctzhian/ui';
 import { Box, Drawer, IconButton, Stack } from '@mui/material';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconDingzi, IconIcon_tool_close } from '@panda-wiki/icons';
 
 interface TocProps {
@@ -43,6 +44,7 @@ const Toc = ({
   isMarkdown,
   scrollToHeading,
 }: TocProps) => {
+  const { t } = useTranslation();
   const storageTocOpen = localStorage.getItem('toc-open');
   const [open, setOpen] = useState(!!storageTocOpen);
   const levels = Array.from(
@@ -127,7 +129,7 @@ const Toc = ({
             pb: 0,
           }}
         >
-          <Box>内容大纲</Box>
+          <Box>{t('editor.outline')}</Box>
           <IconButton
             size='small'
             onClick={() => {

@@ -21,6 +21,7 @@ import {
   useState,
 } from 'react';
 import SSEClient from '@/utils/fetch';
+import { useTranslation } from 'react-i18next';
 
 export type ItemProps = HTMLAttributes<HTMLDivElement> & {
   item: DomainRecommendNodeListResp;
@@ -45,6 +46,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation();
     const { kb_id } = useAppSelector(state => state.config);
     const inlineStyles: CSSProperties = {
       opacity: withOpacity ? '0.5' : '1',
@@ -65,7 +67,9 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
         onComplete: () => setLoading(false),
         onError: error => {
           setLoading(false);
-          message.error(error.message || '生成摘要失败');
+          message.error(
+            error.message || t('customModal.docSummary.generateFailed'),
+          );
         },
       });
       subscribeNodeSummaryStream(
@@ -74,13 +78,17 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
         event => {
           if (event.type === 'done') {
             setLoading(false);
-            message.success('生成摘要成功');
+            message.success(t('customModal.docSummary.generateSuccess'));
             refresh?.();
             return;
           }
           if (event.type === 'error') {
             setLoading(false);
-            message.error(event.content || event.error || '生成摘要失败');
+            message.error(
+              event.content ||
+                event.error ||
+                t('customModal.docSummary.generateFailed'),
+            );
             sseClientRef.current?.unsubscribe();
           }
         },
@@ -145,7 +153,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
               <Box
                 sx={{ color: 'warning.main', fontSize: 12, lineHeight: '21px' }}
               >
-                暂无摘要，可前往文档页生成并发布
+                {t('customModal.docSummary.emptyHint')}
               </Box>
             ) : null}
             {/* : item.type === 2 ? <Button size='small' loading={loading} sx={{

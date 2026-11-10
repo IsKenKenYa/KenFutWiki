@@ -26,7 +26,7 @@ import IconPageview1 from '@panda-wiki/icons/IconPageview1';
 import dayjs from 'dayjs';
 import { debounce } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import {
   useLocation,
   useNavigate,
@@ -291,7 +291,7 @@ const Wrap = ({ detail: defaultDetail }: WrapProps) => {
       setSelectionText(text);
       setAiGenerateOpen(true);
     }
-  }, [editorRef.editor]);
+  }, [editorRef.editor, t]);
 
   const changeCatalogItem = useCallback(() => {
     if (editorRef && editorRef.editor) {
@@ -403,10 +403,18 @@ const Wrap = ({ detail: defaultDetail }: WrapProps) => {
                 nodeDetail?.creator_account || nodeDetail?.publisher_account ? (
                   <Stack>
                     {nodeDetail?.creator_account && (
-                      <Box>创建：{nodeDetail?.creator_account}</Box>
+                      <Box>
+                        {t('editor.createdBy', {
+                          name: nodeDetail?.creator_account,
+                        })}
+                      </Box>
                     )}
                     {nodeDetail?.publisher_account && (
-                      <Box>上次发布：{nodeDetail?.publisher_account}</Box>
+                      <Box>
+                        {t('editor.lastPublishedBy', {
+                          name: nodeDetail?.publisher_account,
+                        })}
+                      </Box>
                     )}
                   </Stack>
                 ) : null
@@ -423,7 +431,7 @@ const Wrap = ({ detail: defaultDetail }: WrapProps) => {
                 }}
               >
                 <IconTianjiawendang sx={{ fontSize: 9 }} />
-                {nodeDetail?.editor_account} 编辑
+                {t('history.editedBy', { name: nodeDetail?.editor_account })}
               </Stack>
             </Tooltip>
           )}
@@ -447,10 +455,11 @@ const Wrap = ({ detail: defaultDetail }: WrapProps) => {
               }}
             >
               <IconAShijian2 sx={{ fontSize: 12 }} />
-              {dayjs(defaultDetail.created_at).format(
-                'YYYY-MM-DD HH:mm:ss',
-              )}{' '}
-              创建
+              {t('editor.createdAt', {
+                time: dayjs(defaultDetail.created_at).format(
+                  'YYYY-MM-DD HH:mm:ss',
+                ),
+              })}
             </Stack>
           </Tooltip>
           <Stack
@@ -460,7 +469,7 @@ const Wrap = ({ detail: defaultDetail }: WrapProps) => {
             sx={{ fontSize: 12, color: 'text.tertiary' }}
           >
             <IconZiti sx={{ fontSize: 12 }} />
-            {characterCount} 字
+            {t('history.characterCount', { count: characterCount })}
           </Stack>
           <Stack
             direction={'row'}
@@ -469,7 +478,7 @@ const Wrap = ({ detail: defaultDetail }: WrapProps) => {
             sx={{ fontSize: 12, color: 'text.tertiary' }}
           >
             <IconPageview1 sx={{ fontSize: 12 }} />
-            浏览量 {nodeDetail?.pv}
+            {t('editor.views', { count: nodeDetail?.pv ?? 0 })}
           </Stack>
         </Stack>
         <Box
@@ -516,7 +525,7 @@ const Wrap = ({ detail: defaultDetail }: WrapProps) => {
             }}
           >
             <IconDJzhinengzhaiyao sx={{ fontSize: 12 }} />
-            文档摘要
+            {t('doc.summary.title')}
           </Stack>
           {nodeDetail?.meta?.summary ? (
             <TextField
@@ -546,14 +555,18 @@ const Wrap = ({ detail: defaultDetail }: WrapProps) => {
             />
           ) : (
             <Box sx={{ fontSize: 12, color: 'text.tertiary' }}>
-              暂无摘要，点击
-              <Box
-                component='span'
-                sx={{ color: 'primary.main', cursor: 'pointer' }}
-                onClick={() => setShowSummary(true)}
-              >
-                生成摘要
-              </Box>
+              <Trans
+                i18nKey='doc.summary.emptyClickGenerate'
+                components={{
+                  action: (
+                    <Box
+                      component='span'
+                      sx={{ color: 'primary.main', cursor: 'pointer' }}
+                      onClick={() => setShowSummary(true)}
+                    />
+                  ),
+                }}
+              />
             </Box>
           )}
         </Box>

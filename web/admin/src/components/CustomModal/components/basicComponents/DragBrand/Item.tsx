@@ -28,6 +28,7 @@ import {
   useState,
 } from 'react';
 import { Control, Controller, FieldErrors } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { BrandGroup } from '.';
 
 export type ItemProps = Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> & {
@@ -76,6 +77,7 @@ const LinkItem = forwardRef<HTMLDivElement, LinkItemProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation();
     const inlineStyles: CSSProperties = {
       opacity: withOpacity ? '0.5' : '1',
       cursor: isDragging ? 'grabbing' : 'grab',
@@ -110,7 +112,7 @@ const LinkItem = forwardRef<HTMLDivElement, LinkItemProps>(
                 fontWeight: '600',
               }}
             >
-              子链接{linkIndex + 1}
+              {t('customModal.brand.subLink', { index: linkIndex + 1 })}
             </Box>
             <IconButton
               size='small'
@@ -130,7 +132,7 @@ const LinkItem = forwardRef<HTMLDivElement, LinkItemProps>(
           <Controller
             control={control}
             name={`brand_groups`}
-            rules={{ required: '请输入链接文字' }}
+            rules={{ required: t('customModal.brand.linkTextRequired') }}
             render={({ field }) => (
               <TextField
                 {...field}
@@ -152,8 +154,8 @@ const LinkItem = forwardRef<HTMLDivElement, LinkItemProps>(
                   },
                 }}
                 fullWidth
-                label='文字'
-                placeholder='文字'
+                label={t('customModal.common.text')}
+                placeholder={t('customModal.common.text')}
                 onChange={e => {
                   const newGroups = [...data];
                   newGroups[groupIndex] = {
@@ -180,7 +182,7 @@ const LinkItem = forwardRef<HTMLDivElement, LinkItemProps>(
           <Controller
             control={control}
             name={`brand_groups`}
-            rules={{ required: '请输入链接地址' }}
+            rules={{ required: t('customModal.brand.linkUrlRequired') }}
             render={({ field }) => (
               <LinkTextField
                 {...field}
@@ -202,8 +204,8 @@ const LinkItem = forwardRef<HTMLDivElement, LinkItemProps>(
                   },
                 }}
                 fullWidth
-                label='链接'
-                placeholder='链接'
+                label={t('customModal.common.link')}
+                placeholder={t('customModal.common.link')}
                 onChange={e => {
                   const newGroups = [...data];
                   newGroups[groupIndex] = {
@@ -282,6 +284,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation();
     const [activeId, setActiveId] = useState<string | null>(null);
     const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
     const inlineStyles: CSSProperties = {
@@ -383,7 +386,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                     fontWeight: '600',
                   }}
                 >
-                  链接组{groupIndex + 1}
+                  {t('customModal.brand.group', { index: groupIndex + 1 })}
                 </Box>
                 <IconButton
                   size='small'
@@ -403,7 +406,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
               <Controller
                 control={control}
                 name={`brand_groups`}
-                rules={{ required: '请输入链接组名称' }}
+                rules={{ required: t('customModal.brand.groupNameRequired') }}
                 render={({ field }) => (
                   <TextField
                     {...field}
@@ -425,8 +428,8 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                       },
                     }}
                     fullWidth
-                    placeholder='输入链接组名称'
-                    label='链接组名称'
+                    placeholder={t('customModal.brand.groupNamePlaceholder')}
+                    label={t('customModal.brand.groupName')}
                     onChange={e => {
                       const newGroups = [...data];
                       newGroups[groupIndex] = {
@@ -525,7 +528,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                   color: '#5F58FE',
                 }}
               >
-                添加
+                {t('customModal.common.add')}
               </Box>
             </Stack>
           </Stack>

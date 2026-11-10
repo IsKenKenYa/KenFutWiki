@@ -22,6 +22,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getMetadata, saveMetadata } from './api';
 import PagePicker from './PagePicker';
 import type { ContentMetadata, CTA } from './types';
@@ -51,6 +52,7 @@ function ImageField({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState(false);
   return (
     <Stack direction='row' spacing={1} alignItems='center'>
@@ -62,7 +64,7 @@ function ImageField({
         onChange={event => onChange(event.target.value)}
       />
       <Button component='label' disabled={uploading} sx={{ flexShrink: 0 }}>
-        {uploading ? '上传中' : '上传'}
+        {uploading ? t('kenfut.metadata.uploading') : t('common.upload')}
         <input
           hidden
           type='file'
@@ -78,7 +80,7 @@ function ImageField({
               onChange(`/static-file/${result.key}`);
             } catch (error) {
               message.error(
-                error instanceof Error ? error.message : '上传失败',
+                error instanceof Error ? error.message : t('upload.failed'),
               );
             } finally {
               setUploading(false);
@@ -104,6 +106,7 @@ export default function ContentMetadataEditor({
   onClose,
   onSaved,
 }: Props) {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const dispatch = useAppDispatch();
   const [value, setValue] = useState<ContentMetadata>(emptyMetadata(nodeId));
@@ -146,7 +149,11 @@ export default function ContentMetadataEditor({
       })
       .catch(reason => {
         if (!controller.signal.aborted)
-          setError(reason instanceof Error ? reason.message : '加载失败');
+          setError(
+            reason instanceof Error
+              ? reason.message
+              : t('kenfut.common.loadFailed'),
+          );
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false);
@@ -174,7 +181,7 @@ export default function ContentMetadataEditor({
         /* IDs remain editable if optional display titles cannot be loaded. */
       });
     return () => controller.abort();
-  }, [open, nodeId, kb_id]);
+  }, [open, nodeId, kb_id, t]);
   const update = <K extends keyof ContentMetadata>(
     key: K,
     next: ContentMetadata[K],
@@ -197,13 +204,15 @@ export default function ContentMetadataEditor({
           .split('\n')
           .filter(line => line.trim())) {
           const separator = line.indexOf('=');
-          if (separator < 1) throw new Error('CTA 参数请按每行 key=value 填写');
+          if (separator < 1)
+            throw new Error(t('kenfut.metadata.ctaParamsInvalid'));
           const key = line.slice(0, separator).trim();
           if (key === 'kf_click_id')
-            throw new Error('kf_click_id 为系统保留参数');
+            throw new Error(t('kenfut.metadata.reservedParam'));
           params[key] = line.slice(separator + 1);
         }
-        if (!cta.label.trim()) throw new Error('请填写 CTA 按钮文字');
+        if (!cta.label.trim())
+          throw new Error(t('kenfut.metadata.ctaLabelRequired'));
         return { ...cta, target: { ...cta.target, params } };
       });
       await saveMetadata(
@@ -217,11 +226,13 @@ export default function ContentMetadataEditor({
         kb_id,
       );
       dispatch(setIsRefreshDocList(true));
-      message.success('内容属性已保存，请发布文档后对外生效');
+      message.success(t('kenfut.metadata.saved'));
       onSaved?.();
       onClose();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : '保存失败');
+      setError(
+        reason instanceof Error ? reason.message : t('common.saveFailed'),
+      );
     } finally {
       setSaving(false);
     }
@@ -233,18 +244,16 @@ export default function ContentMetadataEditor({
       fullWidth
       maxWidth='md'
     >
-      <DialogTitle>文章与运营属性</DialogTitle>
+      <DialogTitle>{t('kenfut.metadata.title')}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ pt: 1 }}>
-          <Alert severity='info'>
-            这些属性与正文一起发布。同一内容的文档入口和文章入口共用评论及浏览量。
-          </Alert>
+          <Alert severity='info'>{t('kenfut.metadata.hint')}</Alert>
           {error && <Alert severity='error'>{error}</Alert>}
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <TextField
               select
               fullWidth
-              label='展示入口'
+              label={t('kenfut.metadata.channel')}
               value={value.channel}
               onChange={event =>
                 update(
@@ -253,21 +262,27 @@ export default function ContentMetadataEditor({
                 )
               }
             >
-              <MenuItem value='docs'>仅文档目录</MenuItem>
-              <MenuItem value='article'>仅文章频道</MenuItem>
-              <MenuItem value='both'>文档与文章</MenuItem>
+              <MenuItem value='docs'>
+                {t('kenfut.metadata.channelDocs')}
+              </MenuItem>
+              <MenuItem value='article'>
+                {t('kenfut.metadata.channelArticle')}
+              </MenuItem>
+              <MenuItem value='both'>
+                {t('kenfut.common.docsAndArticles')}
+              </MenuItem>
             </TextField>
             <TextField
               fullWidth
-              label='文章短名'
+              label={t('kenfut.metadata.slug')}
               value={value.slug}
               onChange={event => update('slug', event.target.value)}
-              helperText='文章地址 /blog/短名，修改后保留旧链接跳转'
+              helperText={t('kenfut.metadata.slugHint')}
               required={value.channel !== 'docs'}
             />
           </Stack>
           <ImageField
-            label='封面图片'
+            label={t('kenfut.metadata.cover')}
             value={value.cover_url}
             onChange={next => update('cover_url', next)}
           />
@@ -275,7 +290,7 @@ export default function ContentMetadataEditor({
             <Box
               component='img'
               src={value.cover_url}
-              alt='封面预览'
+              alt={t('kenfut.metadata.coverPreview')}
               sx={{
                 width: 160,
                 height: 90,
@@ -287,13 +302,13 @@ export default function ContentMetadataEditor({
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <TextField
               fullWidth
-              label='公开署名'
+              label={t('kenfut.metadata.authorName')}
               value={value.author_name}
               onChange={event => update('author_name', event.target.value)}
             />
             <TextField
               fullWidth
-              label='展示发布日期'
+              label={t('kenfut.metadata.displayDate')}
               type='datetime-local'
               slotProps={{ inputLabel: { shrink: true } }}
               value={
@@ -316,21 +331,21 @@ export default function ContentMetadataEditor({
                     : '',
                 )
               }
-              helperText='留空使用首次发布时间'
+              helperText={t('kenfut.metadata.displayDateHint')}
             />
           </Stack>
           <ImageField
-            label='作者头像'
+            label={t('kenfut.metadata.authorAvatar')}
             value={value.author_avatar}
             onChange={next => update('author_avatar', next)}
           />
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <TextField
               fullWidth
-              label='主分类'
+              label={t('kenfut.metadata.category')}
               value={value.category}
               onChange={event => update('category', event.target.value)}
-              placeholder='例如：教程、产品更新、案例'
+              placeholder={t('kenfut.metadata.categoryPlaceholder')}
             />
             <Autocomplete
               multiple
@@ -342,8 +357,8 @@ export default function ContentMetadataEditor({
               renderInput={params => (
                 <TextField
                   {...params}
-                  label='标签'
-                  placeholder='输入后按回车'
+                  label={t('kenfut.metadata.tags')}
+                  placeholder={t('kenfut.metadata.tagsPlaceholder')}
                 />
               )}
             />
@@ -356,28 +371,33 @@ export default function ContentMetadataEditor({
                   onChange={(_, checked) => update('featured', checked)}
                 />
               }
-              label='精选文章'
+              label={t('kenfut.metadata.featured')}
             />
             <TextField
               size='small'
               type='number'
-              label='精选排序'
+              label={t('kenfut.metadata.featuredOrder')}
               value={value.featured_order}
               onChange={event =>
                 update('featured_order', Number(event.target.value))
               }
-              helperText='数字越小越靠前'
+              helperText={t('kenfut.metadata.featuredOrderHint')}
             />
           </Stack>
-          <Typography fontWeight='bold'>文末相关推荐</Typography>
+          <Typography fontWeight='bold'>
+            {t('kenfut.metadata.relatedTitle')}
+          </Typography>
           <Typography variant='body2' color='text.secondary'>
-            手选优先，按此顺序展示；不足两篇时按标签、分类或目录补足。
+            {t('kenfut.metadata.relatedHint')}
           </Typography>
           <Stack direction='row' spacing={1} flexWrap='wrap'>
             {value.related_node_ids.map((id, index) => (
               <Stack key={id} direction='row' alignItems='center'>
                 <Chip
-                  label={`${index + 1}. ${relatedTitles[id] || id.slice(0, 8)}`}
+                  label={t('kenfut.metadata.relatedIndex', {
+                    index: index + 1,
+                    title: relatedTitles[id] || id.slice(0, 8),
+                  })}
                   onDelete={() =>
                     update(
                       'related_node_ids',
@@ -397,7 +417,7 @@ export default function ContentMetadataEditor({
                     update('related_node_ids', next);
                   }}
                 >
-                  上移
+                  {t('kenfut.metadata.moveUp')}
                 </Button>
               </Stack>
             ))}
@@ -406,10 +426,12 @@ export default function ContentMetadataEditor({
               disabled={value.related_node_ids.length >= 2}
               onClick={() => setPicker('related')}
             >
-              选择推荐页面
+              {t('kenfut.metadata.selectRelated')}
             </Button>
           </Stack>
-          <Typography fontWeight='bold'>文末动作引导 CTA</Typography>
+          <Typography fontWeight='bold'>
+            {t('kenfut.metadata.ctaTitle')}
+          </Typography>
           {value.ctas.map((cta, index) => (
             <Stack
               key={cta.id}
@@ -425,7 +447,7 @@ export default function ContentMetadataEditor({
                 <TextField
                   fullWidth
                   size='small'
-                  label='按钮文字'
+                  label={t('kenfut.metadata.ctaLabel')}
                   value={cta.label}
                   onChange={event =>
                     updateCTA(index, { label: event.target.value })
@@ -434,7 +456,7 @@ export default function ContentMetadataEditor({
                 <TextField
                   select
                   size='small'
-                  label='样式'
+                  label={t('kenfut.metadata.ctaStyle')}
                   value={cta.style}
                   sx={{ minWidth: 110 }}
                   onChange={event =>
@@ -443,8 +465,12 @@ export default function ContentMetadataEditor({
                     })
                   }
                 >
-                  <MenuItem value='primary'>主按钮</MenuItem>
-                  <MenuItem value='secondary'>次按钮</MenuItem>
+                  <MenuItem value='primary'>
+                    {t('kenfut.metadata.ctaStylePrimary')}
+                  </MenuItem>
+                  <MenuItem value='secondary'>
+                    {t('kenfut.metadata.ctaStyleSecondary')}
+                  </MenuItem>
                 </TextField>
                 <Button
                   color='error'
@@ -455,11 +481,13 @@ export default function ContentMetadataEditor({
                     )
                   }
                 >
-                  移除
+                  {t('kenfut.common.remove')}
                 </Button>
               </Stack>
               <Stack direction='row' spacing={1} alignItems='center'>
-                <Button onClick={() => setPicker(index)}>选择目标页面</Button>
+                <Button onClick={() => setPicker(index)}>
+                  {t('kenfut.metadata.selectTarget')}
+                </Button>
                 <Typography variant='body2' sx={{ wordBreak: 'break-all' }}>
                   {cta.target.type === 'node'
                     ? `/node/${cta.target.node_id || ''}`
@@ -467,12 +495,12 @@ export default function ContentMetadataEditor({
                       ? cta.target.page
                       : cta.target.type === 'product'
                         ? `${cta.target.product_id} / ${cta.target.page_key}`
-                        : cta.target.url || '尚未选择'}
+                        : cta.target.url || t('kenfut.metadata.noTarget')}
                 </Typography>
               </Stack>
               <TextField
                 size='small'
-                label='跳转参数（每行 key=value）'
+                label={t('kenfut.metadata.ctaParams')}
                 multiline
                 rows={2}
                 value={ctaParams[cta.id] || ''}
@@ -482,7 +510,7 @@ export default function ContentMetadataEditor({
                     [cta.id]: event.target.value,
                   }))
                 }
-                helperText='产品页面仅允许后台登记的参数，系统自动附加归因标识'
+                helperText={t('kenfut.metadata.ctaParamsHint')}
               />
               <FormControlLabel
                 control={
@@ -493,7 +521,7 @@ export default function ContentMetadataEditor({
                     }
                   />
                 }
-                label='新窗口打开'
+                label={t('kenfut.metadata.newTab')}
               />
             </Stack>
           ))}
@@ -512,20 +540,22 @@ export default function ContentMetadataEditor({
               ])
             }
           >
-            添加 CTA（最多两个）
+            {t('kenfut.metadata.addCta')}
           </Button>
         </Stack>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={saving}>
-          取消
+          {t('common.cancel')}
         </Button>
         <Button
           variant='contained'
           disabled={!loaded || loading || saving}
           onClick={save}
         >
-          {saving ? '保存中' : '保存属性草稿'}
+          {saving
+            ? t('kenfut.metadata.saving')
+            : t('kenfut.metadata.saveDraft')}
         </Button>
       </DialogActions>
       <PagePicker
@@ -559,11 +589,12 @@ export function ContentMetadataButton({
   nodeId: string;
   onSaved?: () => void;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   return (
     <>
       <Button size='small' onClick={() => setOpen(true)}>
-        文章设置
+        {t('kenfut.metadata.articleSettings')}
       </Button>
       <ContentMetadataEditor
         nodeId={nodeId}

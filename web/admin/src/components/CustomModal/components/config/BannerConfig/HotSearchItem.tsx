@@ -7,6 +7,7 @@ import {
   HTMLAttributes,
   SetStateAction,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type HotSearchItem = {
   id: string;
@@ -41,6 +42,7 @@ const HotSearchItem = forwardRef<HTMLDivElement, HotSearchItemProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation();
     const inlineStyles: CSSProperties = {
       opacity: withOpacity ? '0.5' : '1',
       borderRadius: '10px',
@@ -73,7 +75,7 @@ const HotSearchItem = forwardRef<HTMLDivElement, HotSearchItemProps>(
             }}
           >
             <TextField
-              label='搜索关键词'
+              label={t('customModal.banner.searchKeyword')}
               slotProps={{
                 inputLabel: {
                   shrink: true,
@@ -90,7 +92,7 @@ const HotSearchItem = forwardRef<HTMLDivElement, HotSearchItemProps>(
                 },
               }}
               fullWidth
-              placeholder='请输入搜索关键词'
+              placeholder={t('customModal.banner.searchKeywordPlaceholder')}
               variant='outlined'
               value={item.text}
               onChange={e => {

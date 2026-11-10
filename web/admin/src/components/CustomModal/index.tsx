@@ -25,6 +25,7 @@ import {
   TYPE_TO_CONFIG_LABEL,
 } from './constants';
 import { v4 as uuidv4 } from 'uuid';
+import { useTranslation } from 'react-i18next';
 
 type WebAppLandingConfigWithId = DomainWebAppLandingConfigResp & { id: string };
 
@@ -56,6 +57,7 @@ const CustomModal = ({
   disabledComponents,
   components: propsComponents,
 }: CustomModalProps) => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { kb_id } = useAppSelector(state => state.config);
   const [info, setInfo] = useState<DomainAppDetailResp>();
@@ -174,7 +176,7 @@ const CustomModal = ({
         ...appPreviewData.settings,
         web_app_landing_configs: submitWebAppLandingConfigs,
       });
-      message.success('保存成功');
+      message.success(t('common.saveSuccess'));
       setIsEdit(false);
     });
   };
@@ -352,7 +354,7 @@ const CustomModal = ({
                   fontWeight: 600,
                 }}
               >
-                {title || '自定义欢迎页'}
+                {title || t('customModal.modal.defaultTitle')}
               </Typography>
               <Button
                 variant='contained'
@@ -360,7 +362,7 @@ const CustomModal = ({
                 disabled={!isEdit}
                 onClick={onSubmit}
               >
-                保存
+                {t('common.save')}
               </Button>
 
               {appPreviewData && (
@@ -432,7 +434,8 @@ const CustomModal = ({
               bgcolor: 'background.paper2',
               minHeight: 0,
               height: '100%',
-              ml: '20px',
+              pl: '20px',
+              overflow: 'hidden',
             }}
           >
             {!propsComponents && (
@@ -458,7 +461,7 @@ const CustomModal = ({
                 baseUrl={baseUrl}
               />
             ) : (
-              <Stack sx={{ width: '100%' }}>loading...</Stack>
+              <Stack sx={{ width: '100%' }}>{t('common.loading')}</Stack>
             )}
 
             <ConfigBar

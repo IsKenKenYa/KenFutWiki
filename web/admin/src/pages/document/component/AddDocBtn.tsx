@@ -175,7 +175,7 @@ const AddDocBtn = ({
         context={
           context || (
             <Button variant='contained' disabled={disabled}>
-              创建文档
+              {t('doc.createDocument')}
             </Button>
           )
         }

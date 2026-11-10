@@ -19,6 +19,7 @@ import {
   IconWeixingongzhonghaoDaiyanse,
   IconDianhua1,
 } from '@panda-wiki/icons';
+import { useTranslation } from 'react-i18next';
 
 interface FooterConfigProps {
   data?: AppDetail | null;
@@ -36,29 +37,30 @@ export interface Option {
 export const options: Option[] = [
   {
     key: 'link',
-    value: '网站或社交媒体',
+    value: 'customModal.footer.optionWebsite',
     type: LinkIcon,
-    text_placeholder: '链接名称',
-    text_label: '链接名称',
+    text_placeholder: 'customModal.footer.optionLinkName',
+    text_label: 'customModal.footer.optionLinkName',
   },
   {
     key: 'wechat_oa',
-    value: '微信公众号',
+    value: 'customModal.footer.optionWechat',
     type: IconWeixingongzhonghao,
     config_type: IconWeixingongzhonghaoDaiyanse,
-    text_placeholder: '请输入公众号名称',
-    text_label: '公众号名称',
+    text_placeholder: 'customModal.footer.optionWechatPlaceholder',
+    text_label: 'customModal.footer.optionWechatName',
   },
   {
     key: 'phone',
-    value: '电话',
+    value: 'customModal.social.phone',
     type: IconDianhua,
     config_type: IconDianhua1,
-    text_placeholder: '请输入文字',
-    text_label: '文字',
+    text_placeholder: 'customModal.footer.optionPhoneTextPlaceholder',
+    text_label: 'customModal.common.text',
   },
 ];
 const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
+  const { t } = useTranslation();
   const { appPreviewData, license } = useAppSelector(state => state.config);
   const dispatch = useAppDispatch();
   const {
@@ -185,7 +187,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
               },
             }}
           >
-            网站介绍信息
+            {t('customModal.footer.siteIntro')}
             <Controller
               control={control}
               name='footer_show_intro'
@@ -207,7 +209,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
               <Box
                 sx={{ fontWeight: 400, fontSize: '12px', lineHeight: '20px' }}
               >
-                Logo 图标
+                {t('customModal.footer.logoIcon')}
               </Box>
               <Controller
                 control={control}
@@ -232,7 +234,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
               <Box
                 sx={{ fontWeight: 400, fontSize: '12px', lineHeight: '20px' }}
               >
-                Logo 文字
+                {t('customModal.footer.logoText')}
               </Box>
               <Controller
                 control={control}
@@ -241,7 +243,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
                   <TextField
                     fullWidth
                     {...field}
-                    placeholder='请输入'
+                    placeholder={t('customModal.common.inputPlaceholder')}
                     error={!!errors.title}
                     helperText={errors.title?.message?.toString()}
                     onChange={e => {
@@ -256,7 +258,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
               <Box
                 sx={{ fontWeight: 400, fontSize: '12px', lineHeight: '20px' }}
               >
-                说明信息
+                {t('customModal.footer.description')}
               </Box>
               <Controller
                 control={control}
@@ -265,7 +267,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
                   <TextField
                     fullWidth
                     {...field}
-                    placeholder='请输入'
+                    placeholder={t('customModal.common.inputPlaceholder')}
                     error={!!errors.title}
                     helperText={errors.title?.message?.toString()}
                     onChange={e => {
@@ -293,7 +295,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
                 sx={{ fontWeight: 400, fontSize: '12px', lineHeight: '20px' }}
                 direction={'row'}
               >
-                社交信息
+                {t('customModal.footer.socialInfo')}
                 <Stack
                   direction={'row'}
                   sx={{
@@ -326,7 +328,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
                       color: '#5F58FE',
                     }}
                   >
-                    添加
+                    {t('customModal.common.add')}
                   </Box>
                 </Stack>
               </Stack>
@@ -362,7 +364,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
               },
             }}
           >
-            链接组
+            {t('customModal.footer.linkGroups')}
             <Stack
               direction={'row'}
               sx={{
@@ -391,7 +393,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
                   color: '#5F58FE',
                 }}
               >
-                添加
+                {t('customModal.common.add')}
               </Box>
             </Stack>
           </Box>
@@ -427,7 +429,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
               },
             }}
           >
-            版权信息
+            {t('customModal.footer.copyright')}
           </Box>
           <Controller
             control={control}
@@ -436,7 +438,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
               <TextField
                 fullWidth
                 {...field}
-                placeholder='请输入'
+                placeholder={t('customModal.common.inputPlaceholder')}
                 error={!!errors.title}
                 helperText={errors.title?.message?.toString()}
                 onChange={e => {
@@ -467,7 +469,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
               },
             }}
           >
-            ICP 备案编号
+            {t('customModal.footer.icp')}
           </Box>
           <Controller
             control={control}
@@ -476,7 +478,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
               <TextField
                 fullWidth
                 {...field}
-                placeholder='请输入'
+                placeholder={t('customModal.common.inputPlaceholder')}
                 error={!!errors.placeholder}
                 helperText={errors.placeholder?.message?.toString()}
                 onChange={e => {
@@ -508,7 +510,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
               },
             }}
           >
-            软件品牌标识
+            {t('customModal.footer.brandMark')}
           </Box>
           <VersionMask
             capability='custom_branding'
@@ -530,7 +532,7 @@ const FooterConfig = ({ data, setIsEdit, isEdit }: FooterConfigProps) => {
                       alignItems: 'center',
                     }}
                   >
-                    展示 软件品牌标识
+                    {t('customModal.footer.showBrandMark')}
                   </Box>
                   <Switch
                     sx={{ marginLeft: 'auto' }}

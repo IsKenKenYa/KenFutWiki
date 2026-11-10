@@ -305,7 +305,7 @@ const UserGroupModal = ({
                 color: 'text.tertiary',
               }}
             >
-              暂无数据
+              {t('common.noData')}
             </Box>
           </Stack>
         }

@@ -125,7 +125,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
             await getModelList();
           }
         } catch (err) {
-          console.error('检查模型配置失败:', err);
+          console.error('Failed to check model config:', err);
         }
       };
       migrateLegacyAutoMode();
@@ -263,7 +263,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                   mr: 1,
                 }}
               />
-              模型配置
+              {t('system.tabModel')}
             </Box>
             {showSaveBtn && (
               <Box
@@ -275,16 +275,9 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                   gap: 0.5,
                 }}
               >
-                <Box
-                  component='span'
-                  sx={{
-                    color: 'warning.main',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  提示：
+                <Box sx={{ color: 'warning.main', fontWeight: 'bold' }}>
+                  {t('model.vectorHint')}
                 </Box>
-                修改向量模型会触发重新学习
               </Box>
             )}
           </Box>
@@ -296,7 +289,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
               onClick={handleSave}
               sx={{ mt: 3 }}
             >
-              应用
+              {t('model.apply')}
             </Button>
           )}
         </Box>
@@ -360,7 +353,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           color: 'primary.main',
                         }}
                       >
-                        智能对话模型
+                        {t('model.chatTitle')}
                       </Box>
                     </>
                   ) : (
@@ -372,7 +365,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                         ml: -0.5,
                       }}
                     >
-                      智能对话模型
+                      {t('model.chatTitle')}
                     </Box>
                   )}
                   <Box
@@ -388,7 +381,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       color: 'primary.main',
                     }}
                   >
-                    大模型
+                    {t('model.largeModel')}
                   </Box>
                   <Box
                     sx={{
@@ -403,21 +396,11 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       color: 'primary.main',
                     }}
                   >
-                    必选
+                    {t('model.required')}
                   </Box>
                 </Stack>
                 <Box sx={{ fontSize: 12, color: 'text.tertiary', mt: 1 }}>
-                  在
-                  <Box component='span' sx={{ fontWeight: 'bold' }}>
-                    {' '}
-                    智能问答{' '}
-                  </Box>
-                  和
-                  <Box component='span' sx={{ fontWeight: 'bold' }}>
-                    {' '}
-                    摘要生成{' '}
-                  </Box>
-                  过程中使用。
+                  {t('model.usageChat')}
                 </Box>
               </Box>
               <Box sx={{ flexGrow: 1, flexSelf: 'flex-start' }}>
@@ -436,7 +419,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       color: 'success.main',
                     }}
                   >
-                    状态正常
+                    {t('model.statusOk')}
                   </Box>
                 ) : (
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
@@ -455,7 +438,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                         flexShrink: 0,
                       }}
                     >
-                      必填配置
+                      {t('model.requiredConfig')}
                     </Box>
                     {!hideDocumentationHint && (
                       <>
@@ -471,7 +454,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           />
                         </Stack>
                         <Box sx={{ color: 'error.main', fontSize: 12 }}>
-                          未配置无法使用
+                          {t('model.notConfigured')}
                         </Box>
                       </>
                     )}
@@ -551,7 +534,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           color: 'primary.main',
                         }}
                       >
-                        向量模型
+                        {t('model.embeddingTitle')}
                       </Box>
                     </>
                   ) : (
@@ -563,7 +546,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                         ml: -0.5,
                       }}
                     >
-                      向量模型
+                      {t('model.embeddingTitle')}
                     </Box>
                   )}
                   <Box
@@ -579,7 +562,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       color: 'primary.main',
                     }}
                   >
-                    小模型
+                    {t('model.smallModel')}
                   </Box>
                   <Box
                     sx={{
@@ -594,26 +577,11 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       color: 'primary.main',
                     }}
                   >
-                    必选
+                    {t('model.required')}
                   </Box>
                 </Stack>
                 <Box sx={{ fontSize: 12, color: 'text.tertiary', mt: 1 }}>
-                  在
-                  <Box component='span' sx={{ fontWeight: 'bold' }}>
-                    {' '}
-                    内容发布{' '}
-                  </Box>
-                  和
-                  <Box component='span' sx={{ fontWeight: 'bold' }}>
-                    {' '}
-                    智能问答{' '}
-                  </Box>
-                  和
-                  <Box component='span' sx={{ fontWeight: 'bold' }}>
-                    {' '}
-                    智能搜索{' '}
-                  </Box>
-                  过程中使用。
+                  {t('model.usageEmbedding')}
                 </Box>
               </Box>
               <Box sx={{ flexGrow: 1, flexSelf: 'flex-start' }}>
@@ -632,7 +600,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       color: 'success.main',
                     }}
                   >
-                    状态正常
+                    {t('model.statusOk')}
                   </Box>
                 ) : (
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
@@ -651,7 +619,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                         flexShrink: 0,
                       }}
                     >
-                      必填配置
+                      {t('model.requiredConfig')}
                     </Box>
                     {!hideDocumentationHint && (
                       <>
@@ -667,7 +635,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           />
                         </Stack>
                         <Box sx={{ color: 'error.main', fontSize: 12 }}>
-                          未配置无法使用
+                          {t('model.notConfigured')}
                         </Box>
                       </>
                     )}
@@ -747,7 +715,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           color: 'primary.main',
                         }}
                       >
-                        重排序模型
+                        {t('model.rerankTitle')}
                       </Box>
                     </>
                   ) : (
@@ -759,7 +727,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                         ml: -0.5,
                       }}
                     >
-                      重排序模型
+                      {t('model.rerankTitle')}
                     </Box>
                   )}
                   <Box
@@ -775,7 +743,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       color: 'primary.main',
                     }}
                   >
-                    小模型
+                    {t('model.smallModel')}
                   </Box>
                   <Box
                     sx={{
@@ -790,21 +758,11 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       color: 'primary.main',
                     }}
                   >
-                    必选
+                    {t('model.required')}
                   </Box>
                 </Stack>
                 <Box sx={{ fontSize: 12, color: 'text.tertiary', mt: 1 }}>
-                  在
-                  <Box component='span' sx={{ fontWeight: 'bold' }}>
-                    {' '}
-                    智能问答{' '}
-                  </Box>
-                  和
-                  <Box component='span' sx={{ fontWeight: 'bold' }}>
-                    {' '}
-                    智能搜索{' '}
-                  </Box>
-                  过程中使用。
+                  {t('model.usageRerank')}
                 </Box>
               </Box>
               <Box sx={{ flexGrow: 1, flexSelf: 'flex-start' }}>
@@ -823,7 +781,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       color: 'success.main',
                     }}
                   >
-                    状态正常
+                    {t('model.statusOk')}
                   </Box>
                 ) : (
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
@@ -842,7 +800,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                         flexShrink: 0,
                       }}
                     >
-                      必填配置
+                      {t('model.requiredConfig')}
                     </Box>
                     {!hideDocumentationHint && (
                       <>
@@ -858,7 +816,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           />
                         </Stack>
                         <Box sx={{ color: 'error.main', fontSize: 12 }}>
-                          未配置无法使用
+                          {t('model.notConfigured')}
                         </Box>
                       </>
                     )}
@@ -938,7 +896,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           color: 'primary.main',
                         }}
                       >
-                        文档分析模型
+                        {t('model.analysisTitle')}
                       </Box>
                     </>
                   ) : (
@@ -950,7 +908,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                         ml: -0.5,
                       }}
                     >
-                      文档分析模型
+                      {t('model.analysisTitle')}
                     </Box>
                   )}
                   <Box
@@ -966,7 +924,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       color: 'primary.main',
                     }}
                   >
-                    小模型
+                    {t('model.smallModel')}
                   </Box>
                   <Box
                     sx={{
@@ -981,21 +939,11 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       color: 'primary.main',
                     }}
                   >
-                    必选
+                    {t('model.required')}
                   </Box>
                 </Stack>
                 <Box sx={{ fontSize: 12, color: 'text.tertiary', mt: 1 }}>
-                  在
-                  <Box component='span' sx={{ fontWeight: 'bold' }}>
-                    {' '}
-                    内容发布{' '}
-                  </Box>
-                  和
-                  <Box component='span' sx={{ fontWeight: 'bold' }}>
-                    {' '}
-                    智能问答{' '}
-                  </Box>
-                  过程中使用。
+                  {t('model.usageAnalysis')}
                 </Box>
               </Box>
               <Box sx={{ flexGrow: 1, flexSelf: 'flex-start' }}>
@@ -1014,7 +962,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       color: 'success.main',
                     }}
                   >
-                    状态正常
+                    {t('model.statusOk')}
                   </Box>
                 ) : (
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
@@ -1033,7 +981,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                         flexShrink: 0,
                       }}
                     >
-                      必填配置
+                      {t('model.requiredConfig')}
                     </Box>
                     {!hideDocumentationHint && (
                       <>
@@ -1049,7 +997,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           />
                         </Stack>
                         <Box sx={{ color: 'error.main', fontSize: 12 }}>
-                          未配置无法使用
+                          {t('model.notConfigured')}
                         </Box>
                       </>
                     )}
@@ -1128,7 +1076,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                           color: 'primary.main',
                         }}
                       >
-                        图像分析模型
+                        {t('model.analysisVlTitle')}
                       </Box>
                     </>
                   ) : (
@@ -1140,7 +1088,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                         ml: -0.5,
                       }}
                     >
-                      图像分析模型
+                      {t('model.analysisVlTitle')}
                     </Box>
                   )}
                   <Box
@@ -1156,7 +1104,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       color: 'primary.main',
                     }}
                   >
-                    视觉模型
+                    {t('model.visionModel')}
                   </Box>
                   <Box
                     sx={{
@@ -1168,7 +1116,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       color: 'text.tertiary',
                     }}
                   >
-                    可选
+                    {t('model.optional')}
                   </Box>
                   {modelData['analysis-vl'] && modelData['analysis-vl'].id && (
                     <Switch
@@ -1187,17 +1135,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                   )}
                 </Stack>
                 <Box sx={{ fontSize: 12, color: 'text.tertiary', mt: 1 }}>
-                  在
-                  <Box component='span' sx={{ fontWeight: 'bold' }}>
-                    {' '}
-                    内容发布{' '}
-                  </Box>
-                  和
-                  <Box component='span' sx={{ fontWeight: 'bold' }}>
-                    {' '}
-                    智能问答{' '}
-                  </Box>
-                  过程中使用，启用后图像分析能力可用，可选配置。
+                  {t('model.usageAnalysisVl')}
                 </Box>
               </Box>
               <Box sx={{ flexGrow: 1, flexSelf: 'flex-start' }}>
@@ -1216,7 +1154,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       color: 'success.main',
                     }}
                   >
-                    状态正常
+                    {t('model.statusOk')}
                   </Box>
                 ) : (
                   <Box
@@ -1232,7 +1170,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                       flexShrink: 0,
                     }}
                   >
-                    可选模型
+                    {t('model.optionalModel')}
                   </Box>
                 )}
               </Box>

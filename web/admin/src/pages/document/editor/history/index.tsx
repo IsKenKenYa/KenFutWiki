@@ -289,7 +289,7 @@ const History = () => {
             />
           </Stack>
         )}
-        <Box sx={{ flex: 1 }}>历史版本</Box>
+        <Box sx={{ flex: 1 }}>{t('history.title')}</Box>
         <IconButton
           size='small'
           sx={{ flexShrink: 0 }}
@@ -349,10 +349,18 @@ const History = () => {
                     title={
                       <Stack>
                         {curNode.creator_account && (
-                          <Box>创建：{curNode.creator_account}</Box>
+                          <Box>
+                            {t('editor.createdBy', {
+                              name: curNode.creator_account,
+                            })}
+                          </Box>
                         )}
                         {curNode.publisher_account && (
-                          <Box>上次发布：{curNode.publisher_account}</Box>
+                          <Box>
+                            {t('editor.lastPublishedBy', {
+                              name: curNode.publisher_account,
+                            })}
+                          </Box>
                         )}
                       </Stack>
                     }
@@ -364,7 +372,7 @@ const History = () => {
                       sx={{ cursor: 'pointer' }}
                     >
                       <IconTianjiawendang sx={{ fontSize: 9 }} />
-                      {curNode.editor_account} 编辑
+                      {t('history.editedBy', { name: curNode.editor_account })}
                     </Stack>
                   </Tooltip>
                 ) : (
@@ -586,7 +594,7 @@ const History = () => {
                         setConfirmOpen(true);
                       }}
                     >
-                      还原
+                      {t('history.restore')}
                     </Box>
                   )}
               </Stack>

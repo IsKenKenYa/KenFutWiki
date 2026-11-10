@@ -57,9 +57,7 @@ const StepStorage = forwardRef<{ onSubmit: () => Promise<void> }>(
     return (
       <Box sx={{ pt: 1 }}>
         <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
-          系统默认使用内置 MinIO 存储上传的文件。你也可以切换到阿里云 OSS 等任意
-          S3 兼容对象存储；此步骤可跳过，之后在「系统设置 →
-          存储配置」中随时修改。
+          {t('wizard.storageHint')}
         </Typography>
         <Stack
           direction='row'
@@ -86,7 +84,7 @@ const StepStorage = forwardRef<{ onSubmit: () => Promise<void> }>(
             {useDefault ? '✓' : ''}
           </Box>
           <Typography variant='body2'>
-            使用默认存储（推荐，无需配置）
+            {t('wizard.useDefaultStorage')}
           </Typography>
         </Stack>
         {!useDefault && (

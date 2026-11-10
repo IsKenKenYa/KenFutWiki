@@ -99,7 +99,7 @@ const QAReferer = ({ tab }: { tab: ActiveTab }) => {
           sx={{ height: 220, fontSize: 12, color: 'text.disabled' }}
         >
           <img src={Nodata} width={100} />
-          暂无数据
+          {t('common.noData')}
         </Stack>
       )}
     </Card>

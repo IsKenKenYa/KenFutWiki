@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import System from '../System';
 import Bread from './Bread';
 import { IconDengchu } from '@panda-wiki/icons';
+import { SIDEBAR_OFFSET } from '@/constant/layout';
 import LocaleSwitch from './LocaleSwitch';
 
 const Header = () => {
@@ -60,7 +61,7 @@ const Header = () => {
       sx={{
         minWidth: '900px',
         position: 'fixed',
-        pl: '170px',
+        pl: `${SIDEBAR_OFFSET}px`,
         py: 2,
         pr: 2,
         zIndex: 998,

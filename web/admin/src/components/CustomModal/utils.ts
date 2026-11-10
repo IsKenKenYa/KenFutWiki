@@ -1,4 +1,5 @@
 import { getBasePath } from '@/utils/getBasePath';
+import i18n from '@/i18n';
 
 const handleHeaderProps = (setting: any) => {
   return {
@@ -11,7 +12,8 @@ const handleHeaderProps = (setting: any) => {
     })),
     homePath: window.__BASENAME__ || '',
     placeholder:
-      setting.web_app_custom_style?.header_search_placeholder || '搜索...',
+      setting.web_app_custom_style?.header_search_placeholder ||
+      i18n.t('customModal.header.defaultSearchPlaceholder'),
   };
 };
 
@@ -37,7 +39,7 @@ const handleFooterProps = (setting: any) => {
 
 const handleFaqProps = (config: any = {}) => {
   return {
-    title: config.title || '链接组',
+    title: config.title || i18n.t('customModal.defaults.faqTitle'),
     items:
       config.list?.map((item: any) => ({
         question: item.question,
@@ -48,19 +50,19 @@ const handleFaqProps = (config: any = {}) => {
 
 const handleBasicDocProps = (config: any = {}) => {
   return {
-    title: config.title || '文档摘要卡片',
+    title: config.title || i18n.t('customModal.defaults.basicDocTitle'),
 
     items:
       config.nodes?.map((item: any) => ({
         ...item,
-        summary: item.summary || '暂无摘要',
+        summary: item.summary || i18n.t('customModal.docSummary.noSummary'),
       })) || [],
   };
 };
 
 const handleDirDocProps = (config: any = {}) => {
   return {
-    title: config.title || '文件夹卡片',
+    title: config.title || i18n.t('customModal.defaults.dirDocTitle'),
     items:
       config.nodes?.map((item: any) => ({
         ...item,
@@ -73,14 +75,14 @@ const handleDirDocProps = (config: any = {}) => {
 
 const handleNavDocProps = (config: any = {}) => {
   return {
-    title: config.title || '目录卡片',
+    title: config.title || i18n.t('customModal.defaults.navDocTitle'),
     items: config.nodes || [],
   };
 };
 
 const handleSimpleDocProps = (config: any = {}) => {
   return {
-    title: config.title || '简易文档卡片',
+    title: config.title || i18n.t('customModal.defaults.simpleDocTitle'),
     items:
       config.nodes?.map((item: any) => ({
         ...item,
@@ -90,7 +92,7 @@ const handleSimpleDocProps = (config: any = {}) => {
 
 const handleCarouselProps = (config: any = {}) => {
   return {
-    title: config.title || '轮播图',
+    title: config.title || i18n.t('customModal.defaults.carouselTitle'),
     bgColor: config.bg_color || '#3248F2',
     titleColor: config.title_color || '#ffffff',
     items:
@@ -126,34 +128,34 @@ const handleBannerProps = (config: any = {}) => {
 
 const handleTextProps = (config: any = {}) => {
   return {
-    title: config.title || '标题',
+    title: config.title || i18n.t('customModal.defaults.textTitle'),
   };
 };
 
 const handleMetricsProps = (config: any = {}) => {
   return {
-    title: config.title || '指标卡片',
+    title: config.title || i18n.t('customModal.defaults.metricsTitle'),
     items: config.list || [],
   };
 };
 
 const handleCaseProps = (config: any = {}) => {
   return {
-    title: config.title || '案例卡片',
+    title: config.title || i18n.t('customModal.defaults.caseTitle'),
     items: config.list || [],
   };
 };
 
 const handleFeatureProps = (config: any = {}) => {
   return {
-    title: config.title || '产品特性',
+    title: config.title || i18n.t('customModal.defaults.featureTitle'),
     items: config.list || [],
   };
 };
 
 const handleImgTextProps = (config: any = {}) => {
   return {
-    title: config.title || '左图右字',
+    title: config.title || i18n.t('customModal.defaults.imgTextTitle'),
     item: {
       ...(config.item || {}),
       url: getBasePath(config.item?.url || ''),
@@ -164,7 +166,7 @@ const handleImgTextProps = (config: any = {}) => {
 
 const handleTextImgProps = (config: any = {}) => {
   return {
-    title: config.title || '右图左字',
+    title: config.title || i18n.t('customModal.defaults.textImgTitle'),
     item: {
       ...(config.item || {}),
       url: getBasePath(config.item?.url || ''),
@@ -175,7 +177,7 @@ const handleTextImgProps = (config: any = {}) => {
 
 const handleCommentProps = (config: any = {}) => {
   return {
-    title: config.title || '评论卡片',
+    title: config.title || i18n.t('customModal.defaults.commentTitle'),
     items:
       config.list?.map((item: any) => ({
         ...item,
@@ -186,7 +188,7 @@ const handleCommentProps = (config: any = {}) => {
 
 const handleBlockGridProps = (config: any = {}) => {
   return {
-    title: config.title || '区块网格',
+    title: config.title || i18n.t('customModal.defaults.blockGridTitle'),
     items:
       config.list?.map((item: any) => ({
         ...item,
@@ -197,7 +199,7 @@ const handleBlockGridProps = (config: any = {}) => {
 
 const handleQuestionProps = (config: any = {}) => {
   return {
-    title: config.title || '常见问题',
+    title: config.title || i18n.t('customModal.defaults.questionTitle'),
     items: config.list || [],
   };
 };

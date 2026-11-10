@@ -3,12 +3,14 @@ import Card from '@/components/Card';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Comments from './Comments';
 import Evaluate from './Evaluate';
 import { Stack, Select, MenuItem } from '@mui/material';
 import { CusTabs } from '@ctzhian/ui';
 
 const Feedback = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { tab: tabParam } = useParams();
   const [tab, setTab] = useState(tabParam || 'evaluate');
@@ -36,8 +38,8 @@ const Feedback = () => {
             },
           }}
           list={[
-            { label: 'AI 问答评价', value: 'evaluate' },
-            { label: '文档评论', value: 'comments' },
+            { label: t('feedback.tabEvaluate'), value: 'evaluate' },
+            { label: t('feedback.tabComments'), value: 'comments' },
           ]}
         />
         {showCommentsFilter && (
@@ -48,10 +50,10 @@ const Feedback = () => {
               setCommentStatus(+e.target.value as number);
             }}
           >
-            <MenuItem value={99}>全部</MenuItem>
-            <MenuItem value={0}>待审核</MenuItem>
-            <MenuItem value={1}>已通过</MenuItem>
-            <MenuItem value={-1}>已拒绝</MenuItem>
+            <MenuItem value={99}>{t('common.all')}</MenuItem>
+            <MenuItem value={0}>{t('feedback.statusPending')}</MenuItem>
+            <MenuItem value={1}>{t('feedback.statusApproved')}</MenuItem>
+            <MenuItem value={-1}>{t('feedback.statusRejected')}</MenuItem>
           </Select>
         )}
       </Stack>

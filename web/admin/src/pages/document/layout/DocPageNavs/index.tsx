@@ -103,7 +103,7 @@ const SortableNavItem = ({
             },
           }}
         >
-          修改目录
+          {t('nav.editTitle')}
         </Stack>
       ),
       onClick: onEdit,
@@ -130,7 +130,7 @@ const SortableNavItem = ({
                   },
                 }}
               >
-                删除目录
+                {t('nav.deleteTitle')}
               </Stack>
             ),
             onClick: onDelete,
@@ -410,6 +410,7 @@ const DocPageNavs = ({
     onNavDeleted,
     refresh,
     dispatch,
+    t,
   ]);
 
   const showEmptySearch = isSearching && sortedNavs.length === 0;
@@ -466,7 +467,7 @@ const DocPageNavs = ({
                     textTransform: 'none',
                   }}
                 >
-                  添加目录
+                  {t('nav.addTitle')}
                 </Button>
               </Box>
             )}

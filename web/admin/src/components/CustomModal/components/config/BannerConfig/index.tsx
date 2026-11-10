@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useMemo } from 'react';
 import { TextField } from '@mui/material';
 import { CommonItem, StyledCommonWrapper } from '../../components/StyledCommon';
 import type { ConfigProps } from '../type';
+import { useTranslation } from 'react-i18next';
 import { useForm, Controller } from 'react-hook-form';
 import { useAppSelector } from '@/store';
 import DragList from '../../components/DragList';
@@ -15,6 +16,7 @@ import { handleLandingConfigs, findConfigById } from '../../../utils';
 import { Empty } from '@ctzhian/ui';
 
 const Config: React.FC<ConfigProps> = ({ setIsEdit, id }) => {
+  const { t } = useTranslation();
   const { appPreviewData } = useAppSelector(state => state.config);
   const { control, watch, setValue, subscribe } = useForm<
     typeof DEFAULT_DATA.banner
@@ -148,13 +150,13 @@ const Config: React.FC<ConfigProps> = ({ setIsEdit, id }) => {
 
   return (
     <StyledCommonWrapper>
-      <CommonItem title='主标题'>
+      <CommonItem title={t('customModal.banner.mainTitle')}>
         <Controller
           control={control}
           name='title'
           render={({ field }) => (
             <TextField
-              label='文字'
+              label={t('customModal.common.text')}
               slotProps={{
                 inputLabel: {
                   shrink: true,
@@ -162,18 +164,18 @@ const Config: React.FC<ConfigProps> = ({ setIsEdit, id }) => {
               }}
               fullWidth
               {...field}
-              placeholder='请输入'
+              placeholder={t('customModal.common.inputPlaceholder')}
             />
           )}
         />
       </CommonItem>
-      <CommonItem title='副标题'>
+      <CommonItem title={t('customModal.banner.subtitle')}>
         <Controller
           control={control}
           name='subtitle'
           render={({ field }) => (
             <TextField
-              label='文字'
+              label={t('customModal.common.text')}
               slotProps={{
                 inputLabel: {
                   shrink: true,
@@ -183,12 +185,15 @@ const Config: React.FC<ConfigProps> = ({ setIsEdit, id }) => {
               minRows={2}
               fullWidth
               {...field}
-              placeholder='请输入'
+              placeholder={t('customModal.common.inputPlaceholder')}
             />
           )}
         />
       </CommonItem>
-      <CommonItem title='背景图' desc='(推荐 1920*720)'>
+      <CommonItem
+        title={t('customModal.banner.backgroundImage')}
+        desc={t('customModal.common.recommendedSize', { size: '1920*720' })}
+      >
         <Controller
           control={control}
           name='bg_url'
@@ -210,14 +215,22 @@ const Config: React.FC<ConfigProps> = ({ setIsEdit, id }) => {
           )}
         />
       </CommonItem>
-      <CommonItem title='搜索框'>
+      <CommonItem title={t('customModal.banner.searchBox')}>
         <Controller
           control={control}
           name='placeholder'
-          render={({ field }) => <TextField {...field} placeholder='请输入' />}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              placeholder={t('customModal.common.inputPlaceholder')}
+            />
+          )}
         />
       </CommonItem>
-      <CommonItem title='热门搜索' onAdd={handleAddHotSearch}>
+      <CommonItem
+        title={t('customModal.banner.hotSearch')}
+        onAdd={handleAddHotSearch}
+      >
         {hotSearchList.length === 0 ? (
           <Empty />
         ) : (
@@ -230,7 +243,10 @@ const Config: React.FC<ConfigProps> = ({ setIsEdit, id }) => {
           />
         )}
       </CommonItem>
-      <CommonItem title='主按钮' onAdd={handleAddButton}>
+      <CommonItem
+        title={t('customModal.banner.primaryButton')}
+        onAdd={handleAddButton}
+      >
         <DragList
           data={btns as Required<(typeof btns)[0]>[]}
           onChange={btns => {

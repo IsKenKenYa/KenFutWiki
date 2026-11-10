@@ -7,6 +7,7 @@ import {
   HTMLAttributes,
   SetStateAction,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export type ItemType = {
   id: string;
@@ -38,6 +39,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation();
     const inlineStyles: CSSProperties = {
       opacity: withOpacity ? '0.5' : '1',
       borderRadius: '10px',
@@ -70,7 +72,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
             }}
           >
             <TextField
-              label='问题'
+              label={t('customModal.question.question')}
               slotProps={{
                 inputLabel: {
                   shrink: true,
@@ -87,7 +89,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                 },
               }}
               fullWidth
-              placeholder='请输入问题'
+              placeholder={t('customModal.question.questionPlaceholder')}
               variant='outlined'
               value={item.question}
               onChange={e => {

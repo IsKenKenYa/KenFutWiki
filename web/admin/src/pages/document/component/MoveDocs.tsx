@@ -247,7 +247,7 @@ const MoveDocs = ({
                         />
                         <IconWenjianjiaKai sx={{ fontSize: 14 }} />
                         <Box sx={{ fontSize: 13, color: 'text.secondary' }}>
-                          根路径
+                          {t('doc.move.rootPath')}
                         </Box>
                       </Stack>
                       <DragTree
@@ -272,7 +272,7 @@ const MoveDocs = ({
             })}
             {navList.length === 0 && !navLoading && (
               <Box sx={{ fontSize: 14, color: 'text.secondary', p: 1 }}>
-                暂无可用目录
+                {t('doc.move.noNavs')}
               </Box>
             )}
           </Stack>

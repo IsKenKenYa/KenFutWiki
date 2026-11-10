@@ -12,6 +12,7 @@ import { Ellipsis, Modal } from '@ctzhian/ui';
 import { Box, Checkbox, Stack } from '@mui/material';
 import { IconWenjianjiaKai } from '@panda-wiki/icons';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface DocDeleteProps {
   open: boolean;
@@ -20,6 +21,7 @@ interface DocDeleteProps {
 }
 
 const DocModal = ({ open, onClose, onOk }: DocDeleteProps) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [groups, setGroups] = useState<
     GithubComChaitinPandaWikiApiNodeV1NodeListGroupNavResp[]
@@ -69,7 +71,7 @@ const DocModal = ({ open, onClose, onOk }: DocDeleteProps) => {
 
   return (
     <Modal
-      title='选择目录'
+      title={t('contribution.selectCatalog')}
       width={800}
       open={open}
       onCancel={onClose}
@@ -126,14 +128,14 @@ const DocModal = ({ open, onClose, onOk }: DocDeleteProps) => {
                       color: selected ? 'primary.main' : 'text.primary',
                     }}
                   >
-                    {nav.nav_name || '未命名'}
+                    {nav.nav_name || t('doc.untitled')}
                   </Ellipsis>
                 </Box>
               );
             })}
             {!groups.length && (
               <Box sx={{ fontSize: 13, color: 'text.secondary', py: 2, px: 2 }}>
-                暂无目录
+                {t('contribution.noCatalog')}
               </Box>
             )}
           </Stack>
@@ -153,7 +155,7 @@ const DocModal = ({ open, onClose, onOk }: DocDeleteProps) => {
               }}
             />
             <IconWenjianjiaKai sx={{ fontSize: 16 }} />
-            <Box>根路径</Box>
+            <Box>{t('contribution.rootPath')}</Box>
           </Stack>
           <DragTree
             ui='select'

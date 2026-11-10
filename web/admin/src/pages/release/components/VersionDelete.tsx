@@ -4,6 +4,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ErrorIcon from '@mui/icons-material/Error';
 import { Box, Stack, useTheme } from '@mui/material';
 import { Modal } from '@ctzhian/ui';
+import { useTranslation } from 'react-i18next';
 
 interface VersionDeleteProps {
   open: boolean;
@@ -18,6 +19,7 @@ const VersionDelete = ({
   data,
   refresh,
 }: VersionDeleteProps) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { kb_id } = useAppSelector(state => state.config);
   if (!data) return null;
@@ -35,12 +37,12 @@ const VersionDelete = ({
       title={
         <Stack direction='row' alignItems='center' gap={1}>
           <ErrorIcon sx={{ color: 'warning.main' }} />
-          确认删除以下版本？
+          {t('release.deleteConfirm')}
         </Stack>
       }
       open={open}
       width={600}
-      okText='删除'
+      okText={t('common.delete')}
       okButtonProps={{ sx: { bgcolor: 'error.main' } }}
       onCancel={onClose}
       onOk={submit}

@@ -7,6 +7,7 @@ import type {} from '@ctzhian/tiptap/dist/extension/node/Link';
 import type { MarkdownEditorRef, UseTiptapReturn } from '@ctzhian/tiptap';
 import { Button } from '@mui/material';
 import { useRef, useState, type RefObject } from 'react';
+import { useTranslation } from 'react-i18next';
 import PagePicker from './PagePicker';
 
 type MarkdownLinkRef = MarkdownEditorRef & {
@@ -26,6 +27,7 @@ export default function EditorPageLink({
   markdownRef?: RefObject<MarkdownEditorRef | null>;
   markdownValue?: string;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const markdownSelection = useRef<MarkdownSelection | null>(null);
   const richSelection = useRef<{
@@ -63,7 +65,7 @@ export default function EditorPageLink({
           setOpen(true);
         }}
       >
-        链接到页面
+        {t('kenfut.picker.title')}
       </Button>
       <PagePicker
         open={open}

@@ -109,7 +109,7 @@ export function useDocTreeMenu(
         }
         menuItems.push(
           {
-            label: t('doc.properties'),
+            label: t('doc.properties.title'),
             key: 'properties',
             onClick: () => handleProperties(item),
           },

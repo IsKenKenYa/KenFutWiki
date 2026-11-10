@@ -7,9 +7,11 @@ import { chartColor } from '@/constant/enums';
 import { useAppSelector } from '@/store';
 import { Box, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActiveTab } from '.';
 
 const ClientStat = ({ tab }: { tab: ActiveTab }) => {
+  const { t } = useTranslation();
   const { kb_id = '' } = useAppSelector(state => state.config);
   const [osList, setOsList] = useState<(TrendData & { color: string })[]>([]);
   const [browserList, setBrowserList] = useState<
@@ -56,7 +58,7 @@ const ClientStat = ({ tab }: { tab: ActiveTab }) => {
         justifyContent={'space-between'}
         sx={{ mb: 2 }}
       >
-        <Box sx={{ fontSize: 16, fontWeight: 'bold' }}>客户端</Box>
+        <Box sx={{ fontSize: 16, fontWeight: 'bold' }}>{t('stat.client')}</Box>
         {/* <Button size="small">查看更多</Button> */}
       </Stack>
       {osList.length > 0 || browserList.length > 0 ? (
@@ -139,7 +141,7 @@ const ClientStat = ({ tab }: { tab: ActiveTab }) => {
           sx={{ fontSize: 12, color: 'text.disabled' }}
         >
           <img src={Nodata} width={100} />
-          暂无数据
+          {t('common.noData')}
         </Stack>
       )}
     </Card>

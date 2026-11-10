@@ -20,6 +20,7 @@ import {
   SetStateAction,
 } from 'react';
 import { Control, Controller } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { options } from '../../config/FooterConfig';
 
 export interface SocialInfoProps extends HTMLAttributes<HTMLDivElement> {
@@ -48,6 +49,8 @@ const Item = forwardRef<HTMLDivElement, SocialInfoProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation();
+    const channelOption = options.find(i => i.key === item.channel);
     const inlineStyles: CSSProperties = {
       opacity: withOpacity ? '0.5' : '1',
       borderRadius: '10px',
@@ -100,7 +103,7 @@ const Item = forwardRef<HTMLDivElement, SocialInfoProps>(
                         fontWeight: '600',
                       }}
                     >
-                      社交信息{index + 1}
+                      {t('customModal.social.item', { index: index + 1 })}
                     </Box>
                     <IconButton
                       size='small'
@@ -227,12 +230,14 @@ const Item = forwardRef<HTMLDivElement, SocialInfoProps>(
                         },
                       }}
                       placeholder={
-                        options.find(i => i.key === item.channel)
-                          ?.text_placeholder || ''
+                        channelOption?.text_placeholder
+                          ? t(channelOption.text_placeholder)
+                          : ''
                       }
                       label={
-                        options.find(i => i.key === item.channel)?.text_label ||
-                        ''
+                        channelOption?.text_label
+                          ? t(channelOption.text_label)
+                          : ''
                       }
                       onChange={e => {
                         const newData = [...data];
@@ -272,7 +277,7 @@ const Item = forwardRef<HTMLDivElement, SocialInfoProps>(
                     <LinkTextField
                       fullWidth
                       size='small'
-                      label='目标链接'
+                      label={t('customModal.social.targetLink')}
                       value={item.link || ''}
                       onChange={event => {
                         const next = [...data];
@@ -304,8 +309,8 @@ const Item = forwardRef<HTMLDivElement, SocialInfoProps>(
                           },
                         },
                       }}
-                      placeholder={'请输入电话号码'}
-                      label={'电话'}
+                      placeholder={t('customModal.social.phonePlaceholder')}
+                      label={t('customModal.social.phone')}
                       onChange={e => {
                         const newData = [...data];
                         newData[index] = {

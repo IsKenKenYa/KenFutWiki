@@ -437,7 +437,7 @@ const TreeItem = React.forwardRef<
                       }
                     }}
                   >
-                    保存
+                    {t('common.save')}
                   </Button>
                   <Button
                     variant='outlined'
@@ -456,7 +456,7 @@ const TreeItem = React.forwardRef<
                       }
                     }}
                   >
-                    取消
+                    {t('common.cancel')}
                   </Button>
                 </Stack>
               ) : (

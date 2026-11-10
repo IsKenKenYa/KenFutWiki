@@ -5,6 +5,7 @@ import { IconWenjianjia, IconWenjian, IconShanchu2 } from '@panda-wiki/icons';
 import { Box, IconButton, Stack } from '@mui/material';
 import { IconDrag } from '@panda-wiki/icons';
 import { CSSProperties, forwardRef, HTMLAttributes } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export type ItemProps = HTMLAttributes<HTMLDivElement> & {
   item: DomainRecommendNodeListResp;
@@ -29,6 +30,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation();
     const { kb_id } = useAppSelector(state => state.config);
     const inlineStyles: CSSProperties = {
       opacity: withOpacity ? '0.5' : '1',
@@ -92,7 +94,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
               <Box
                 sx={{ color: 'warning.main', fontSize: 12, lineHeight: '21px' }}
               >
-                暂无摘要，可前往文档页生成并发布
+                {t('doc.summary.notGenerated')}
               </Box>
             ) : null}
             {item.recommend_nodes && item.recommend_nodes.length > 0 && (

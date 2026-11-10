@@ -114,7 +114,7 @@ const Header = ({
         setPublishOpen(true);
       }, 200);
     }
-  }, [nodeDetail, edit]);
+  }, [nodeDetail, edit, handleSave, t]);
 
   const handleDeleteAndNavigate = async () => {
     // 深度优先遍历树，按照目录顺序收集所有文档
@@ -358,7 +358,7 @@ const Header = ({
                 textSx: { flex: 1 },
                 label: (
                   <StyledMenuSelect disabled={!isBusiness}>
-                    {t('editor.versionHistory')}
+                    {t('history.title')}
                     <VersionCanUse permission={BUSINESS_VERSION_PERMISSION} />
                   </StyledMenuSelect>
                 ),
@@ -426,7 +426,7 @@ const Header = ({
                       },
                     }}
                   >
-                    导出 HTML
+                    {t('editor.exportHtml')}
                   </Stack>
                 ),
                 onClick: () => handleExport('html'),
@@ -454,7 +454,7 @@ const Header = ({
                       },
                     }}
                   >
-                    导出 Markdown
+                    {t('editor.exportMarkdown')}
                   </Stack>
                 ),
                 onClick: () => handleExport('md'),
@@ -467,7 +467,7 @@ const Header = ({
                 disabled={!detail.name}
                 startIcon={<IconDaochu sx={{ fontSize: 14 }} />}
               >
-                导出
+                {t('editor.export')}
               </Button>
             }
           />
@@ -501,7 +501,7 @@ const Header = ({
                         },
                       }}
                     >
-                      保存
+                      {t('common.save')}
                     </Stack>
                   </Tooltip>
                 ),
@@ -530,7 +530,7 @@ const Header = ({
                       },
                     }}
                   >
-                    保存并发布
+                    {t('editor.saveAndPublish')}
                   </Stack>
                 ),
                 onClick: handlePublish,
@@ -543,7 +543,7 @@ const Header = ({
                 disabled={!detail.name}
                 startIcon={<IconBaocun sx={{ fontSize: 14 }} />}
               >
-                保存
+                {t('common.save')}
               </Button>
             }
           />

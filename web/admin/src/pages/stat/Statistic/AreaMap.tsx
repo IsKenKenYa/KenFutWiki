@@ -7,9 +7,11 @@ import { ChinaProvinceSortName } from '@/constant/area';
 import { useAppSelector } from '@/store';
 import { Box, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActiveTab, TimeList } from '.';
 
 const AreaMap = ({ tab }: { tab: ActiveTab }) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [list, setList] = useState<TrendData[]>([]);
 
@@ -53,7 +55,7 @@ const AreaMap = ({ tab }: { tab: ActiveTab }) => {
         position: 'relative',
       }}
     >
-      <MapChart map='china' data={list} tooltipText={'用户数量'} />
+      <MapChart map='china' data={list} tooltipText={t('stat.userCount')} />
       <Box
         sx={{
           position: 'absolute',
@@ -63,7 +65,7 @@ const AreaMap = ({ tab }: { tab: ActiveTab }) => {
           fontWeight: 'bold',
         }}
       >
-        用户分布
+        {t('stat.userDistribution')}
       </Box>
       <Box
         sx={{
@@ -76,7 +78,7 @@ const AreaMap = ({ tab }: { tab: ActiveTab }) => {
           color: 'text.tertiary',
         }}
       >
-        {TimeList.find(item => item.value === tab)?.label || ''}
+        {t(TimeList.find(item => item.value === tab)?.label || '')}
       </Box>
       <Card
         sx={{
@@ -113,7 +115,7 @@ const AreaMap = ({ tab }: { tab: ActiveTab }) => {
             sx={{ height: '100%', fontSize: 12, color: 'text.disabled' }}
           >
             <img src={Nodata} width={100} />
-            暂无数据
+            {t('common.noData')}
           </Stack>
         )}
       </Card>

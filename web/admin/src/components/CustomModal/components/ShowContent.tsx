@@ -33,6 +33,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import type { CSSProperties, MouseEvent } from 'react';
 import { THEME_TO_PALETTE } from '@panda-wiki/themes/constants';
+import { useTranslation } from 'react-i18next';
 
 interface ShowContentProps {
   curComponent: Component;
@@ -66,6 +67,7 @@ const SortableItem = memo(
     onDelete,
     baseUrl,
   }: SortableItemProps) => {
+    const { t } = useTranslation();
     const {
       attributes,
       listeners,
@@ -123,7 +125,7 @@ const SortableItem = memo(
             }}
           >
             <Box sx={{ bgcolor: '#5F58FE', padding: '1px 16px', height: 24 }}>
-              {item?.title}
+              {t(item?.title || '')}
             </Box>
             {!item.fixed && (
               <Stack
@@ -334,7 +336,8 @@ const ShowContent = ({
       className='show-content-container'
       sx={{
         flex: 1,
-        flexShrink: 0,
+        flexShrink: 1,
+        minWidth: 0,
         my: '20px',
         border: '1px solid #ECEEF1',
         '&::-webkit-scrollbar': {

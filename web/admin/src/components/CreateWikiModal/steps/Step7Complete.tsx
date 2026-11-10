@@ -54,7 +54,7 @@ const Step7Complete = () => {
           }
         }}
       >
-        访问 WIKI 网站
+        {t('header.visitSite')}
       </Button>
     </Stack>
   );

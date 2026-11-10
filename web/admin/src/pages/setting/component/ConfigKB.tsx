@@ -82,7 +82,7 @@ const ConfigKB = () => {
         )}
         {name !== kb?.name && (
           <Button size='small' variant='outlined' onClick={handleSave}>
-            保存
+            {t('common.save')}
           </Button>
         )}
       </Stack>
@@ -90,7 +90,7 @@ const ConfigKB = () => {
         <Box
           sx={{ fontSize: 14, lineHeight: '36px', height: '36px', width: 150 }}
         >
-          访问门户网站方式
+          {t('setting.portalAccess')}
         </Box>
         <Stack
           gap={1}

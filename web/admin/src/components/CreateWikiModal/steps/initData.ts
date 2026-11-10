@@ -70,7 +70,7 @@ export const getInitLandingData = () => ({
     {
       type: 'faq',
       faq_config: {
-        title: i18next.t('home.faqTitle'),
+        title: i18next.t('wizard.init.faqTitle'),
         title_color: '#000000',
         bg_color: '#ffffff00',
         list: [],

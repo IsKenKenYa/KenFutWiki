@@ -7,6 +7,7 @@ import SortableItem from '../../components/SortableItem';
 import Item from './Item';
 import { Empty } from '@ctzhian/ui';
 import type { ConfigProps } from '../type';
+import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/store';
 import { getApiV1NodeListGroupNav } from '@/request/Node';
 import { convertToTree } from '@/utils/drag';
@@ -16,6 +17,7 @@ import { DEFAULT_DATA } from '../../../constants';
 import { findConfigById, handleLandingConfigs } from '../../../utils';
 
 const NavDocConfig = ({ setIsEdit, id }: ConfigProps) => {
+  const { t } = useTranslation();
   const { appPreviewData, kb_id } = useAppSelector(state => state.config);
   const debouncedDispatch = useDebounceAppPreviewData();
   const { control, setValue, watch, subscribe, reset } = useForm<
@@ -99,18 +101,25 @@ const NavDocConfig = ({ setIsEdit, id }: ConfigProps) => {
   return (
     <StyledCommonWrapper>
       {/* 标题配置 */}
-      <CommonItem title='标题'>
+      <CommonItem title={t('customModal.common.title')}>
         <Controller
           control={control}
           name='title'
           render={({ field }) => (
-            <TextField label='文字' {...field} placeholder='请输入' />
+            <TextField
+              label={t('customModal.common.text')}
+              {...field}
+              placeholder={t('customModal.common.inputPlaceholder')}
+            />
           )}
         />
       </CommonItem>
 
       {/* 推荐目录列表 */}
-      <CommonItem title='推荐目录' onAdd={() => setOpen(true)}>
+      <CommonItem
+        title={t('customModal.common.recommendedNav')}
+        onAdd={() => setOpen(true)}
+      >
         {nodes.length === 0 ? (
           <Empty />
         ) : (

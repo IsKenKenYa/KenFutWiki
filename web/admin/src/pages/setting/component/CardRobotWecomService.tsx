@@ -151,12 +151,12 @@ const CardRobotWecomService = ({
               <FormControlLabel
                 value={true}
                 control={<Radio size='small' />}
-                label={<Box sx={{ width: 100 }}>启用</Box>}
+                label={<Box sx={{ width: 100 }}>{t('common.enable')}</Box>}
               />
               <FormControlLabel
                 value={false}
                 control={<Radio size='small' />}
-                label={<Box sx={{ width: 100 }}>禁用</Box>}
+                label={<Box sx={{ width: 100 }}>{t('common.disable')}</Box>}
               />
             </RadioGroup>
           )}
@@ -282,7 +282,7 @@ const CardRobotWecomService = ({
             sx={{ fontSize: 14, fontWeight: 600, color: 'warning.main' }}
           >
             <IconJinggao sx={{ fontSize: 18 }} />
-            人工客服转接配置：当用户触发以下场景时，会自动转接人工客服
+            {t('setting.humanHandoffHint')}
           </Stack>
           <VersionMask permission={PROFESSION_VERSION_PERMISSION}>
             <FormItem

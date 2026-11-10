@@ -160,7 +160,7 @@ const Upload = ({
           startIcon={<UploadIcon />}
           onClick={() => fileInputRef.current?.click()}
         >
-          选择文件
+          {t('upload.selectFile')}
         </Button>
       )}
 

@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import { useAppSelector } from '@/store';
 import { ConstsUserKBPermission } from '@/request/types';
 import { message } from '@ctzhian/ui';
@@ -23,6 +24,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   createCredential,
   disableProduct,
@@ -45,7 +47,9 @@ const emptyProduct = (): Product => ({
   pages: [],
 });
 const failure = (error: unknown) =>
-  message.error(error instanceof Error ? error.message : '操作失败');
+  message.error(
+    error instanceof Error ? error.message : i18n.t('common.operationFailed'),
+  );
 
 function ProductEditor({
   product,
@@ -56,6 +60,7 @@ function ProductEditor({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [value, setValue] = useState<Product>(emptyProduct());
   const [saving, setSaving] = useState(false);
@@ -79,27 +84,29 @@ function ProductEditor({
       fullWidth
       maxWidth='md'
     >
-      <DialogTitle>{value.id ? '编辑产品接入' : '登记产品'}</DialogTitle>
+      <DialogTitle>
+        {value.id
+          ? t('kenfut.operations.editTitle')
+          : t('kenfut.operations.register')}
+      </DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ pt: 1 }}>
-          <Alert severity='info'>
-            登记页面后，运营可在页面选择器中选择目标；产品凭证只在其服务器使用。
-          </Alert>
+          <Alert severity='info'>{t('kenfut.operations.registerHint')}</Alert>
           <TextField
-            label='产品名称'
+            label={t('kenfut.operations.productName')}
             value={value.name}
             onChange={event =>
               setValue(current => ({ ...current, name: event.target.value }))
             }
           />
           <TextField
-            label='产品 Origin'
+            label={t('kenfut.operations.productOrigin')}
             placeholder='https://product.example'
             value={value.origin}
             onChange={event =>
               setValue(current => ({ ...current, origin: event.target.value }))
             }
-            helperText='仅协议、域名和端口，不含路径；本地参考产品允许 localhost HTTP'
+            helperText={t('kenfut.operations.originHint')}
           />
           <FormControlLabel
             control={
@@ -110,9 +117,11 @@ function ProductEditor({
                 }
               />
             }
-            label='启用接入'
+            label={t('kenfut.operations.enable')}
           />
-          <Typography fontWeight='bold'>页面目录</Typography>
+          <Typography fontWeight='bold'>
+            {t('kenfut.operations.pageCatalog')}
+          </Typography>
           {value.pages.map((page, index) => (
             <Stack
               spacing={1}
@@ -128,7 +137,7 @@ function ProductEditor({
                 <TextField
                   fullWidth
                   size='small'
-                  label='稳定页面键'
+                  label={t('kenfut.operations.stablePageKey')}
                   value={page.key}
                   onChange={event =>
                     updatePage(index, { key: event.target.value })
@@ -137,7 +146,7 @@ function ProductEditor({
                 <TextField
                   fullWidth
                   size='small'
-                  label='页面名称'
+                  label={t('kenfut.operations.pageName')}
                   value={page.name}
                   onChange={event =>
                     updatePage(index, { name: event.target.value })
@@ -154,12 +163,12 @@ function ProductEditor({
                     }))
                   }
                 >
-                  移除
+                  {t('kenfut.common.remove')}
                 </Button>
               </Stack>
               <TextField
                 size='small'
-                label='页面路径'
+                label={t('kenfut.operations.pagePath')}
                 placeholder='/workspace'
                 value={page.path}
                 onChange={event =>
@@ -168,7 +177,7 @@ function ProductEditor({
               />
               <TextField
                 size='small'
-                label='允许的参数（逗号分隔）'
+                label={t('kenfut.operations.allowedParams')}
                 placeholder='campaign,template'
                 value={page.parameters.join(',')}
                 onChange={event =>
@@ -193,12 +202,12 @@ function ProductEditor({
               }))
             }
           >
-            添加页面
+            {t('kenfut.operations.addPage')}
           </Button>
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>取消</Button>
+        <Button onClick={onClose}>{t('common.cancel')}</Button>
         <Button
           variant='contained'
           disabled={saving || !value.name.trim() || !value.origin.trim()}
@@ -207,7 +216,7 @@ function ProductEditor({
             setSaving(true);
             try {
               await saveProduct(value, kb_id);
-              message.success('产品配置已保存');
+              message.success(t('kenfut.operations.productSaved'));
               onSaved();
               onClose();
             } catch (error) {
@@ -217,7 +226,7 @@ function ProductEditor({
             }
           }}
         >
-          保存
+          {t('common.save')}
         </Button>
       </DialogActions>
     </Dialog>
@@ -231,6 +240,7 @@ function CredentialsDialog({
   product: Product | null;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [keys, setKeys] = useState<Credential[]>([]);
   const [token, setToken] = useState('');
@@ -253,17 +263,19 @@ function CredentialsDialog({
   };
   return (
     <Dialog open={Boolean(product)} onClose={close} fullWidth maxWidth='sm'>
-      <DialogTitle>{product?.name} · 服务端凭证</DialogTitle>
+      <DialogTitle>
+        {t('kenfut.operations.credentialsTitle', { name: product?.name })}
+      </DialogTitle>
       <DialogContent>
         <Stack spacing={2}>
           <Alert severity='warning'>
-            完整凭证仅在创建后显示一次。保存在产品服务器环境变量中，不放入浏览器或跳转链接。
+            {t('kenfut.operations.credentialsHint')}
           </Alert>
           {token && (
             <>
               <TextField
                 multiline
-                label='新凭证（关闭后不再显示）'
+                label={t('kenfut.operations.newCredential')}
                 value={token}
                 slotProps={{ input: { readOnly: true } }}
               />
@@ -271,11 +283,11 @@ function CredentialsDialog({
                 onClick={() =>
                   navigator.clipboard
                     .writeText(token)
-                    .then(() => message.success('已复制'))
+                    .then(() => message.success(t('kenfut.operations.copied')))
                     .catch(failure)
                 }
               >
-                复制凭证
+                {t('kenfut.operations.copyCredential')}
               </Button>
             </>
           )}
@@ -285,8 +297,8 @@ function CredentialsDialog({
                 key={scope}
                 label={
                   scope === 'conversion:write'
-                    ? '回传注册与首次成功事件'
-                    : '查询本产品聚合漏斗'
+                    ? t('kenfut.operations.scopeConversion')
+                    : t('kenfut.operations.scopeAnalytics')
                 }
                 control={
                   <Checkbox
@@ -320,7 +332,7 @@ function CredentialsDialog({
               }
             }}
           >
-            创建凭证
+            {t('kenfut.operations.createCredential')}
           </Button>
           <Divider />
           {keys.map(key => (
@@ -332,7 +344,7 @@ function CredentialsDialog({
                 </Typography>
               </Box>
               {key.revoked_at ? (
-                <Chip label='已撤销' size='small' />
+                <Chip label={t('kenfut.operations.revoked')} size='small' />
               ) : (
                 <Button
                   color='error'
@@ -343,7 +355,7 @@ function CredentialsDialog({
                     try {
                       await revokeCredential(product.id, key.id, kb_id);
                       await load();
-                      message.success('凭证已撤销');
+                      message.success(t('kenfut.operations.revokeSuccess'));
                     } catch (error) {
                       failure(error);
                     } finally {
@@ -351,24 +363,27 @@ function CredentialsDialog({
                     }
                   }}
                 >
-                  撤销
+                  {t('kenfut.operations.revoke')}
                 </Button>
               )}
             </Stack>
           ))}
           {!keys.length && (
-            <Typography color='text.secondary'>尚无凭证</Typography>
+            <Typography color='text.secondary'>
+              {t('kenfut.operations.noCredentials')}
+            </Typography>
           )}
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={close}>关闭</Button>
+        <Button onClick={close}>{t('common.close')}</Button>
       </DialogActions>
     </Dialog>
   );
 }
 
 function FunnelPanel({ products }: { products: Product[] }) {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [product, setProduct] = useState('');
   const [from, setFrom] = useState(() =>
@@ -396,26 +411,27 @@ function FunnelPanel({ products }: { products: Product[] }) {
     try {
       setData(await getFunnel(query));
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : '统计加载失败');
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : t('kenfut.operations.funnelLoadFailed'),
+      );
     } finally {
       setLoading(false);
     }
   };
   return (
     <Stack spacing={3}>
-      <Alert severity='info'>
-        归因按产品计算：点击后 30 天内最后一次有效
-        CTA，注册锁定来源，首次成功生成沿用。浏览和点击来自站点，后两段由产品服务器回传。
-      </Alert>
+      <Alert severity='info'>{t('kenfut.operations.attributionHint')}</Alert>
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
         <TextField
           select
-          label='产品'
+          label={t('kenfut.common.product')}
           value={product}
           onChange={event => setProduct(event.target.value)}
           sx={{ minWidth: 180 }}
         >
-          <MenuItem value=''>全部产品</MenuItem>
+          <MenuItem value=''>{t('kenfut.operations.allProducts')}</MenuItem>
           {products.map(item => (
             <MenuItem key={item.id} value={item.id}>
               {item.name}
@@ -424,14 +440,14 @@ function FunnelPanel({ products }: { products: Product[] }) {
         </TextField>
         <TextField
           type='date'
-          label='开始日期'
+          label={t('kenfut.operations.startDate')}
           value={from}
           onChange={event => setFrom(event.target.value)}
           slotProps={{ inputLabel: { shrink: true } }}
         />
         <TextField
           type='date'
-          label='结束日期'
+          label={t('kenfut.operations.endDate')}
           value={to}
           onChange={event => setTo(event.target.value)}
           slotProps={{ inputLabel: { shrink: true } }}
@@ -441,15 +457,19 @@ function FunnelPanel({ products }: { products: Product[] }) {
           disabled={loading || !from || !to || from > to}
           onClick={load}
         >
-          {loading ? '查询中' : '查询漏斗'}
+          {loading
+            ? t('kenfut.operations.querying')
+            : t('kenfut.operations.queryFunnel')}
         </Button>
       </Stack>
       <Stack direction='row' spacing={1} alignItems='center'>
-        <Button onClick={() => setPicker(true)}>选择来源文章</Button>
+        <Button onClick={() => setPicker(true)}>
+          {t('kenfut.operations.selectSourceArticle')}
+        </Button>
         {node && <Chip label={node.slice(0, 8)} onDelete={() => setNode('')} />}
         <TextField
           size='small'
-          label='CTA ID（可选）'
+          label={t('kenfut.operations.ctaIdOptional')}
           value={cta}
           onChange={event => setCta(event.target.value)}
         />
@@ -465,21 +485,35 @@ function FunnelPanel({ products }: { products: Product[] }) {
             }}
           >
             {[
-              ['文章浏览', data.views, `${data.viewers} 位访客 · 仅文章页面`],
-              ['CTA 点击', data.clicks, `${data.clickers} 位访客`],
               [
-                '归因注册',
-                data.registration_connected ? data.registrations : '未接入',
-                data.registration_connected
-                  ? '产品内注册账号'
-                  : '尚未收到注册服务端事件',
+                t('kenfut.operations.articleViews'),
+                data.views,
+                t('kenfut.operations.viewersArticleOnly', {
+                  count: data.viewers,
+                }),
               ],
               [
-                '首次成功生成',
-                data.generation_connected ? data.first_generations : '未接入',
+                t('kenfut.operations.ctaClicks'),
+                data.clicks,
+                t('kenfut.operations.viewers', { count: data.clickers }),
+              ],
+              [
+                t('kenfut.operations.attributedRegistrations'),
+                data.registration_connected
+                  ? data.registrations
+                  : t('kenfut.common.notConnected'),
+                data.registration_connected
+                  ? t('kenfut.operations.registrationsCaption')
+                  : t('kenfut.operations.registrationsMissing'),
+              ],
+              [
+                t('kenfut.operations.firstGenerations'),
                 data.generation_connected
-                  ? '产品内成功账号'
-                  : '尚未收到首次成功生成服务端事件',
+                  ? data.first_generations
+                  : t('kenfut.common.notConnected'),
+                data.generation_connected
+                  ? t('kenfut.operations.generationsCaption')
+                  : t('kenfut.operations.generationsMissing'),
               ],
             ].map(([label, count, caption]) => (
               <Paper key={String(label)} variant='outlined' sx={{ p: 2 }}>
@@ -493,54 +527,69 @@ function FunnelPanel({ products }: { products: Product[] }) {
           </Box>
           <Paper variant='outlined' sx={{ p: 2 }}>
             <Typography color='text.secondary'>
-              文档浏览（独立口径，不参与文章漏斗）
+              {t('kenfut.operations.documentViews')}
             </Typography>
             <Typography variant='h6' sx={{ my: 1 }}>
               {data.document_views ?? 0}
             </Typography>
             <Typography variant='caption'>
-              {data.document_viewers ?? 0} 位访客
+              {t('kenfut.operations.viewers', {
+                count: data.document_viewers ?? 0,
+              })}
             </Typography>
           </Paper>
           <Stack direction='row' spacing={1} useFlexGap flexWrap='wrap'>
             <Chip
-              label={`浏览 → 点击：${formatFunnelRate(data.clickers, data.viewers)}`}
+              label={t('kenfut.operations.rateViewToClick', {
+                rate: formatFunnelRate(data.clickers, data.viewers),
+              })}
             />
             <Chip
-              label={`点击 → 注册：${formatFunnelRate(data.registered_visitors, data.clickers, data.registration_connected)}`}
+              label={t('kenfut.operations.rateClickToRegistration', {
+                rate: formatFunnelRate(
+                  data.registered_visitors,
+                  data.clickers,
+                  data.registration_connected,
+                ),
+              })}
             />
             <Chip
-              label={`注册 → 首次成功：${formatFunnelRate(data.first_generation_visitors, data.registered_visitors, data.registration_connected && data.generation_connected)}`}
+              label={t('kenfut.operations.rateRegistrationToGeneration', {
+                rate: formatFunnelRate(
+                  data.first_generation_visitors,
+                  data.registered_visitors,
+                  data.registration_connected && data.generation_connected,
+                ),
+              })}
             />
           </Stack>
           <Typography variant='body2' color='text.secondary'>
-            归因注册访客：
-            {data.registration_connected
-              ? data.registered_visitors
-              : '未接入'}{' '}
-            · 首次成功访客：
-            {data.generation_connected
-              ? data.first_generation_visitors
-              : '未接入'}
-            。转化率按同一来源访客去重计算，产品账号数单独展示。
+            {t('kenfut.operations.visitorSummary', {
+              registered: data.registration_connected
+                ? data.registered_visitors
+                : t('kenfut.common.notConnected'),
+              generations: data.generation_connected
+                ? data.first_generation_visitors
+                : t('kenfut.common.notConnected'),
+            })}
           </Typography>
           <Typography color='text.secondary'>
-            未归因注册：
-            {data.registration_connected
-              ? (data.unattributed_registrations ?? 0)
-              : '未接入'}{' '}
-            · 未归因首次成功生成：
-            {data.generation_connected
-              ? (data.unattributed_first_generations ?? 0)
-              : '未接入'}
+            {t('kenfut.operations.unattributedSummary', {
+              registrations: data.registration_connected
+                ? (data.unattributed_registrations ?? 0)
+                : t('kenfut.common.notConnected'),
+              generations: data.generation_connected
+                ? (data.unattributed_first_generations ?? 0)
+                : t('kenfut.common.notConnected'),
+            })}
           </Typography>
           {!data.conversion_connected && (
             <Alert severity='info'>
-              服务端事件尚未全部接入。接入状态按是否收到过对应事件判断，与当前日期范围无关。
+              {t('kenfut.operations.serverEventsHint')}
             </Alert>
           )}
           <Typography variant='body2' color='text.secondary'>
-            文章浏览只统计文章页面；文档浏览单独展示，不进入漏斗。浏览次数、去重访客和产品账号为不同口径；未归因事件不会被强行计入文章转化。
+            {t('kenfut.operations.metricNote')}
           </Typography>
           {data.items && data.items.length > 0 && (
             <Box sx={{ overflow: 'auto' }}>
@@ -564,8 +613,8 @@ function FunnelPanel({ products }: { products: Product[] }) {
                         >
                           {typeof entry === 'boolean'
                             ? entry
-                              ? '已接入'
-                              : '未接入'
+                              ? t('kenfut.common.connected')
+                              : t('kenfut.common.notConnected')
                             : entry}
                         </td>
                       ))}
@@ -578,7 +627,7 @@ function FunnelPanel({ products }: { products: Product[] }) {
         </>
       ) : (
         <Typography color='text.secondary'>
-          选择日期和产品后查询。尚未回传事件的产品不代表已经完成转化接入。
+          {t('kenfut.operations.funnelEmptyHint')}
         </Typography>
       )}
       <PagePicker
@@ -592,6 +641,7 @@ function FunnelPanel({ products }: { products: Product[] }) {
 }
 
 export default function Operations() {
+  const { t } = useTranslation();
   const { kb_id, kbDetail } = useAppSelector(state => state.config);
   const canManage =
     kbDetail.perm === ConstsUserKBPermission.UserKBPermissionFullControl;
@@ -615,9 +665,13 @@ export default function Operations() {
       const result = await getProducts(kb_id);
       setProducts(result.items || []);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : '加载失败');
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : t('kenfut.common.loadFailed'),
+      );
     }
-  }, [kb_id]);
+  }, [kb_id, t]);
   useEffect(() => {
     void load();
   }, [load]);
@@ -627,15 +681,21 @@ export default function Operations() {
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1300, mx: 'auto' }}>
       <Typography variant='h5' fontWeight='bold'>
-        内容运营与产品接入
+        {t('kenfut.operations.title')}
       </Typography>
       <Typography color='text.secondary' sx={{ mt: 1 }}>
-        KenFutWiki · 公开内容、多产品跳转与转化分析
+        {t('kenfut.operations.subtitle')}
       </Typography>
       <Tabs value={tab} onChange={(_, value) => setTab(value)} sx={{ my: 3 }}>
-        {canManage && <Tab value='products' label='产品接入' />}
-        {canReadAnalytics && <Tab value='funnel' label='转化漏斗' />}
-        {canEditContent && <Tab value='content' label='内容运营' />}
+        {canManage && (
+          <Tab value='products' label={t('kenfut.operations.tabProducts')} />
+        )}
+        {canReadAnalytics && (
+          <Tab value='funnel' label={t('kenfut.operations.tabFunnel')} />
+        )}
+        {canEditContent && (
+          <Tab value='content' label={t('kenfut.operations.tabContent')} />
+        )}
       </Tabs>
       {error && (
         <Alert severity='error' sx={{ mb: 2 }}>
@@ -649,9 +709,9 @@ export default function Operations() {
               variant='contained'
               onClick={() => setEditing(emptyProduct())}
             >
-              登记产品
+              {t('kenfut.operations.register')}
             </Button>
-            <Button onClick={load}>刷新</Button>
+            <Button onClick={load}>{t('common.refresh')}</Button>
           </Stack>
           {products.map(product => (
             <Paper key={product.id} variant='outlined' sx={{ p: 2 }}>
@@ -659,15 +719,22 @@ export default function Operations() {
                 <Box sx={{ flex: 1 }}>
                   <Typography fontWeight='bold'>
                     {product.name}{' '}
-                    {!product.enabled && <Chip size='small' label='已停用' />}
+                    {!product.enabled && (
+                      <Chip size='small' label={t('common.disabled')} />
+                    )}
                   </Typography>
                   <Typography variant='body2' color='text.secondary'>
-                    {product.origin} · {product.pages?.length || 0} 个页面
+                    {t('kenfut.operations.pageCount', {
+                      origin: product.origin,
+                      count: product.pages?.length || 0,
+                    })}
                   </Typography>
                 </Box>
-                <Button onClick={() => setEditing(product)}>编辑页面</Button>
+                <Button onClick={() => setEditing(product)}>
+                  {t('kenfut.operations.editPages')}
+                </Button>
                 <Button onClick={() => setCredentials(product)}>
-                  服务端凭证
+                  {t('kenfut.operations.serverCredentials')}
                 </Button>
                 {product.enabled && (
                   <Button
@@ -677,13 +744,13 @@ export default function Operations() {
                       try {
                         await disableProduct(product.id, kb_id);
                         await load();
-                        message.success('已停用');
+                        message.success(t('common.disabled'));
                       } catch (reason) {
                         failure(reason);
                       }
                     }}
                   >
-                    停用
+                    {t('common.disable')}
                   </Button>
                 )}
               </Stack>
@@ -691,8 +758,7 @@ export default function Operations() {
           ))}
           {!products.length && (
             <Alert severity='info'>
-              先登记一个产品及其页面，再在文章 CTA
-              中选择目标。注册和生成结果由产品服务器回传。
+              {t('kenfut.operations.emptyProductsHint')}
             </Alert>
           )}
         </Stack>
@@ -702,16 +768,13 @@ export default function Operations() {
       )}
       {canEditContent && tab === 'content' && (
         <Stack spacing={2}>
-          <Alert severity='info'>
-            编辑器顶部“文章设置”支持草稿内容。这里可选择已发布页面调整文章入口、封面、分类标签、推荐及
-            CTA；保存后需发布。
-          </Alert>
+          <Alert severity='info'>{t('kenfut.operations.contentHint')}</Alert>
           <Button
             variant='contained'
             sx={{ alignSelf: 'flex-start' }}
             onClick={() => setPicker(true)}
           >
-            选择内容并编辑运营属性
+            {t('kenfut.operations.selectContent')}
           </Button>
         </Stack>
       )}

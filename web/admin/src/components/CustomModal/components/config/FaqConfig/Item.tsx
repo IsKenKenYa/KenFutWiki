@@ -8,6 +8,7 @@ import {
   HTMLAttributes,
   SetStateAction,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type FaqItem = {
   id: string;
@@ -40,6 +41,7 @@ const FaqItem = forwardRef<HTMLDivElement, FaqItemProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation();
     const inlineStyles: CSSProperties = {
       opacity: withOpacity ? '0.5' : '1',
       borderRadius: '10px',
@@ -72,7 +74,7 @@ const FaqItem = forwardRef<HTMLDivElement, FaqItemProps>(
             }}
           >
             <TextField
-              label='问题'
+              label={t('customModal.question.question')}
               slotProps={{
                 inputLabel: {
                   shrink: true,
@@ -89,7 +91,7 @@ const FaqItem = forwardRef<HTMLDivElement, FaqItemProps>(
                 },
               }}
               fullWidth
-              placeholder='请输入问题'
+              placeholder={t('customModal.question.questionPlaceholder')}
               variant='outlined'
               value={item.question}
               onChange={e => {
@@ -99,7 +101,7 @@ const FaqItem = forwardRef<HTMLDivElement, FaqItemProps>(
               }}
             />
             <LinkTextField
-              label='链接'
+              label={t('customModal.common.link')}
               slotProps={{
                 inputLabel: {
                   shrink: true,
@@ -116,7 +118,7 @@ const FaqItem = forwardRef<HTMLDivElement, FaqItemProps>(
                 },
               }}
               fullWidth
-              placeholder='请输入链接'
+              placeholder={t('customModal.common.linkPlaceholder')}
               variant='outlined'
               value={item.link}
               onChange={e => {

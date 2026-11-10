@@ -7,7 +7,6 @@
     "search": "Search",
     "delete": "Delete",
     "edit": "Edit",
-    "create": "New",
     "close": "Close",
     "copy": "Copy",
     "copied": "Copied",
@@ -46,7 +45,11 @@
     "noData": "No data",
     "create": "Create",
     "anonymous": "Anonymous user",
-    "tip": "Notice"
+    "tip": "Notice",
+    "enter": "Enter a value",
+    "verifyFailed": "Verification failed, please try again",
+    "viewMore": "More",
+    "reset": "Reset"
   },
   "system": {
     "title": "System settings",
@@ -156,7 +159,28 @@
     "headerKeyLabel": "Custom header key",
     "headerValueLabel": "Custom header value",
     "apiVersionHint": "Azure OpenAI deployment API version, e.g. 2024-08-01-preview",
-    "saveHint": "A connection test runs automatically before saving. Metadata comes from the built-in model catalog (cherry-studio provider-registry, MIT). For uncatalogued models, fill in the advanced parameters manually."
+    "saveHint": "A connection test runs automatically before saving. Metadata comes from the built-in model catalog (cherry-studio provider-registry, MIT). For uncatalogued models, fill in the advanced parameters manually.",
+    "chatTitle": "Chat model",
+    "embeddingTitle": "Embedding model",
+    "rerankTitle": "Rerank model",
+    "analysisTitle": "Document analysis model",
+    "analysisVlTitle": "Image analysis model",
+    "largeModel": "Large model",
+    "smallModel": "Small model",
+    "visionModel": "Vision model",
+    "required": "Required",
+    "optional": "Optional",
+    "optionalModel": "Optional",
+    "requiredConfig": "Required",
+    "notConfigured": "Not configured",
+    "statusOk": "Active",
+    "apply": "Apply",
+    "vectorHint": "Note: changing the embedding model triggers re-studying.",
+    "usageChat": "Used during AI Q&A and summary generation.",
+    "usageEmbedding": "Used during content publishing, AI Q&A, and AI search.",
+    "usageRerank": "Used during AI Q&A and AI search.",
+    "usageAnalysis": "Used during content publishing and AI Q&A.",
+    "usageAnalysisVl": "Used during content publishing and AI Q&A. When enabled, image analysis becomes available. Optional."
   },
   "perm": {
     "fullOpen": "Fully open",
@@ -229,6 +253,12 @@
       "full": "Full width",
       "wide": "Wide",
       "normal": "Normal"
+    },
+    "license": {
+      "free": "Free",
+      "pro": "Professional",
+      "business": "Business",
+      "enterprise": "Enterprise"
     }
   },
   "version": {
@@ -268,10 +298,34 @@
     "colFeedback": "Feedback",
     "colUser": "User",
     "colIp": "Source IP",
-    "colTime": "Time"
+    "colTime": "Time",
+    "tabEvaluate": "AI feedback",
+    "tabComments": "Document comments",
+    "statusPending": "Pending review",
+    "statusApproved": "Approved",
+    "statusRejected": "Rejected",
+    "approve": "Approve",
+    "reject": "Reject",
+    "deleteCommentTitle": "Delete comment",
+    "deleteCommentConfirm": "Delete this comment?",
+    "rejectCommentTitle": "Reject comment",
+    "rejectCommentConfirm": "Reject this comment?",
+    "rejectSuccess": "Comment rejected",
+    "approveCommentTitle": "Approve comment",
+    "approveCommentConfirm": "Approve this comment?",
+    "approveSuccess": "Comment approved",
+    "colDoc": "Document",
+    "colStatus": "Status",
+    "colName": "Name",
+    "colContent": "Comment",
+    "colPublishedAt": "Published at",
+    "colActions": "Actions"
   },
   "conversation": {
-    "imageQa": "Image Q&A"
+    "imageQa": "Image Q&A",
+    "recordTitle": "Q&A record",
+    "contentSource": "Sources",
+    "thought": "Thought process"
   },
   "stat": {
     "qaSources": "QA sources",
@@ -283,7 +337,12 @@
     "last7d": "Last 7 days",
     "last30d": "Last 30 days",
     "last90d": "Last 90 days",
-    "realtimeVisitors": "Live visitors"
+    "realtimeVisitors": "Live visitors",
+    "userCount": "Users",
+    "userDistribution": "User distribution",
+    "client": "Clients",
+    "refererHost": "Referrer domains",
+    "hotDocs": "Popular documents"
   },
   "nav": {
     "editTitle": "Edit catalog",
@@ -301,7 +360,8 @@
     "deleteWarningDocs": "deleted together",
     "deleteWarningJoin": ", and this",
     "deleteWarningIrrecoverable": "cannot be undone",
-    "deleteWarningSuffix": ". Please proceed carefully."
+    "deleteWarningSuffix": ". Please proceed carefully.",
+    "deleteTitle": "Delete catalog"
   },
   "addDoc": {
     "importFile": "Import file",
@@ -338,7 +398,19 @@
       "sitemapPlaceholder": "Sitemap URL",
       "feishuAppIdPath": "Feishu Open Platform > Credentials & Basic Info > App Credentials > App ID",
       "feishuSecretPath": "Feishu Open Platform > Credentials & Basic Info > App Credentials > App Secret"
-    }
+    },
+    "importedCount": "Imported: {{count}}",
+    "importedCountWithTotal": "Imported: {{count}} / {{total}}",
+    "notImportedCount": "Not imported: {{count}}",
+    "parseFailedCount": "Parse failed: {{count}}",
+    "importFailedCount": "Import failed: {{count}}",
+    "processingCount": "Processing: {{count}}",
+    "batchParse": "Parse selected",
+    "batchImport": "Import selected",
+    "selectFolderAll": "Select all in folder",
+    "cancelSelectFolderAll": "Deselect folder",
+    "pullDocs": "Fetch documents",
+    "usage": "How to use"
   },
   "kb": {
     "createNew": "New wiki site",
@@ -410,7 +482,8 @@
     "autoBucketHint": "Creates the bucket if missing; on cloud providers, create it in the console with public read first",
     "secureHint": "Access storage over HTTPS (usually enabled on cloud providers)",
     "on": "On",
-    "off": "Off"
+    "off": "Off",
+    "testStepMessage": "{{name}}: {{message}}"
   },
   "auth": {
     "editionTip": "(Unite edition / Enterprise edition only)",
@@ -456,8 +529,7 @@
   "widget": {
     "defaultBtnText": "Live support",
     "embedCode": "Embed code",
-    "noDomainPrefix": "No domain configured. Set it under",
-    "noDomainSuffix": "",
+    "noDomainHint": "No domain configured. Set it under <path>{{path}}</path>",
     "themeConfig": "Color scheme",
     "themeLight": "Light",
     "themeDark": "Dark",
@@ -483,7 +555,11 @@
     "modeDoc": "Doc search mode",
     "searchPlaceholderLabel": "Search hint",
     "searchPlaceholderDefault": "Ask AI",
-    "recommendQuestions": "Suggested questions"
+    "recommendQuestions": "Suggested questions",
+    "positionTopLeft": "Top left",
+    "positionTopRight": "Top right",
+    "positionBottomLeft": "Bottom left",
+    "positionBottomRight": "Bottom right"
   },
   "setting": {
     "tabPortal": "Portal site",
@@ -626,8 +702,33 @@
       "filterPlaceholder": "Filter by username",
       "joinedAt": "joined {{time}}, ",
       "activeAt": "active {{time}}",
-      "memberCount": "{{count}} members"
-    }
+      "memberCount": "{{count}} members",
+      "sync": "Sync"
+    },
+    "auth": {
+      "title": "Access authentication",
+      "editionTip": "(Unite edition / Enterprise edition only)",
+      "password": "Password",
+      "dingtalk": "DingTalk",
+      "feishu": "Feishu",
+      "wecom": "WeCom",
+      "oauth": "OAuth",
+      "cas": "CAS",
+      "ldap": "LDAP",
+      "github": "GitHub"
+    },
+    "apiTokenRequired": "API Token is required",
+    "apiCallUrl": "API endpoint",
+    "answerType": "Reply type",
+    "answerCard": "Card",
+    "answerText": "Text",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "accessForbidden": "Blocked",
+    "addCardEmpty": "No data. Create and publish documents on the Documents page first.",
+    "portalAccess": "Portal access",
+    "addDocument": "Add document",
+    "humanHandoffHint": "Human handoff: users are automatically transferred to a human agent when any of the following conditions are met."
   },
   "wizard": {
     "step": {
@@ -658,7 +759,9 @@
       "hotSearch3": "How do I configure article CTAs?",
       "quickStart": "Quick start",
       "faqTitle": "FAQ"
-    }
+    },
+    "storageHint": "Uploaded files are stored in the built-in MinIO by default. You can switch to any S3-compatible storage such as Alibaba Cloud OSS. This step is optional; you can change it later under Settings → Storage.",
+    "useDefaultStorage": "Use default storage (recommended, no setup required)"
   },
   "upload": {
     "clickToUpload": "Click to upload",
@@ -668,12 +771,8 @@
     "acceptFormats": "Supported formats: {formats}",
     "allFiles": "all files",
     "failed": "Upload failed",
-    "imageProcessFailed": "Failed to process the image"
-  },
-  "perm": {
-    "fullOpen": "Fully open",
-    "partialOpen": "Partially open",
-    "fullClosed": "Fully restricted"
+    "imageProcessFailed": "Failed to process the image",
+    "selectFile": "Choose files"
   },
   "doc": {
     "searchPlaceholder": "Search content",
@@ -690,7 +789,6 @@
     "publish": "Publish document",
     "publishUpdate": "Publish update",
     "restudyAgain": "Restudy",
-    "properties": "Document properties",
     "createFolder": "New folder",
     "createDocument": "New document",
     "createRichText": "New rich text",
@@ -698,8 +796,8 @@
     "importDocuments": "Import documents",
     "catalog": "Catalog",
     "untitled": "Untitled",
-    "folder": "folder",
-    "document": "document",
+    "folder": "Folder",
+    "document": "Document",
     "createSuccess": "Created",
     "editEntity": "Edit {{entity}}",
     "createEntity": "Create {{entity}}",
@@ -745,7 +843,9 @@
       "selectTarget": "Please select a target catalog",
       "success": "Moved",
       "currentNav": "(current catalog)",
-      "otherNav": "(other catalog)"
+      "otherNav": "(other catalog)",
+      "rootPath": "Root",
+      "noNavs": "No catalogs available"
     },
     "summary": {
       "title": "Document summary",
@@ -759,7 +859,9 @@
       "autoGenerateHint": "Click to generate a summary with AI",
       "confirmBulk": "Generate AI summaries for these documents?",
       "backgroundStarted": "Summaries are being generated in the background",
-      "bulkHint": "AI generation takes a while; check back later."
+      "bulkHint": "AI generation takes a while; check back later.",
+      "notGenerated": "No summary yet. Generate and publish it from the document page.",
+      "emptyClickGenerate": "No summary yet. Click <action>Generate summary</action>."
     },
     "restudy": {
       "title": "Study documents",
@@ -769,9 +871,6 @@
       "unstudiedLabel": "Unstudied / failed documents",
       "countSummary": "{{total}} in total, {{selected}} selected"
     },
-    "createFolder": "New folder",
-    "createDocument": "New document",
-    "catalog": "Catalog",
     "properties": {
       "title": "Document properties",
       "editSuccess": "Updated",
@@ -789,7 +888,16 @@
       "visitableGroups": "Groups allowed to visit",
       "visible": "Visible in navigation",
       "visibleGroups": "Groups allowed to see it"
-    }
+    },
+    "totalDocs": "<num>{{total}}</num> documents",
+    "selectedCount": "{{count}} selected",
+    "batchMove": "Move selected",
+    "batchActions": "Batch actions",
+    "unpublishedNavCount": "Unpublished catalogs: {{count}}",
+    "unpublishedDocCount": "Unpublished docs/folders: {{count}}",
+    "unstudiedDocCount": "Docs not studied: {{count}}",
+    "goPublish": "Publish",
+    "goStudy": "Study now"
   },
   "editor": {
     "aiPolish": "AI polish",
@@ -803,13 +911,40 @@
     "selectTextFirst": "Select some text first",
     "exportSuccess": "Exported",
     "viewHistory": "View version history",
-    "contentPlaceholder": "Enter the document content"
+    "contentPlaceholder": "Enter the document content",
+    "export": "Export",
+    "exportHtml": "Export HTML",
+    "exportMarkdown": "Export Markdown",
+    "saveAndPublish": "Save and publish",
+    "createdBy": "Created by {{name}}",
+    "lastPublishedBy": "Last published by {{name}}",
+    "createdAt": "Created {{time}}",
+    "views": "{{count}} views",
+    "outline": "Outline",
+    "alreadyLatest": "Already the latest version",
+    "copyNameSuffix": "{{name}} copy",
+    "createTranslation": "Create translation",
+    "duplicate": "Duplicate",
+    "notPublished": "The document is not published yet",
+    "rename": "Rename",
+    "saved": "Saved",
+    "translationCreated": "Translation created",
+    "viewOnSite": "View on site"
   },
   "history": {
     "editedBy": "Edited by {{name}}",
     "editedAt": "Edited at {{time}}",
     "characterCount": "{{count}} characters",
-    "unpublishedDraft": "Unpublished draft"
+    "unpublishedDraft": "Unpublished draft",
+    "title": "Version history",
+    "restore": "Restore",
+    "rollbackTitle": "Use this version?",
+    "rollbackWarning": "Using this version overwrites the current draft.",
+    "versionNumber": "Version",
+    "versionDescription": "Description",
+    "creatorLabel": "Created by",
+    "editorLabel": "Edited by",
+    "publisherLabel": "Published by"
   },
   "layout": {
     "nav": {
@@ -866,13 +1001,11 @@
       "edition": "Edition",
       "period": "License period",
       "expired": "License expired"
-    }
+    },
+    "sourceCode": "AGPLv3 · Source code"
   },
   "header": {
     "visitSite": "Visit wiki site"
-  },
-  "version": {
-    "sourceCode": "AGPLv3 · Source code"
   },
   "login": {
     "title": "KenFutWiki Admin",
@@ -890,5 +1023,394 @@
     "title": "Access denied",
     "desc": "This account has no accessible knowledge base. Contact an administrator to grant access.",
     "backHome": "Back to home"
+  },
+  "contribution": {
+    "statusApproved": "Accepted",
+    "statusRejected": "Rejected",
+    "statusPending": "Pending",
+    "typeAdd": "New",
+    "typeEdit": "Edit",
+    "accept": "Accept",
+    "acceptConfirm": "Accept this change?",
+    "acceptSuccess": "Change accepted",
+    "reject": "Reject",
+    "rejectConfirm": "Reject this change?",
+    "rejectSuccess": "Change rejected",
+    "colDoc": "Document",
+    "colUpdateNote": "Change note",
+    "colUser": "User",
+    "colTime": "Time",
+    "colActions": "Actions",
+    "fromUserAdd": "New contribution from {{name}}",
+    "fromUserEdit": "Edit from {{name}}",
+    "selectCatalog": "Select catalog",
+    "noCatalog": "No catalogs",
+    "rootPath": "Root",
+    "submitNote": "Submission note:",
+    "compare": "Compare",
+    "diffView": "Diff view",
+    "diffViewDesc": "See changes at a glance",
+    "afterChange": "After",
+    "afterChangeDesc": "Proposed content",
+    "beforeChange": "Before",
+    "beforeChangeDesc": "Original content"
+  },
+  "release": {
+    "versionNo": "Version",
+    "currentVersion": "Current",
+    "remark": "Note",
+    "publisher": "Publisher",
+    "publishedAt": "Published at",
+    "totalHistory": "<num>{{count}}</num> versions in total",
+    "publishTitle": "Publish new version",
+    "deleteConfirm": "Delete the following version?",
+    "resetConfirm": "Roll back to the following version?",
+    "rollback": "Roll back",
+    "publishSuccess": "Version {{tag}} published",
+    "selectDocs": "Select documents to publish",
+    "noUnpublished": "No unpublished documents or catalogs",
+    "defaultMessage": "Release at {{time}}",
+    "versionNoRequired": "Version is required",
+    "versionNoPlaceholder": "Enter a version",
+    "versionDesc": "Description",
+    "versionDescRequired": "Description is required",
+    "versionDescPlaceholder": "Enter a description",
+    "unpublishedNavs": "Unpublished catalogs",
+    "navCount": "{{count}} in total",
+    "unpublishedDocs": "Unpublished documents/folders",
+    "countSummary": "{{total}} in total, {{selected}} selected"
+  },
+  "customModal": {
+    "modal": {
+      "defaultTitle": "Custom welcome page"
+    },
+    "sidebar": {
+      "colorScheme": "Color scheme",
+      "components": "Components"
+    },
+    "common": {
+      "add": "Add",
+      "text": "Text",
+      "title": "Title",
+      "description": "Description",
+      "link": "Link",
+      "name": "Name",
+      "image": "Image",
+      "content": "Content",
+      "inputPlaceholder": "Enter a value",
+      "titlePlaceholder": "Enter a title",
+      "descriptionPlaceholder": "Enter a description",
+      "linkPlaceholder": "Enter a link",
+      "namePlaceholder": "Enter a name",
+      "buttonStyle": "Button style",
+      "buttonStyleSolid": "Solid",
+      "buttonStyleOutlined": "Outlined",
+      "buttonStyleText": "Text",
+      "buttonLink": "Button link",
+      "recommendedDocs": "Recommended documents",
+      "recommendedFolders": "Recommended folders",
+      "recommendedNav": "Recommended directories",
+      "recommendedSize": "(Recommended {{size}})"
+    },
+    "header": {
+      "defaultButtonText": "Button {{index}}",
+      "titleAndLogo": "Page title / Logo text",
+      "searchPlaceholder": "Search box placeholder",
+      "buttons": "Buttons",
+      "defaultSearchPlaceholder": "Search..."
+    },
+    "banner": {
+      "mainTitle": "Main title",
+      "subtitle": "Subtitle",
+      "backgroundImage": "Background image",
+      "searchBox": "Search box",
+      "hotSearch": "Popular searches",
+      "primaryButton": "Primary button",
+      "searchKeyword": "Search keyword",
+      "searchKeywordPlaceholder": "Enter a search keyword"
+    },
+    "footer": {
+      "siteIntro": "Site introduction",
+      "logoIcon": "Logo icon",
+      "logoText": "Logo text",
+      "description": "Description",
+      "socialInfo": "Social links",
+      "linkGroups": "Link groups",
+      "copyright": "Copyright",
+      "icp": "ICP filing number",
+      "brandMark": "Software branding",
+      "showBrandMark": "Show software branding",
+      "optionWebsite": "Website or social media",
+      "optionLinkName": "Link name",
+      "optionWechat": "WeChat Official Account",
+      "optionWechatPlaceholder": "Enter the account name",
+      "optionWechatName": "Account name",
+      "optionPhoneTextPlaceholder": "Enter text"
+    },
+    "social": {
+      "item": "Social link {{index}}",
+      "targetLink": "Target link",
+      "phone": "Phone",
+      "phonePlaceholder": "Enter a phone number"
+    },
+    "button": {
+      "style": "Button style",
+      "styleSolid": "Solid",
+      "styleOutlined": "Outlined",
+      "styleText": "Text",
+      "openTarget": "Open in",
+      "currentWindow": "Current window",
+      "newWindow": "New window",
+      "showIcon": "Show icon",
+      "text": "Button text",
+      "textPlaceholder": "Enter text",
+      "link": "Button link",
+      "linkPlaceholder": "Enter a link"
+    },
+    "brand": {
+      "subLink": "Sub-link {{index}}",
+      "group": "Link group {{index}}",
+      "linkTextRequired": "Please enter the link text",
+      "linkUrlRequired": "Please enter the link URL",
+      "groupName": "Link group name",
+      "groupNamePlaceholder": "Enter a link group name",
+      "groupNameRequired": "Please enter a link group name"
+    },
+    "case": {
+      "caseName": "Case name",
+      "caseNamePlaceholder": "Enter a case name",
+      "listTitle": "Cases"
+    },
+    "comment": {
+      "comment": "Comment",
+      "commentPlaceholder": "Enter a comment",
+      "userName": "Username",
+      "userNamePlaceholder": "Enter a username",
+      "profession": "Profession",
+      "professionPlaceholder": "Enter a profession",
+      "uploadAvatar": "Upload avatar",
+      "listTitle": "Comments"
+    },
+    "feature": {
+      "name": "Feature name",
+      "namePlaceholder": "Enter a feature name",
+      "description": "Feature description",
+      "descriptionPlaceholder": "Enter a feature description",
+      "listTitle": "Features"
+    },
+    "metrics": {
+      "value": "Metric value",
+      "valuePlaceholder": "Enter a metric value",
+      "name": "Metric name",
+      "namePlaceholder": "Enter a metric name",
+      "listTitle": "Metrics"
+    },
+    "question": {
+      "question": "Question",
+      "questionPlaceholder": "Enter a question",
+      "listTitle": "FAQ"
+    },
+    "faq": {
+      "linkList": "Links"
+    },
+    "blockGrid": {
+      "listTitle": "Grid items"
+    },
+    "navDoc": {
+      "selectNav": "Select directory",
+      "noNavData": "No directory data",
+      "uncategorized": "Uncategorized"
+    },
+    "docSummary": {
+      "generateFailed": "Failed to generate summary",
+      "generateSuccess": "Summary generated",
+      "emptyHint": "No summary yet. Generate and publish one from the document page.",
+      "noSummary": "No summary"
+    },
+    "components": {
+      "header": "Header",
+      "banner": "Welcome",
+      "basicDoc": "Document summary card",
+      "dirDoc": "Folder card",
+      "navDoc": "Directory card",
+      "simpleDoc": "Simple document card",
+      "carousel": "Carousel",
+      "faq": "Link group",
+      "footer": "Footer",
+      "text": "Title",
+      "case": "Case card",
+      "metrics": "Metrics card",
+      "feature": "Features",
+      "imgText": "Image left, text right",
+      "textImg": "Text left, image right",
+      "comment": "Testimonial card",
+      "blockGrid": "Grid blocks",
+      "question": "FAQ"
+    },
+    "defaults": {
+      "textTitle": "Title",
+      "metricsTitle": "Metrics card",
+      "caseTitle": "Case card",
+      "featureTitle": "Features",
+      "imgTextTitle": "Image left, text right",
+      "textImgTitle": "Text left, image right",
+      "commentTitle": "Testimonial card",
+      "blockGridTitle": "Grid blocks",
+      "basicDocTitle": "Document summary card",
+      "dirDocTitle": "Folder card",
+      "navDocTitle": "Directory card",
+      "simpleDocTitle": "Simple document card",
+      "carouselTitle": "Carousel",
+      "faqTitle": "Link group",
+      "questionTitle": "FAQ"
+    }
+  },
+  "kenfut": {
+    "common": {
+      "product": "Product",
+      "remove": "Remove",
+      "loadFailed": "Failed to load",
+      "notConnected": "Not connected",
+      "connected": "Connected",
+      "docsAndArticles": "Docs & articles"
+    },
+    "api": {
+      "requestFailed": "Request failed ({{status}})"
+    },
+    "operations": {
+      "title": "Content operations & product integration",
+      "subtitle": "KenFutWiki · Public content, multi-product links & conversion analytics",
+      "tabProducts": "Product integration",
+      "tabFunnel": "Conversion funnel",
+      "tabContent": "Content operations",
+      "register": "Register product",
+      "editTitle": "Edit product integration",
+      "registerHint": "After registering pages, operators can select them in the page picker; product credentials are used only on the product server.",
+      "productName": "Product name",
+      "productOrigin": "Product origin",
+      "originHint": "Scheme, host, and port only, without path; localhost HTTP is allowed for local reference products",
+      "enable": "Enable integration",
+      "pageCatalog": "Page catalog",
+      "stablePageKey": "Stable page key",
+      "pageName": "Page name",
+      "pagePath": "Page path",
+      "allowedParams": "Allowed parameters (comma-separated)",
+      "addPage": "Add page",
+      "productSaved": "Product settings saved",
+      "credentialsTitle": "{{name}} · Server credentials",
+      "credentialsHint": "The full credential is shown only once after creation. Store it in the product server's environment variables; never put it in the browser or redirect links.",
+      "newCredential": "New credential (hidden after closing)",
+      "copied": "Copied",
+      "copyCredential": "Copy credential",
+      "scopeConversion": "Report registration and first-generation events",
+      "scopeAnalytics": "Query this product's aggregated funnel",
+      "createCredential": "Create credential",
+      "revoked": "Revoked",
+      "revoke": "Revoke",
+      "revokeSuccess": "Credential revoked",
+      "noCredentials": "No credentials yet",
+      "funnelLoadFailed": "Failed to load analytics",
+      "attributionHint": "Attribution is calculated per product: the last valid CTA click within 30 days wins, registration locks the source, and first successful generation inherits it. Views and clicks come from the site; the latter two stages are reported by the product server.",
+      "allProducts": "All products",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "querying": "Querying",
+      "queryFunnel": "Query funnel",
+      "selectSourceArticle": "Select source article",
+      "ctaIdOptional": "CTA ID (optional)",
+      "articleViews": "Article views",
+      "viewersArticleOnly": "{{count}} visitors · article pages only",
+      "ctaClicks": "CTA clicks",
+      "viewers": "{{count}} visitors",
+      "attributedRegistrations": "Attributed registrations",
+      "registrationsCaption": "Accounts registered in the product",
+      "registrationsMissing": "No registration server events received yet",
+      "firstGenerations": "First successful generations",
+      "generationsCaption": "Accounts successful in the product",
+      "generationsMissing": "No first-generation server events received yet",
+      "documentViews": "Document views (separate metric, not part of the article funnel)",
+      "rateViewToClick": "View → Click: {{rate}}",
+      "rateClickToRegistration": "Click → Registration: {{rate}}",
+      "rateRegistrationToGeneration": "Registration → First success: {{rate}}",
+      "visitorSummary": "Attributed registered visitors: {{registered}} · First-success visitors: {{generations}}. Conversion rates are de-duplicated by source visitor; product account counts are shown separately.",
+      "unattributedSummary": "Unattributed registrations: {{registrations}} · Unattributed first generations: {{generations}}",
+      "serverEventsHint": "Server events are not fully connected yet. Connection status is based on whether the corresponding event has ever been received, regardless of the selected date range.",
+      "metricNote": "Article views count article pages only; document views are shown separately and excluded from the funnel. View counts, unique visitors, and product accounts are different metrics; unattributed events are never forced into article conversions.",
+      "funnelEmptyHint": "Select a date range and product to query. A product that has not reported events is not necessarily integrated for conversions.",
+      "pageCount": "{{origin}} · {{count}} pages",
+      "editPages": "Edit pages",
+      "serverCredentials": "Server credentials",
+      "emptyProductsHint": "Register a product and its pages first, then select targets in article CTAs. Registration and generation results are reported by the product server.",
+      "contentHint": "The \"Article settings\" at the top of the editor supports drafts. Here you can select published pages to adjust the article entry, cover, categories and tags, recommendations, and CTAs; publish the document after saving.",
+      "selectContent": "Select content and edit operations attributes"
+    },
+    "metadata": {
+      "title": "Article & operations attributes",
+      "hint": "These attributes are published together with the body. The document entry and article entry of the same content share comments and view counts.",
+      "channel": "Display channel",
+      "channelDocs": "Docs catalog only",
+      "channelArticle": "Article channel only",
+      "slug": "Article slug",
+      "slugHint": "Article URL is /blog/slug; old links keep redirecting after changes",
+      "cover": "Cover image",
+      "coverPreview": "Cover preview",
+      "authorName": "Public byline",
+      "displayDate": "Display publish date",
+      "displayDateHint": "Leave empty to use the first publish time",
+      "authorAvatar": "Author avatar",
+      "category": "Primary category",
+      "categoryPlaceholder": "e.g. Tutorials, product updates, case studies",
+      "tags": "Tags",
+      "tagsPlaceholder": "Type and press Enter",
+      "featured": "Featured article",
+      "featuredOrder": "Featured order",
+      "featuredOrderHint": "Lower numbers appear first",
+      "relatedTitle": "Related recommendations at the end",
+      "relatedHint": "Manually selected items come first in this order; if fewer than two, they are filled in by tags, category, or catalog.",
+      "relatedIndex": "{{index}}. {{title}}",
+      "moveUp": "Move up",
+      "selectRelated": "Select related page",
+      "ctaTitle": "End-of-article CTA",
+      "ctaLabel": "Button label",
+      "ctaStyle": "Style",
+      "ctaStylePrimary": "Primary",
+      "ctaStyleSecondary": "Secondary",
+      "selectTarget": "Select target page",
+      "noTarget": "Not selected yet",
+      "ctaParams": "Link parameters (one key=value per line)",
+      "ctaParamsHint": "Product pages only allow parameters registered in the admin; attribution identifiers are appended automatically",
+      "newTab": "Open in new tab",
+      "addCta": "Add CTA (up to two)",
+      "saving": "Saving",
+      "saveDraft": "Save attribute draft",
+      "articleSettings": "Article settings",
+      "uploading": "Uploading",
+      "ctaParamsInvalid": "Enter CTA parameters as key=value, one per line",
+      "reservedParam": "kf_click_id is a reserved system parameter",
+      "ctaLabelRequired": "Enter CTA button text",
+      "saved": "Content attributes saved. Publish the document to make them live."
+    },
+    "picker": {
+      "title": "Link to page",
+      "searchPlaceholder": "Search pages",
+      "tabAll": "All pages",
+      "tabProduct": "Product pages",
+      "tabUrl": "External link",
+      "linkText": "Link text",
+      "linkUrl": "HTTPS or site link",
+      "selectLink": "Use link",
+      "typeContent": "Content",
+      "typeSite": "Site",
+      "nodeOnlyHint": "Only published content can be selected to preserve page identity links.",
+      "selectPage": "Select page",
+      "siteHome": "Site home",
+      "docsEntry": "Docs entry",
+      "blogChannel": "Article channel",
+      "loadFailed": "Unable to load pages"
+    }
+  },
+  "qa": {
+    "poweredBy": "Powered by KenFutWiki",
+    "aiDisclaimer": "This answer is generated by KenFutWiki AI and is for reference only."
   }
 }

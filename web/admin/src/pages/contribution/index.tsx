@@ -1,4 +1,5 @@
 import Logo from '@/assets/images/logo.png';
+import NoData from '@/assets/images/nodata.png';
 import Card from '@/components/Card';
 import { tableSx } from '@/constant/styles';
 import { Ellipsis, message, Modal, Table } from '@ctzhian/ui';
@@ -7,6 +8,7 @@ import { Box, Chip, Stack, TextField } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import DocModal from './DocModal';
 import VersionMask from '@/components/VersionMask';
 import { PROFESSION_VERSION_PERMISSION } from '@/constant/version';
@@ -34,20 +36,21 @@ const StyledSearchRow = styled(Stack)(({ theme }) => ({
 
 const statusColorMap = {
   [ConstsContributeStatus.ContributeStatusApproved]: {
-    label: '已采纳',
+    labelKey: 'contribution.statusApproved',
     color: 'success',
   },
   [ConstsContributeStatus.ContributeStatusRejected]: {
-    label: '已拒绝',
+    labelKey: 'contribution.statusRejected',
     color: 'error',
   },
   [ConstsContributeStatus.ContributeStatusPending]: {
-    label: '等待处理',
+    labelKey: 'contribution.statusPending',
     color: 'warning',
   },
 } as const;
 
 export default function ContributionPage() {
+  const { t } = useTranslation();
   const {
     kb_id = '',
     nav_id = '',
@@ -91,7 +94,7 @@ export default function ContributionPage() {
     }).then(() => {
       getData();
       closeDialog();
-      message.success('采纳成功');
+      message.success(t('contribution.acceptSuccess'));
     });
   };
 
@@ -100,9 +103,9 @@ export default function ContributionPage() {
       setDocModalOpen(true);
     } else {
       Modal.confirm({
-        title: '采纳',
-        content: '确定要采纳该修改吗？',
-        okText: '采纳',
+        title: t('contribution.accept'),
+        content: t('contribution.acceptConfirm'),
+        okText: t('contribution.accept'),
         onOk: () => {
           postApiProV1ContributeAudit({
             id: previewRow!.id!,
@@ -112,7 +115,7 @@ export default function ContributionPage() {
           }).then(() => {
             getData();
             closeDialog();
-            message.success('采纳成功');
+            message.success(t('contribution.acceptSuccess'));
           });
         },
       });
@@ -120,9 +123,9 @@ export default function ContributionPage() {
   };
   const handleReject = () => {
     Modal.confirm({
-      title: '拒绝',
-      content: '确定要拒绝该修改吗？',
-      okText: '拒绝',
+      title: t('contribution.reject'),
+      content: t('contribution.rejectConfirm'),
+      okText: t('contribution.reject'),
       onOk: () => {
         postApiProV1ContributeAudit({
           id: previewRow!.id!,
@@ -132,7 +135,7 @@ export default function ContributionPage() {
         }).then(() => {
           getData();
           closeDialog();
-          message.success('拒绝成功');
+          message.success(t('contribution.rejectSuccess'));
         });
       },
     });
@@ -142,7 +145,7 @@ export default function ContributionPage() {
     [
       {
         dataIndex: 'node_name',
-        title: '文档',
+        title: t('contribution.colDoc'),
         width: 280,
         render: (text: string, record) => {
           return (
@@ -163,8 +166,8 @@ export default function ContributionPage() {
                 }}
               >
                 {record.type === ConstsContributeType.ContributeTypeAdd
-                  ? '新增'
-                  : '编辑'}
+                  ? t('contribution.typeAdd')
+                  : t('contribution.typeEdit')}
               </Box>
 
               <Ellipsis
@@ -183,14 +186,14 @@ export default function ContributionPage() {
       },
       {
         dataIndex: 'reason',
-        title: '更新说明',
+        title: t('contribution.colUpdateNote'),
         render: (text: string) => {
           return <>{text || '-'}</>;
         },
       },
       {
         dataIndex: 'auth_name',
-        title: '用户',
+        title: t('contribution.colUser'),
         width: 160,
         render: (text: string, record) => {
           return (
@@ -203,7 +206,7 @@ export default function ContributionPage() {
               >
                 {/* @ts-expect-error 类型不匹配 */}
                 <img src={record?.avatar || Logo} width={16} />
-                <Box sx={{ fontSize: 14 }}>{text || '匿名用户'}</Box>
+                <Box sx={{ fontSize: 14 }}>{text || t('common.anonymous')}</Box>
               </Stack>
             </Box>
           );
@@ -211,7 +214,7 @@ export default function ContributionPage() {
       },
       {
         dataIndex: 'remote_ip',
-        title: '来源 IP',
+        title: t('feedback.colIp'),
         width: 200,
         render: (text: string, record) => {
           const { city = '', country = '', province = '' } = record.ip_address!;
@@ -227,7 +230,7 @@ export default function ContributionPage() {
       },
       {
         dataIndex: 'created_at',
-        title: '时间',
+        title: t('contribution.colTime'),
         width: 180,
         render: (text: string, record) => {
           return (
@@ -242,7 +245,7 @@ export default function ContributionPage() {
       },
       {
         dataIndex: 'status',
-        title: '操作选项',
+        title: t('contribution.colActions'),
         width: 120,
         render: (text, record) => {
           const s =
@@ -250,7 +253,7 @@ export default function ContributionPage() {
           return record.status !==
             ConstsContributeStatus.ContributeStatusPending ? (
             <Chip
-              label={s.label}
+              label={t(s.labelKey)}
               color={s.color}
               variant='outlined'
               size='small'
@@ -268,7 +271,7 @@ export default function ContributionPage() {
                 setOpen(true);
               }}
             >
-              {s.label}
+              {t(s.labelKey)}
             </Box>
           );
         },
@@ -310,7 +313,7 @@ export default function ContributionPage() {
             <TextField
               fullWidth
               size='small'
-              label='文档'
+              label={t('contribution.colDoc')}
               value={searchDoc}
               onKeyUp={e => {
                 if (e.key === 'Enter') {
@@ -326,7 +329,7 @@ export default function ContributionPage() {
             <TextField
               fullWidth
               size='small'
-              label='用户'
+              label={t('contribution.colUser')}
               value={searchUser}
               onKeyUp={e => {
                 if (e.key === 'Enter') {
@@ -375,6 +378,16 @@ export default function ContributionPage() {
               },
             },
           }}
+          renderEmpty={
+            loading ? (
+              <Box></Box>
+            ) : (
+              <Stack alignItems={'center'} sx={{ mt: 20 }}>
+                <img src={NoData} width={174} alt='' />
+                <Box>{t('common.noData')}</Box>
+              </Stack>
+            )
+          }
         />
 
         {previewRow?.meta?.content_type === 'md' ? (

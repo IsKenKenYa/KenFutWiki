@@ -9,11 +9,13 @@ import { Box, Button, Stack } from '@mui/material';
 import { Table } from '@ctzhian/ui';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import VersionDelete from './components/VersionDelete';
 import VersionPublish from './components/VersionPublish';
 import VersionReset from './components/VersionReset';
 
 const Release = () => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -30,7 +32,7 @@ const Release = () => {
   const columns = [
     {
       dataIndex: 'tag',
-      title: '版本号',
+      title: t('release.versionNo'),
       render: (text: string, record: ReleaseListItem) => {
         return (
           <Stack direction={'row'} alignItems={'center'} gap={1}>
@@ -47,7 +49,7 @@ const Release = () => {
                   color: 'success.main',
                 }}
               >
-                当前版本
+                {t('release.currentVersion')}
               </Box>
             )}
           </Stack>
@@ -56,15 +58,15 @@ const Release = () => {
     },
     {
       dataIndex: 'message',
-      title: '备注',
+      title: t('release.remark'),
     },
     {
       dataIndex: 'publisher_account',
-      title: '发布者',
+      title: t('release.publisher'),
     },
     {
       dataIndex: 'created_at',
-      title: '发布时间',
+      title: t('release.publishedAt'),
       width: 120,
       render: (text: string) => {
         return dayjs(text).fromNow();
@@ -118,21 +120,25 @@ const Release = () => {
         sx={{ p: 2, pl: 3 }}
       >
         <Box sx={{ color: 'text.tertiary', fontSize: 14 }}>
-          共
-          <Box
-            component='span'
-            sx={{ color: 'text.primary', mx: 0.5, fontWeight: 700 }}
-          >
-            {total}
-          </Box>
-          个历史版本
+          <Trans
+            i18nKey='release.totalHistory'
+            values={{ count: total }}
+            components={{
+              num: (
+                <Box
+                  component='span'
+                  sx={{ color: 'text.primary', mx: 0.5, fontWeight: 700 }}
+                />
+              ),
+            }}
+          />
         </Box>
         <Button
           variant='contained'
           size='small'
           onClick={() => setPublishOpen(true)}
         >
-          发布新版本
+          {t('release.publishTitle')}
         </Button>
       </Stack>
       <Table
@@ -173,7 +179,7 @@ const Release = () => {
           ) : (
             <Stack alignItems={'center'} sx={{ mt: 20 }}>
               <img src={NoData} width={174} />
-              <Box>暂无数据</Box>
+              <Box>{t('common.noData')}</Box>
             </Stack>
           )
         }

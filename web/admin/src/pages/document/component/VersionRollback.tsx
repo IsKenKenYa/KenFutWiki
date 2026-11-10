@@ -2,6 +2,7 @@ import { DomainNodeReleaseListItem } from '@/request/pro';
 import { Modal } from '@ctzhian/ui';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { Box, Stack, alpha } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 interface VersionRollbackProps {
   open: boolean;
@@ -16,12 +17,13 @@ const VersionRollback = ({
   data,
   onOk,
 }: VersionRollbackProps) => {
+  const { t } = useTranslation();
   if (!data) return null;
   return (
     <Modal
       title={
         <Stack direction='row' alignItems='center' gap={1}>
-          确认使用当前版本？
+          {t('history.rollbackTitle')}
         </Stack>
       }
       open={open}
@@ -43,31 +45,41 @@ const VersionRollback = ({
         }}
       >
         <ErrorOutlineIcon sx={{ color: 'warning.main', fontSize: 12 }} />
-        使用此版本会覆盖当前草稿内容
+        {t('history.rollbackWarning')}
       </Stack>
       <Stack direction='row' spacing={2}>
-        <Box sx={{ fontSize: 14, width: 100, flexShrink: 0 }}>版本号</Box>
+        <Box sx={{ fontSize: 14, width: 100, flexShrink: 0 }}>
+          {t('history.versionNumber')}
+        </Box>
         <Box sx={{ fontWeight: 700 }}>{data.release_name}</Box>
       </Stack>
       <Stack direction='row' spacing={2} sx={{ mt: 2 }}>
-        <Box sx={{ fontSize: 14, width: 100, flexShrink: 0 }}>版本描述</Box>
+        <Box sx={{ fontSize: 14, width: 100, flexShrink: 0 }}>
+          {t('history.versionDescription')}
+        </Box>
         <Box sx={{ fontSize: 14 }}>{data.release_message}</Box>
       </Stack>
       {data.creator_account && (
         <Stack direction='row' spacing={2} sx={{ mt: 2 }}>
-          <Box sx={{ fontSize: 14, width: 100, flexShrink: 0 }}>创建人员</Box>
+          <Box sx={{ fontSize: 14, width: 100, flexShrink: 0 }}>
+            {t('history.creatorLabel')}
+          </Box>
           <Box sx={{ fontSize: 14 }}>{data.creator_account}</Box>
         </Stack>
       )}
       {data.editor_account && (
         <Stack direction='row' spacing={2} sx={{ mt: 2 }}>
-          <Box sx={{ fontSize: 14, width: 100, flexShrink: 0 }}>编辑人员</Box>
+          <Box sx={{ fontSize: 14, width: 100, flexShrink: 0 }}>
+            {t('history.editorLabel')}
+          </Box>
           <Box sx={{ fontSize: 14 }}>{data.editor_account}</Box>
         </Stack>
       )}
       {data.publisher_account && (
         <Stack direction='row' spacing={2} sx={{ mt: 2 }}>
-          <Box sx={{ fontSize: 14, width: 100, flexShrink: 0 }}>发布人员</Box>
+          <Box sx={{ fontSize: 14, width: 100, flexShrink: 0 }}>
+            {t('history.publisherLabel')}
+          </Box>
           <Box sx={{ fontSize: 14 }}>{data.publisher_account}</Box>
         </Stack>
       )}

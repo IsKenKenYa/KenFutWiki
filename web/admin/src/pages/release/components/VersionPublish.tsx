@@ -21,6 +21,7 @@ import { IconXiajiantou } from '@panda-wiki/icons';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 function normalizeNavGroupResponse(
   res: any,
@@ -61,6 +62,7 @@ const VersionPublish = ({
   onClose,
   refresh,
 }: VersionPublishProps) => {
+  const { t, i18n } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
 
   const [selected, setSelected] = useState<string[]>([]);
@@ -111,7 +113,7 @@ const VersionPublish = ({
         ...data,
         ...(nodeIds.length ? { node_ids: nodeIds } : {}),
       }).then(() => {
-        message.success(`${data.tag} 版本发布成功`);
+        message.success(t('release.publishSuccess', { tag: data.tag }));
         reset();
         setSelected([]);
         onClose();
@@ -119,7 +121,7 @@ const VersionPublish = ({
       });
     } else {
       message.error(
-        list.length > 0 ? '请选择要发布的文档' : '暂无未发布文档或目录',
+        list.length > 0 ? t('release.selectDocs') : t('release.noUnpublished'),
       );
     }
   });
@@ -129,12 +131,13 @@ const VersionPublish = ({
     if (open) {
       getData();
       setValue('tag', curTime.format('YYYY-MM-DD HH:mm:ss'));
-      setValue(
-        'message',
-        `${curTime.format('YYYY 年 MM 月 DD 日 HH 时 mm 分 ss 秒')}发布`,
-      );
+      const timeText =
+        i18n.language === 'en'
+          ? curTime.format('YYYY-MM-DD HH:mm:ss')
+          : curTime.format('YYYY 年 MM 月 DD 日 HH 时 mm 分 ss 秒');
+      setValue('message', t('release.defaultMessage', { time: timeText }));
     }
-  }, [open, kb_id]);
+  }, [open, kb_id, i18n.language, t]);
 
   const selectedTotal = list.filter(it => selected.includes(it.id!)).length;
 
@@ -144,7 +147,7 @@ const VersionPublish = ({
 
   return (
     <Modal
-      title='发布新版本'
+      title={t('release.publishTitle')}
       open={open}
       onCancel={onClose}
       onOk={onSubmit}
@@ -154,7 +157,7 @@ const VersionPublish = ({
     >
       <>
         <Box sx={{ fontSize: 14, lineHeight: '32px' }}>
-          版本号
+          {t('release.versionNo')}
           <Box component='span' sx={{ color: 'error.main', ml: 0.5 }}>
             *
           </Box>
@@ -162,20 +165,20 @@ const VersionPublish = ({
         <Controller
           control={control}
           name='tag'
-          rules={{ required: '版本号不能为空' }}
+          rules={{ required: t('release.versionNoRequired') }}
           render={({ field }) => (
             <TextField
               {...field}
               fullWidth
               size='small'
-              placeholder='请输入版本号'
+              placeholder={t('release.versionNoPlaceholder')}
               error={!!errors.tag}
               helperText={errors.tag?.message}
             />
           )}
         />
         <Box sx={{ fontSize: 14, lineHeight: '32px', mt: 1 }}>
-          版本描述
+          {t('release.versionDesc')}
           <Box component='span' sx={{ color: 'error.main', ml: 0.5 }}>
             *
           </Box>
@@ -183,7 +186,7 @@ const VersionPublish = ({
         <Controller
           control={control}
           name='message'
-          rules={{ required: '版本描述不能为空' }}
+          rules={{ required: t('release.versionDescRequired') }}
           render={({ field }) => (
             <TextField
               {...field}
@@ -191,7 +194,7 @@ const VersionPublish = ({
               multiline
               rows={2}
               size='small'
-              placeholder='请输入版本描述'
+              placeholder={t('release.versionDescPlaceholder')}
               error={!!errors.message}
               helperText={errors.message?.message}
             />
@@ -200,12 +203,12 @@ const VersionPublish = ({
         {releasedNavs.length > 0 && (
           <Stack sx={{ mt: 1 }}>
             <Box sx={{ fontSize: 14, mb: 0.5 }}>
-              未发布目录
+              {t('release.unpublishedNavs')}
               <Box
                 component='span'
                 sx={{ color: 'text.tertiary', fontSize: 12, pl: 1 }}
               >
-                共 {releasedNavs.length} 个
+                {t('release.navCount', { count: releasedNavs.length })}
               </Box>
             </Box>
             <Stack direction='row' flexWrap='wrap' gap={0.5} useFlexGap>
@@ -215,7 +218,11 @@ const VersionPublish = ({
                 return (
                   <Chip
                     key={navId}
-                    label={nav.nav_name || (nav as any).navName || '未分类'}
+                    label={
+                      nav.nav_name ||
+                      (nav as any).navName ||
+                      t('doc.uncategorized')
+                    }
                     size='small'
                     variant='outlined'
                     sx={{
@@ -247,16 +254,21 @@ const VersionPublish = ({
             }}
           >
             <Box>
-              未发布文档/文件夹
+              {t('release.unpublishedDocs')}
               <Box
                 component='span'
                 sx={{ color: 'text.tertiary', fontSize: 12, pl: 1 }}
               >
-                共 {list.length} 个，已选中 {selectedTotal} 个
+                {t('release.countSummary', {
+                  total: list.length,
+                  selected: selectedTotal,
+                })}
               </Box>
             </Box>
             <Stack direction='row' alignItems='center'>
-              <Box sx={{ color: 'text.tertiary', fontSize: 12 }}>全选</Box>
+              <Box sx={{ color: 'text.tertiary', fontSize: 12 }}>
+                {t('doc.selectAll')}
+              </Box>
               <Checkbox
                 size='small'
                 sx={{
@@ -277,7 +289,7 @@ const VersionPublish = ({
         )}
         {releasedNavs.length === 0 && list.length === 0 && (
           <Box sx={{ mt: 1, fontSize: 13, color: 'text.tertiary' }}>
-            暂无未发布文档或目录
+            {t('release.noUnpublished')}
           </Box>
         )}
         <Box
@@ -338,20 +350,24 @@ const VersionPublish = ({
                         />
                       </IconButton>
                       <Box sx={{ flex: 1 }}>
-                        {nav.nav_name || (nav as any).navName || '未分类'}
+                        {nav.nav_name ||
+                          (nav as any).navName ||
+                          t('doc.uncategorized')}
                         <Box
                           component='span'
                           sx={{ color: 'text.tertiary', fontSize: 12, pl: 1 }}
                         >
-                          共 {navTotal} 个
                           {navSelectedCount > 0
-                            ? `，已选中 ${navSelectedCount} 个`
-                            : ''}
+                            ? t('release.countSummary', {
+                                total: navTotal,
+                                selected: navSelectedCount,
+                              })
+                            : t('release.navCount', { count: navTotal })}
                         </Box>
                       </Box>
                       <Stack direction='row' alignItems='center'>
                         <Box sx={{ color: 'text.tertiary', fontSize: 12 }}>
-                          全选
+                          {t('doc.selectAll')}
                         </Box>
                         <Checkbox
                           size='small'

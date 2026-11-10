@@ -7,6 +7,7 @@ import {
   HTMLAttributes,
   SetStateAction,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export type ItemType = {
   name: string;
@@ -39,6 +40,7 @@ const ItemType = forwardRef<HTMLDivElement, ItemTypeProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation();
     const inlineStyles: CSSProperties = {
       opacity: withOpacity ? '0.5' : '1',
       borderRadius: '10px',
@@ -71,7 +73,7 @@ const ItemType = forwardRef<HTMLDivElement, ItemTypeProps>(
             }}
           >
             <TextField
-              label='指标数值'
+              label={t('customModal.metrics.value')}
               slotProps={{
                 inputLabel: {
                   shrink: true,
@@ -88,7 +90,7 @@ const ItemType = forwardRef<HTMLDivElement, ItemTypeProps>(
                 },
               }}
               fullWidth
-              placeholder='请输入指标数值'
+              placeholder={t('customModal.metrics.valuePlaceholder')}
               variant='outlined'
               value={item.number}
               onChange={e => {
@@ -98,7 +100,7 @@ const ItemType = forwardRef<HTMLDivElement, ItemTypeProps>(
               }}
             />
             <TextField
-              label='指标名称'
+              label={t('customModal.metrics.name')}
               slotProps={{
                 inputLabel: {
                   shrink: true,
@@ -115,7 +117,7 @@ const ItemType = forwardRef<HTMLDivElement, ItemTypeProps>(
                 },
               }}
               fullWidth
-              placeholder='请输入指标名称'
+              placeholder={t('customModal.metrics.namePlaceholder')}
               variant='outlined'
               value={item.name}
               onChange={e => {

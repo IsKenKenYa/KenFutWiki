@@ -1,5 +1,6 @@
 import NoData from '@/assets/images/nodata.png';
 import { Box, SxProps, Stack } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 interface EmptyStateProps {
   /** 提示文案，默认为「暂无数据」 */
@@ -9,11 +10,8 @@ interface EmptyStateProps {
   sx?: SxProps;
 }
 
-const EmptyState = ({
-  text = '暂无数据',
-  imageWidth = 150,
-  sx,
-}: EmptyStateProps) => {
+const EmptyState = ({ text, imageWidth = 150, sx }: EmptyStateProps) => {
+  const { t } = useTranslation();
   return (
     <Stack alignItems='center' sx={sx}>
       <img src={NoData} width={imageWidth} alt='' />
@@ -24,7 +22,7 @@ const EmptyState = ({
           color: 'text.tertiary',
         }}
       >
-        {text}
+        {text ?? t('common.noData')}
       </Box>
     </Stack>
   );

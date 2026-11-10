@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import { Ellipsis, Modal, Image } from '@ctzhian/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconDitu_diqiu } from '@panda-wiki/icons';
 
 const handleThinkingContent = (content: string) => {
@@ -187,6 +188,7 @@ const Detail = ({
   open: boolean;
   onClose: () => void;
 }) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { kb_id = '' } = useAppSelector(state => state.config);
   const [detail, setDetail] = useState<DomainConversationDetailResp | null>(
@@ -259,7 +261,7 @@ const Detail = ({
             width: 700,
           }}
         >
-          问答记录
+          {t('conversation.recordTitle')}
         </Ellipsis>
       }
       width={800}
@@ -289,7 +291,7 @@ const Detail = ({
                   },
                 }}
               >
-                内容来源
+                {t('conversation.contentSource')}
               </Stack>
               <Card sx={{ p: 2, bgcolor: 'background.paper3' }}>
                 {detail.references?.map((item, index) => (
@@ -378,7 +380,7 @@ const Detail = ({
                                 color: alpha(theme.palette.text.primary, 0.5),
                               })}
                             >
-                              已思考
+                              {t('conversation.thought')}
                             </Typography>
                           </Stack>
                         </StyledThinkingAccordionSummary>

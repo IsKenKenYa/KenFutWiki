@@ -6,6 +6,7 @@ import DragList from '../../components/DragList';
 import SortableItem from '../../components/SortableItem';
 import Item from './Item';
 import type { ConfigProps } from '../type';
+import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/store';
 import useDebounceAppPreviewData from '@/hooks/useDebounceAppPreviewData';
 import { DEFAULT_DATA } from '../../../constants';
@@ -14,6 +15,7 @@ import ColorPickerField from '../../components/ColorPickerField';
 import { findConfigById, handleLandingConfigs } from '../../../utils';
 
 const Config = ({ setIsEdit, id }: ConfigProps) => {
+  const { t } = useTranslation();
   const { appPreviewData } = useAppSelector(state => state.config);
   const debouncedDispatch = useDebounceAppPreviewData();
   const { control, setValue, watch, subscribe, reset } = useForm<
@@ -83,12 +85,16 @@ const Config = ({ setIsEdit, id }: ConfigProps) => {
 
   return (
     <StyledCommonWrapper>
-      <CommonItem title='标题'>
+      <CommonItem title={t('customModal.common.title')}>
         <Controller
           control={control}
           name='title'
           render={({ field }) => (
-            <TextField label='文字' {...field} placeholder='请输入' />
+            <TextField
+              label={t('customModal.common.text')}
+              {...field}
+              placeholder={t('customModal.common.inputPlaceholder')}
+            />
           )}
         />
         {/* <Controller
@@ -118,8 +124,10 @@ const Config = ({ setIsEdit, id }: ConfigProps) => {
         />
       </CommonItem> */}
       <CommonItem
-        title='图片'
-        desc='(推荐 880*495，16:9 )'
+        title={t('customModal.common.image')}
+        desc={t('customModal.common.recommendedSize', {
+          size: '880*495, 16:9',
+        })}
         onAdd={handleAddQuestion}
       >
         {list.length === 0 ? (

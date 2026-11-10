@@ -19,7 +19,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { IconGengduo } from '@panda-wiki/icons';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 export interface DocPageListContentProps {
   data: ITreeItem[];
@@ -120,7 +120,7 @@ const DocPageListContent = ({
             {selected.length > 0 ? (
               <>
                 <Box sx={{ fontSize: 13, color: 'text.secondary' }}>
-                  已选中 {selected.length} 项
+                  {t('doc.selectedCount', { count: selected.length })}
                 </Box>
                 <Stack direction={'row'} alignItems={'center'} gap={1}>
                   {selected.length > 1 && (
@@ -130,7 +130,7 @@ const DocPageListContent = ({
                       sx={{ minWidth: 0, p: 0, lineHeight: 1 }}
                       onClick={onMoreSummaryOpen}
                     >
-                      生成摘要
+                      {t('doc.summary.generate')}
                     </Button>
                   )}
                   <Button
@@ -139,7 +139,7 @@ const DocPageListContent = ({
                     sx={{ minWidth: 0, p: 0, lineHeight: 1 }}
                     onClick={onMoveOpen}
                   >
-                    批量移动
+                    {t('doc.batchMove')}
                   </Button>
                   <Button
                     size='small'
@@ -174,19 +174,23 @@ const DocPageListContent = ({
               }}
               onClick={onBatchClose}
             >
-              取消
+              {t('common.cancel')}
             </Button>
           </Stack>
         ) : (
           <Box sx={{ fontSize: 14, color: 'text.tertiary' }}>
-            共{' '}
-            <Box
-              component='span'
-              sx={{ fontWeight: 600, color: 'text.primary' }}
-            >
-              {list.length}
-            </Box>{' '}
-            个文档
+            <Trans
+              i18nKey='doc.totalDocs'
+              values={{ total: list.length }}
+              components={{
+                num: (
+                  <Box
+                    component='span'
+                    sx={{ fontWeight: 600, color: 'text.primary' }}
+                  />
+                ),
+              }}
+            />
           </Box>
         )}
         {/* 右侧：多功能按钮（添加文档 + 批量操作） */}
@@ -223,7 +227,7 @@ const DocPageListContent = ({
                     }}
                     onClick={onBatchOpen}
                   >
-                    批量操作
+                    {t('doc.batchActions')}
                   </Stack>
                 ),
               },

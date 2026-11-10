@@ -7,6 +7,7 @@ import SortableItem from '../../components/SortableItem';
 import Item from './Item';
 import { Empty } from '@ctzhian/ui';
 import type { ConfigProps } from '../type';
+import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/store';
 import useDebounceAppPreviewData from '@/hooks/useDebounceAppPreviewData';
 import AddRecommendContent from '@/pages/setting/component/AddRecommendContent';
@@ -16,6 +17,7 @@ import ColorPickerField from '../../components/ColorPickerField';
 import { findConfigById, handleLandingConfigs } from '../../../utils';
 
 const SimpleDocConfigConfig = ({ setIsEdit, id }: ConfigProps) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const { appPreviewData } = useAppSelector(state => state.config);
   const debouncedDispatch = useDebounceAppPreviewData();
@@ -86,12 +88,16 @@ const SimpleDocConfigConfig = ({ setIsEdit, id }: ConfigProps) => {
 
   return (
     <StyledCommonWrapper>
-      <CommonItem title='标题'>
+      <CommonItem title={t('customModal.common.title')}>
         <Controller
           control={control}
           name='title'
           render={({ field }) => (
-            <TextField label='文字' {...field} placeholder='请输入' />
+            <TextField
+              label={t('customModal.common.text')}
+              {...field}
+              placeholder={t('customModal.common.inputPlaceholder')}
+            />
           )}
         />
         {/* <Controller
@@ -121,7 +127,10 @@ const SimpleDocConfigConfig = ({ setIsEdit, id }: ConfigProps) => {
           )}
         />
       </CommonItem> */}
-      <CommonItem title='推荐文档' onAdd={() => setOpen(true)}>
+      <CommonItem
+        title={t('customModal.common.recommendedDocs')}
+        onAdd={() => setOpen(true)}
+      >
         {nodes.length === 0 ? (
           <Empty />
         ) : (

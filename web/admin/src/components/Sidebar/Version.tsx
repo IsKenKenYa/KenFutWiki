@@ -27,7 +27,7 @@ const Version = () => {
         rel='noopener noreferrer'
         sx={{ color: 'text.secondary' }}
       >
-        {t('version.sourceCode')}
+        {t('layout.sourceCode')}
       </Box>
     </Stack>
   );

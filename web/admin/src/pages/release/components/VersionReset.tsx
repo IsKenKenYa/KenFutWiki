@@ -4,6 +4,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ErrorIcon from '@mui/icons-material/Error';
 import { Box, Stack, useTheme } from '@mui/material';
 import { Modal } from '@ctzhian/ui';
+import { useTranslation } from 'react-i18next';
 
 interface VersionResetProps {
   open: boolean;
@@ -13,6 +14,7 @@ interface VersionResetProps {
 }
 
 const VersionReset = ({ open, onClose, data, refresh }: VersionResetProps) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const { kb_id } = useAppSelector(state => state.config);
   if (!data) return null;
@@ -30,12 +32,12 @@ const VersionReset = ({ open, onClose, data, refresh }: VersionResetProps) => {
       title={
         <Stack direction='row' alignItems='center' gap={1}>
           <ErrorIcon sx={{ color: 'warning.main' }} />
-          确认回滚以下版本？
+          {t('release.resetConfirm')}
         </Stack>
       }
       open={open}
       width={600}
-      okText='回滚'
+      okText={t('release.rollback')}
       onCancel={onClose}
       onOk={submit}
     >

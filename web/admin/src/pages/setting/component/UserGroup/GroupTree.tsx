@@ -170,7 +170,9 @@ const TreeItem = React.forwardRef<
                         );
                     }}
                   >
-                    共 {item?.count || 0} 个成员
+                    {t('setting.group.memberCount', {
+                      count: item?.count || 0,
+                    })}
                   </Box>
                 ) : (
                   <Box />
@@ -205,7 +207,7 @@ const TreeItem = React.forwardRef<
                         onSync?.();
                       }}
                     >
-                      同步
+                      {t('setting.group.sync')}
                     </Box>
                   )}
               </Stack>
@@ -245,7 +247,7 @@ const GroupTree = ({
         children: attachRootParent(itemsData),
       },
     ];
-  }, [itemsData, kbDetail]);
+  }, [itemsData, kbDetail, sync, t]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalClose = () => {
@@ -500,7 +502,7 @@ const GroupModal = ({
       },
     },
     {
-      title: 'created_at',
+      title: t('setting.group.timeCol'),
       dataIndex: 'created_at',
       render: (text: string, record) => {
         return record.type === 'user' ? (

@@ -300,8 +300,13 @@ const StorageSettingForm = forwardRef<
         <Alert severity={testResult.ok ? 'success' : 'error'}>
           {(testResult.steps ?? []).map((step, i) => (
             <div key={i}>
-              {step.ok ? '✓' : '✗'} {step.name}
-              {step.message ? `：${step.message}` : ''}
+              {step.ok ? '✓' : '✗'}{' '}
+              {step.message
+                ? t('storage.testStepMessage', {
+                    name: step.name,
+                    message: step.message,
+                  })
+                : step.name}
             </div>
           ))}
           {(testResult.warnings ?? []).map((w, i) => (

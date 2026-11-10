@@ -227,7 +227,7 @@ const RagErrorReStart = ({
                     </Box>
                     <Stack direction='row' alignItems='center'>
                       <Box sx={{ color: 'text.tertiary', fontSize: 12 }}>
-                        全选
+                        {t('doc.selectAll')}
                       </Box>
                       <Checkbox
                         size='small'

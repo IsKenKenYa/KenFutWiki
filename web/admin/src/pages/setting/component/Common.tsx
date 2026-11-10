@@ -309,7 +309,7 @@ export const SettingCardItem = ({
           </StyledSettingCardItemTitle>
           {isEdit && (
             <Button variant='contained' size='small' onClick={onSubmit}>
-              保存
+              {t('common.save')}
             </Button>
           )}
           {extra}

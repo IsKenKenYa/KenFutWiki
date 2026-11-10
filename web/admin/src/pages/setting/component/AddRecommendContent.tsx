@@ -272,7 +272,7 @@ const AddRecommendContent = ({
       selectableIds: string[];
       navTotal: number;
     }[];
-  }, [navList, disabled]);
+  }, [navList, disabled, t]);
 
   const isEmpty = !loading && navGroups.length === 0;
 
@@ -333,7 +333,7 @@ const AddRecommendContent = ({
               mt: 1,
             }}
           >
-            暂无数据，前往文档页面创建并发布文档
+            {t('setting.addCardEmpty')}
           </Box>
         </Stack>
       ) : (

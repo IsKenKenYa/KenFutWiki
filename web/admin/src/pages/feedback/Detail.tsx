@@ -6,6 +6,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Box, Stack, Typography, alpha } from '@mui/material';
 import { Ellipsis, Modal } from '@ctzhian/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   StyledConversationItem,
   StyledUserBubble,
@@ -27,6 +28,7 @@ const Detail = ({
   data: any;
   onClose: () => void;
 }) => {
+  const { t } = useTranslation();
   const [conversations, setConversations] = useState<Omit<
     ChatConversationPair,
     'info' | 'image_paths'
@@ -57,7 +59,7 @@ const Detail = ({
             width: 700,
           }}
         >
-          问答记录
+          {t('conversation.recordTitle')}
         </Ellipsis>
       }
       width={800}
@@ -87,7 +89,7 @@ const Detail = ({
                           color: alpha(theme.palette.text.primary, 0.5),
                         })}
                       >
-                        已思考
+                        {t('conversation.thought')}
                       </Typography>
                     </Stack>
                   </StyledThinkingAccordionSummary>

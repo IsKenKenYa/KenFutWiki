@@ -6,6 +6,7 @@ import DragList from '../../components/DragList';
 import SortableItem from '../../components/SortableItem';
 import Item from './Item';
 import type { ConfigProps } from '../type';
+import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/store';
 import useDebounceAppPreviewData from '@/hooks/useDebounceAppPreviewData';
 import { Empty } from '@ctzhian/ui';
@@ -13,6 +14,7 @@ import { DEFAULT_DATA } from '../../../constants';
 import { findConfigById, handleLandingConfigs } from '../../../utils';
 
 const Config = ({ setIsEdit, id }: ConfigProps) => {
+  const { t } = useTranslation();
   const { appPreviewData } = useAppSelector(state => state.config);
   const debouncedDispatch = useDebounceAppPreviewData();
   const { control, setValue, watch, reset, subscribe } = useForm<
@@ -80,16 +82,23 @@ const Config = ({ setIsEdit, id }: ConfigProps) => {
 
   return (
     <StyledCommonWrapper>
-      <CommonItem title='标题'>
+      <CommonItem title={t('customModal.common.title')}>
         <Controller
           control={control}
           name='title'
           render={({ field }) => (
-            <TextField label='文字' {...field} placeholder='请输入' />
+            <TextField
+              label={t('customModal.common.text')}
+              {...field}
+              placeholder={t('customModal.common.inputPlaceholder')}
+            />
           )}
         />
       </CommonItem>
-      <CommonItem title='特性列表' onAdd={handleAddFeature}>
+      <CommonItem
+        title={t('customModal.feature.listTitle')}
+        onAdd={handleAddFeature}
+      >
         {list.length === 0 ? (
           <Empty />
         ) : (

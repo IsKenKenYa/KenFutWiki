@@ -7,6 +7,7 @@ import {
   HTMLAttributes,
   SetStateAction,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import UploadFile from '@/components/UploadFile';
 
 export type ItemType = {
@@ -42,6 +43,7 @@ const ItemType = forwardRef<HTMLDivElement, ItemTypeProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation();
     const inlineStyles: CSSProperties = {
       opacity: withOpacity ? '0.5' : '1',
       borderRadius: '10px',
@@ -74,7 +76,7 @@ const ItemType = forwardRef<HTMLDivElement, ItemTypeProps>(
             }}
           >
             <TextField
-              label='评论'
+              label={t('customModal.comment.comment')}
               slotProps={{
                 inputLabel: {
                   shrink: true,
@@ -91,7 +93,7 @@ const ItemType = forwardRef<HTMLDivElement, ItemTypeProps>(
               fullWidth
               multiline
               minRows={2}
-              placeholder='请输入评论'
+              placeholder={t('customModal.comment.commentPlaceholder')}
               variant='outlined'
               value={item.comment}
               onChange={e => {
@@ -101,7 +103,7 @@ const ItemType = forwardRef<HTMLDivElement, ItemTypeProps>(
               }}
             />
             <TextField
-              label='用户名'
+              label={t('customModal.comment.userName')}
               slotProps={{
                 inputLabel: {
                   shrink: true,
@@ -116,7 +118,7 @@ const ItemType = forwardRef<HTMLDivElement, ItemTypeProps>(
                 },
               }}
               fullWidth
-              placeholder='请输入用户名'
+              placeholder={t('customModal.comment.userNamePlaceholder')}
               variant='outlined'
               value={item.user_name}
               onChange={e => {
@@ -126,7 +128,7 @@ const ItemType = forwardRef<HTMLDivElement, ItemTypeProps>(
               }}
             />
             <TextField
-              label='职业'
+              label={t('customModal.comment.profession')}
               slotProps={{
                 inputLabel: {
                   shrink: true,
@@ -141,7 +143,7 @@ const ItemType = forwardRef<HTMLDivElement, ItemTypeProps>(
                 },
               }}
               fullWidth
-              placeholder='请输入职业'
+              placeholder={t('customModal.comment.professionPlaceholder')}
               variant='outlined'
               value={item.profession}
               onChange={e => {
@@ -159,7 +161,7 @@ const ItemType = forwardRef<HTMLDivElement, ItemTypeProps>(
               width={80}
               height={80}
               value={item.avatar}
-              label='上传头像'
+              label={t('customModal.comment.uploadAvatar')}
               onChange={(url: string) => {
                 const updatedItem = { ...item, avatar: url };
                 handleUpdateItem?.(updatedItem);

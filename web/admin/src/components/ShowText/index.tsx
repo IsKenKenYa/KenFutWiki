@@ -3,6 +3,7 @@ import { Box, Stack } from '@mui/material';
 import { Ellipsis } from '@ctzhian/ui';
 import { IconFuzhi } from '@panda-wiki/icons';
 import { message } from '@ctzhian/ui';
+import { useTranslation } from 'react-i18next';
 
 interface ShowTextProps {
   text: string[];
@@ -25,6 +26,7 @@ const ShowText = ({
   noEllipsis = false,
   forceCopy = false,
 }: ShowTextProps) => {
+  const { t } = useTranslation();
   return (
     <Stack
       direction={'row'}
@@ -56,7 +58,7 @@ const ShowText = ({
                 try {
                   if (navigator.clipboard) {
                     navigator.clipboard.writeText(content);
-                    message.success('复制成功');
+                    message.success(t('common.copied'));
                   } else {
                     const ta = document.createElement('textarea');
                     ta.style.position = 'fixed';
@@ -68,10 +70,12 @@ const ShowText = ({
                     ta.focus();
                     ta.select();
                     const ok = document.execCommand('copy');
-                    if (ok) message.success('复制成功');
+                    if (ok) message.success(t('common.copied'));
                     document.body.removeChild(ta);
                   }
-                } catch (e) {}
+                } catch {
+                  // 浏览器拒绝剪贴板权限时保持静默，由 copyText 的兜底提示处理
+                }
                 onClick?.();
               } else {
                 copyText(content);

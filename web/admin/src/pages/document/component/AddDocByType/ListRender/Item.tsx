@@ -21,6 +21,7 @@ import {
 } from '@mui/material';
 import { IconWenjian, IconWenjianjia } from '@panda-wiki/icons';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ListDataItem } from '..';
 import StatusBackground from '../components/StatusBackground';
 import StatusBadge from '../components/StatusBadge';
@@ -53,6 +54,7 @@ const ListRenderItem = ({
   onSelectFolderAll,
   onCancelSelectFolderAll,
 }: ListRenderItemProps) => {
+  const { t } = useTranslation();
   const { kb_id } = useAppSelector(state => state.config);
   const [loading, setLoading] = useState(false);
   const theme = useTheme();
@@ -69,9 +71,9 @@ const ListRenderItem = ({
           ...apiParams,
           feishu_setting: {
             space_id: data.id!,
-            app_id: data.feishu_setting?.app_id!,
-            app_secret: data.feishu_setting?.app_secret!,
-            user_access_token: data.feishu_setting?.user_access_token!,
+            app_id: data.feishu_setting?.app_id ?? '',
+            app_secret: data.feishu_setting?.app_secret ?? '',
+            user_access_token: data.feishu_setting?.user_access_token ?? '',
           },
         };
       } else if (type === ConstsCrawlerSource.CrawlerSourceDingtalk) {
@@ -79,9 +81,9 @@ const ListRenderItem = ({
           ...apiParams,
           dingtalk_setting: {
             space_id: data.id!,
-            app_id: data.dingtalk_setting?.app_id!,
-            app_secret: data.dingtalk_setting?.app_secret!,
-            unionid: data.dingtalk_setting?.unionid!,
+            app_id: data.dingtalk_setting?.app_id ?? '',
+            app_secret: data.dingtalk_setting?.app_secret ?? '',
+            unionid: data.dingtalk_setting?.unionid ?? '',
           },
         };
       }
@@ -131,7 +133,7 @@ const ListRenderItem = ({
               onSelectFolderAll?.();
             }}
           >
-            全选文件夹
+            {t('addDoc.selectFolderAll')}
           </Button>
         )}
         {showCancelSelectFolderAllBtn && (
@@ -145,7 +147,7 @@ const ListRenderItem = ({
               onCancelSelectFolderAll?.();
             }}
           >
-            取消全选文件夹
+            {t('addDoc.cancelSelectFolderAll')}
           </Button>
         )}
         {!data.file && !data.folderReq && (
@@ -156,7 +158,7 @@ const ListRenderItem = ({
             onClick={handlerPullFolder}
             loading={loading}
           >
-            拉取文档
+            {t('addDoc.pullDocs')}
           </Button>
         )}
         {data.progress && data.progress > 0 && data.progress < 100 ? (

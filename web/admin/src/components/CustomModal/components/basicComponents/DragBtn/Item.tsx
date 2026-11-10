@@ -23,6 +23,7 @@ import {
   SetStateAction,
 } from 'react';
 import { Control, Controller } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export type ItemProps = Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> & {
   item: CardWebHeaderBtn;
@@ -51,6 +52,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation();
     const dispatch = useAppDispatch();
     const { appPreviewData } = useAppSelector(state => state.config);
     const inlineStyles: CSSProperties = {
@@ -95,13 +97,13 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                           },
                         }}
                       >
-                        按钮样式
+                        {t('customModal.button.style')}
                       </InputLabel>
                       <Select
                         labelId={curBtn.id + '_button_style'}
                         id={curBtn.id + '_button_style'}
                         value={curBtn.variant}
-                        label='按钮样式'
+                        label={t('customModal.button.style')}
                         onChange={e => {
                           const newBtns = [
                             ...(appPreviewData?.settings?.btns || []),
@@ -121,9 +123,15 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                           height: '36px',
                         }}
                       >
-                        <MenuItem value={'contained'}>实心</MenuItem>
-                        <MenuItem value={'outlined'}>描边</MenuItem>
-                        <MenuItem value={'text'}>文字</MenuItem>
+                        <MenuItem value={'contained'}>
+                          {t('customModal.button.styleSolid')}
+                        </MenuItem>
+                        <MenuItem value={'outlined'}>
+                          {t('customModal.button.styleOutlined')}
+                        </MenuItem>
+                        <MenuItem value={'text'}>
+                          {t('customModal.button.styleText')}
+                        </MenuItem>
                       </Select>
                     </FormControl>
                     <FormControl>
@@ -135,13 +143,13 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                           },
                         }}
                       >
-                        打开方式
+                        {t('customModal.button.openTarget')}
                       </InputLabel>
                       <Select
                         labelId={curBtn.id + '_button_target'}
                         id={curBtn.id + '_button_target'}
                         value={curBtn.target}
-                        label='打开方式'
+                        label={t('customModal.button.openTarget')}
                         onChange={e => {
                           const newBtns = [
                             ...(appPreviewData?.settings?.btns || []),
@@ -161,8 +169,12 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                           height: '36px',
                         }}
                       >
-                        <MenuItem value={'_self'}>当前窗口</MenuItem>
-                        <MenuItem value={'_blank'}>新窗口</MenuItem>
+                        <MenuItem value={'_self'}>
+                          {t('customModal.button.currentWindow')}
+                        </MenuItem>
+                        <MenuItem value={'_blank'}>
+                          {t('customModal.button.newWindow')}
+                        </MenuItem>
                       </Select>
                     </FormControl>
                   </Stack>
@@ -188,7 +200,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                         }}
                       />
                       <Box sx={{ fontSize: 14, lineHeight: '32px' }}>
-                        展示图标
+                        {t('customModal.button.showIcon')}
                       </Box>
                     </Stack>
                     <UploadFile
@@ -213,7 +225,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                     />
                   </Stack>
                   <TextField
-                    label='按钮文本'
+                    label={t('customModal.button.text')}
                     slotProps={{
                       inputLabel: {
                         shrink: true,
@@ -230,7 +242,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                       },
                     }}
                     fullWidth
-                    placeholder='请输入文本'
+                    placeholder={t('customModal.button.textPlaceholder')}
                     variant='outlined'
                     value={curBtn.text}
                     onChange={e => {
@@ -246,7 +258,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                     }}
                   />
                   <LinkTextField
-                    label='按钮链接'
+                    label={t('customModal.button.link')}
                     slotProps={{
                       inputLabel: {
                         shrink: true,
@@ -263,7 +275,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(
                       },
                     }}
                     fullWidth
-                    placeholder='请输入链接'
+                    placeholder={t('customModal.button.linkPlaceholder')}
                     value={curBtn.url}
                     variant='outlined'
                     onChange={e => {

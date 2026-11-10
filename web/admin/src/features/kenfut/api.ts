@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import { message } from '@ctzhian/ui';
 import type {
   Capabilities,
@@ -24,7 +25,10 @@ export async function kenfutRequest<T>(
   });
   const body = await response.json();
   if (!response.ok || !body.success) {
-    throw new Error(body.message || `请求失败 (${response.status})`);
+    throw new Error(
+      body.message ||
+        i18n.t('kenfut.api.requestFailed', { status: response.status }),
+    );
   }
   return body.data as T;
 }
@@ -76,7 +80,9 @@ export const revokeCredential = (product: string, id: string, kb: string) =>
 export const getFunnel = (params: URLSearchParams, signal?: AbortSignal) =>
   kenfutRequest<Funnel>(`/funnel?${params}`, { signal });
 const reportSettingsFailure = (error: unknown): never => {
-  message.error(error instanceof Error ? error.message : '操作失败');
+  message.error(
+    error instanceof Error ? error.message : i18n.t('common.operationFailed'),
+  );
   throw error;
 };
 

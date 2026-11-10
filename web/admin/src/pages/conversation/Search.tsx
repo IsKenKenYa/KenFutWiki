@@ -1,9 +1,11 @@
 import { useURLSearchParams } from '@/hooks';
 import { IconButton, InputAdornment, Stack, TextField } from '@mui/material';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconIcon_tool_close } from '@panda-wiki/icons';
 
 const Search = () => {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useURLSearchParams();
   const oldSubject = searchParams.get('subject') || '';
   const oldRemoteIp = searchParams.get('remote_ip') || '';
@@ -14,7 +16,7 @@ const Search = () => {
   return (
     <Stack direction={'row'} alignItems={'center'} gap={2}>
       <TextField
-        label='问题'
+        label={t('feedback.colQuestion')}
         size='small'
         sx={{ width: 200 }}
         value={subject}
@@ -46,7 +48,7 @@ const Search = () => {
         }}
       />
       <TextField
-        label='来源IP'
+        label={t('feedback.colIp')}
         size='small'
         sx={{ width: 200 }}
         value={remoteIp}

@@ -87,9 +87,9 @@ const VersionMask = ({
             <img
               src={nextVersionInfo.image}
               style={{ width: 12, objectFit: 'contain', marginTop: 1 }}
-              alt={nextVersionInfo.label}
+              alt={t(nextVersionInfo.label)}
             />
-            {nextVersionInfo?.label}可用
+            {t('version.available', { name: t(nextVersionInfo.label) })}
           </StyledMaskVersion>
         </StyledMaskContent>
       </StyledMask>

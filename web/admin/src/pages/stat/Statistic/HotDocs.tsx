@@ -5,10 +5,12 @@ import { useAppSelector } from '@/store';
 import { Box, Stack } from '@mui/material';
 import { Ellipsis } from '@ctzhian/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActiveTab, TimeList } from '.';
 import { DomainHotPage } from '@/request/types';
 
 const HotDocs = ({ tab }: { tab: ActiveTab }) => {
+  const { t } = useTranslation();
   const { kb_id = '' } = useAppSelector(state => state.config);
   const [list, setList] = useState<DomainHotPage[]>([]);
   const [max, setMax] = useState(0);
@@ -36,9 +38,9 @@ const HotDocs = ({ tab }: { tab: ActiveTab }) => {
         justifyContent={'space-between'}
         sx={{ mb: 2 }}
       >
-        <Box sx={{ fontSize: 16, fontWeight: 'bold' }}>热门文档</Box>
+        <Box sx={{ fontSize: 16, fontWeight: 'bold' }}>{t('stat.hotDocs')}</Box>
         <Box sx={{ fontSize: 12, color: 'text.tertiary' }}>
-          {TimeList.find(it => it.value === tab)?.label}
+          {t(TimeList.find(it => it.value === tab)?.label || '')}
         </Box>
       </Stack>
       {list.length > 0 ? (
@@ -84,7 +86,7 @@ const HotDocs = ({ tab }: { tab: ActiveTab }) => {
           sx={{ fontSize: 12, color: 'text.disabled' }}
         >
           <img src={Nodata} width={100} />
-          暂无数据
+          {t('common.noData')}
         </Stack>
       )}
     </Card>

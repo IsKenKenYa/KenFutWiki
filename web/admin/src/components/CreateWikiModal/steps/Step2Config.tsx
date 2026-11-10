@@ -182,7 +182,7 @@ const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
               <TextField
                 {...field}
                 autoFocus
-                placeholder={t('common.enter')}
+                placeholder={t('kb.enter')}
                 fullWidth
                 error={!!errors.name}
                 helperText={errors.name?.message}
@@ -206,7 +206,7 @@ const Step2Config: React.FC<Step2ConfigProps> = ({ ref }) => {
               <TextField
                 {...field}
                 fullWidth
-                placeholder={t('common.enter')}
+                placeholder={t('kb.enter')}
                 error={!!errors.domain}
                 helperText={errors.domain?.message}
               />

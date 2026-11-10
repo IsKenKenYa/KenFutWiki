@@ -1,4 +1,5 @@
 import { message } from '@ctzhian/ui';
+import i18n from '@/i18n';
 import { useEffect, useRef, useState } from 'react';
 
 export function useBindCaptcha(
@@ -28,7 +29,7 @@ export function useBindCaptcha(
             setToken(data);
             resolveRef.current(data);
           } else {
-            message.error('验证失败');
+            message.error(i18n.t('common.verifyFailed'));
           }
         }
       },

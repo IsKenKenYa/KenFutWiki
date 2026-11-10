@@ -175,14 +175,14 @@ const Content = () => {
           kb_id: kb_id!,
           nav_id: over.id as string,
         }).then(() => {
-          message.success(t('doc.move.movedToNav'));
+          message.success(t('doc.move.success'));
           refresh();
         });
         return;
       }
       treeDragHandlersRef.current?.onDragEnd?.(e);
     },
-    [kb_id, navList, refresh, groups],
+    [kb_id, navList, refresh, groups, t],
   );
   const handleLayoutDragCancel = useCallback(() => {
     treeDragHandlersRef.current?.onDragCancel?.();

@@ -202,7 +202,7 @@ const FormSubmit = ({
       console.error(error);
     }
     setLoading(false);
-  }, [formData, type, kb_id, parent_id, queue]);
+  }, [formData, type, kb_id, parent_id, queue, setData, setLoading, t]);
 
   return (
     <>
@@ -224,7 +224,7 @@ const FormSubmit = ({
               color: 'primary.main',
             }}
           >
-            使用方法
+            {t('addDoc.usage')}
           </Button>
         )}
         <Button

@@ -80,9 +80,9 @@ Run these from the repository root unless noted otherwise.
 
 ### Frontend
 
-- `web/admin` currently has no dedicated test script in `package.json`.
+- `web/admin` tests: `cd web/admin && pnpm test` (node:test; includes i18n resource/coverage checks).
 - `web/app` currently has no dedicated test script in `package.json`.
-- For frontend verification, use lint, typecheck, and build as the practical test substitute.
+- For frontend verification, use lint, typecheck, build, and available tests.
 - Admin typecheck via build pipeline: `cd web/admin && pnpm build`
 - App lint: `cd web/app && pnpm lint`
 
@@ -180,6 +180,6 @@ Notes:
 - Any backend code change requires `cd backend && make lint` before commit.
 - API contract change: search for all callers and update them together.
 - If swagger files were modified, run `cd web && pnpm api` before committing any related frontend changes.
-- Frontend admin change: run targeted `eslint` and, if feasible, `pnpm build` in `web/admin`.
+- Frontend admin change: run `pnpm test`, targeted `eslint`, and `pnpm build` in `web/admin`.
 - Frontend app change: run `pnpm lint` or `pnpm build` in `web/app` as appropriate.
 - If full builds fail because of pre-existing unrelated issues, say so explicitly.

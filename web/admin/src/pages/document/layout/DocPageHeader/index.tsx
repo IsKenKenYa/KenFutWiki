@@ -3,6 +3,7 @@ import { getApiV1NodeStats } from '@/request/Node';
 import { useAppSelector } from '@/store';
 import { Box, ButtonBase, Stack } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import DocSearch from './DocSearch';
 
 interface DocPageHeaderProps {
@@ -17,6 +18,7 @@ const DocPageHeader = ({
   onRagClick,
   refreshTrigger,
 }: DocPageHeaderProps) => {
+  const { t } = useTranslation();
   const { kb_id, isRefreshDocList } = useAppSelector(state => state.config);
   const [stats, setStats] = useState({
     unreleased_nav_count: 0,
@@ -63,7 +65,7 @@ const DocPageHeader = ({
           gap={0}
           sx={{ fontSize: 16, fontWeight: 700 }}
         >
-          <Box>目录</Box>
+          <Box>{t('doc.catalog')}</Box>
           {(stats.unpublished_count > 0 || stats.unreleased_nav_count > 0) && (
             <>
               <Stack
@@ -80,7 +82,9 @@ const DocPageHeader = ({
                       fontWeight: 'normal',
                     }}
                   >
-                    {stats.unreleased_nav_count} 个 目录未发布，
+                    {t('doc.unpublishedNavCount', {
+                      count: stats.unreleased_nav_count,
+                    })}
                   </Box>
                 )}
                 {stats.unpublished_count > 0 && (
@@ -91,20 +95,23 @@ const DocPageHeader = ({
                       fontWeight: 'normal',
                     }}
                   >
-                    {stats.unpublished_count} 个 文档/文件夹未发布，
+                    {t('doc.unpublishedDocCount', {
+                      count: stats.unpublished_count,
+                    })}
                   </Box>
                 )}
               </Stack>
               <ButtonBase
                 disableRipple
                 sx={{
+                  ml: 0.5,
                   fontSize: 12,
                   fontWeight: 400,
                   color: 'primary.main',
                 }}
                 onClick={onPublishClick}
               >
-                去发布
+                {t('doc.goPublish')}
               </ButtonBase>
             </>
           )}
@@ -118,18 +125,21 @@ const DocPageHeader = ({
                   ml: 2,
                 }}
               >
-                {stats.unstudied_count} 个文档未学习，
+                {t('doc.unstudiedDocCount', {
+                  count: stats.unstudied_count,
+                })}
               </Box>
               <ButtonBase
                 disableRipple
                 sx={{
+                  ml: 0.5,
                   fontSize: 12,
                   fontWeight: 400,
                   color: 'primary.main',
                 }}
                 onClick={onRagClick}
               >
-                去学习
+                {t('doc.goStudy')}
               </ButtonBase>
             </>
           )}

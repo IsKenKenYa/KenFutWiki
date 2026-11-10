@@ -145,7 +145,7 @@ const BatchActionBar = (props: BatchActionBarProps) => {
         ),
       );
     },
-    [setData, type, kb_id, queue],
+    [setData, type, kb_id, queue, t],
   );
 
   const handleBatchImport = useCallback(async () => {
@@ -429,7 +429,7 @@ const BatchActionBar = (props: BatchActionBarProps) => {
         });
       }
     },
-    [setData, handleParse, queue],
+    [setData, handleParse, queue, t],
   );
 
   const handleToggleSelectAll = useCallback(() => {
@@ -520,7 +520,7 @@ const BatchActionBar = (props: BatchActionBarProps) => {
               sx={{ ml: '2px' }}
               inputProps={{ 'aria-labelledby': 'checked-all-label' }}
             />
-            <Box>全选</Box>
+            <Box>{t('doc.selectAll')}</Box>
           </Stack>
         )}
         {importedCount > 0 ? (
@@ -534,8 +534,12 @@ const BatchActionBar = (props: BatchActionBarProps) => {
               borderRadius: 1,
             }}
           >
-            导入成功：{importedCount}{' '}
-            {data.length - importedCount > 0 && <> / {data.length}</>}
+            {data.length - importedCount > 0
+              ? t('addDoc.importedCountWithTotal', {
+                  count: importedCount,
+                  total: data.length,
+                })
+              : t('addDoc.importedCount', { count: importedCount })}
           </Box>
         ) : (
           <Box
@@ -548,7 +552,9 @@ const BatchActionBar = (props: BatchActionBarProps) => {
               borderRadius: 1,
             }}
           >
-            未导入：{data.length - importedCount}
+            {t('addDoc.notImportedCount', {
+              count: data.length - importedCount,
+            })}
           </Box>
         )}
         {parseErrorCount > 0 && (
@@ -562,7 +568,7 @@ const BatchActionBar = (props: BatchActionBarProps) => {
               borderRadius: 1,
             }}
           >
-            解析失败：{parseErrorCount}
+            {t('addDoc.parseFailedCount', { count: parseErrorCount })}
           </Box>
         )}
         {importErrorCount > 0 && (
@@ -576,7 +582,7 @@ const BatchActionBar = (props: BatchActionBarProps) => {
               borderRadius: 1,
             }}
           >
-            导入失败：{importErrorCount}
+            {t('addDoc.importFailedCount', { count: importErrorCount })}
           </Box>
         )}
         {loadingCount > 0 && (
@@ -597,7 +603,7 @@ const BatchActionBar = (props: BatchActionBarProps) => {
               size={12}
               sx={{ color: theme.palette.warning.main }}
             />
-            处理中：{loadingCount}
+            {t('addDoc.processingCount', { count: loadingCount })}
           </Stack>
         )}
       </Stack>
@@ -609,7 +615,7 @@ const BatchActionBar = (props: BatchActionBarProps) => {
           sx={{ minWidth: 0, p: 0, color: 'primary.main' }}
           onClick={handleBatchParse}
         >
-          批量解析
+          {t('addDoc.batchParse')}
         </Button>
         <Button
           size='small'
@@ -618,7 +624,7 @@ const BatchActionBar = (props: BatchActionBarProps) => {
           onClick={handleBatchImport}
           sx={{ minWidth: 0, p: 0, color: 'primary.main' }}
         >
-          批量导入
+          {t('addDoc.batchImport')}
         </Button>
       </Stack>
     </Stack>

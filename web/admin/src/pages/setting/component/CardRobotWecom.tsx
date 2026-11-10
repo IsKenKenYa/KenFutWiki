@@ -179,12 +179,12 @@ const CardRobotWecom = ({
               <FormControlLabel
                 value={true}
                 control={<Radio size='small' />}
-                label={<Box sx={{ width: 100 }}>启用</Box>}
+                label={<Box sx={{ width: 100 }}>{t('common.enable')}</Box>}
               />
               <FormControlLabel
                 value={false}
                 control={<Radio size='small' />}
-                label={<Box sx={{ width: 100 }}>禁用</Box>}
+                label={<Box sx={{ width: 100 }}>{t('common.disable')}</Box>}
               />
             </RadioGroup>
           )}
@@ -329,12 +329,16 @@ const CardRobotWecom = ({
                     <FormControlLabel
                       value={false}
                       control={<Radio size='small' />}
-                      label={<Box sx={{ width: 100 }}>卡片</Box>}
+                      label={
+                        <Box sx={{ width: 100 }}>{t('setting.answerCard')}</Box>
+                      }
                     />
                     <FormControlLabel
                       value={true}
                       control={<Radio size='small' />}
-                      label={<Box sx={{ width: 100 }}>文本</Box>}
+                      label={
+                        <Box sx={{ width: 100 }}>{t('setting.answerText')}</Box>
+                      }
                     />
                   </RadioGroup>
                 )}
@@ -362,7 +366,7 @@ const CardRobotWecom = ({
                       }}
                       onClick={onResetPrompt}
                     >
-                      重置为默认提示词
+                      {t('setting.resetToDefault')}
                     </Box>
                     <TextField
                       {...field}
@@ -447,12 +451,16 @@ const CardRobotWecom = ({
                     <FormControlLabel
                       value={true}
                       control={<Radio size='small' />}
-                      label={<Box sx={{ width: 100 }}>启用</Box>}
+                      label={
+                        <Box sx={{ width: 100 }}>{t('common.enable')}</Box>
+                      }
                     />
                     <FormControlLabel
                       value={false}
                       control={<Radio size='small' />}
-                      label={<Box sx={{ width: 100 }}>禁用</Box>}
+                      label={
+                        <Box sx={{ width: 100 }}>{t('common.disable')}</Box>
+                      }
                     />
                   </RadioGroup>
                 )}

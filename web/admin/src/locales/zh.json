@@ -70,6 +70,12 @@
       "full": "全屏",
       "wide": "超宽",
       "normal": "常规"
+    },
+    "license": {
+      "free": "免费版",
+      "pro": "专业版",
+      "business": "商业版",
+      "enterprise": "旗舰版"
     }
   },
   "version": {
@@ -109,10 +115,34 @@
     "colFeedback": "用户反馈",
     "colUser": "来源用户",
     "colIp": "来源 IP",
-    "colTime": "问答时间"
+    "colTime": "问答时间",
+    "tabEvaluate": "AI 问答评价",
+    "tabComments": "文档评论",
+    "statusPending": "待审核",
+    "statusApproved": "已通过",
+    "statusRejected": "已拒绝",
+    "approve": "通过",
+    "reject": "拒绝",
+    "deleteCommentTitle": "删除评论",
+    "deleteCommentConfirm": "确定要删除该评论吗？",
+    "rejectCommentTitle": "拒绝评论",
+    "rejectCommentConfirm": "确定要拒绝该评论吗？",
+    "rejectSuccess": "拒绝成功",
+    "approveCommentTitle": "通过评论",
+    "approveCommentConfirm": "确定要通过该评论吗？",
+    "approveSuccess": "通过成功",
+    "colDoc": "文档",
+    "colStatus": "状态",
+    "colName": "姓名",
+    "colContent": "评论内容",
+    "colPublishedAt": "发布时间",
+    "colActions": "操作"
   },
   "conversation": {
-    "imageQa": "图片问答"
+    "imageQa": "图片问答",
+    "recordTitle": "问答记录",
+    "contentSource": "内容来源",
+    "thought": "已思考"
   },
   "stat": {
     "qaSources": "问答来源",
@@ -124,7 +154,12 @@
     "last7d": "近 7 天",
     "last30d": "近 30 天",
     "last90d": "近 90 天",
-    "realtimeVisitors": "实时来访"
+    "realtimeVisitors": "实时来访",
+    "userCount": "用户数量",
+    "userDistribution": "用户分布",
+    "client": "客户端",
+    "refererHost": "来源域名",
+    "hotDocs": "热门文档"
   },
   "common": {
     "confirm": "确定",
@@ -134,7 +169,6 @@
     "search": "搜索",
     "delete": "删除",
     "edit": "编辑",
-    "create": "新建",
     "close": "关闭",
     "copy": "复制",
     "copied": "复制成功",
@@ -173,7 +207,11 @@
     "noData": "暂无数据",
     "create": "创建",
     "anonymous": "匿名用户",
-    "tip": "提示"
+    "tip": "提示",
+    "enter": "请输入",
+    "verifyFailed": "验证失败，请重试",
+    "viewMore": "更多",
+    "reset": "重置"
   },
   "system": {
     "title": "系统配置",
@@ -283,7 +321,28 @@
     "headerKeyLabel": "自定义 Header Key",
     "headerValueLabel": "自定义 Header Value",
     "apiVersionHint": "Azure OpenAI 部署的 API 版本，例如 2024-08-01-preview",
-    "saveHint": "保存前会自动进行一次连通性测试；元数据来自内置模型目录（cherry-studio provider-registry，MIT），未收录的模型请手动填写高级参数。"
+    "saveHint": "保存前会自动进行一次连通性测试；元数据来自内置模型目录（cherry-studio provider-registry，MIT），未收录的模型请手动填写高级参数。",
+    "chatTitle": "智能对话模型",
+    "embeddingTitle": "向量模型",
+    "rerankTitle": "重排序模型",
+    "analysisTitle": "文档分析模型",
+    "analysisVlTitle": "图像分析模型",
+    "largeModel": "大模型",
+    "smallModel": "小模型",
+    "visionModel": "视觉模型",
+    "required": "必选",
+    "optional": "可选",
+    "optionalModel": "可选模型",
+    "requiredConfig": "必填配置",
+    "notConfigured": "未配置无法使用",
+    "statusOk": "状态正常",
+    "apply": "应用",
+    "vectorHint": "提示：修改向量模型会触发重新学习",
+    "usageChat": "在智能问答和摘要生成过程中使用。",
+    "usageEmbedding": "在内容发布、智能问答和智能搜索过程中使用。",
+    "usageRerank": "在智能问答和智能搜索过程中使用。",
+    "usageAnalysis": "在内容发布和智能问答过程中使用。",
+    "usageAnalysisVl": "在内容发布和智能问答过程中使用，启用后图像分析能力可用，可选配置。"
   },
   "nav": {
     "editTitle": "修改目录",
@@ -301,7 +360,8 @@
     "deleteWarningDocs": "同步删除该目录下所有文档",
     "deleteWarningJoin": "，且",
     "deleteWarningIrrecoverable": "不可恢复",
-    "deleteWarningSuffix": "，请谨慎操作。"
+    "deleteWarningSuffix": "，请谨慎操作。",
+    "deleteTitle": "删除目录"
   },
   "addDoc": {
     "importFile": "导入文件",
@@ -338,7 +398,19 @@
       "sitemapPlaceholder": "Sitemap 地址",
       "feishuAppIdPath": "> 飞书开放平台 > 凭证与基础信息 > 应用凭证 > App ID",
       "feishuSecretPath": "> 飞书开放平台 > 凭证与基础信息 > 应用凭证 > App Secret"
-    }
+    },
+    "importedCount": "导入成功：{{count}}",
+    "importedCountWithTotal": "导入成功：{{count}} / {{total}}",
+    "notImportedCount": "未导入：{{count}}",
+    "parseFailedCount": "解析失败：{{count}}",
+    "importFailedCount": "导入失败：{{count}}",
+    "processingCount": "处理中：{{count}}",
+    "batchParse": "批量解析",
+    "batchImport": "批量导入",
+    "selectFolderAll": "全选文件夹",
+    "cancelSelectFolderAll": "取消全选文件夹",
+    "pullDocs": "拉取文档",
+    "usage": "使用方法"
   },
   "kb": {
     "createNew": "创建新 Wiki 站",
@@ -410,7 +482,8 @@
     "autoBucketHint": "存储桶不存在时自动创建；云厂商请在控制台预先创建并开放公共读",
     "secureHint": "通过 HTTPS 访问存储服务（云厂商一般为开启）",
     "on": "已开启",
-    "off": "已关闭"
+    "off": "已关闭",
+    "testStepMessage": "{{name}}：{{message}}"
   },
   "auth": {
     "editionTip": "（联创版/企业版可用）",
@@ -456,8 +529,7 @@
   "widget": {
     "defaultBtnText": "在线客服",
     "embedCode": "嵌入代码",
-    "noDomainPrefix": "未配置域名，可在",
-    "noDomainSuffix": "中配置",
+    "noDomainHint": "未配置域名，可在<path>{{path}}</path>中配置",
     "themeConfig": "配色方案",
     "themeLight": "浅色模式",
     "themeDark": "深色模式",
@@ -483,7 +555,11 @@
     "modeDoc": "搜索文档模式",
     "searchPlaceholderLabel": "搜索提示",
     "searchPlaceholderDefault": "问问 AI 吧",
-    "recommendQuestions": "推荐问题"
+    "recommendQuestions": "推荐问题",
+    "positionTopLeft": "左上",
+    "positionTopRight": "右上",
+    "positionBottomLeft": "左下",
+    "positionBottomRight": "右下"
   },
   "setting": {
     "tabPortal": "门户网站",
@@ -626,8 +702,33 @@
       "filterPlaceholder": "输入用户名筛选",
       "joinedAt": "{{time}}加入，",
       "activeAt": "{{time}}活跃",
-      "memberCount": "共 {{count}} 个成员"
-    }
+      "memberCount": "共 {{count}} 个成员",
+      "sync": "同步"
+    },
+    "auth": {
+      "title": "访问认证",
+      "editionTip": "（联创版/企业版可用）",
+      "password": "密码认证",
+      "dingtalk": "钉钉登录",
+      "feishu": "飞书登录",
+      "wecom": "企业微信登录",
+      "oauth": "OAuth 登录",
+      "cas": "CAS 登录",
+      "ldap": "LDAP 登录",
+      "github": "GitHub 登录"
+    },
+    "apiTokenRequired": "API Token 不能为空",
+    "apiCallUrl": "API 调用地址",
+    "answerType": "回复类型",
+    "answerCard": "卡片",
+    "answerText": "文本",
+    "themeLight": "浅色模式",
+    "themeDark": "深色模式",
+    "accessForbidden": "禁止访问",
+    "addCardEmpty": "暂无数据，前往文档页面创建并发布文档",
+    "portalAccess": "访问门户网站方式",
+    "addDocument": "添加文档",
+    "humanHandoffHint": "人工客服转接配置：当用户触发以下场景时，会自动转接人工客服"
   },
   "wizard": {
     "step": {
@@ -658,7 +759,9 @@
       "hotSearch3": "如何配置文章 CTA？",
       "quickStart": "快速开始",
       "faqTitle": "常见问题"
-    }
+    },
+    "storageHint": "系统默认使用内置 MinIO 存储上传的文件。你也可以切换到阿里云 OSS 等任意 S3 兼容对象存储；此步骤可跳过，之后在「系统设置 → 存储配置」中随时修改。",
+    "useDefaultStorage": "使用默认存储（推荐，无需配置）"
   },
   "upload": {
     "clickToUpload": "点击上传",
@@ -668,12 +771,8 @@
     "acceptFormats": "支持格式 {formats}",
     "allFiles": "所有文件",
     "failed": "上传失败",
-    "imageProcessFailed": "图片处理失败"
-  },
-  "perm": {
-    "fullOpen": "完全开放",
-    "partialOpen": "部分开放",
-    "fullClosed": "完全禁止"
+    "imageProcessFailed": "图片处理失败",
+    "selectFile": "选择文件"
   },
   "doc": {
     "searchPlaceholder": "搜索内容",
@@ -690,7 +789,6 @@
     "publish": "发布文档",
     "publishUpdate": "发布更新",
     "restudyAgain": "重新学习",
-    "properties": "文档属性",
     "createFolder": "创建文件夹",
     "createDocument": "创建文档",
     "createRichText": "创建富文本",
@@ -745,7 +843,9 @@
       "selectTarget": "请选择目标目录",
       "success": "移动成功",
       "currentNav": "（当前目录）",
-      "otherNav": "（其他目录）"
+      "otherNav": "（其他目录）",
+      "rootPath": "根路径",
+      "noNavs": "暂无可用目录"
     },
     "summary": {
       "title": "文档摘要",
@@ -759,7 +859,9 @@
       "autoGenerateHint": "点击此处，AI 自动生成摘要",
       "confirmBulk": "确认为以下文档 AI 生成摘要？",
       "backgroundStarted": "正在后台生成文档摘要",
-      "bulkHint": "AI 生成需要一定的时间，可以稍后查看"
+      "bulkHint": "AI 生成需要一定的时间，可以稍后查看",
+      "notGenerated": "暂无摘要，可前往文档页生成并发布",
+      "emptyClickGenerate": "暂无摘要，点击<action>生成摘要</action>"
     },
     "restudy": {
       "title": "学习文档",
@@ -769,9 +871,6 @@
       "unstudiedLabel": "未学习/学习失败文档",
       "countSummary": "共 {{total}} 个，已选中 {{selected}} 个"
     },
-    "createFolder": "创建文件夹",
-    "createDocument": "创建文档",
-    "catalog": "目录",
     "properties": {
       "title": "文档属性",
       "editSuccess": "编辑成功",
@@ -789,7 +888,16 @@
       "visitableGroups": "可被访问的用户组",
       "visible": "导航内可见",
       "visibleGroups": "导航内可见的用户组"
-    }
+    },
+    "totalDocs": "共 <num>{{total}}</num> 个文档",
+    "selectedCount": "已选中 {{count}} 项",
+    "batchMove": "批量移动",
+    "batchActions": "批量操作",
+    "unpublishedNavCount": "{{count}} 个目录未发布，",
+    "unpublishedDocCount": "{{count}} 个文档/文件夹未发布，",
+    "unstudiedDocCount": "{{count}} 个文档未学习，",
+    "goPublish": "去发布",
+    "goStudy": "去学习"
   },
   "editor": {
     "aiPolish": "文本润色",
@@ -803,13 +911,40 @@
     "selectTextFirst": "请先选择文本",
     "exportSuccess": "导出成功",
     "viewHistory": "查看历史版本",
-    "contentPlaceholder": "请输入文档内容"
+    "contentPlaceholder": "请输入文档内容",
+    "export": "导出",
+    "exportHtml": "导出 HTML",
+    "exportMarkdown": "导出 Markdown",
+    "saveAndPublish": "保存并发布",
+    "createdBy": "创建：{{name}}",
+    "lastPublishedBy": "上次发布：{{name}}",
+    "createdAt": "{{time}} 创建",
+    "views": "浏览量 {{count}}",
+    "outline": "内容大纲",
+    "alreadyLatest": "当前已是最新版本",
+    "copyNameSuffix": "{{name}} 副本",
+    "createTranslation": "创建译本",
+    "duplicate": "创建副本",
+    "notPublished": "文档未发布",
+    "rename": "重命名",
+    "saved": "已保存",
+    "translationCreated": "译本创建成功",
+    "viewOnSite": "在前台查看"
   },
   "history": {
     "editedBy": "{{name}} 编辑",
     "editedAt": "{{time}} 编辑",
     "characterCount": "{{count}} 字",
-    "unpublishedDraft": "未发布的草稿"
+    "unpublishedDraft": "未发布的草稿",
+    "title": "历史版本",
+    "restore": "还原",
+    "rollbackTitle": "确认使用当前版本？",
+    "rollbackWarning": "使用此版本会覆盖当前草稿内容",
+    "versionNumber": "版本号",
+    "versionDescription": "版本描述",
+    "creatorLabel": "创建人员",
+    "editorLabel": "编辑人员",
+    "publisherLabel": "发布人员"
   },
   "layout": {
     "nav": {
@@ -866,13 +1001,11 @@
       "edition": "产品型号",
       "period": "授权时间",
       "expired": "授权已到期"
-    }
+    },
+    "sourceCode": "AGPLv3 · 对应源码"
   },
   "header": {
     "visitSite": "访问 Wiki 网站"
-  },
-  "version": {
-    "sourceCode": "AGPLv3 · 对应源码"
   },
   "login": {
     "title": "KenFutWiki 管理后台",
@@ -890,5 +1023,394 @@
     "title": "无权限访问",
     "desc": "当前账号没有可访问的知识库，请联系管理员分配权限。",
     "backHome": "返回首页"
+  },
+  "contribution": {
+    "statusApproved": "已采纳",
+    "statusRejected": "已拒绝",
+    "statusPending": "等待处理",
+    "typeAdd": "新增",
+    "typeEdit": "编辑",
+    "accept": "采纳",
+    "acceptConfirm": "确定要采纳该修改吗？",
+    "acceptSuccess": "采纳成功",
+    "reject": "拒绝",
+    "rejectConfirm": "确定要拒绝该修改吗？",
+    "rejectSuccess": "拒绝成功",
+    "colDoc": "文档",
+    "colUpdateNote": "更新说明",
+    "colUser": "用户",
+    "colTime": "时间",
+    "colActions": "操作选项",
+    "fromUserAdd": "来自 {{name}} 的新增",
+    "fromUserEdit": "来自 {{name}} 的修改",
+    "selectCatalog": "选择目录",
+    "noCatalog": "暂无目录",
+    "rootPath": "根路径",
+    "submitNote": "提交说明：",
+    "compare": "对比",
+    "diffView": "差异对比",
+    "diffViewDesc": "直观查看变更点",
+    "afterChange": "修改后",
+    "afterChangeDesc": "当前候选内容",
+    "beforeChange": "修改前",
+    "beforeChangeDesc": "原始文档内容"
+  },
+  "release": {
+    "versionNo": "版本号",
+    "currentVersion": "当前版本",
+    "remark": "备注",
+    "publisher": "发布者",
+    "publishedAt": "发布时间",
+    "totalHistory": "共 <num>{{count}}</num> 个历史版本",
+    "publishTitle": "发布新版本",
+    "deleteConfirm": "确认删除以下版本？",
+    "resetConfirm": "确认回滚以下版本？",
+    "rollback": "回滚",
+    "publishSuccess": "{{tag}} 版本发布成功",
+    "selectDocs": "请选择要发布的文档",
+    "noUnpublished": "暂无未发布文档或目录",
+    "defaultMessage": "{{time}}发布",
+    "versionNoRequired": "版本号不能为空",
+    "versionNoPlaceholder": "请输入版本号",
+    "versionDesc": "版本描述",
+    "versionDescRequired": "版本描述不能为空",
+    "versionDescPlaceholder": "请输入版本描述",
+    "unpublishedNavs": "未发布目录",
+    "navCount": "共 {{count}} 个",
+    "unpublishedDocs": "未发布文档/文件夹",
+    "countSummary": "共 {{total}} 个，已选中 {{selected}} 个"
+  },
+  "customModal": {
+    "modal": {
+      "defaultTitle": "自定义欢迎页"
+    },
+    "sidebar": {
+      "colorScheme": "配色方案",
+      "components": "组件"
+    },
+    "common": {
+      "add": "添加",
+      "text": "文字",
+      "title": "标题",
+      "description": "描述",
+      "link": "链接",
+      "name": "名称",
+      "image": "图片",
+      "content": "内容",
+      "inputPlaceholder": "请输入",
+      "titlePlaceholder": "请输入标题",
+      "descriptionPlaceholder": "请输入描述",
+      "linkPlaceholder": "请输入链接",
+      "namePlaceholder": "请输入名称",
+      "buttonStyle": "按钮样式",
+      "buttonStyleSolid": "实心",
+      "buttonStyleOutlined": "描边",
+      "buttonStyleText": "文字",
+      "buttonLink": "按钮链接",
+      "recommendedDocs": "推荐文档",
+      "recommendedFolders": "推荐文件夹",
+      "recommendedNav": "推荐目录",
+      "recommendedSize": "(推荐 {{size}})"
+    },
+    "header": {
+      "defaultButtonText": "按钮{{index}}",
+      "titleAndLogo": "页面标题 / Logo文本",
+      "searchPlaceholder": "搜索框提示文字",
+      "buttons": "按钮",
+      "defaultSearchPlaceholder": "搜索..."
+    },
+    "banner": {
+      "mainTitle": "主标题",
+      "subtitle": "副标题",
+      "backgroundImage": "背景图",
+      "searchBox": "搜索框",
+      "hotSearch": "热门搜索",
+      "primaryButton": "主按钮",
+      "searchKeyword": "搜索关键词",
+      "searchKeywordPlaceholder": "请输入搜索关键词"
+    },
+    "footer": {
+      "siteIntro": "网站介绍信息",
+      "logoIcon": "Logo 图标",
+      "logoText": "Logo 文字",
+      "description": "说明信息",
+      "socialInfo": "社交信息",
+      "linkGroups": "链接组",
+      "copyright": "版权信息",
+      "icp": "ICP 备案编号",
+      "brandMark": "软件品牌标识",
+      "showBrandMark": "展示软件品牌标识",
+      "optionWebsite": "网站或社交媒体",
+      "optionLinkName": "链接名称",
+      "optionWechat": "微信公众号",
+      "optionWechatPlaceholder": "请输入公众号名称",
+      "optionWechatName": "公众号名称",
+      "optionPhoneTextPlaceholder": "请输入文字"
+    },
+    "social": {
+      "item": "社交信息{{index}}",
+      "targetLink": "目标链接",
+      "phone": "电话",
+      "phonePlaceholder": "请输入电话号码"
+    },
+    "button": {
+      "style": "按钮样式",
+      "styleSolid": "实心",
+      "styleOutlined": "描边",
+      "styleText": "文字",
+      "openTarget": "打开方式",
+      "currentWindow": "当前窗口",
+      "newWindow": "新窗口",
+      "showIcon": "展示图标",
+      "text": "按钮文本",
+      "textPlaceholder": "请输入文本",
+      "link": "按钮链接",
+      "linkPlaceholder": "请输入链接"
+    },
+    "brand": {
+      "subLink": "子链接{{index}}",
+      "group": "链接组{{index}}",
+      "linkTextRequired": "请输入链接文字",
+      "linkUrlRequired": "请输入链接地址",
+      "groupName": "链接组名称",
+      "groupNamePlaceholder": "输入链接组名称",
+      "groupNameRequired": "请输入链接组名称"
+    },
+    "case": {
+      "caseName": "案例名称",
+      "caseNamePlaceholder": "请输入案例名称",
+      "listTitle": "案例列表"
+    },
+    "comment": {
+      "comment": "评论",
+      "commentPlaceholder": "请输入评论",
+      "userName": "用户名",
+      "userNamePlaceholder": "请输入用户名",
+      "profession": "职业",
+      "professionPlaceholder": "请输入职业",
+      "uploadAvatar": "上传头像",
+      "listTitle": "评论列表"
+    },
+    "feature": {
+      "name": "特性名称",
+      "namePlaceholder": "请输入特性名称",
+      "description": "特性描述",
+      "descriptionPlaceholder": "请输入特性描述",
+      "listTitle": "特性列表"
+    },
+    "metrics": {
+      "value": "指标数值",
+      "valuePlaceholder": "请输入指标数值",
+      "name": "指标名称",
+      "namePlaceholder": "请输入指标名称",
+      "listTitle": "指标列表"
+    },
+    "question": {
+      "question": "问题",
+      "questionPlaceholder": "请输入问题",
+      "listTitle": "常见问题列表"
+    },
+    "faq": {
+      "linkList": "链接列表"
+    },
+    "blockGrid": {
+      "listTitle": "宫格列表"
+    },
+    "navDoc": {
+      "selectNav": "选择目录",
+      "noNavData": "暂无目录数据",
+      "uncategorized": "未分类"
+    },
+    "docSummary": {
+      "generateFailed": "生成摘要失败",
+      "generateSuccess": "生成摘要成功",
+      "emptyHint": "暂无摘要，可前往文档页生成并发布",
+      "noSummary": "暂无摘要"
+    },
+    "components": {
+      "header": "顶部导航",
+      "banner": "欢迎组件",
+      "basicDoc": "文档摘要卡片",
+      "dirDoc": "文件夹卡片",
+      "navDoc": "目录卡片",
+      "simpleDoc": "简易文档卡片",
+      "carousel": "轮播图",
+      "faq": "链接组",
+      "footer": "底部导航",
+      "text": "标题",
+      "case": "案例卡片",
+      "metrics": "指标卡片",
+      "feature": "产品特性",
+      "imgText": "左图右字",
+      "textImg": "右图左字",
+      "comment": "评论卡片",
+      "blockGrid": "区块网格",
+      "question": "常见问题"
+    },
+    "defaults": {
+      "textTitle": "标题",
+      "metricsTitle": "指标卡片",
+      "caseTitle": "案例卡片",
+      "featureTitle": "产品特性",
+      "imgTextTitle": "左图右字",
+      "textImgTitle": "右图左字",
+      "commentTitle": "点评卡片",
+      "blockGridTitle": "区块网格",
+      "basicDocTitle": "文档摘要卡片",
+      "dirDocTitle": "文件夹卡片",
+      "navDocTitle": "目录卡片",
+      "simpleDocTitle": "简易文档卡片",
+      "carouselTitle": "轮播图",
+      "faqTitle": "链接组",
+      "questionTitle": "常见问题"
+    }
+  },
+  "kenfut": {
+    "common": {
+      "product": "产品",
+      "remove": "移除",
+      "loadFailed": "加载失败",
+      "notConnected": "未接入",
+      "connected": "已接入",
+      "docsAndArticles": "文档与文章"
+    },
+    "api": {
+      "requestFailed": "请求失败 ({{status}})"
+    },
+    "operations": {
+      "title": "内容运营与产品接入",
+      "subtitle": "KenFutWiki · 公开内容、多产品跳转与转化分析",
+      "tabProducts": "产品接入",
+      "tabFunnel": "转化漏斗",
+      "tabContent": "内容运营",
+      "register": "登记产品",
+      "editTitle": "编辑产品接入",
+      "registerHint": "登记页面后，运营可在页面选择器中选择目标；产品凭证只在其服务器使用。",
+      "productName": "产品名称",
+      "productOrigin": "产品 Origin",
+      "originHint": "仅协议、域名和端口，不含路径；本地参考产品允许 localhost HTTP",
+      "enable": "启用接入",
+      "pageCatalog": "页面目录",
+      "stablePageKey": "稳定页面键",
+      "pageName": "页面名称",
+      "pagePath": "页面路径",
+      "allowedParams": "允许的参数（逗号分隔）",
+      "addPage": "添加页面",
+      "productSaved": "产品配置已保存",
+      "credentialsTitle": "{{name}} · 服务端凭证",
+      "credentialsHint": "完整凭证仅在创建后显示一次。保存在产品服务器环境变量中，不放入浏览器或跳转链接。",
+      "newCredential": "新凭证（关闭后不再显示）",
+      "copied": "已复制",
+      "copyCredential": "复制凭证",
+      "scopeConversion": "回传注册与首次成功事件",
+      "scopeAnalytics": "查询本产品聚合漏斗",
+      "createCredential": "创建凭证",
+      "revoked": "已撤销",
+      "revoke": "撤销",
+      "revokeSuccess": "凭证已撤销",
+      "noCredentials": "尚无凭证",
+      "funnelLoadFailed": "统计加载失败",
+      "attributionHint": "归因按产品计算：点击后 30 天内最后一次有效 CTA，注册锁定来源，首次成功生成沿用。浏览和点击来自站点，后两段由产品服务器回传。",
+      "allProducts": "全部产品",
+      "startDate": "开始日期",
+      "endDate": "结束日期",
+      "querying": "查询中",
+      "queryFunnel": "查询漏斗",
+      "selectSourceArticle": "选择来源文章",
+      "ctaIdOptional": "CTA ID（可选）",
+      "articleViews": "文章浏览",
+      "viewersArticleOnly": "{{count}} 位访客 · 仅文章页面",
+      "ctaClicks": "CTA 点击",
+      "viewers": "{{count}} 位访客",
+      "attributedRegistrations": "归因注册",
+      "registrationsCaption": "产品内注册账号",
+      "registrationsMissing": "尚未收到注册服务端事件",
+      "firstGenerations": "首次成功生成",
+      "generationsCaption": "产品内成功账号",
+      "generationsMissing": "尚未收到首次成功生成服务端事件",
+      "documentViews": "文档浏览（独立口径，不参与文章漏斗）",
+      "rateViewToClick": "浏览 → 点击：{{rate}}",
+      "rateClickToRegistration": "点击 → 注册：{{rate}}",
+      "rateRegistrationToGeneration": "注册 → 首次成功：{{rate}}",
+      "visitorSummary": "归因注册访客：{{registered}} · 首次成功访客：{{generations}}。转化率按同一来源访客去重计算，产品账号数单独展示。",
+      "unattributedSummary": "未归因注册：{{registrations}} · 未归因首次成功生成：{{generations}}",
+      "serverEventsHint": "服务端事件尚未全部接入。接入状态按是否收到过对应事件判断，与当前日期范围无关。",
+      "metricNote": "文章浏览只统计文章页面；文档浏览单独展示，不进入漏斗。浏览次数、去重访客和产品账号为不同口径；未归因事件不会被强行计入文章转化。",
+      "funnelEmptyHint": "选择日期和产品后查询。尚未回传事件的产品不代表已经完成转化接入。",
+      "pageCount": "{{origin}} · {{count}} 个页面",
+      "editPages": "编辑页面",
+      "serverCredentials": "服务端凭证",
+      "emptyProductsHint": "先登记一个产品及其页面，再在文章 CTA 中选择目标。注册和生成结果由产品服务器回传。",
+      "contentHint": "编辑器顶部“文章设置”支持草稿内容。这里可选择已发布页面调整文章入口、封面、分类标签、推荐及 CTA；保存后需发布。",
+      "selectContent": "选择内容并编辑运营属性"
+    },
+    "metadata": {
+      "title": "文章与运营属性",
+      "hint": "这些属性与正文一起发布。同一内容的文档入口和文章入口共用评论及浏览量。",
+      "channel": "展示入口",
+      "channelDocs": "仅文档目录",
+      "channelArticle": "仅文章频道",
+      "slug": "文章短名",
+      "slugHint": "文章地址 /blog/短名，修改后保留旧链接跳转",
+      "cover": "封面图片",
+      "coverPreview": "封面预览",
+      "authorName": "公开署名",
+      "displayDate": "展示发布日期",
+      "displayDateHint": "留空使用首次发布时间",
+      "authorAvatar": "作者头像",
+      "category": "主分类",
+      "categoryPlaceholder": "例如：教程、产品更新、案例",
+      "tags": "标签",
+      "tagsPlaceholder": "输入后按回车",
+      "featured": "精选文章",
+      "featuredOrder": "精选排序",
+      "featuredOrderHint": "数字越小越靠前",
+      "relatedTitle": "文末相关推荐",
+      "relatedHint": "手选优先，按此顺序展示；不足两篇时按标签、分类或目录补足。",
+      "relatedIndex": "{{index}}. {{title}}",
+      "moveUp": "上移",
+      "selectRelated": "选择推荐页面",
+      "ctaTitle": "文末动作引导 CTA",
+      "ctaLabel": "按钮文字",
+      "ctaStyle": "样式",
+      "ctaStylePrimary": "主按钮",
+      "ctaStyleSecondary": "次按钮",
+      "selectTarget": "选择目标页面",
+      "noTarget": "尚未选择",
+      "ctaParams": "跳转参数（每行 key=value）",
+      "ctaParamsHint": "产品页面仅允许后台登记的参数，系统自动附加归因标识",
+      "newTab": "新窗口打开",
+      "addCta": "添加 CTA（最多两个）",
+      "saving": "保存中",
+      "saveDraft": "保存属性草稿",
+      "articleSettings": "文章设置",
+      "uploading": "上传中",
+      "ctaParamsInvalid": "CTA 参数请按每行 key=value 填写",
+      "reservedParam": "kf_click_id 为系统保留参数",
+      "ctaLabelRequired": "请填写 CTA 按钮文字",
+      "saved": "内容属性已保存，请发布文档后对外生效"
+    },
+    "picker": {
+      "title": "链接到页面",
+      "searchPlaceholder": "搜索页面",
+      "tabAll": "全部页面",
+      "tabProduct": "产品页面",
+      "tabUrl": "外部链接",
+      "linkText": "链接文字",
+      "linkUrl": "HTTPS 或站内链接",
+      "selectLink": "选择链接",
+      "typeContent": "内容",
+      "typeSite": "站点",
+      "nodeOnlyHint": "仅选择已发布内容，保持页面身份关联。",
+      "selectPage": "选择页面",
+      "siteHome": "站点首页",
+      "docsEntry": "文档入口",
+      "blogChannel": "文章频道",
+      "loadFailed": "无法加载页面"
+    }
+  },
+  "qa": {
+    "poweredBy": "本网站由 KenFutWiki 提供技术支持",
+    "aiDisclaimer": "本回答由 KenFutWiki AI 自动生成，仅供参考。"
   }
 }

@@ -5,6 +5,7 @@ import axios, {
   AxiosResponse,
 } from 'axios';
 import { message } from '@ctzhian/ui';
+import i18n from '@/i18n';
 
 type BasicResponse<T> = {
   data: T;
@@ -40,10 +41,10 @@ const request = <T>(options: AxiosRequestConfig): Promise<T> => {
         if (res.success) {
           return res.data;
         }
-        message.error(res.message || '网络异常');
+        message.error(res.message || i18n.t('common.networkError'));
         return Promise.reject(res);
       }
-      message.error(response.statusText);
+      message.error(response.statusText || i18n.t('common.networkError'));
       return Promise.reject(response);
     },
     (error: AxiosError) => {
@@ -51,7 +52,9 @@ const request = <T>(options: AxiosRequestConfig): Promise<T> => {
         window.location.href = window.__BASENAME__ + '/login';
         localStorage.removeItem('kfw_admin_token');
       }
-      message.error(error.response?.statusText || '网络异常');
+      message.error(
+        error.response?.statusText || i18n.t('common.networkError'),
+      );
       return Promise.reject(error.response);
     },
   );

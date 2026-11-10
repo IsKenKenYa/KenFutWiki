@@ -101,12 +101,12 @@ const CardRobotFeishu = ({ kb }: { kb: DomainKnowledgeBaseDetail }) => {
               <FormControlLabel
                 value={true}
                 control={<Radio size='small' />}
-                label={<Box sx={{ width: 100 }}>启用</Box>}
+                label={<Box sx={{ width: 100 }}>{t('common.enable')}</Box>}
               />
               <FormControlLabel
                 value={false}
                 control={<Radio size='small' />}
-                label={<Box sx={{ width: 100 }}>禁用</Box>}
+                label={<Box sx={{ width: 100 }}>{t('common.disable')}</Box>}
               />
             </RadioGroup>
           )}

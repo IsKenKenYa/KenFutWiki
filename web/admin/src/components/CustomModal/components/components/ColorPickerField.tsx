@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, InputAdornment, Popover, TextField } from '@mui/material';
 import type { SxProps } from '@mui/material/styles';
 import { ColorPicker, useColor, ColorService } from 'react-color-palette';
+import { useTranslation } from 'react-i18next';
 // @ts-expect-error ignore
 import 'react-color-palette/css';
 
@@ -19,9 +20,10 @@ const ColorPickerField: React.FC<ColorPickerFieldProps> = ({
   value = '#000000',
   onChange,
   width = 320,
-  placeholder = '请输入',
+  placeholder,
   sx,
 }) => {
+  const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
   const [color, setColor] = useColor(value || '#000000');
 
@@ -64,7 +66,7 @@ const ColorPickerField: React.FC<ColorPickerFieldProps> = ({
         }}
         sx={sx}
         value={value}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t('customModal.common.inputPlaceholder')}
       />
       <Popover
         open={open}
