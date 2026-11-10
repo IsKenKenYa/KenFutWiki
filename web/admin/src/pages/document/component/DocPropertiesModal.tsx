@@ -13,11 +13,7 @@ import {
 } from '@/request/nodeStream';
 import { getApiProV1AuthGroupList } from '@/request/pro/AuthGroup';
 import { GithubComChaitinPandaWikiProApiAuthV1AuthGroupListItem } from '@/request/pro/types';
-import {
-  ConstsNodeAccessPerm,
-  DomainNodeListItemResp,
-  DomainNodeType,
-} from '@/request/types';
+import { ConstsNodeAccessPerm, DomainNodeListItemResp } from '@/request/types';
 import { useAppSelector } from '@/store';
 import { convertToTree } from '@/utils/drag';
 import { filterEmptyFolders } from '@/utils/tree';
@@ -157,11 +153,10 @@ const DocPropertiesModal = ({
 
   const onSubmit = handleSubmit(values => {
     Promise.all([
+      // 后端 permission 接口同时支持文档与文件夹节点，提交全部选中项
       patchApiV1NodePermissionEdit({
         kb_id: kb_id!,
-        ids: data
-          .filter(item => item.type === DomainNodeType.NodeTypeDocument)
-          .map(item => item.id!),
+        ids: data.map(item => item.id!),
         permissions: {
           answerable: values.answerable as ConstsNodeAccessPerm,
           visitable: values.visitable as ConstsNodeAccessPerm,
@@ -282,11 +277,7 @@ const DocPropertiesModal = ({
               component={'span'}
               sx={{ fontWeight: 700, color: 'primary.main', px: 0.5 }}
             >
-              {
-                data.filter(
-                  item => item.type === DomainNodeType.NodeTypeDocument,
-                ).length
-              }
+              {data.length}
             </Box>
             {t('doc.properties.batchSelectedSuffix')}
           </Box>

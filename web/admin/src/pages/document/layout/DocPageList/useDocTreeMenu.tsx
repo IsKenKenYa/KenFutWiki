@@ -85,6 +85,12 @@ export function useDocTreeMenu(
               onClick: () => handleUrl(item, k),
             })),
           },
+          // 文件夹与文档一样支持三项权限及用户组绑定（后端 permission 接口已支持 type=1）
+          {
+            label: t('doc.properties.title'),
+            key: 'properties',
+            onClick: () => handleProperties(item),
+          },
         );
       }
 
