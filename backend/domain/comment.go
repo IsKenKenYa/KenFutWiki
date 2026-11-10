@@ -72,6 +72,12 @@ type CommentListReq struct {
 	Pager
 }
 
+type CommentModerateListReq struct {
+	KBID   string        `json:"kb_id" validate:"required"`
+	IDs    []string      `json:"ids" validate:"required,min=1"`
+	Status CommentStatus `json:"status" validate:"required,oneof=-1 1"`
+}
+
 type CommentListItem struct {
 	ID        string        `json:"id"`
 	NodeID    string        `json:"node_id"`

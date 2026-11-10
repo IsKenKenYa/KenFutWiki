@@ -271,6 +271,9 @@ func (r *NodeRepository) UpdateNodeContent(ctx context.Context, req *domain.Upda
 			First(&currentNode).Error; err != nil {
 			return err
 		}
+		if req.ExpectedUpdatedAt != nil && !currentNode.UpdatedAt.Equal(*req.ExpectedUpdatedAt) {
+			return domain.ErrMCPVersionConflict
+		}
 
 		updateMap := make(map[string]any)
 		updateStatus := false
@@ -481,6 +484,17 @@ func (r *NodeRepository) collectAllChildNodeIDs(tx *gorm.DB, kbID string, parent
 	return lo.Uniq(allIDs)
 }
 
+func (r *NodeRepository) CountChildren(ctx context.Context, kbID, nodeID string) (int64, error) {
+	var count int64
+	if err := r.db.WithContext(ctx).
+		Model(&domain.Node{}).
+		Where("kb_id = ? AND parent_id = ?", kbID, nodeID).
+		Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func (r *NodeRepository) GetNodeByID(ctx context.Context, id string) (*domain.Node, error) {
 	var node *domain.Node
 	if err := r.db.WithContext(ctx).
@@ -591,6 +605,57 @@ func (r *NodeRepository) GetLatestNodeReleaseByNodeID(ctx context.Context, nodeI
 		return nil, err
 	}
 	return nodeRelease, nil
+}
+
+func (r *NodeRepository) ListNodeReleaseHistory(ctx context.Context, kbID, nodeID string) ([]*domain.NodeReleaseHistoryItem, error) {
+	items := make([]*domain.NodeReleaseHistoryItem, 0)
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT nr.id,
+		       nr.node_id,
+		       nr.name,
+		       nr.meta,
+		       nr.updated_at,
+		       n.creator_id,
+		       COALESCE(cu.account, '') AS creator_account,
+		       nr.editor_id,
+		       COALESCE(eu.account, '') AS editor_account,
+		       nr.publisher_id,
+		       COALESCE(pu.account, '') AS publisher_account,
+		       COALESCE(kr.id, '') AS release_id,
+		       COALESCE(kr.tag, '') AS release_name,
+		       COALESCE(kr.message, '') AS release_message
+		FROM node_releases nr
+		JOIN nodes n ON n.id = nr.node_id AND n.kb_id = nr.kb_id
+		LEFT JOIN users cu ON cu.id = n.creator_id
+		LEFT JOIN users eu ON eu.id = nr.editor_id
+		LEFT JOIN users pu ON pu.id = nr.publisher_id
+		LEFT JOIN kb_release_node_releases krnr ON krnr.node_release_id = nr.id AND krnr.kb_id = nr.kb_id
+		LEFT JOIN kb_releases kr ON kr.id = krnr.release_id
+		WHERE nr.kb_id = ? AND nr.node_id = ?
+		ORDER BY nr.updated_at DESC`, kbID, nodeID).Scan(&items).Error
+	if err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+func (r *NodeRepository) ListNodeReleases(ctx context.Context, kbID, nodeID string, offset, limit int) ([]*domain.NodeRelease, int64, error) {
+	var total int64
+	query := r.db.WithContext(ctx).
+		Model(&domain.NodeRelease{}).
+		Where("kb_id = ? AND node_id = ?", kbID, nodeID)
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	releases := make([]*domain.NodeRelease, 0)
+	if err := query.
+		Order("updated_at DESC").
+		Offset(offset).
+		Limit(limit).
+		Find(&releases).Error; err != nil {
+		return nil, 0, err
+	}
+	return releases, total, nil
 }
 
 func (r *NodeRepository) GetLatestNodeReleaseWithPublishAccount(ctx context.Context, nodeID string) (*domain.NodeReleaseWithPublisher, error) {

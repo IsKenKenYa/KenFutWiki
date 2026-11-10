@@ -8,6 +8,7 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/chaitin/panda-wiki/consts"
 	"github.com/chaitin/panda-wiki/domain"
 	"github.com/chaitin/panda-wiki/log"
 	"github.com/chaitin/panda-wiki/store/cache"
@@ -55,4 +56,71 @@ func (r *APITokenRepo) GetByTokenWithCache(ctx context.Context, token string) (*
 	}
 
 	return &apiToken, nil
+}
+
+func (r *APITokenRepo) Create(ctx context.Context, token *domain.APIToken) error {
+	if err := r.db.WithContext(ctx).Create(token).Error; err != nil {
+		return fmt.Errorf("create api token failed: %w", err)
+	}
+	return nil
+}
+
+func (r *APITokenRepo) List(ctx context.Context, kbID string) ([]*domain.APIToken, error) {
+	tokens := make([]*domain.APIToken, 0)
+	if err := r.db.WithContext(ctx).
+		Where("kb_id = ?", kbID).
+		Order("created_at ASC").
+		Find(&tokens).Error; err != nil {
+		return nil, fmt.Errorf("list api tokens failed: %w", err)
+	}
+	return tokens, nil
+}
+
+func (r *APITokenRepo) Update(ctx context.Context, id, kbID string, name *string, permission *consts.UserKBPermission) error {
+	var apiToken domain.APIToken
+	if err := r.db.WithContext(ctx).
+		Where("id = ? AND kb_id = ?", id, kbID).
+		First(&apiToken).Error; err != nil {
+		return err
+	}
+
+	updateMap := map[string]any{}
+	if name != nil {
+		updateMap["name"] = *name
+	}
+	if permission != nil {
+		updateMap["permission"] = *permission
+	}
+	if len(updateMap) == 0 {
+		return nil
+	}
+	if err := r.db.WithContext(ctx).
+		Model(&domain.APIToken{}).
+		Where("id = ? AND kb_id = ?", id, kbID).
+		Updates(updateMap).Error; err != nil {
+		return fmt.Errorf("update api token failed: %w", err)
+	}
+	r.invalidateCache(ctx, apiToken.Token)
+	return nil
+}
+
+func (r *APITokenRepo) Delete(ctx context.Context, id, kbID string) error {
+	var apiToken domain.APIToken
+	if err := r.db.WithContext(ctx).
+		Where("id = ? AND kb_id = ?", id, kbID).
+		First(&apiToken).Error; err != nil {
+		return err
+	}
+	if err := r.db.WithContext(ctx).
+		Delete(&domain.APIToken{}, "id = ? AND kb_id = ?", id, kbID).Error; err != nil {
+		return fmt.Errorf("delete api token failed: %w", err)
+	}
+	r.invalidateCache(ctx, apiToken.Token)
+	return nil
+}
+
+func (r *APITokenRepo) invalidateCache(ctx context.Context, token string) {
+	if err := r.cache.Del(ctx, fmt.Sprintf("api_token:%s", token)).Err(); err != nil {
+		r.logger.Warn("failed to invalidate API token cache", log.Error(err))
+	}
 }

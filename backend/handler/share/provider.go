@@ -7,20 +7,24 @@ import (
 )
 
 type ShareHandler struct {
-	ShareKenFutContentHandler *ShareKenFutContentHandler
-	ShareNodeHandler          *ShareNodeHandler
-	ShareNavHandler           *ShareNavHandler
-	ShareAppHandler           *ShareAppHandler
-	ShareChatHandler          *ShareChatHandler
-	ShareSitemapHandler       *ShareSitemapHandler
-	ShareStatHandler          *ShareStatHandler
-	ShareCommentHandler       *ShareCommentHandler
-	ShareAuthHandler          *ShareAuthHandler
-	ShareConversationHandler  *ShareConversationHandler
-	ShareWechatHandler        *ShareWechatHandler
-	ShareCaptchaHandler       *ShareCaptchaHandler
-	OpenapiV1Handler          *OpenapiV1Handler
-	ShareCommonHandler        *ShareCommonHandler
+	ShareKenFutContentHandler    *ShareKenFutContentHandler
+	ShareNodeHandler             *ShareNodeHandler
+	ShareNavHandler              *ShareNavHandler
+	ShareAppHandler              *ShareAppHandler
+	ShareChatHandler             *ShareChatHandler
+	ShareSitemapHandler          *ShareSitemapHandler
+	ShareStatHandler             *ShareStatHandler
+	ShareCommentHandler          *ShareCommentHandler
+	ShareAuthHandler             *ShareAuthHandler
+	ShareConversationHandler     *ShareConversationHandler
+	ShareWechatHandler           *ShareWechatHandler
+	ShareCaptchaHandler          *ShareCaptchaHandler
+	OpenapiV1Handler             *OpenapiV1Handler
+	ShareCommonHandler           *ShareCommonHandler
+	MCPServerHandler             *MCPServerHandler
+	ShareContributeHandler       *ShareContributeHandler
+	ShareSSOHandler              *ShareSSOHandler
+	ShareDocumentFeedbackHandler *ShareDocumentFeedbackHandler
 }
 
 var ProviderSet = wire.NewSet(
@@ -40,6 +44,10 @@ var ProviderSet = wire.NewSet(
 	NewShareCaptchaHandler,
 	NewShareCommonHandler,
 	NewOpenapiV1Handler,
+	NewMCPServerHandler,
+	NewShareContributeHandler,
+	NewShareSSOHandler,
+	NewShareDocumentFeedbackHandler,
 
 	wire.Struct(new(ShareHandler), "*"),
 )

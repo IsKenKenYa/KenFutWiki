@@ -18,8 +18,10 @@ const (
 )
 
 func GetLicenseEdition(c echo.Context) LicenseEdition {
-	edition, _ := c.Get("edition").(LicenseEdition)
-	return edition
+	if edition, ok := c.Get("edition").(LicenseEdition); ok {
+		return edition
+	}
+	return LicenseEditionEnterprise
 }
 
 type LicenseMode string

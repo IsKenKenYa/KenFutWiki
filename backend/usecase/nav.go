@@ -50,9 +50,9 @@ func (u *NavUsecase) GetReleaseList(ctx context.Context, kbID string) ([]v1.NavL
 	return navs, nil
 }
 
-func (u *NavUsecase) Add(ctx context.Context, req *v1.NavAddReq) error {
+func (u *NavUsecase) Add(ctx context.Context, req *v1.NavAddReq) (string, error) {
 	if req.Position != nil && (*req.Position > domain.MaxPosition || *req.Position < 0) {
-		return errors.New("specified position is out of range")
+		return "", errors.New("specified position is out of range")
 	}
 
 	nav := &domain.Nav{
@@ -61,7 +61,10 @@ func (u *NavUsecase) Add(ctx context.Context, req *v1.NavAddReq) error {
 		Name: req.Name,
 	}
 
-	return u.navRepo.Create(ctx, nav, req.Position)
+	if err := u.navRepo.Create(ctx, nav, req.Position); err != nil {
+		return "", err
+	}
+	return nav.ID, nil
 }
 
 func (u *NavUsecase) Move(ctx context.Context, req *v1.NavMoveReq) error {

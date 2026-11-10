@@ -163,6 +163,13 @@ func (u *CommentUsecase) GetCommentListByKbID(ctx context.Context, req *domain.C
 	return domain.NewPaginatedResult(comments, uint64(total)), nil
 }
 
+func (u *CommentUsecase) ModerateComments(ctx context.Context, req *domain.CommentModerateListReq) error {
+	if req.Status != domain.CommentStatusAccepted && req.Status != domain.CommentStatusReject {
+		return domain.ErrPermissionDenied
+	}
+	return u.CommentRepo.ModerateComments(ctx, req.KBID, req.IDs, req.Status)
+}
+
 func (u *CommentUsecase) CommentDelete(ctx context.Context, req *domain.CommentDeleteReq) error {
 	err := u.CommentRepo.CommentDelete(ctx, req.KBID, req.IDS)
 	if err != nil {

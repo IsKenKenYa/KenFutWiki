@@ -40,6 +40,12 @@ var ProviderSet = wire.NewSet(
 	NewAuthUsecase,
 	NewNavUsecase,
 	NewStorageUsecase,
+	NewAPITokenUsecase,
+	NewMCPUsecase,
+	NewBlockWordUsecase,
+	NewContributeUsecase,
+	NewAuthGroupUsecase,
+	NewDocumentFeedbackUsecase,
 
 	wire.Bind(new(domain.StorageSettingSource), new(*pg.SystemSettingRepo)),
 )

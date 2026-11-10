@@ -61,6 +61,10 @@ func NewNodeHandler(
 	group.GET("/permission", h.NodePermission)
 	group.PATCH("/permission/edit", h.NodePermissionEdit)
 
+	proRelease := echo.Group("/api/pro/v1/node/release", h.auth.Authorize, h.auth.ValidateKBUserPerm(consts.UserKBPermissionDocManage))
+	proRelease.GET("/list", h.GetNodeReleaseHistory)
+	proRelease.GET("/detail", h.GetNodeReleaseHistoryDetail)
+
 	return h
 }
 
@@ -562,4 +566,40 @@ func (h *NodeHandler) NodeRestudy(c echo.Context) error {
 	}
 
 	return h.NewResponseWithData(c, nil)
+}
+
+func (h *NodeHandler) GetNodeReleaseHistory(c echo.Context) error {
+	var req struct {
+		KBID   string `query:"kb_id" validate:"required"`
+		NodeID string `query:"node_id" validate:"required"`
+	}
+	if err := c.Bind(&req); err != nil {
+		return h.NewResponseWithError(c, "request params is invalid", err)
+	}
+	if err := c.Validate(&req); err != nil {
+		return h.NewResponseWithError(c, "validate request params failed", err)
+	}
+	items, err := h.usecase.GetNodeReleaseHistory(c.Request().Context(), req.KBID, req.NodeID)
+	if err != nil {
+		return h.NewResponseWithError(c, "get node release history failed", err)
+	}
+	return h.NewResponseWithData(c, items)
+}
+
+func (h *NodeHandler) GetNodeReleaseHistoryDetail(c echo.Context) error {
+	var req struct {
+		KBID string `query:"kb_id" validate:"required"`
+		ID   string `query:"id" validate:"required"`
+	}
+	if err := c.Bind(&req); err != nil {
+		return h.NewResponseWithError(c, "request params is invalid", err)
+	}
+	if err := c.Validate(&req); err != nil {
+		return h.NewResponseWithError(c, "validate request params failed", err)
+	}
+	item, err := h.usecase.GetNodeReleaseHistoryDetail(c.Request().Context(), req.KBID, req.ID)
+	if err != nil {
+		return h.NewResponseWithError(c, "get node release detail failed", err)
+	}
+	return h.NewResponseWithData(c, item)
 }

@@ -148,6 +148,21 @@ func createApp() (*App, error) {
 	authV1Handler := v1.NewAuthV1Handler(echo, baseHandler, logger, authUsecase)
 	navUsecase := usecase.NewNavUsecase(navRepository, nodeRepository, ragRepository, logger)
 	navHandler := v1.NewNavHandler(baseHandler, echo, navUsecase, authMiddleware, logger)
+	apiTokenUsecase := usecase.NewAPITokenUsecase(apiTokenRepo, logger)
+	apiTokenHandler := v1.NewAPITokenHandler(echo, baseHandler, logger, authMiddleware, apiTokenUsecase)
+	mcpRepository := pg2.NewMCPRepository(db, logger)
+	mcpAdminHandler := v1.NewMCPAdminHandler(echo, baseHandler, logger, authMiddleware, mcpRepository)
+	blockWordUsecase := usecase.NewBlockWordUsecase(blockWordRepo)
+	blockWordHandler := v1.NewBlockWordHandler(echo, baseHandler, logger, authMiddleware, blockWordUsecase)
+	contributeRepository := pg2.NewContributeRepository(db, logger)
+	contributeUsecase := usecase.NewContributeUsecase(contributeRepository, nodeRepository, navRepository, appUsecase, logger)
+	contributeHandler := v1.NewContributeHandler(echo, baseHandler, logger, authMiddleware, contributeUsecase)
+	authGroupRepository := pg2.NewAuthGroupRepository(db, logger)
+	authGroupUsecase := usecase.NewAuthGroupUsecase(authGroupRepository, authRepo, cacheCache, logger)
+	authGroupHandler := v1.NewAuthGroupHandler(echo, baseHandler, logger, authMiddleware, authGroupUsecase)
+	documentFeedbackRepository := pg2.NewDocumentFeedbackRepository(db, logger)
+	documentFeedbackUsecase := usecase.NewDocumentFeedbackUsecase(documentFeedbackRepository, nodeRepository, appUsecase, fileUsecase, authUsecase, logger)
+	documentFeedbackHandler := v1.NewDocumentFeedbackHandler(echo, baseHandler, logger, authMiddleware, documentFeedbackUsecase)
 	apiHandlers := &v1.APIHandlers{
 		KenFutContentHandler:     kenFutContentHandler,
 		KenFutIntegrationHandler: kenFutIntegrationHandler,
@@ -165,6 +180,12 @@ func createApp() (*App, error) {
 		CommentHandler:           commentHandler,
 		AuthV1Handler:            authV1Handler,
 		NavHandler:               navHandler,
+		APITokenHandler:          apiTokenHandler,
+		MCPAdminHandler:          mcpAdminHandler,
+		BlockWordHandler:         blockWordHandler,
+		ContributeHandler:        contributeHandler,
+		AuthGroupHandler:         authGroupHandler,
+		DocumentFeedbackHandler:  documentFeedbackHandler,
 	}
 	shareKenFutContentHandler := share.NewShareKenFutContentHandler(echo, baseHandler, kenFutContentUsecase, kenFutIntegrationUsecase)
 	shareNodeHandler := share.NewShareNodeHandler(baseHandler, echo, nodeUsecase, logger)
@@ -185,23 +206,31 @@ func createApp() (*App, error) {
 	shareCaptchaHandler := share.NewShareCaptchaHandler(baseHandler, echo, logger)
 	openapiV1Handler := share.NewOpenapiV1Handler(echo, baseHandler, logger, authUsecase, appUsecase)
 	shareCommonHandler := share.NewShareCommonHandler(echo, baseHandler, logger, fileUsecase, appUsecase)
+	mcpUsecase := usecase.NewMCPUsecase(nodeRepository, navRepository, mcpRepository, nodeUsecase, navUsecase, knowledgeBaseUsecase, fileUsecase, commentUsecase, contributeUsecase, statUseCase, ragService, logger)
+	mcpServerHandler := share.NewMCPServerHandler(echo, logger, appUsecase, knowledgeBaseUsecase, mcpUsecase, apiTokenRepo, mcpRepository)
+	shareContributeHandler := share.NewShareContributeHandler(echo, baseHandler, logger, contributeUsecase)
+	shareSSOHandler := share.NewShareSSOHandler(echo, baseHandler, logger, authUsecase)
+	shareDocumentFeedbackHandler := share.NewShareDocumentFeedbackHandler(echo, baseHandler, logger, documentFeedbackUsecase)
 	shareHandler := &share.ShareHandler{
-		ShareKenFutContentHandler: shareKenFutContentHandler,
-		ShareNodeHandler:          shareNodeHandler,
-		ShareNavHandler:           shareNavHandler,
-		ShareAppHandler:           shareAppHandler,
-		ShareChatHandler:          shareChatHandler,
-		ShareSitemapHandler:       shareSitemapHandler,
-		ShareStatHandler:          shareStatHandler,
-		ShareCommentHandler:       shareCommentHandler,
-		ShareAuthHandler:          shareAuthHandler,
-		ShareConversationHandler:  shareConversationHandler,
-		ShareWechatHandler:        shareWechatHandler,
-		ShareCaptchaHandler:       shareCaptchaHandler,
-		OpenapiV1Handler:          openapiV1Handler,
-		ShareCommonHandler:        shareCommonHandler,
+		ShareKenFutContentHandler:    shareKenFutContentHandler,
+		ShareNodeHandler:             shareNodeHandler,
+		ShareNavHandler:              shareNavHandler,
+		ShareAppHandler:              shareAppHandler,
+		ShareChatHandler:             shareChatHandler,
+		ShareSitemapHandler:          shareSitemapHandler,
+		ShareStatHandler:             shareStatHandler,
+		ShareCommentHandler:          shareCommentHandler,
+		ShareAuthHandler:             shareAuthHandler,
+		ShareConversationHandler:     shareConversationHandler,
+		ShareWechatHandler:           shareWechatHandler,
+		ShareCaptchaHandler:          shareCaptchaHandler,
+		OpenapiV1Handler:             openapiV1Handler,
+		ShareCommonHandler:           shareCommonHandler,
+		MCPServerHandler:             mcpServerHandler,
+		ShareContributeHandler:       shareContributeHandler,
+		ShareSSOHandler:              shareSSOHandler,
+		ShareDocumentFeedbackHandler: shareDocumentFeedbackHandler,
 	}
-	mcpRepository := pg2.NewMCPRepository(db, logger)
 	client, err := telemetry.NewClient(logger, knowledgeBaseRepository, modelUsecase, userUsecase, nodeRepository, conversationRepository, mcpRepository, configConfig)
 	if err != nil {
 		return nil, err

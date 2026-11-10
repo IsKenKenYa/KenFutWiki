@@ -8,15 +8,31 @@ import (
 
 type AuthGetReq struct {
 	KBID       string            `json:"kb_id,omitempty"  query:"kb_id"`
-	SourceType consts.SourceType `query:"source_type"  json:"source_type" validate:"required,oneof=github"`
+	SourceType consts.SourceType `query:"source_type"  json:"source_type" validate:"required,oneof=github dingtalk feishu wecom oauth cas ldap"`
 }
 
 type AuthGetResp struct {
-	ClientID     string            `json:"client_id"`
-	ClientSecret string            `json:"client_secret"`
-	Proxy        string            `json:"proxy"`
-	SourceType   consts.SourceType `json:"source_type"`
-	Auths        []AuthItem        `json:"auths"`
+	ClientID      string            `json:"client_id"`
+	ClientSecret  string            `json:"client_secret"`
+	Proxy         string            `json:"proxy"`
+	AuthorizeURL  string            `json:"authorize_url"`
+	TokenURL      string            `json:"token_url"`
+	UserInfoURL   string            `json:"user_info_url"`
+	CASURL        string            `json:"cas_url"`
+	CASVersion    string            `json:"cas_version"`
+	LDAPServerURL string            `json:"ldap_server_url"`
+	UserBaseDN    string            `json:"user_base_dn"`
+	UserFilter    string            `json:"user_filter"`
+	BindDN        string            `json:"bind_dn"`
+	BindPassword  string            `json:"bind_password"`
+	IDField       string            `json:"id_field"`
+	NameField     string            `json:"name_field"`
+	AvatarField   string            `json:"avatar_field"`
+	EmailField    string            `json:"email_field"`
+	Scopes        []string          `json:"scopes"`
+	AgentID       string            `json:"agent_id"`
+	SourceType    consts.SourceType `json:"source_type"`
+	Auths         []AuthItem        `json:"auths"`
 }
 
 type AuthItem struct {
@@ -30,11 +46,27 @@ type AuthItem struct {
 }
 
 type AuthSetReq struct {
-	KBID         string            `json:"kb_id,omitempty"`
-	SourceType   consts.SourceType `query:"source_type"  json:"source_type" validate:"required,oneof=github"`
-	ClientID     string            `json:"client_id"`
-	ClientSecret string            `json:"client_secret"`
-	Proxy        string            `json:"proxy"`
+	KBID          string            `json:"kb_id,omitempty"`
+	SourceType    consts.SourceType `query:"source_type"  json:"source_type" validate:"required,oneof=github dingtalk feishu wecom oauth cas ldap"`
+	ClientID      string            `json:"client_id"`
+	ClientSecret  string            `json:"client_secret"`
+	Proxy         string            `json:"proxy"`
+	AuthorizeURL  string            `json:"authorize_url"`
+	TokenURL      string            `json:"token_url"`
+	UserInfoURL   string            `json:"user_info_url"`
+	CASURL        string            `json:"cas_url"`
+	CASVersion    string            `json:"cas_version"`
+	LDAPServerURL string            `json:"ldap_server_url"`
+	UserBaseDN    string            `json:"user_base_dn"`
+	UserFilter    string            `json:"user_filter"`
+	BindDN        string            `json:"bind_dn"`
+	BindPassword  string            `json:"bind_password"`
+	IDField       string            `json:"id_field"`
+	NameField     string            `json:"name_field"`
+	AvatarField   string            `json:"avatar_field"`
+	EmailField    string            `json:"email_field"`
+	Scopes        []string          `json:"scopes"`
+	AgentID       string            `json:"agent_id"`
 }
 
 type AuthSetResp struct{}

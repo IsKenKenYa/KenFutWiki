@@ -92,7 +92,7 @@ func (h *NavHandler) NavAdd(c echo.Context) error {
 		return h.NewResponseWithError(c, "validate request params failed", err)
 	}
 
-	if err := h.usecase.Add(ctx, &req); err != nil {
+	if _, err := h.usecase.Add(ctx, &req); err != nil {
 		return h.NewResponseWithError(c, "add nav failed", err)
 	}
 	return h.NewResponseWithData(c, nil)

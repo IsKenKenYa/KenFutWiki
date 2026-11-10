@@ -33,3 +33,32 @@ type GitHubCallbackReq struct {
 
 type GitHubCallbackResp struct {
 }
+
+type SSOAuthReq struct {
+	KbID        string `json:"kb_id"`
+	RedirectURL string `json:"redirect_url"`
+	IsApp       bool   `json:"is_app"`
+}
+
+type SSOAuthResp struct {
+	URL string `json:"url"`
+}
+
+type LDAPAuthReq struct {
+	KbID     string `json:"kb_id" validate:"required"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+
+type SSOCallbackReq struct {
+	Code   string `json:"code" query:"code"`
+	State  string `json:"state" query:"state"`
+	Ticket string `json:"ticket" query:"ticket"`
+}
+
+type AuthInfoResp struct {
+	ID        uint   `json:"id"`
+	Username  string `json:"username"`
+	AvatarURL string `json:"avatar_url"`
+	Email     string `json:"email"`
+}

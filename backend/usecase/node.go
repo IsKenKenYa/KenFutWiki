@@ -154,6 +154,44 @@ func (u *NodeUsecase) GetNodeByKBID(ctx context.Context, id, kbId, format string
 	return node, nil
 }
 
+func (u *NodeUsecase) GetNodeReleaseHistory(ctx context.Context, kbID, nodeID string) ([]*domain.NodeReleaseHistoryItem, error) {
+	return u.nodeRepo.ListNodeReleaseHistory(ctx, kbID, nodeID)
+}
+
+func (u *NodeUsecase) GetNodeReleaseHistoryDetail(ctx context.Context, kbID, releaseID string) (*domain.NodeReleaseHistoryDetail, error) {
+	release, err := u.nodeRepo.GetNodeReleaseByID(ctx, releaseID)
+	if err != nil {
+		return nil, err
+	}
+	if release.KBID != kbID {
+		return nil, gorm.ErrRecordNotFound
+	}
+	node, err := u.nodeRepo.GetNodeByID(ctx, release.NodeID)
+	if err != nil {
+		return nil, err
+	}
+	if node.KBID != kbID {
+		return nil, gorm.ErrRecordNotFound
+	}
+	accounts, err := u.userRepo.GetUsersAccountMap(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &domain.NodeReleaseHistoryDetail{
+		ID:               release.ID,
+		NodeID:           release.NodeID,
+		Name:             release.Name,
+		Content:          release.Content,
+		Meta:             release.Meta,
+		CreatorID:        node.CreatorId,
+		CreatorAccount:   accounts[node.CreatorId],
+		EditorID:         release.EditorId,
+		EditorAccount:    accounts[release.EditorId],
+		PublisherID:      release.PublisherId,
+		PublisherAccount: accounts[release.PublisherId],
+	}, nil
+}
+
 func (u *NodeUsecase) NodeAction(ctx context.Context, req *domain.NodeActionReq) error {
 	switch req.Action {
 	case "delete":

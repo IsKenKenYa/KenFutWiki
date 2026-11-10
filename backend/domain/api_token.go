@@ -22,6 +22,28 @@ func (APIToken) TableName() string {
 	return "api_tokens"
 }
 
+type CreateAPITokenReq struct {
+	KBID       string                  `json:"kb_id" validate:"required"`
+	Name       string                  `json:"name" validate:"required,max=100"`
+	Permission consts.UserKBPermission `json:"permission" validate:"required,oneof=full_control doc_manage data_operate"`
+}
+
+type UpdateAPITokenReq struct {
+	ID         string                   `json:"id" validate:"required"`
+	KBID       string                   `json:"kb_id" validate:"required"`
+	Name       *string                  `json:"name" validate:"omitempty,max=100"`
+	Permission *consts.UserKBPermission `json:"permission" validate:"omitempty,oneof=full_control doc_manage data_operate"`
+}
+
+type APITokenListItem struct {
+	ID         string                  `json:"id"`
+	Name       string                  `json:"name"`
+	Permission consts.UserKBPermission `json:"permission"`
+	Token      string                  `json:"token"`
+	CreatedAt  time.Time               `json:"created_at"`
+	UpdatedAt  time.Time               `json:"updated_at"`
+}
+
 type CtxAuthInfo struct {
 	IsToken    bool
 	Permission consts.UserKBPermission

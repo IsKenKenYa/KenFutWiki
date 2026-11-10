@@ -25,13 +25,19 @@ type BaseEditionLimitation struct {
 
 var baseEditionLimitationDefault = BaseEditionLimitation{
 	// Zero removes commercial quotas; application and role permissions still apply.
-	MaxKb:                0,
-	MaxAdmin:             0,
-	MaxNode:              0,
-	AllowAdminPerm:       true,
-	AllowCustomCopyright: true,
-	AllowCommentAudit:    true,
-	AllowNodeStats:       true,
+	MaxKb:                  0,
+	MaxAdmin:               0,
+	MaxNode:                0,
+	MaxSSOUser:             0,
+	AllowAdminPerm:         true,
+	AllowCustomCopyright:   true,
+	AllowCommentAudit:      true,
+	AllowAdvancedBot:       true,
+	AllowWatermark:         true,
+	AllowCopyProtection:    true,
+	AllowOpenAIBotSettings: true,
+	AllowMCPServer:         true,
+	AllowNodeStats:         true,
 }
 
 func GetBaseEditionLimitation(c context.Context) BaseEditionLimitation {

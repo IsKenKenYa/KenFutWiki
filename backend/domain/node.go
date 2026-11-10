@@ -276,15 +276,16 @@ type NodeActionReq struct {
 }
 
 type UpdateNodeReq struct {
-	ID          string   `json:"id" validate:"required"`
-	KBID        string   `json:"kb_id" validate:"required"`
-	Name        *string  `json:"name"`
-	Content     *string  `json:"content"`
-	Emoji       *string  `json:"emoji"`
-	Summary     *string  `json:"summary"`
-	Position    *float64 `json:"position"`
-	ContentType *string  `json:"content_type"`
-	NavId       *string  `json:"nav_id"`
+	ID                string     `json:"id" validate:"required"`
+	KBID              string     `json:"kb_id" validate:"required"`
+	Name              *string    `json:"name"`
+	Content           *string    `json:"content"`
+	Emoji             *string    `json:"emoji"`
+	Summary           *string    `json:"summary"`
+	Position          *float64   `json:"position"`
+	ContentType       *string    `json:"content_type"`
+	NavId             *string    `json:"nav_id"`
+	ExpectedUpdatedAt *time.Time `json:"-"`
 }
 
 type ShareNodeListItemResp struct {
@@ -389,6 +390,37 @@ func (NodeReleaseBackup) TableName() string {
 type NodeReleaseWithDirPath struct {
 	*NodeRelease
 	Path string `json:"path"`
+}
+
+type NodeReleaseHistoryItem struct {
+	ID               string    `json:"id"`
+	NodeID           string    `json:"node_id"`
+	Name             string    `json:"name"`
+	Meta             NodeMeta  `json:"meta"`
+	CreatorID        string    `json:"creator_id"`
+	CreatorAccount   string    `json:"creator_account"`
+	EditorID         string    `json:"editor_id"`
+	EditorAccount    string    `json:"editor_account"`
+	PublisherID      string    `json:"publisher_id"`
+	PublisherAccount string    `json:"publisher_account"`
+	ReleaseID        string    `json:"release_id"`
+	ReleaseName      string    `json:"release_name"`
+	ReleaseMessage   string    `json:"release_message"`
+	UpdatedAt        time.Time `json:"updated_at"`
+}
+
+type NodeReleaseHistoryDetail struct {
+	ID               string   `json:"id"`
+	NodeID           string   `json:"node_id"`
+	Name             string   `json:"name"`
+	Content          string   `json:"content"`
+	Meta             NodeMeta `json:"meta"`
+	CreatorID        string   `json:"creator_id"`
+	CreatorAccount   string   `json:"creator_account"`
+	EditorID         string   `json:"editor_id"`
+	EditorAccount    string   `json:"editor_account"`
+	PublisherID      string   `json:"publisher_id"`
+	PublisherAccount string   `json:"publisher_account"`
 }
 
 type BatchMoveReq struct {

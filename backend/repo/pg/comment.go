@@ -3,6 +3,8 @@ package pg
 import (
 	"context"
 
+	"gorm.io/gorm"
+
 	"github.com/chaitin/panda-wiki/consts"
 	"github.com/chaitin/panda-wiki/domain"
 	"github.com/chaitin/panda-wiki/log"
@@ -77,6 +79,20 @@ func (r *CommentRepository) GetCommentListByKbID(ctx context.Context, req *domai
 	// success
 	return comments, count, nil
 
+}
+
+func (r *CommentRepository) ModerateComments(ctx context.Context, kbID string, commentIDs []string, status domain.CommentStatus) error {
+	result := r.db.WithContext(ctx).
+		Model(&domain.Comment{}).
+		Where("kb_id = ? AND id IN ?", kbID, commentIDs).
+		Update("status", status)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
 }
 
 func (r *CommentRepository) CommentDelete(ctx context.Context, kbID string, commentIDs []string) error {

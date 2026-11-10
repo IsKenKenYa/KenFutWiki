@@ -198,6 +198,7 @@ type WebAppLandingTheme struct {
 
 type MCPServerSettings struct {
 	IsEnabled        bool            `json:"is_enabled"`
+	RequireAuth      bool            `json:"require_auth"`
 	DocsToolSettings MCPToolSettings `json:"docs_tool_settings"`
 	SampleAuth       SimpleAuth      `json:"sample_auth"`
 }

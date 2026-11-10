@@ -66,6 +66,14 @@ func (u *FileUsecase) UploadFileGetUrl(ctx context.Context, kbID string, file *m
 	return u.s3Client.PublicURL(key), nil
 }
 
+func (u *FileUsecase) UploadBytesGetUrl(ctx context.Context, kbID, filename string, data []byte) (string, error) {
+	key, err := u.UploadFileFromBytes(ctx, kbID, filename, data)
+	if err != nil {
+		return "", err
+	}
+	return u.s3Client.PublicURL(key), nil
+}
+
 func (u *FileUsecase) UploadFile(ctx context.Context, kbID string, file *multipart.FileHeader) (string, error) {
 	src, err := file.Open()
 	if err != nil {

@@ -64,6 +64,24 @@ definitions:
     - AuthTypeNull
     - AuthTypeSimple
     - AuthTypeEnterprise
+  consts.ContributeStatus:
+    enum:
+    - pending
+    - approved
+    - rejected
+    type: string
+    x-enum-varnames:
+    - ContributeStatusPending
+    - ContributeStatusApproved
+    - ContributeStatusRejected
+  consts.ContributeType:
+    enum:
+    - add
+    - edit
+    type: string
+    x-enum-varnames:
+    - ContributeTypeAdd
+    - ContributeTypeEdit
   consts.CopySetting:
     enum:
     - ""
@@ -358,6 +376,21 @@ definitions:
         type: array
       is_enabled:
         type: boolean
+    type: object
+  domain.APITokenListItem:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      permission:
+        $ref: '#/definitions/consts.UserKBPermission'
+      token:
+        type: string
+      updated_at:
+        type: string
     type: object
   domain.AccessSettings:
     properties:
@@ -821,6 +854,179 @@ definitions:
     - AppTypeWecomAIBot
     - AppTypeLarkBot
     - AppTypeMcpServer
+  domain.AuthGroupAuthItem:
+    properties:
+      avatar_url:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      ip:
+        type: string
+      last_login_time:
+        type: string
+      source_type:
+        $ref: '#/definitions/consts.SourceType'
+      username:
+        type: string
+    type: object
+  domain.AuthGroupCreateReq:
+    properties:
+      ids:
+        items:
+          type: integer
+        type: array
+      kb_id:
+        type: string
+      name:
+        maxLength: 100
+        type: string
+      parent_id:
+        type: integer
+      position:
+        type: number
+    required:
+    - kb_id
+    - name
+    type: object
+  domain.AuthGroupDetailResp:
+    properties:
+      auth_ids:
+        items:
+          type: integer
+        type: array
+      auths:
+        items:
+          $ref: '#/definitions/domain.AuthGroupAuthItem'
+        type: array
+      children:
+        items:
+          $ref: '#/definitions/domain.AuthGroupListItem'
+        type: array
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      parent:
+        $ref: '#/definitions/domain.AuthGroupListItem'
+      parent_id:
+        type: integer
+      position:
+        type: number
+    type: object
+  domain.AuthGroupListItem:
+    properties:
+      count:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      parent_id:
+        type: integer
+      path:
+        type: string
+      position:
+        type: number
+    type: object
+  domain.AuthGroupListResp:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/domain.AuthGroupListItem'
+        type: array
+      total:
+        type: integer
+    type: object
+  domain.AuthGroupMoveReq:
+    properties:
+      id:
+        type: integer
+      kb_id:
+        type: string
+      next_id:
+        type: integer
+      parent_id:
+        type: integer
+      prev_id:
+        type: integer
+    required:
+    - id
+    - kb_id
+    type: object
+  domain.AuthGroupSyncReq:
+    properties:
+      kb_id:
+        type: string
+      source_type:
+        enum:
+        - dingtalk
+        - wecom
+        type: string
+    required:
+    - kb_id
+    - source_type
+    type: object
+  domain.AuthGroupTreeItem:
+    properties:
+      auth_ids:
+        items:
+          type: integer
+        type: array
+      children:
+        items:
+          $ref: '#/definitions/domain.AuthGroupTreeItem'
+        type: array
+      count:
+        type: integer
+      id:
+        type: integer
+      level:
+        type: integer
+      name:
+        type: string
+      parent_id:
+        type: integer
+      position:
+        type: number
+      sync_id:
+        type: string
+    type: object
+  domain.AuthGroupTreeResp:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/domain.AuthGroupTreeItem'
+        type: array
+    type: object
+  domain.AuthGroupUpdateReq:
+    properties:
+      auth_ids:
+        items:
+          type: integer
+        type: array
+      id:
+        type: integer
+      kb_id:
+        type: string
+      name:
+        maxLength: 100
+        type: string
+      parent_id:
+        type: integer
+      position:
+        type: number
+    required:
+    - id
+    - kb_id
+    type: object
   domain.AuthUserInfo:
     properties:
       avatar_url:
@@ -1095,6 +1301,26 @@ definitions:
         - $ref: '#/definitions/domain.CommentStatus'
         description: 'status : -1 reject 0 pending 1 accept'
     type: object
+  domain.CommentModerateListReq:
+    properties:
+      ids:
+        items:
+          type: string
+        minItems: 1
+        type: array
+      kb_id:
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.CommentStatus'
+        enum:
+        - -1
+        - 1
+    required:
+    - ids
+    - kb_id
+    - status
+    type: object
   domain.CommentReq:
     properties:
       captcha_token:
@@ -1135,6 +1361,123 @@ definitions:
         description: For FIM (Fill in Middle) style completion
         type: string
       suffix:
+        type: string
+    type: object
+  domain.ContributeAuditReq:
+    properties:
+      id:
+        type: string
+      kb_id:
+        type: string
+      nav_id:
+        type: string
+      parent_id:
+        type: string
+      position:
+        type: number
+      status:
+        allOf:
+        - $ref: '#/definitions/consts.ContributeStatus'
+        enum:
+        - approved
+        - rejected
+    required:
+    - id
+    - kb_id
+    - status
+    type: object
+  domain.ContributeDetailResp:
+    properties:
+      audit_time:
+        type: string
+      audit_user_id:
+        type: string
+      auth_id:
+        type: integer
+      auth_name:
+        type: string
+      content:
+        type: string
+      contribute_name:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      kb_id:
+        type: string
+      meta:
+        $ref: '#/definitions/domain.NodeMeta'
+      node_id:
+        type: string
+      node_name:
+        type: string
+      original_node:
+        $ref: '#/definitions/domain.ContributeOriginalNode'
+      reason:
+        type: string
+      status:
+        $ref: '#/definitions/consts.ContributeStatus'
+      type:
+        $ref: '#/definitions/consts.ContributeType'
+      updated_at:
+        type: string
+    type: object
+  domain.ContributeListItem:
+    properties:
+      audit_time:
+        type: string
+      audit_user_id:
+        type: string
+      auth_id:
+        type: integer
+      auth_name:
+        type: string
+      contribute_name:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      ip_address:
+        $ref: '#/definitions/domain.IPAddress'
+      kb_id:
+        type: string
+      meta:
+        $ref: '#/definitions/domain.NodeMeta'
+      node_id:
+        type: string
+      node_name:
+        type: string
+      reason:
+        type: string
+      remote_ip:
+        type: string
+      status:
+        $ref: '#/definitions/consts.ContributeStatus'
+      type:
+        $ref: '#/definitions/consts.ContributeType'
+      updated_at:
+        type: string
+    type: object
+  domain.ContributeListResp:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/domain.ContributeListItem'
+        type: array
+      total:
+        type: integer
+    type: object
+  domain.ContributeOriginalNode:
+    properties:
+      content:
+        type: string
+      id:
+        type: string
+      meta:
+        $ref: '#/definitions/domain.NodeMeta'
+      name:
         type: string
     type: object
   domain.ContributeSettings:
@@ -1286,6 +1629,25 @@ definitions:
       copyright_info:
         type: string
     type: object
+  domain.CreateAPITokenReq:
+    properties:
+      kb_id:
+        type: string
+      name:
+        maxLength: 100
+        type: string
+      permission:
+        allOf:
+        - $ref: '#/definitions/consts.UserKBPermission'
+        enum:
+        - full_control
+        - doc_manage
+        - data_operate
+    required:
+    - kb_id
+    - name
+    - permission
+    type: object
   domain.CreateKBReleaseReq:
     properties:
       kb_id:
@@ -1416,6 +1778,53 @@ definitions:
     properties:
       content:
         type: string
+    type: object
+  domain.DocumentFeedbackInfo:
+    properties:
+      auth_user_id:
+        type: integer
+      avatar:
+        type: string
+      email:
+        type: string
+      remote_ip:
+        type: string
+      screen_shot:
+        type: string
+      user_name:
+        type: string
+    type: object
+  domain.DocumentFeedbackListItem:
+    properties:
+      content:
+        type: string
+      correction_suggestion:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      info:
+        $ref: '#/definitions/domain.DocumentFeedbackInfo'
+      ip_address:
+        $ref: '#/definitions/domain.IPAddress'
+      kb_id:
+        type: string
+      node_id:
+        type: string
+      node_name:
+        type: string
+      user_id:
+        type: string
+    type: object
+  domain.DocumentFeedbackListResp:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/domain.DocumentFeedbackListItem'
+        type: array
+      total:
+        type: integer
     type: object
   domain.EnterpriseAuth:
     properties:
@@ -1866,11 +2275,32 @@ definitions:
       url:
         type: string
     type: object
+  domain.MCPCallListItem:
+    properties:
+      created_at:
+        type: string
+      duration_ms:
+        type: integer
+      error:
+        type: string
+      id:
+        type: integer
+      remote_ip:
+        type: string
+      status:
+        type: string
+      token_id:
+        type: string
+      tool_name:
+        type: string
+    type: object
   domain.MCPServerSettings:
     properties:
       docs_tool_settings:
         $ref: '#/definitions/domain.MCPToolSettings'
       is_enabled:
+        type: boolean
+      require_auth:
         type: boolean
       sample_auth:
         $ref: '#/definitions/domain.SimpleAuth'
@@ -2642,6 +3072,42 @@ definitions:
       ok:
         type: boolean
     type: object
+  domain.SubmitContributeReq:
+    properties:
+      captcha_token:
+        type: string
+      content:
+        type: string
+      content_type:
+        enum:
+        - html
+        - md
+        type: string
+      emoji:
+        type: string
+      kb_id:
+        type: string
+      name:
+        type: string
+      node_id:
+        type: string
+      reason:
+        maxLength: 500
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/consts.ContributeType'
+        enum:
+        - add
+        - edit
+    required:
+    - captcha_token
+    - content
+    - content_type
+    - kb_id
+    - reason
+    - type
+    type: object
   domain.SwitchModeReq:
     properties:
       auto_mode_api_key:
@@ -2709,6 +3175,26 @@ definitions:
         type: string
       doc_width:
         type: string
+    type: object
+  domain.UpdateAPITokenReq:
+    properties:
+      id:
+        type: string
+      kb_id:
+        type: string
+      name:
+        maxLength: 100
+        type: string
+      permission:
+        allOf:
+        - $ref: '#/definitions/consts.UserKBPermission'
+        enum:
+        - full_control
+        - doc_manage
+        - data_operate
+    required:
+    - id
+    - kb_id
     type: object
   domain.UpdateAppReq:
     properties:
@@ -3008,18 +3494,52 @@ definitions:
     type: object
   github_com_chaitin_panda-wiki_api_auth_v1.AuthGetResp:
     properties:
+      agent_id:
+        type: string
+      authorize_url:
+        type: string
       auths:
         items:
           $ref: '#/definitions/v1.AuthItem'
         type: array
+      avatar_field:
+        type: string
+      bind_dn:
+        type: string
+      bind_password:
+        type: string
+      cas_url:
+        type: string
+      cas_version:
+        type: string
       client_id:
         type: string
       client_secret:
         type: string
+      email_field:
+        type: string
+      id_field:
+        type: string
+      ldap_server_url:
+        type: string
+      name_field:
+        type: string
       proxy:
         type: string
+      scopes:
+        items:
+          type: string
+        type: array
       source_type:
         $ref: '#/definitions/consts.SourceType'
+      token_url:
+        type: string
+      user_base_dn:
+        type: string
+      user_filter:
+        type: string
+      user_info_url:
+        type: string
     type: object
   github_com_chaitin_panda-wiki_api_node_v1.NodeListGroupNavResp:
     properties:
@@ -3248,19 +3768,59 @@ definitions:
     type: object
   v1.AuthSetReq:
     properties:
+      agent_id:
+        type: string
+      authorize_url:
+        type: string
+      avatar_field:
+        type: string
+      bind_dn:
+        type: string
+      bind_password:
+        type: string
+      cas_url:
+        type: string
+      cas_version:
+        type: string
       client_id:
         type: string
       client_secret:
         type: string
+      email_field:
+        type: string
+      id_field:
+        type: string
       kb_id:
+        type: string
+      ldap_server_url:
+        type: string
+      name_field:
         type: string
       proxy:
         type: string
+      scopes:
+        items:
+          type: string
+        type: array
       source_type:
         allOf:
         - $ref: '#/definitions/consts.SourceType'
         enum:
         - github
+        - dingtalk
+        - feishu
+        - wecom
+        - oauth
+        - cas
+        - ldap
+      token_url:
+        type: string
+      user_base_dn:
+        type: string
+      user_filter:
+        type: string
+      user_info_url:
+        type: string
     required:
     - source_type
     type: object
@@ -3790,6 +4350,17 @@ definitions:
       wechat_app_is_enabled:
         type: boolean
     type: object
+  v1.blockWordRequest:
+    properties:
+      block_words:
+        items:
+          type: string
+        type: array
+      kb_id:
+        type: string
+    required:
+    - kb_id
+    type: object
 info:
   contact: {}
   description: panda-wiki API documentation
@@ -3857,6 +4428,602 @@ paths:
       summary: Update content metadata draft
       tags:
       - kenfut_content
+  /api/pro/v1/auth/group/create:
+    post:
+      consumes:
+      - application/json
+      description: Create auth group
+      parameters:
+      - description: Auth group
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.AuthGroupCreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: integer
+                  type: object
+              type: object
+      security:
+      - bearerAuth: []
+      summary: Create auth group
+      tags:
+      - AuthGroup
+  /api/pro/v1/auth/group/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Delete auth group
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      - description: Auth group ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      security:
+      - bearerAuth: []
+      summary: Delete auth group
+      tags:
+      - AuthGroup
+  /api/pro/v1/auth/group/detail:
+    get:
+      consumes:
+      - application/json
+      description: Auth group detail
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      - description: Auth group ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.AuthGroupDetailResp'
+              type: object
+      security:
+      - bearerAuth: []
+      summary: Auth group detail
+      tags:
+      - AuthGroup
+  /api/pro/v1/auth/group/list:
+    get:
+      consumes:
+      - application/json
+      description: List auth groups
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.AuthGroupListResp'
+              type: object
+      security:
+      - bearerAuth: []
+      summary: List auth groups
+      tags:
+      - AuthGroup
+  /api/pro/v1/auth/group/move:
+    patch:
+      consumes:
+      - application/json
+      description: Move auth group
+      parameters:
+      - description: Auth group move request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.AuthGroupMoveReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      security:
+      - bearerAuth: []
+      summary: Move auth group
+      tags:
+      - AuthGroup
+  /api/pro/v1/auth/group/sync:
+    post:
+      consumes:
+      - application/json
+      description: Sync auth groups from DingTalk or WeCom
+      parameters:
+      - description: Sync request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.AuthGroupSyncReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      security:
+      - bearerAuth: []
+      summary: Sync organization groups
+      tags:
+      - AuthGroup
+  /api/pro/v1/auth/group/tree:
+    get:
+      consumes:
+      - application/json
+      description: Auth group tree
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.AuthGroupTreeResp'
+              type: object
+      security:
+      - bearerAuth: []
+      summary: Auth group tree
+      tags:
+      - AuthGroup
+  /api/pro/v1/auth/group/update:
+    patch:
+      consumes:
+      - application/json
+      description: Update auth group
+      parameters:
+      - description: Auth group
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.AuthGroupUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      security:
+      - bearerAuth: []
+      summary: Update auth group
+      tags:
+      - AuthGroup
+  /api/pro/v1/block:
+    get:
+      consumes:
+      - application/json
+      description: Get question block words
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  additionalProperties:
+                    items:
+                      type: string
+                    type: array
+                  type: object
+              type: object
+      security:
+      - bearerAuth: []
+      summary: Get question block words
+      tags:
+      - block
+    post:
+      consumes:
+      - application/json
+      description: Save question block words
+      parameters:
+      - description: Block Words
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/v1.blockWordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      security:
+      - bearerAuth: []
+      summary: Save question block words
+      tags:
+      - block
+  /api/pro/v1/comment_moderate:
+    post:
+      consumes:
+      - application/json
+      description: Accept or reject comments
+      parameters:
+      - description: Comment moderation request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CommentModerateListReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      security:
+      - bearerAuth: []
+      summary: Batch moderate comments
+      tags:
+      - comment
+  /api/pro/v1/contribute/audit:
+    post:
+      consumes:
+      - application/json
+      description: Approve or reject a document contribution
+      parameters:
+      - description: Contribution audit request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.ContributeAuditReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+      security:
+      - bearerAuth: []
+      summary: Audit contribution
+      tags:
+      - Contribute
+  /api/pro/v1/contribute/detail:
+    get:
+      consumes:
+      - application/json
+      description: Get contribution detail
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      - description: Contribution ID
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.ContributeDetailResp'
+              type: object
+      security:
+      - bearerAuth: []
+      summary: Get contribution detail
+      tags:
+      - Contribute
+  /api/pro/v1/contribute/list:
+    get:
+      consumes:
+      - application/json
+      description: List document contributions
+      parameters:
+      - in: query
+        name: authName
+        type: string
+      - in: query
+        name: kbid
+        required: true
+        type: string
+      - in: query
+        name: nodeName
+        type: string
+      - in: query
+        minimum: 1
+        name: page
+        required: true
+        type: integer
+      - in: query
+        minimum: 1
+        name: per_page
+        required: true
+        type: integer
+      - enum:
+        - pending
+        - approved
+        - rejected
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.ContributeListResp'
+              type: object
+      security:
+      - bearerAuth: []
+      summary: List contributions
+      tags:
+      - Contribute
+  /api/pro/v1/document/feedback:
+    delete:
+      consumes:
+      - application/json
+      description: Delete document feedback
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: Feedback IDs
+        in: query
+        items:
+          format: int64
+          type: integer
+        name: ids
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      security:
+      - bearerAuth: []
+      summary: Delete document feedback
+      tags:
+      - documentFeedback
+  /api/pro/v1/document/list:
+    get:
+      consumes:
+      - application/json
+      description: List document feedback
+      parameters:
+      - in: query
+        name: kbid
+        required: true
+        type: string
+      - in: query
+        name: nodeID
+        type: string
+      - in: query
+        minimum: 1
+        name: page
+        required: true
+        type: integer
+      - in: query
+        minimum: 1
+        name: per_page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.DocumentFeedbackListResp'
+              type: object
+      security:
+      - bearerAuth: []
+      summary: List document feedback
+      tags:
+      - documentFeedback
+  /api/pro/v1/token/create:
+    post:
+      consumes:
+      - application/json
+      description: Create API Token
+      parameters:
+      - description: Create API Token
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateAPITokenReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.APITokenListItem'
+              type: object
+      security:
+      - bearerAuth: []
+      summary: Create API Token
+      tags:
+      - ApiToken
+  /api/pro/v1/token/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Delete API Token
+      parameters:
+      - description: Token ID
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      security:
+      - bearerAuth: []
+      summary: Delete API Token
+      tags:
+      - ApiToken
+  /api/pro/v1/token/list:
+    get:
+      consumes:
+      - application/json
+      description: List API Tokens
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.APITokenListItem'
+                  type: array
+              type: object
+      security:
+      - bearerAuth: []
+      summary: List API Tokens
+      tags:
+      - ApiToken
+  /api/pro/v1/token/update:
+    patch:
+      consumes:
+      - application/json
+      description: Update API Token
+      parameters:
+      - description: Update API Token
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateAPITokenReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      security:
+      - bearerAuth: []
+      summary: Update API Token
+      tags:
+      - ApiToken
   /api/v1/app:
     delete:
       consumes:
@@ -4761,6 +5928,40 @@ paths:
       summary: KBUserUpdate
       tags:
       - knowledge_base
+  /api/v1/mcp/calls:
+    get:
+      consumes:
+      - application/json
+      description: List recent MCP tool calls of the knowledge base
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      - description: Maximum number of records
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.MCPCallListItem'
+                  type: array
+              type: object
+      security:
+      - bearerAuth: []
+      summary: List MCP tool calls
+      tags:
+      - MCP
   /api/v1/model:
     post:
       consumes:
@@ -6249,6 +7450,85 @@ paths:
       summary: Node translations
       tags:
       - kenfut_content
+  /share/pro/v1/contribute/submit:
+    post:
+      consumes:
+      - application/json
+      description: Submit a document edit or new document contribution
+      parameters:
+      - description: Knowledge Base ID
+        in: header
+        name: X-KB-ID
+        required: true
+        type: string
+      - description: Contribution
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SubmitContributeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+      summary: Submit document contribution
+      tags:
+      - ShareContribute
+  /share/pro/v1/document/feedback:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Submit document feedback with an optional screenshot
+      parameters:
+      - description: Knowledge Base ID
+        in: header
+        name: X-KB-ID
+        required: true
+        type: string
+      - description: Document ID
+        in: formData
+        name: node_id
+        type: string
+      - description: Feedback content
+        in: formData
+        name: content
+        type: string
+      - description: Correction suggestion
+        in: formData
+        name: correction_suggestion
+        type: string
+      - description: Screenshot
+        in: formData
+        name: screenshot
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  additionalProperties:
+                    format: int64
+                    type: integer
+                  type: object
+              type: object
+      summary: Submit document feedback
+      tags:
+      - documentFeedback
   /share/v1/app/web/info:
     get:
       consumes:

@@ -217,11 +217,14 @@ func (r *AuthRepo) CreateAuthConfig(ctx context.Context, authConfig *domain.Auth
 			return err
 		}
 
-		// 已存在则更新
+		// 已存在则更新；使用 map 保证清空字段时也能写入
 		if err := tx.Model(&domain.AuthConfig{}).
 			Where("kb_id = ?", authConfig.KbID).
 			Where("source_type = ?", authConfig.SourceType).
-			Updates(authConfig).Error; err != nil {
+			Updates(map[string]any{
+				"auth_setting": authConfig.AuthSetting,
+				"updated_at":   time.Now(),
+			}).Error; err != nil {
 			return err
 		}
 		return nil
@@ -300,8 +303,8 @@ func (r *AuthRepo) GetOrCreateAuth(ctx context.Context, auth *domain.Auth, sourc
 					return err
 				}
 
-				if int(count) >= domain.GetBaseEditionLimitation(ctx).MaxSSOUser {
-					return fmt.Errorf("exceed max auth limit for kb %s, current count: %d, max limit: %d", auth.KBID, count, domain.GetBaseEditionLimitation(ctx).MaxSSOUser)
+				if limit := domain.GetBaseEditionLimitation(ctx).MaxSSOUser; limit > 0 && int(count) >= limit {
+					return fmt.Errorf("exceed max auth limit for kb %s, current count: %d, max limit: %d", auth.KBID, count, limit)
 				}
 
 				auth.LastLoginTime = time.Now()

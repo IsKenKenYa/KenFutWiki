@@ -37,6 +37,15 @@ func NewAuthV1Handler(
 	AuthGroup.POST("/set", h.OpenAuthSet)
 	AuthGroup.DELETE("/delete", h.OpenAuthDelete)
 
+	ProAuthGroup := e.Group(
+		"/api/pro/v1/auth",
+		h.V1Auth.Authorize,
+		h.V1Auth.ValidateKBUserPerm(consts.UserKBPermissionFullControl),
+	)
+	ProAuthGroup.GET("/get", h.OpenAuthGet)
+	ProAuthGroup.POST("/set", h.OpenAuthSet)
+	ProAuthGroup.DELETE("/delete", h.OpenAuthDelete)
+
 	return h
 }
 

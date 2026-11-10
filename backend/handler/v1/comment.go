@@ -31,7 +31,35 @@ func NewCommentHandler(e *echo.Echo, baseHandler *handler.BaseHandler, logger *l
 	group.GET("", h.GetCommentModeratedList)
 	group.POST("/delete", h.CommentDelete)
 
+	proGroup := e.Group("/api/pro/v1/comment_moderate", h.auth.Authorize, h.auth.ValidateKBUserPerm(consts.UserKBPermissionDataOperate))
+	proGroup.POST("", h.ModerateComments)
+
 	return h
+}
+
+// ModerateComments
+//
+//	@Summary		Batch moderate comments
+//	@Description	Accept or reject comments
+//	@Tags			comment
+//	@Accept			json
+//	@Produce		json
+//	@Security		bearerAuth
+//	@Param			body	body		domain.CommentModerateListReq	true	"Comment moderation request"
+//	@Success		200		{object}	domain.PWResponse
+//	@Router			/api/pro/v1/comment_moderate [post]
+func (h *CommentHandler) ModerateComments(c echo.Context) error {
+	var req domain.CommentModerateListReq
+	if err := c.Bind(&req); err != nil {
+		return h.NewResponseWithError(c, "bind request", err)
+	}
+	if err := c.Validate(&req); err != nil {
+		return h.NewResponseWithError(c, "invalid request", err)
+	}
+	if err := h.usecase.ModerateComments(c.Request().Context(), &req); err != nil {
+		return h.NewResponseWithError(c, "moderate comments failed", err)
+	}
+	return h.NewResponseWithData(c, nil)
 }
 
 type CommentLists = domain.PaginatedResult[[]*domain.CommentListItem]

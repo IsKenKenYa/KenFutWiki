@@ -56,6 +56,90 @@ func (AuthGroup) TableName() string {
 	return "auth_groups"
 }
 
+type AuthGroupCreateReq struct {
+	KBID     string   `json:"kb_id" validate:"required"`
+	Name     string   `json:"name" validate:"required,max=100"`
+	IDs      []int    `json:"ids"`
+	ParentID *uint    `json:"parent_id"`
+	Position *float64 `json:"position"`
+}
+
+type AuthGroupUpdateReq struct {
+	ID       uint     `json:"id" validate:"required"`
+	KBID     string   `json:"kb_id" validate:"required"`
+	Name     *string  `json:"name" validate:"omitempty,max=100"`
+	AuthIDs  *[]int   `json:"auth_ids"`
+	ParentID *uint    `json:"parent_id"`
+	Position *float64 `json:"position"`
+}
+
+type AuthGroupMoveReq struct {
+	ID       uint   `json:"id" validate:"required"`
+	KBID     string `json:"kb_id" validate:"required"`
+	ParentID *uint  `json:"parent_id"`
+	PrevID   *uint  `json:"prev_id"`
+	NextID   *uint  `json:"next_id"`
+}
+
+type AuthGroupListItem struct {
+	ID        uint      `json:"id"`
+	Name      string    `json:"name"`
+	ParentID  *uint     `json:"parent_id"`
+	Path      string    `json:"path"`
+	Count     int       `json:"count"`
+	Position  float64   `json:"position"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type AuthGroupListResp struct {
+	List  []*AuthGroupListItem `json:"list"`
+	Total int                  `json:"total"`
+}
+
+type AuthGroupTreeItem struct {
+	ID       uint                 `json:"id"`
+	Name     string               `json:"name"`
+	ParentID *uint                `json:"parent_id"`
+	Position float64              `json:"position"`
+	AuthIDs  []int                `json:"auth_ids"`
+	Count    int                  `json:"count"`
+	SyncID   string               `json:"sync_id"`
+	Level    int                  `json:"level"`
+	Children []*AuthGroupTreeItem `json:"children,omitempty"`
+}
+
+type AuthGroupTreeResp struct {
+	List []*AuthGroupTreeItem `json:"list"`
+}
+
+type AuthGroupAuthItem struct {
+	ID            uint              `json:"id"`
+	Username      string            `json:"username"`
+	AvatarURL     string            `json:"avatar_url"`
+	Email         string            `json:"email"`
+	SourceType    consts.SourceType `json:"source_type"`
+	IP            string            `json:"ip"`
+	LastLoginTime time.Time         `json:"last_login_time"`
+	CreatedAt     time.Time         `json:"created_at"`
+}
+
+type AuthGroupDetailResp struct {
+	ID        uint                 `json:"id"`
+	Name      string               `json:"name"`
+	ParentID  *uint                `json:"parent_id"`
+	Position  float64              `json:"position"`
+	AuthIDs   []int                `json:"auth_ids"`
+	Auths     []*AuthGroupAuthItem `json:"auths"`
+	Children  []*AuthGroupListItem `json:"children"`
+	Parent    *AuthGroupListItem   `json:"parent,omitempty"`
+	CreatedAt time.Time            `json:"created_at"`
+}
+
+type AuthGroupSyncReq struct {
+	KBID       string `json:"kb_id" validate:"required"`
+	SourceType string `json:"source_type" validate:"required,oneof=dingtalk wecom"`
+}
+
 type AuthConfig struct {
 	ID          uint              `gorm:"primaryKey;column:id"` // Unique identifier for the authentication configuration
 	KbID        string            `gorm:"column:kb_id;not null"  json:"kb_id"`
@@ -82,9 +166,25 @@ func (AuthConfig) TableName() string {
 }
 
 type AuthSetting struct {
-	ClientID     string `json:"client_id,omitempty"`
-	ClientSecret string `json:"client_secret,omitempty"`
-	Proxy        string `json:"proxy,omitempty"`
+	ClientID      string   `json:"client_id,omitempty"`
+	ClientSecret  string   `json:"client_secret,omitempty"`
+	Proxy         string   `json:"proxy,omitempty"`
+	AuthorizeURL  string   `json:"authorize_url,omitempty"`
+	TokenURL      string   `json:"token_url,omitempty"`
+	UserInfoURL   string   `json:"user_info_url,omitempty"`
+	CASURL        string   `json:"cas_url,omitempty"`
+	CASVersion    string   `json:"cas_version,omitempty"`
+	LDAPServerURL string   `json:"ldap_server_url,omitempty"`
+	UserBaseDN    string   `json:"user_base_dn,omitempty"`
+	UserFilter    string   `json:"user_filter,omitempty"`
+	BindDN        string   `json:"bind_dn,omitempty"`
+	BindPassword  string   `json:"bind_password,omitempty"`
+	IDField       string   `json:"id_field,omitempty"`
+	NameField     string   `json:"name_field,omitempty"`
+	AvatarField   string   `json:"avatar_field,omitempty"`
+	EmailField    string   `json:"email_field,omitempty"`
+	Scopes        []string `json:"scopes,omitempty"`
+	AgentID       string   `json:"agent_id,omitempty"`
 }
 
 type AuthInfo struct {
