@@ -231,8 +231,14 @@ func (u *ChatUsecase) Chat(ctx context.Context, req *domain.ChatRequest) (<-chan
 			return
 		}
 
+		// 引用与搜索接口同等过滤：不可访问节点的引用不下发，避免点击 404
+		allowedNodes, err := u.filterVisitableNodes(ctx, rankedNodes, groupIds)
+		if err != nil {
+			u.logger.Error("filter visitable nodes failed", log.Error(err))
+			allowedNodes = rankedNodes
+		}
 		u.logger.Debug("message:", log.Any("schema", messages))
-		for _, node := range rankedNodes {
+		for _, node := range allowedNodes {
 			chunkResult := domain.NodeContentChunkSSE{
 				NodeID:        node.NodeID,
 				Name:          node.NodeName,
@@ -455,45 +461,13 @@ func (u *ChatUsecase) Search(ctx context.Context, req *domain.ChatSearchReq) (*d
 		return nil, err
 	}
 
-	// Get node IDs from ranked nodes for permission check
-	nodeIDs := lo.Map(rankedNodes, func(node *domain.RankedNodeChunks, _ int) string {
-		return node.NodeID
-	})
-
-	// Get nodes with permissions
-	nodesMap, err := u.nodeRepo.GetNodesByIDs(ctx, nodeIDs)
+	allowed, err := u.filterVisitableNodes(ctx, rankedNodes, groupIds)
 	if err != nil {
 		return nil, err
 	}
-
-	// Get user's visitable node IDs (for partial permission check)
-	userGroupIds := lo.Map(groupIds, func(id int, _ int) uint {
-		return uint(id)
-	})
-	visitableNodeGroups, err := u.nodeRepo.GetNodeGroupsByGroupIdsPerm(ctx, userGroupIds, consts.NodePermNameVisitable)
-	if err != nil {
-		return nil, err
-	}
-	visitableNodeIds := lo.Map(visitableNodeGroups, func(v domain.NodeAuthGroup, _ int) string {
-		return v.NodeID
-	})
 
 	resp := domain.ChatSearchResp{}
-	for _, node := range rankedNodes {
-		// Check visitable permission
-		if nodeInfo, ok := nodesMap[node.NodeID]; ok {
-			switch nodeInfo.Permissions.Visitable {
-			case consts.NodeAccessPermClosed:
-				// Skip nodes with closed visitable permission
-				continue
-			case consts.NodeAccessPermPartial:
-				// Skip if user doesn't have visitable permission for this node
-				if !slices.Contains(visitableNodeIds, node.NodeID) {
-					continue
-				}
-			}
-		}
-
+	for _, node := range allowed {
 		chunkResult := domain.NodeContentChunkSSE{
 			NodeID:        node.NodeID,
 			Name:          node.NodeName,
@@ -504,4 +478,45 @@ func (u *ChatUsecase) Search(ctx context.Context, req *domain.ChatSearchReq) (*d
 		resp.NodeResult = append(resp.NodeResult, chunkResult)
 	}
 	return &resp, nil
+}
+
+// filterVisitableNodes 按节点的 visitable 权限过滤检索结果：
+// 关闭的可访问性的节点引用不对外展示，部分开放的仅保留用户所在用户组命中的节点。
+// 与内容检索的 group_ids 过滤相互独立——不可访问的文档仍可参与问答，只是引用不可点。
+func (u *ChatUsecase) filterVisitableNodes(ctx context.Context, rankedNodes []*domain.RankedNodeChunks, groupIds []int) ([]*domain.RankedNodeChunks, error) {
+	if len(rankedNodes) == 0 {
+		return rankedNodes, nil
+	}
+	nodeIDs := lo.Map(rankedNodes, func(node *domain.RankedNodeChunks, _ int) string {
+		return node.NodeID
+	})
+	nodesMap, err := u.nodeRepo.GetNodesByIDs(ctx, nodeIDs)
+	if err != nil {
+		return nil, err
+	}
+	userGroupIds := lo.Map(groupIds, func(id int, _ int) uint {
+		return uint(id)
+	})
+	visitableNodeGroups, err := u.nodeRepo.GetNodeGroupsByGroupIdsPerm(ctx, userGroupIds, consts.NodePermNameVisitable)
+	if err != nil {
+		return nil, err
+	}
+	visitableNodeIds := lo.Map(visitableNodeGroups, func(v domain.NodeAuthGroup, _ int) string {
+		return v.NodeID
+	})
+	allowed := make([]*domain.RankedNodeChunks, 0, len(rankedNodes))
+	for _, node := range rankedNodes {
+		if nodeInfo, ok := nodesMap[node.NodeID]; ok {
+			switch nodeInfo.Permissions.Visitable {
+			case consts.NodeAccessPermClosed:
+				continue
+			case consts.NodeAccessPermPartial:
+				if !slices.Contains(visitableNodeIds, node.NodeID) {
+					continue
+				}
+			}
+		}
+		allowed = append(allowed, node)
+	}
+	return allowed, nil
 }
