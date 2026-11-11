@@ -88,32 +88,34 @@ func (u *FileUsecase) UploadFile(ctx context.Context, kbID string, file *multipa
 		return "", err
 	}
 
-	// 嗅探文件头部真实内容，拒绝伪装成图片后缀的 HTML 等文本，
-	// 防止匿名上传把可执行内容送进静态资源（存储型 XSS）
-	head := make([]byte, 512)
-	n, err := src.Read(head)
-	if err != nil && err != io.EOF {
-		return "", fmt.Errorf("failed to read file head: %w", err)
-	}
-	sniffed := utils.SniffImageContentType(head[:n])
-	if sniffed == "" {
-		return "", fmt.Errorf("file content is not a supported image: %s", file.Filename)
-	}
-
 	filename := fmt.Sprintf("%s/%s%s", kbID, uuid.New().String(), ext)
 
 	size := file.Size
 
-	// 对象类型由服务器依据扩展名与嗅探结果推导，不信任客户端提交的 Content-Type
+	body := io.Reader(src)
 	contentType := mime.TypeByExtension(ext)
 	if contentType == "" {
-		contentType = sniffed
+		contentType = "application/octet-stream"
+	}
+	// 内容嗅探仅作用于图片后缀：HTML 伪装 .jpg 的匿名攻击链（上游 #1845）
+	// 经 share 端 IsImageFile 白名单进入，嗅探可全部拦截；非图片后缀是
+	// 文档导入的正常路径（pdf/docx/zip 等），保持黑名单行为
+	if utils.IsSupportedImageExt(ext) {
+		head := make([]byte, 512)
+		n, err := src.Read(head)
+		if err != nil && err != io.EOF {
+			return "", fmt.Errorf("failed to read file head: %w", err)
+		}
+		if utils.SniffImageContentType(head[:n]) == "" {
+			return "", fmt.Errorf("file content is not a supported image: %s", file.Filename)
+		}
+		body = io.MultiReader(bytes.NewReader(head[:n]), src)
 	}
 
 	resp, err := u.s3Client.PutObject(
 		ctx,
 		filename,
-		io.MultiReader(bytes.NewReader(head[:n]), src),
+		body,
 		size,
 		minio.PutObjectOptions{
 			ContentType: contentType,
@@ -151,8 +153,8 @@ func (u *FileUsecase) UploadFileFromBytes(ctx context.Context, kbID string, file
 	}
 
 	// 图片后缀必须携带真实图片内容，防止伪装图片后缀的文本进入静态资源
-	if utils.IsSupportedImageExt(ext) && utils.SniffImageContentType(fileBytes) != contentType {
-		return "", fmt.Errorf("file content does not match image extension: %s", filename)
+	if utils.IsSupportedImageExt(ext) && utils.SniffImageContentType(fileBytes) == "" {
+		return "", fmt.Errorf("file content is not a supported image: %s", filename)
 	}
 
 	resp, err := u.s3Client.PutObject(

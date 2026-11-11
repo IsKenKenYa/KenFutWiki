@@ -895,7 +895,7 @@
       "title": "Document properties",
       "editSuccess": "Updated",
       "batchSelectedPrefix": "Selected",
-      "batchSelectedSuffix": "document(s), set permissions",
+      "batchSelectedSuffix": "node(s), including folders, set permissions",
       "name": "Document name",
       "nameRequired": "Document name is required",
       "createdAt": "Created at",

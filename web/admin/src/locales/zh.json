@@ -895,7 +895,7 @@
       "title": "文档属性",
       "editSuccess": "编辑成功",
       "batchSelectedPrefix": "已选中",
-      "batchSelectedSuffix": "个文档，设置权限",
+      "batchSelectedSuffix": "个节点（含文件夹），设置权限",
       "name": "文档名称",
       "nameRequired": "文档名称不能为空",
       "createdAt": "创建时间",

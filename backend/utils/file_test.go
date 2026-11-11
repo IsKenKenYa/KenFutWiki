@@ -21,11 +21,24 @@ func TestSniffImageContentTypeAcceptsRealImages(t *testing.T) {
 	cases := map[string][]byte{
 		"image/jpeg": {0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46},
 		"image/png":  {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00},
-		"image/webp": {'R', 'I', 'F', 'F', 0x00, 0x00, 0x00, 0x00, 'W', 'E', 'B', 'P'},
+		"image/webp": {'R', 'I', 'F', 'F', 0x00, 0x00, 0x00, 0x00, 'W', 'E', 'B', 'P', 'V', 'P', '8', ' '},
 	}
 	for want, head := range cases {
 		if got := SniffImageContentType(head); got != want {
 			t.Fatalf("expected %q, got %q", want, got)
+		}
+	}
+}
+
+// 空文件与不足魔数长度的头部一律拒绝
+func TestSniffImageContentTypeRejectsShortHead(t *testing.T) {
+	cases := map[string][]byte{
+		"empty":     {},
+		"two bytes": {0x89, 0x50},
+	}
+	for name, head := range cases {
+		if got := SniffImageContentType(head); got != "" {
+			t.Fatalf("%s: expected rejection, got %q", name, got)
 		}
 	}
 }

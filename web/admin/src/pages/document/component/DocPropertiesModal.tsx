@@ -13,7 +13,11 @@ import {
 } from '@/request/nodeStream';
 import { getApiProV1AuthGroupList } from '@/request/pro/AuthGroup';
 import { GithubComChaitinPandaWikiProApiAuthV1AuthGroupListItem } from '@/request/pro/types';
-import { ConstsNodeAccessPerm, DomainNodeListItemResp } from '@/request/types';
+import {
+  ConstsNodeAccessPerm,
+  DomainNodeListItemResp,
+  DomainNodeType,
+} from '@/request/types';
 import { useAppSelector } from '@/store';
 import { convertToTree } from '@/utils/drag';
 import { filterEmptyFolders } from '@/utils/tree';
@@ -93,6 +97,7 @@ const DocPropertiesModal = ({
     control,
     handleSubmit,
     setValue,
+    unregister,
     reset,
     formState: { errors },
     watch,
@@ -151,6 +156,12 @@ const DocPropertiesModal = ({
     );
   };
 
+  const isBusiness = useMemo(() => {
+    return BUSINESS_VERSION_PERMISSION.includes(license.edition!);
+  }, [license]);
+
+  const isFolder = !isBatch && data[0]?.type === DomainNodeType.NodeTypeFolder;
+
   const onSubmit = handleSubmit(values => {
     Promise.all([
       // 后端 permission 接口同时支持文档与文件夹节点，提交全部选中项
@@ -173,7 +184,8 @@ const DocPropertiesModal = ({
           : undefined,
       }),
 
-      !isBatch
+      // 文件夹节点没有 name/summary 编辑，只提交权限与用户组
+      !isBatch && !isFolder
         ? putApiV1NodeDetail({
             id: data[0].id!,
             name: values.name,
@@ -187,10 +199,6 @@ const DocPropertiesModal = ({
       onOk();
     });
   });
-
-  const isBusiness = useMemo(() => {
-    return BUSINESS_VERSION_PERMISSION.includes(license.edition!);
-  }, [license]);
 
   const tree = filterEmptyFolders(convertToTree(data));
 
@@ -206,8 +214,14 @@ const DocPropertiesModal = ({
         });
       }
       if (isBatch) return;
-      setValue('name', data[0].name!);
-      setValue('summary', data[0].summary!);
+      // 文件夹只配权限：name/summary 不进表单也不注册，避免 required 校验拦截提交
+      if (isFolder) {
+        unregister('name');
+        unregister('summary');
+      } else {
+        setValue('name', data[0].name!);
+        setValue('summary', data[0].summary!);
+      }
       getApiV1NodePermission({
         kb_id: kb_id!,
         id: data[0].id!,
@@ -241,7 +255,7 @@ const DocPropertiesModal = ({
         );
       });
     }
-  }, [open, data, isBusiness]);
+  }, [open, data, isBusiness, isFolder]);
 
   useEffect(() => {
     if (!open) {
@@ -298,7 +312,7 @@ const DocPropertiesModal = ({
       )}
 
       <Form labelWidth={100} gap={3}>
-        {!isBatch && (
+        {!isBatch && !isFolder && (
           <>
             <FormItem label={t('doc.properties.name')} required>
               <Controller
@@ -499,7 +513,7 @@ const DocPropertiesModal = ({
           </FormItem>
         )}
 
-        {!isBatch && (
+        {!isBatch && !isFolder && (
           <FormItem
             label={t('doc.summary.title')}
             sx={{ alignItems: 'flex-start' }}
