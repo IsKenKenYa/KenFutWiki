@@ -235,7 +235,8 @@ func (u *ChatUsecase) Chat(ctx context.Context, req *domain.ChatRequest) (<-chan
 		allowedNodes, err := u.filterVisitableNodes(ctx, rankedNodes, groupIds)
 		if err != nil {
 			u.logger.Error("filter visitable nodes failed", log.Error(err))
-			allowedNodes = rankedNodes
+			eventCh <- domain.SSEEvent{Type: "error", Content: "failed to filter citations"}
+			return
 		}
 		u.logger.Debug("message:", log.Any("schema", messages))
 		for _, node := range allowedNodes {
