@@ -21,6 +21,7 @@ import {
   addExpandState,
   type NavItem,
 } from '@/utils/tree';
+import { isSearchShortcut } from '@/utils/keyboard';
 
 interface StoreContextType {
   authInfo?: GithubComChaitinPandaWikiProApiShareV1AuthInfoResp;
@@ -39,7 +40,7 @@ interface StoreContextType {
   qaModalOpen?: boolean;
   qaMode?: 'chat' | 'search';
   setQaMode?: (value: 'chat' | 'search') => void;
-  setQaModalOpen?: (value: boolean) => void;
+  setQaModalOpen?: Dispatch<SetStateAction<boolean>>;
   /** 栏目列表，多栏目时展示导航栏 */
   navList?: NavItem[];
   /** 当前选中的栏目 id */
@@ -173,6 +174,18 @@ export default function StoreProvider({
       setTree(newTree);
     }
   }, [selectedNavId, navDataMap, docId, catalogFolderExpand]);
+
+  // 全站搜索快捷键：Cmd/Ctrl+K 打开或关闭搜索弹窗，重复按下为切换
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!isSearchShortcut(event)) return;
+      event.preventDefault();
+      setQaMode('search');
+      setQaModalOpen(previous => !previous);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   return (
     <StoreContext.Provider
