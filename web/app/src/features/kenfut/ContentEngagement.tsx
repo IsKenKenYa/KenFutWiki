@@ -6,10 +6,116 @@ import { Alert, Box, Button, Stack, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { useLocaleBasePath } from '@/hooks';
-import { getRelated, recordContentView, recordCTAClick } from './api';
+import {
+  getRelated,
+  getVoteSummary,
+  recordContentView,
+  recordCTAClick,
+  recordVote,
+  type VoteSummary,
+} from './api';
 import ContentCard from './ContentCard';
 import { resolveTarget } from './links';
 import type { ContentCTA, PageTarget, PublishedContent } from './types';
+
+// 页面级"有帮助吗"投票：提交后锁定票向，统计失败时静默降级。
+function PageVote({ nodeId }: { nodeId: string }) {
+  const t = useTranslations('node');
+  const [summary, setSummary] = useState<VoteSummary>();
+  const [voted, setVoted] = useState<1 | -1>();
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    setSummary(undefined);
+    setVoted(undefined);
+    getVoteSummary(nodeId)
+      .then(result => {
+        if (!active) return;
+        setSummary(result);
+        if (result?.mine === 1 || result?.mine === -1) {
+          setVoted(result.mine);
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [nodeId]);
+
+  const submit = async (vote: 1 | -1) => {
+    if (busy || voted) return;
+    setBusy(true);
+    try {
+      await recordVote(nodeId, vote);
+      setVoted(vote);
+      setSummary(previous =>
+        previous
+          ? {
+              up: previous.up + (vote === 1 ? 1 : 0),
+              down: previous.down + (vote === -1 ? 1 : 0),
+              mine: vote,
+            }
+          : { up: vote === 1 ? 1 : 0, down: vote === -1 ? 1 : 0, mine: vote },
+      );
+    } catch {
+      // 提交失败保持按钮可用，访客可重试
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (voted) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: 5 }}>
+        <Typography variant='body2' color='text.secondary'>
+          {t('voteThanks')}
+        </Typography>
+        {!!summary?.up && (
+          <Typography variant='caption' color='text.secondary'>
+            {t('voteCount', { count: summary.up })}
+          </Typography>
+        )}
+      </Box>
+    );
+  }
+  return (
+    <Stack
+      direction={{ xs: 'column', sm: 'row' }}
+      spacing={1.5}
+      alignItems='center'
+      justifyContent='center'
+      sx={{ mt: 6 }}
+    >
+      <Typography variant='body2' color='text.secondary'>
+        {t('voteTitle')}
+      </Typography>
+      <Stack direction='row' spacing={1.5}>
+        <Button
+          size='small'
+          variant='outlined'
+          disabled={busy}
+          onClick={() => void submit(1)}
+        >
+          {t('voteUp')}
+        </Button>
+        <Button
+          size='small'
+          variant='outlined'
+          disabled={busy}
+          onClick={() => void submit(-1)}
+        >
+          {t('voteDown')}
+        </Button>
+      </Stack>
+      {!!summary?.up && (
+        <Typography variant='caption' color='text.secondary'>
+          {t('voteCount', { count: summary.up })}
+        </Typography>
+      )}
+    </Stack>
+  );
+}
 
 export default function ContentEngagement({
   content,
@@ -165,6 +271,7 @@ export default function ContentEngagement({
           {t('relatedError')}
         </Alert>
       )}
+      <PageVote nodeId={nodeId} />
     </>
   );
 }

@@ -12,7 +12,6 @@ import (
 	"github.com/chaitin/panda-wiki/middleware"
 	repo "github.com/chaitin/panda-wiki/repo/pg"
 	"github.com/chaitin/panda-wiki/usecase"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"gorm.io/gorm"
@@ -204,12 +203,7 @@ func (h *KenFutIntegrationHandler) Funnel(c echo.Context) error {
 	return kenFutResponse(c, value, err)
 }
 func kenFutSession(c echo.Context) string {
-	if cookie, err := c.Cookie("x-kfw-session-id"); err == nil && cookie.Value != "" && len(cookie.Value) <= 128 {
-		return cookie.Value
-	}
-	id := uuid.NewString()
-	c.SetCookie(&http.Cookie{Name: "x-kfw-session-id", Value: id, Path: "/", HttpOnly: true, Secure: c.Scheme() == "https", SameSite: http.SameSiteLaxMode, MaxAge: 365 * 24 * 60 * 60})
-	return id
+	return handler.ShareVisitorSession(c)
 }
 func (h *KenFutIntegrationHandler) View(c echo.Context) error {
 	var req domain.KenFutViewReq

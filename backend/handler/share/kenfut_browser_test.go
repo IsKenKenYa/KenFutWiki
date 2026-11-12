@@ -129,7 +129,7 @@ func browserPostgres(t *testing.T, dsn string) *storePG.DB {
 	if err := db.Exec(`CREATE TABLE comments(id text PRIMARY KEY,kb_id text,user_id text,node_id text,info jsonb,parent_id text,root_id text,content text,status smallint,pic_urls text[] NOT NULL DEFAULT '{}',created_at timestamptz)`).Error; err != nil {
 		t.Fatal(err)
 	}
-	for _, name := range []string{"000001_content.up.sql", "000002_integration.up.sql", "000003_node_pv.up.sql", "000004_event_surface.up.sql", "000005_content_language.up.sql"} {
+	for _, name := range []string{"000001_content.up.sql", "000002_integration.up.sql", "000003_node_pv.up.sql", "000004_event_surface.up.sql", "000005_content_language.up.sql", "000009_page_votes.up.sql"} {
 		data, err := os.ReadFile("../../store/pg/kenfut_migration/" + name)
 		if err != nil {
 			t.Fatal(err)
@@ -148,6 +148,7 @@ type browserServices struct {
 	node        *usecase.NodeUsecase
 	content     *usecase.KenFutContentUsecase
 	integration *usecase.KenFutIntegrationUsecase
+	vote        *usecase.KenFutVoteUsecase
 	logger      *log.Logger
 	cfg         *config.Config
 	apiURL      string
@@ -167,7 +168,8 @@ func newBrowserServices(db *storePG.DB) *browserServices {
 	node := usecase.NewNodeUsecase(nodes, navs, apps, nil, users, kb, nil, nil, logger, nil, auth, nil)
 	content := usecase.NewKenFutContentUsecase(repo.NewKenFutContentRepository(db, logger), node, kb)
 	integration := usecase.NewKenFutIntegrationUsecase(repo.NewKenFutIntegrationRepository(db), content)
-	return &browserServices{db: db, kb: kb, app: apps, node: node, content: content, integration: integration, logger: logger, cfg: cfg}
+	vote := usecase.NewKenFutVoteUsecase(repo.NewKenFutVoteRepository(db), content)
+	return &browserServices{db: db, kb: kb, app: apps, node: node, content: content, integration: integration, vote: vote, logger: logger, cfg: cfg}
 }
 
 func seedBrowserSite(t *testing.T, s *browserServices, siteURL, apiURL string) {
@@ -251,6 +253,9 @@ func registerBrowserHandlers(e *echo.Echo, s *browserServices) {
 	base := handler.NewBaseHandler(e, s.logger, s.cfg, nil, nil, nil)
 	content := &ShareKenFutContentHandler{usecase: s.content, integration: s.integration}
 	e.GET("/rss.xml", NewShareFeedHandler(e, base, s.content).GetRSS)
+	voteHandler := &ShareNodeVoteHandler{BaseHandler: base, usecase: s.vote}
+	e.POST("/share/v1/node/:node_id/vote", voteHandler.Vote)
+	e.GET("/share/v1/node/:node_id/vote", voteHandler.Summary)
 	e.GET("/share/kenfut/v1/contents", content.List)
 	e.GET("/share/kenfut/v1/contents/:node_id", content.Detail)
 	e.GET("/share/kenfut/v1/contents/:node_id/related", content.Related)

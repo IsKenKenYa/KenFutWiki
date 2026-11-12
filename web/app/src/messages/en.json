@@ -174,7 +174,12 @@
     "noPermission": "Access denied",
     "unavailable": "Content unavailable",
     "related": "Related recommendations",
-    "relatedError": "Related recommendations are temporarily unavailable."
+    "relatedError": "Related recommendations are temporarily unavailable.",
+    "voteTitle": "Was this content helpful?",
+    "voteUp": "Yes",
+    "voteDown": "No",
+    "voteThanks": "Thanks for your feedback!",
+    "voteCount": "{count, plural, other {# visitors found this helpful}}"
   },
   "doc": {
     "newDocType": "New document type",

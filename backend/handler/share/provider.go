@@ -8,6 +8,7 @@ import (
 
 type ShareHandler struct {
 	ShareFeedHandler             *ShareFeedHandler
+	ShareNodeVoteHandler         *ShareNodeVoteHandler
 	ShareKenFutContentHandler    *ShareKenFutContentHandler
 	ShareNodeHandler             *ShareNodeHandler
 	ShareNavHandler              *ShareNavHandler
@@ -33,6 +34,7 @@ var ProviderSet = wire.NewSet(
 
 	NewShareFeedHandler,
 	NewShareKenFutContentHandler,
+	NewShareNodeVoteHandler,
 	NewShareNodeHandler,
 	NewShareNavHandler,
 	NewShareAppHandler,

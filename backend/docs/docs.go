@@ -7089,6 +7089,89 @@ const docTemplate = `{
                 }
             }
         },
+        "/share/v1/node/{node_id}/vote": {
+            "get": {
+                "tags": [
+                    "share"
+                ],
+                "summary": "Page vote summary",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge base",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Node ID",
+                        "name": "node_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.KenFutVoteSummaryResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "share"
+                ],
+                "summary": "Vote a published page",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge base",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Node ID",
+                        "name": "node_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Vote",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.KenFutVoteReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PWResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/share/v1/openapi/github/callback": {
             "get": {
                 "description": "GitHub回调",
@@ -10516,6 +10599,28 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "domain.KenFutVoteReq": {
+            "type": "object",
+            "properties": {
+                "vote": {
+                    "type": "integer"
+                }
+            }
+        },
+        "domain.KenFutVoteSummaryResp": {
+            "type": "object",
+            "properties": {
+                "down": {
+                    "type": "integer"
+                },
+                "mine": {
+                    "type": "integer"
+                },
+                "up": {
+                    "type": "integer"
                 }
             }
         },

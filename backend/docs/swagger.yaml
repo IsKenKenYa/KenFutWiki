@@ -2221,6 +2221,20 @@ definitions:
           type: string
         type: array
     type: object
+  domain.KenFutVoteReq:
+    properties:
+      vote:
+        type: integer
+    type: object
+  domain.KenFutVoteSummaryResp:
+    properties:
+      down:
+        type: integer
+      mine:
+        type: integer
+      up:
+        type: integer
+    type: object
   domain.KnowledgeBaseDetail:
     properties:
       access_settings:
@@ -8736,6 +8750,58 @@ paths:
       summary: 前台获取栏目列表
       tags:
       - share_nav
+  /share/v1/node/{node_id}/vote:
+    get:
+      parameters:
+      - description: Knowledge base
+        in: header
+        name: X-KB-ID
+        required: true
+        type: string
+      - description: Node ID
+        in: path
+        name: node_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.KenFutVoteSummaryResp'
+              type: object
+      summary: Page vote summary
+      tags:
+      - share
+    post:
+      parameters:
+      - description: Knowledge base
+        in: header
+        name: X-KB-ID
+        required: true
+        type: string
+      - description: Node ID
+        in: path
+        name: node_id
+        required: true
+        type: string
+      - description: Vote
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.KenFutVoteReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      summary: Vote a published page
+      tags:
+      - share
   /share/v1/node/detail:
     get:
       consumes:

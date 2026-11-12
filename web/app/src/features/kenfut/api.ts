@@ -96,3 +96,35 @@ export const recordCTAClick = (
     },
     signal,
   );
+
+// 页面级"有帮助吗"投票走通用 share 前缀
+const sharePrefix = '/share/v1';
+
+const shareGet = <T>(path: string) =>
+  httpRequest<{ data?: T }>({
+    path: `${sharePrefix}${path}`,
+    method: 'GET',
+    format: 'json',
+    isAlert: false,
+    cache: 'no-store',
+  });
+
+const sharePost = <T>(path: string, body: Record<string, unknown>) =>
+  httpRequest<{ data?: T }>({
+    path: `${sharePrefix}${path}`,
+    method: 'POST',
+    body,
+    type: ContentType.Json,
+    format: 'json',
+    isAlert: false,
+  });
+
+export type VoteSummary = { up: number; down: number; mine: number };
+
+export const getVoteSummary = (nodeId: string) =>
+  shareGet<VoteSummary>(`/node/${encodeURIComponent(nodeId)}/vote`);
+
+export const recordVote = (nodeId: string, vote: 1 | -1) =>
+  sharePost<{ recorded: boolean }>(`/node/${encodeURIComponent(nodeId)}/vote`, {
+    vote,
+  });

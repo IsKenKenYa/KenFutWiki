@@ -72,6 +72,13 @@ func contentTestDB(t *testing.T) *storePG.DB {
 	if err := db.Exec(string(pvMigration)).Error; err != nil {
 		t.Fatal(err)
 	}
+	langMigration, err := os.ReadFile("../../store/pg/kenfut_migration/000005_content_language.up.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Exec(string(langMigration)).Error; err != nil {
+		t.Fatal(err)
+	}
 	return &storePG.DB{DB: db}
 }
 

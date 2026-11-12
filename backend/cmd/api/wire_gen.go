@@ -188,6 +188,9 @@ func createApp() (*App, error) {
 		DocumentFeedbackHandler:  documentFeedbackHandler,
 	}
 	shareFeedHandler := share.NewShareFeedHandler(echo, baseHandler, kenFutContentUsecase)
+	kenFutVoteRepository := pg2.NewKenFutVoteRepository(db)
+	kenFutVoteUsecase := usecase.NewKenFutVoteUsecase(kenFutVoteRepository, kenFutContentUsecase)
+	shareNodeVoteHandler := share.NewShareNodeVoteHandler(echo, baseHandler, kenFutVoteUsecase)
 	shareKenFutContentHandler := share.NewShareKenFutContentHandler(echo, baseHandler, kenFutContentUsecase, kenFutIntegrationUsecase)
 	shareNodeHandler := share.NewShareNodeHandler(baseHandler, echo, nodeUsecase, logger)
 	shareNavHandler := share.NewShareNavHandler(baseHandler, echo, navUsecase, logger)
@@ -214,6 +217,7 @@ func createApp() (*App, error) {
 	shareDocumentFeedbackHandler := share.NewShareDocumentFeedbackHandler(echo, baseHandler, logger, documentFeedbackUsecase)
 	shareHandler := &share.ShareHandler{
 		ShareFeedHandler:             shareFeedHandler,
+		ShareNodeVoteHandler:         shareNodeVoteHandler,
 		ShareKenFutContentHandler:    shareKenFutContentHandler,
 		ShareNodeHandler:             shareNodeHandler,
 		ShareNavHandler:              shareNavHandler,

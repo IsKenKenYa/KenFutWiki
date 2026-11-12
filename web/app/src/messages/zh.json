@@ -174,7 +174,12 @@
     "noPermission": "无权限访问",
     "unavailable": "内容不可用",
     "related": "相关推荐",
-    "relatedError": "相关推荐暂时无法加载。"
+    "relatedError": "相关推荐暂时无法加载。",
+    "voteTitle": "这篇内容有帮助吗？",
+    "voteUp": "有帮助",
+    "voteDown": "没帮助",
+    "voteThanks": "感谢反馈！",
+    "voteCount": "{count, plural, other {# 位访客觉得有帮助}}"
   },
   "doc": {
     "newDocType": "新建文档类型",
