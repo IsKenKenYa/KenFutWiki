@@ -769,6 +769,36 @@ func (r *KnowledgeBaseRepository) GetKBReleaseList(ctx context.Context, kbID str
 	return total, releases, nil
 }
 
+// GetReleaseByID 读取指定版本，并校验其归属知识库。
+func (r *KnowledgeBaseRepository) GetReleaseByID(ctx context.Context, kbID, releaseID string, release *domain.KBRelease) error {
+	return r.db.WithContext(ctx).
+		Where("id = ? AND kb_id = ?", releaseID, kbID).
+		First(release).Error
+}
+
+// GetKBReleaseContents 读取某个版本内全部文档的内容快照，供版本对比使用。
+func (r *KnowledgeBaseRepository) GetKBReleaseContents(ctx context.Context, kbID, releaseID string, offset, limit int) (int64, []domain.KBReleaseContentItem, error) {
+	base := r.db.WithContext(ctx).Table("kb_release_node_releases krr").
+		Joins("INNER JOIN node_releases nr ON nr.id = krr.node_release_id").
+		Where("krr.kb_id = ? AND krr.release_id = ?", kbID, releaseID)
+
+	var total int64
+	if err := base.Count(&total).Error; err != nil {
+		return 0, nil, err
+	}
+
+	items := make([]domain.KBReleaseContentItem, 0)
+	if err := base.
+		Select("nr.node_id, nr.name, nr.content, nr.meta->>'content_type' AS content_type, nr.updated_at").
+		Order("nr.name ASC, nr.node_id ASC").
+		Offset(offset).
+		Limit(limit).
+		Scan(&items).Error; err != nil {
+		return 0, nil, err
+	}
+	return total, items, nil
+}
+
 func (r *KnowledgeBaseRepository) GetLatestRelease(ctx context.Context, kbID string) (*domain.KBRelease, error) {
 	var release domain.KBRelease
 	if err := r.db.WithContext(ctx).

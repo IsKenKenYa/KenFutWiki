@@ -1917,6 +1917,15 @@ definitions:
       icp:
         type: string
     type: object
+  domain.GetKBReleaseContentsResp:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/domain.KBReleaseContentItem'
+        type: array
+      total:
+        type: integer
+    type: object
   domain.GetKBReleaseListResp:
     properties:
       data:
@@ -2038,6 +2047,19 @@ definitions:
         $ref: '#/definitions/domain.StatPageScene'
       user_id:
         type: integer
+    type: object
+  domain.KBReleaseContentItem:
+    properties:
+      content:
+        type: string
+      content_type:
+        type: string
+      name:
+        type: string
+      node_id:
+        type: string
+      updated_at:
+        type: string
     type: object
   domain.KBReleaseListItemResp:
     properties:
@@ -6035,6 +6057,45 @@ paths:
           schema:
             $ref: '#/definitions/domain.Response'
       summary: CreateKBRelease
+      tags:
+      - knowledge_base
+  /api/v1/knowledge_base/release/{id}/contents:
+    get:
+      consumes:
+      - application/json
+      description: 读取某个版本内全部文档的内容快照，用于版本对比
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      - description: Release ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Per page
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.GetKBReleaseContentsResp'
+              type: object
+      summary: GetKBReleaseContents
       tags:
       - knowledge_base
   /api/v1/knowledge_base/release/list:

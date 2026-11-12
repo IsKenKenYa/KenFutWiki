@@ -16,6 +16,7 @@ import {
   DeleteApiV1KnowledgeBaseUserDeleteParams,
   DomainCreateKBReleaseReq,
   DomainCreateKnowledgeBaseReq,
+  DomainGetKBReleaseContentsResp,
   DomainGetKBReleaseListResp,
   DomainKnowledgeBaseDetail,
   DomainKnowledgeBaseListItem,
@@ -23,6 +24,7 @@ import {
   DomainResponse,
   DomainUpdateKnowledgeBaseReq,
   GetApiV1KnowledgeBaseDetailParams,
+  GetApiV1KnowledgeBaseReleaseIdContentsParams,
   GetApiV1KnowledgeBaseReleaseListParams,
   GetApiV1KnowledgeBaseUserListParams,
   V1KBUserInviteReq,
@@ -203,6 +205,36 @@ export const getApiV1KnowledgeBaseReleaseList = (
     }
   >({
     path: `/api/v1/knowledge_base/release/list`,
+    method: "GET",
+    query: query,
+    type: ContentType.Json,
+    format: "json",
+    ...params,
+  });
+
+/**
+ * @description 读取某个版本内全部文档的内容快照，用于版本对比
+ *
+ * @tags knowledge_base
+ * @name GetApiV1KnowledgeBaseReleaseIdContents
+ * @summary GetKBReleaseContents
+ * @request GET:/api/v1/knowledge_base/release/{id}/contents
+ * @response `200` `(DomainPWResponse & {
+    data?: DomainGetKBReleaseContentsResp,
+
+})` OK
+ */
+
+export const getApiV1KnowledgeBaseReleaseIdContents = (
+  { id, ...query }: GetApiV1KnowledgeBaseReleaseIdContentsParams,
+  params: RequestParams = {},
+) =>
+  httpRequest<
+    DomainPWResponse & {
+      data?: DomainGetKBReleaseContentsResp;
+    }
+  >({
+    path: `/api/v1/knowledge_base/release/${id}/contents`,
     method: "GET",
     query: query,
     type: ContentType.Json,

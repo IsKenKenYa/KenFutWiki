@@ -191,6 +191,19 @@ func (u *KnowledgeBaseUsecase) GetKBReleaseList(ctx context.Context, req *domain
 	return domain.NewPaginatedResult(releases, uint64(total)), nil
 }
 
+func (u *KnowledgeBaseUsecase) GetKBReleaseContents(ctx context.Context, req *domain.GetKBReleaseContentsReq) (*domain.GetKBReleaseContentsResp, error) {
+	// 版本必须属于当前知识库，避免跨站点读取内容快照。
+	var release domain.KBRelease
+	if err := u.repo.GetReleaseByID(ctx, req.KBID, req.ID, &release); err != nil {
+		return nil, err
+	}
+	total, items, err := u.repo.GetKBReleaseContents(ctx, req.KBID, req.ID, req.Offset(), req.Limit())
+	if err != nil {
+		return nil, err
+	}
+	return domain.NewPaginatedResult(items, uint64(total)), nil
+}
+
 func (u *KnowledgeBaseUsecase) GetKBUserList(ctx context.Context, req v1.KBUserListReq) ([]v1.KBUserListItemResp, error) {
 	users, err := u.repo.GetKBUserlist(ctx, req.KBId)
 	if err != nil {

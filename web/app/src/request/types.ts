@@ -1069,6 +1069,11 @@ export interface DomainFooterSettings {
   icp?: string;
 }
 
+export interface DomainGetKBReleaseContentsResp {
+  data?: DomainKBReleaseContentItem[];
+  total?: number;
+}
+
 export interface DomainGetKBReleaseListResp {
   data?: DomainKBReleaseListItemResp[];
   total?: number;
@@ -1134,6 +1139,14 @@ export interface DomainInstantPageResp {
   node_name?: string;
   scene?: DomainStatPageScene;
   user_id?: number;
+}
+
+export interface DomainKBReleaseContentItem {
+  content?: string;
+  content_type?: string;
+  name?: string;
+  node_id?: string;
+  updated_at?: string;
 }
 
 export interface DomainKBReleaseListItemResp {
@@ -1226,6 +1239,16 @@ export interface DomainKenFutLinkTarget {
 export interface DomainKenFutTaxonomies {
   categories?: string[];
   tags?: string[];
+}
+
+export interface DomainKenFutVoteReq {
+  vote?: number;
+}
+
+export interface DomainKenFutVoteSummaryResp {
+  down?: number;
+  mine?: number;
+  up?: number;
 }
 
 export interface DomainKnowledgeBaseDetail {
@@ -2646,6 +2669,17 @@ export interface GetApiV1KnowledgeBaseReleaseListParams {
   kb_id: string;
 }
 
+export interface GetApiV1KnowledgeBaseReleaseIdContentsParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+  /** Page */
+  page?: number;
+  /** Per page */
+  per_page?: number;
+  /** Release ID */
+  id: string;
+}
+
 export interface DeleteApiV1KnowledgeBaseUserDeleteParams {
   kb_id: string;
   user_id: string;
@@ -2746,6 +2780,11 @@ export interface GetApiV1StatRefererHostsParams {
 
 export interface DeleteApiV1UserDeleteParams {
   user_id: string;
+}
+
+export interface GetRssXmlParams {
+  /** Content language */
+  lang?: string;
 }
 
 export interface GetShareKenfutV1ArticlesSlugParams {
@@ -2901,6 +2940,16 @@ export interface GetShareV1NodeDetailParams {
 export interface GetShareV1NodeListParams {
   /** 内容语言，缺省返回默认语言 */
   lang?: string;
+}
+
+export interface GetShareV1NodeNodeIdVoteParams {
+  /** Node ID */
+  nodeId: string;
+}
+
+export interface PostShareV1NodeNodeIdVoteParams {
+  /** Node ID */
+  nodeId: string;
 }
 
 export interface GetShareV1OpenapiGithubCallbackParams {

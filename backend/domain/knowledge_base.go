@@ -181,3 +181,20 @@ type GetKBReleaseListReq struct {
 }
 
 type GetKBReleaseListResp = PaginatedResult[[]KBReleaseListItemResp]
+
+// KBReleaseContentItem 版本内单个文档的内容快照，用于版本间对比。
+type KBReleaseContentItem struct {
+	NodeID      string    `json:"node_id"`
+	Name        string    `json:"name"`
+	Content     string    `json:"content"`
+	ContentType string    `json:"content_type"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+type GetKBReleaseContentsReq struct {
+	KBID string `json:"kb_id" query:"kb_id" validate:"required"`
+	ID   string `json:"-"` // path param: release id
+	Pager
+}
+
+type GetKBReleaseContentsResp = PaginatedResult[[]KBReleaseContentItem]

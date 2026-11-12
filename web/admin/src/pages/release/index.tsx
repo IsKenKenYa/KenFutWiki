@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import VersionDelete from './components/VersionDelete';
+import VersionDiff from './components/VersionDiff';
 import VersionPublish from './components/VersionPublish';
 import VersionReset from './components/VersionReset';
 
@@ -25,6 +26,7 @@ const Release = () => {
   const [resetOpen, setResetOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
+  const [diffOpen, setDiffOpen] = useState(false);
   const [curVersionId, setCurVersionId] = useState('');
 
   const [data, setData] = useState<DomainKBReleaseListItemResp[]>([]);
@@ -133,13 +135,23 @@ const Release = () => {
             }}
           />
         </Box>
-        <Button
-          variant='contained'
-          size='small'
-          onClick={() => setPublishOpen(true)}
-        >
-          {t('release.publishTitle')}
-        </Button>
+        <Stack direction='row' spacing={1}>
+          <Button
+            variant='outlined'
+            size='small'
+            disabled={data.length < 1}
+            onClick={() => setDiffOpen(true)}
+          >
+            {t('release.diffEntry')}
+          </Button>
+          <Button
+            variant='contained'
+            size='small'
+            onClick={() => setPublishOpen(true)}
+          >
+            {t('release.publishTitle')}
+          </Button>
+        </Stack>
       </Stack>
       <Table
         columns={columns}
@@ -198,6 +210,12 @@ const Release = () => {
         open={publishOpen}
         onClose={() => setPublishOpen(false)}
         refresh={getData}
+      />
+      <VersionDiff
+        open={diffOpen}
+        onClose={() => setDiffOpen(false)}
+        releases={data}
+        defaultTargetId={curVersionId}
       />
     </Card>
   );
