@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import { styled, SvgIcon, SvgIconProps } from '@mui/material';
+import { Box, Modal, styled, SvgIcon, SvgIconProps } from '@mui/material';
 
 // ==================== 图片数据缓存工具函数 ====================
 // 下载图片并转换为 blob URL
@@ -129,6 +129,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({
     'loading',
   );
   const [blobUrl, setBlobUrl] = useState<string>('');
+  const [zoomed, setZoomed] = useState(false);
 
   // 基础样式对象
   const baseStyleObj = {
@@ -227,17 +228,57 @@ const ImageComponent: React.FC<ImageComponentProps> = ({
       {status === 'error' ? (
         <ImageErrorDisplay />
       ) : blobUrl ? (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          src={blobUrl}
-          alt={alt || 'markdown-img'}
-          referrerPolicy='no-referrer'
-          onLoad={handleLoad}
-          onError={handleError}
-          data-original-src={src}
-          className='markdown-image'
-          {...getOtherProps()}
-        />
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={blobUrl}
+            alt={alt || 'markdown-img'}
+            referrerPolicy='no-referrer'
+            onLoad={handleLoad}
+            onError={handleError}
+            onClick={() => setZoomed(true)}
+            data-original-src={src}
+            className='markdown-image'
+            {...getOtherProps()}
+          />
+          {/* 点击查看原图：Esc 或点击任意位置关闭 */}
+          <Modal
+            open={zoomed}
+            onClose={() => setZoomed(false)}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            slotProps={{
+              backdrop: { sx: { backgroundColor: 'rgba(0, 0, 0, 0.72)' } },
+            }}
+          >
+            <Box
+              onClick={() => setZoomed(false)}
+              sx={{
+                outline: 'none',
+                cursor: 'zoom-out',
+                maxWidth: '92vw',
+                maxHeight: '92vh',
+                display: 'flex',
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={blobUrl}
+                alt={alt || 'markdown-img'}
+                referrerPolicy='no-referrer'
+                style={{
+                  maxWidth: '92vw',
+                  maxHeight: '92vh',
+                  objectFit: 'contain',
+                  borderRadius: '10px',
+                }}
+              />
+            </Box>
+          </Modal>
+        </>
       ) : (
         // 加载中显示占位符
         <div
