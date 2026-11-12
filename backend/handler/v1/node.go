@@ -50,6 +50,7 @@ func NewNodeHandler(
 	group.POST("/summary/stream", h.SummaryNodeStream)
 
 	group.POST("/action", h.NodeAction)
+	group.GET("/recycle_bin", h.RecycleBinList)
 	group.POST("/move", h.MoveNode)
 	group.POST("/move/nav", h.NodeMoveNav)
 	group.POST("/batch_move", h.BatchMoveNode)
@@ -328,6 +329,27 @@ func (h *NodeHandler) NodeMoveNav(c echo.Context) error {
 		return h.NewResponseWithError(c, "move node nav failed", err)
 	}
 	return h.NewResponseWithData(c, nil)
+}
+
+// RecycleBinList
+//
+//	@Summary		回收站文档列表
+//	@Description	列出当前知识库中已删除、可恢复或可彻底清除的文档
+//	@Tags			node
+//	@Produce		json
+//	@Param			kb_id	query		string	true	"Knowledge Base ID"
+//	@Success		200		{object}	domain.PWResponse{data=[]domain.NodeRecycleBinItem}
+//	@Router			/api/v1/node/recycle_bin [get]
+func (h *NodeHandler) RecycleBinList(c echo.Context) error {
+	kbID, err := middleware.GetKbID(c)
+	if err != nil {
+		return h.NewResponseWithError(c, "kb_id is required", err)
+	}
+	items, err := h.usecase.RecycleBinList(c.Request().Context(), kbID)
+	if err != nil {
+		return h.NewResponseWithError(c, "get recycle bin list failed", err)
+	}
+	return h.NewResponseWithData(c, items)
 }
 
 // SummaryNode

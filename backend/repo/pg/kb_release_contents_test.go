@@ -37,7 +37,7 @@ func TestGetKBReleaseContents(t *testing.T) {
 		nodeRelease := &domain.NodeRelease{
 			ID: "nr-" + name, KBID: "kb", NodeID: "node-" + name,
 			Type: domain.NodeTypeDocument, Name: name,
-			Meta: domain.NodeMeta{Summary: "摘要", ContentType: "md"},
+			Meta:    domain.NodeMeta{Summary: "摘要", ContentType: "md"},
 			Content: "正文 " + name, Position: float64(i + 1),
 			CreatedAt: now, UpdatedAt: now,
 		}

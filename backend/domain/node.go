@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"time"
 
+	"gorm.io/gorm"
+
 	"github.com/lib/pq"
 
 	"github.com/chaitin/panda-wiki/consts"
@@ -85,9 +87,11 @@ type Node struct {
 	Permissions NodePermissions `json:"permissions" gorm:"type:jsonb"`
 	Lang        string          `json:"lang" gorm:"default:zh"`
 	// TranslationGroupID 非空表示该文档属于一个译本组（同组互为译本，组内 lang 唯一）
-	TranslationGroupID *string   `json:"translation_group_id" gorm:"type:uuid"`
-	CreatedAt          time.Time `json:"created_at"`
-	UpdatedAt          time.Time `json:"updated_at"`
+	TranslationGroupID *string `json:"translation_group_id" gorm:"type:uuid"`
+	// DeletedAt 非空表示文档在回收站中；gorm 据此在普通查询里自动排除
+	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
 }
 
 func (Node) TableName() string {
@@ -272,7 +276,20 @@ type RecommendNodeListResp struct {
 type NodeActionReq struct {
 	IDs    []string `json:"ids" validate:"required"`
 	KBID   string   `json:"kb_id" validate:"required"`
-	Action string   `json:"action" validate:"required,oneof=delete"`
+	Action string   `json:"action" validate:"required,oneof=delete restore purge"`
+}
+
+// NodeRecycleBinItem 回收站列表项。
+type NodeRecycleBinItem struct {
+	ID        string      `json:"id"`
+	Name      string      `json:"name"`
+	Type      NodeType    `json:"type"`
+	ParentID  string      `json:"parent_id"`
+	NavID     string      `json:"nav_id"`
+	Lang      string      `json:"lang"`
+	DeletedAt time.Time   `json:"deleted_at"`
+	NavName   string      `json:"nav_name"`
+	Perm      interface{} `json:"perm,omitempty"`
 }
 
 type UpdateNodeReq struct {

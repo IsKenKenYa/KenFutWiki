@@ -192,6 +192,19 @@ func (u *NodeUsecase) GetNodeReleaseHistoryDetail(ctx context.Context, kbID, rel
 	}, nil
 }
 
+// deleteVectorRequests 构造检索库删除请求。
+func deleteVectorRequests(kbID string, docIDs []string) []*domain.NodeReleaseVectorRequest {
+	requests := make([]*domain.NodeReleaseVectorRequest, 0)
+	for _, docID := range docIDs {
+		requests = append(requests, &domain.NodeReleaseVectorRequest{
+			KBID:   kbID,
+			DocID:  docID,
+			Action: "delete",
+		})
+	}
+	return requests
+}
+
 func (u *NodeUsecase) NodeAction(ctx context.Context, req *domain.NodeActionReq) error {
 	switch req.Action {
 	case "delete":
@@ -199,19 +212,26 @@ func (u *NodeUsecase) NodeAction(ctx context.Context, req *domain.NodeActionReq)
 		if err != nil {
 			return err
 		}
-		nodeVectorContentRequests := make([]*domain.NodeReleaseVectorRequest, 0)
-		for _, docID := range docIDs {
-			nodeVectorContentRequests = append(nodeVectorContentRequests, &domain.NodeReleaseVectorRequest{
-				KBID:   req.KBID,
-				DocID:  docID,
-				Action: "delete",
-			})
+		if err := u.ragRepo.AsyncUpdateNodeReleaseVector(ctx, deleteVectorRequests(req.KBID, docIDs)); err != nil {
+			return err
 		}
-		if err := u.ragRepo.AsyncUpdateNodeReleaseVector(ctx, nodeVectorContentRequests); err != nil {
+	case "restore":
+		return u.nodeRepo.Restore(ctx, req.KBID, req.IDs)
+	case "purge":
+		docIDs, err := u.nodeRepo.Purge(ctx, req.KBID, req.IDs)
+		if err != nil {
+			return err
+		}
+		if err := u.ragRepo.AsyncUpdateNodeReleaseVector(ctx, deleteVectorRequests(req.KBID, docIDs)); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// RecycleBinList 回收站文档列表。
+func (u *NodeUsecase) RecycleBinList(ctx context.Context, kbID string) ([]domain.NodeRecycleBinItem, error) {
+	return u.nodeRepo.RecycleBinList(ctx, kbID)
 }
 
 func (u *NodeUsecase) Update(ctx context.Context, req *domain.UpdateNodeReq, userId string) error {

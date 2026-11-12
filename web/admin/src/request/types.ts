@@ -1346,7 +1346,7 @@ export interface DomainNavDocConfig {
 }
 
 export interface DomainNodeActionReq {
-  action: "delete";
+  action: "delete" | "restore" | "purge";
   ids: string[];
   kb_id: string;
 }
@@ -1405,6 +1405,18 @@ export interface DomainNodePermissions {
   visible?: ConstsNodeAccessPerm;
   /** 可被访问 */
   visitable?: ConstsNodeAccessPerm;
+}
+
+export interface DomainNodeRecycleBinItem {
+  deleted_at?: string;
+  id?: string;
+  lang?: string;
+  name?: string;
+  nav_id?: string;
+  nav_name?: string;
+  parent_id?: string;
+  perm?: unknown;
+  type?: DomainNodeType;
 }
 
 export interface DomainNodeReleaseHistoryDetail {
@@ -2734,6 +2746,11 @@ export interface GetApiV1NodeRecommendNodesParams {
   kb_id: string;
   nav_ids?: string[];
   node_ids?: string[];
+}
+
+export interface GetApiV1NodeRecycleBinParams {
+  /** Knowledge Base ID */
+  kb_id: string;
 }
 
 export interface GetApiV1NodeStatsParams {

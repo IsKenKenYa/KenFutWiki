@@ -17,6 +17,7 @@ import {
   DomainMoveNodeReq,
   DomainNodeActionReq,
   DomainNodeListItemResp,
+  DomainNodeRecycleBinItem,
   DomainNodeSummaryReq,
   DomainPWResponse,
   DomainRecommendNodeListResp,
@@ -26,6 +27,7 @@ import {
   GetApiV1NodeListGroupNavParams,
   GetApiV1NodeListParams,
   GetApiV1NodeRecommendNodesParams,
+  GetApiV1NodeRecycleBinParams,
   GetApiV1NodeStatsParams,
   GithubComChaitinPandaWikiApiNodeV1NodeListGroupNavResp,
   V1NodeDetailResp,
@@ -323,6 +325,35 @@ export const getApiV1NodeRecommendNodes = (
     query: query,
     secure: true,
     type: ContentType.Json,
+    format: "json",
+    ...params,
+  });
+
+/**
+ * @description 列出当前知识库中已删除、可恢复或可彻底清除的文档
+ *
+ * @tags node
+ * @name GetApiV1NodeRecycleBin
+ * @summary 回收站文档列表
+ * @request GET:/api/v1/node/recycle_bin
+ * @response `200` `(DomainPWResponse & {
+    data?: (DomainNodeRecycleBinItem)[],
+
+})` OK
+ */
+
+export const getApiV1NodeRecycleBin = (
+  query: GetApiV1NodeRecycleBinParams,
+  params: RequestParams = {},
+) =>
+  httpRequest<
+    DomainPWResponse & {
+      data?: DomainNodeRecycleBinItem[];
+    }
+  >({
+    path: `/api/v1/node/recycle_bin`,
+    method: "GET",
+    query: query,
     format: "json",
     ...params,
   });

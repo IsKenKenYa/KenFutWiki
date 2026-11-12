@@ -3995,6 +3995,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/node/recycle_bin": {
+            "get": {
+                "description": "列出当前知识库中已删除、可恢复或可彻底清除的文档",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "node"
+                ],
+                "summary": "回收站文档列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge Base ID",
+                        "name": "kb_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/domain.NodeRecycleBinItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/node/restudy": {
             "post": {
                 "security": [
@@ -11004,7 +11048,9 @@ const docTemplate = `{
                 "action": {
                     "type": "string",
                     "enum": [
-                        "delete"
+                        "delete",
+                        "restore",
+                        "purge"
                     ]
                 },
                 "ids": {
@@ -11175,6 +11221,36 @@ const docTemplate = `{
                             "$ref": "#/definitions/consts.NodeAccessPerm"
                         }
                     ]
+                }
+            }
+        },
+        "domain.NodeRecycleBinItem": {
+            "type": "object",
+            "properties": {
+                "deleted_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lang": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nav_id": {
+                    "type": "string"
+                },
+                "nav_name": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "string"
+                },
+                "perm": {},
+                "type": {
+                    "$ref": "#/definitions/domain.NodeType"
                 }
             }
         },

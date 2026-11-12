@@ -913,6 +913,17 @@
     "selectedCount": "已选中 {{count}} 项",
     "batchMove": "批量移动",
     "batchActions": "批量操作",
+    "recycleBin": {
+      "entry": "回收站",
+      "title": "回收站",
+      "restore": "恢复",
+      "purge": "彻底删除",
+      "restored": "文档已恢复",
+      "purged": "文档已彻底删除",
+      "deletedAt": "删除于 {{time}}",
+      "folder": "文件夹",
+      "empty": "回收站是空的"
+    },
     "unpublishedNavCount": "{{count}} 个目录未发布，",
     "unpublishedDocCount": "{{count}} 个文档/文件夹未发布，",
     "unstudiedDocCount": "{{count}} 个文档未学习，",

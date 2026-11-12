@@ -2440,6 +2440,8 @@ definitions:
       action:
         enum:
         - delete
+        - restore
+        - purge
         type: string
       ids:
         items:
@@ -2552,6 +2554,26 @@ definitions:
         allOf:
         - $ref: '#/definitions/consts.NodeAccessPerm'
         description: 可被访问
+    type: object
+  domain.NodeRecycleBinItem:
+    properties:
+      deleted_at:
+        type: string
+      id:
+        type: string
+      lang:
+        type: string
+      name:
+        type: string
+      nav_id:
+        type: string
+      nav_name:
+        type: string
+      parent_id:
+        type: string
+      perm: {}
+      type:
+        $ref: '#/definitions/domain.NodeType'
     type: object
   domain.NodeReleaseHistoryDetail:
     properties:
@@ -6925,6 +6947,32 @@ paths:
       security:
       - bearerAuth: []
       summary: Recommend Nodes
+      tags:
+      - node
+  /api/v1/node/recycle_bin:
+    get:
+      description: 列出当前知识库中已删除、可恢复或可彻底清除的文档
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.NodeRecycleBinItem'
+                  type: array
+              type: object
+      summary: 回收站文档列表
       tags:
       - node
   /api/v1/node/restudy:

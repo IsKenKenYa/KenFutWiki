@@ -913,6 +913,17 @@
     "selectedCount": "{{count}} selected",
     "batchMove": "Move selected",
     "batchActions": "Batch actions",
+    "recycleBin": {
+      "entry": "Recycle bin",
+      "title": "Recycle bin",
+      "restore": "Restore",
+      "purge": "Delete forever",
+      "restored": "Documents restored",
+      "purged": "Documents deleted forever",
+      "deletedAt": "Deleted at {{time}}",
+      "folder": "Folder",
+      "empty": "The recycle bin is empty"
+    },
     "unpublishedNavCount": "Unpublished catalogs: {{count}}",
     "unpublishedDocCount": "Unpublished docs/folders: {{count}}",
     "unstudiedDocCount": "Docs not studied: {{count}}",

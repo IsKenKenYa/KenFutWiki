@@ -9,6 +9,7 @@ import {
 import EmptyState from '@/components/EmptyState';
 import Loading from '@/components/Loading';
 import AddDocBtn from '@/pages/document/component/AddDocBtn';
+import RecycleBinDialog from '@/pages/document/layout/DocPageList/RecycleBinDialog';
 import { addOpacityToColor } from '@/utils';
 import {
   Box,
@@ -18,6 +19,7 @@ import {
   Stack,
   useTheme,
 } from '@mui/material';
+import { useState } from 'react';
 import { IconGengduo } from '@panda-wiki/icons';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -79,6 +81,7 @@ const DocPageListContent = ({
 }: DocPageListContentProps) => {
   const { t } = useTranslation();
   const theme = useTheme();
+  const [recycleBinOpen, setRecycleBinOpen] = useState(false);
   const showEmpty = list.length === 0;
 
   return (
@@ -195,6 +198,13 @@ const DocPageListContent = ({
         )}
         {/* 右侧：多功能按钮（添加文档 + 批量操作） */}
         <Stack direction={'row'} alignItems={'center'} gap={2}>
+          <Button
+            size='small'
+            sx={{ color: 'text.secondary', minWidth: 0, p: 0, lineHeight: 1 }}
+            onClick={() => setRecycleBinOpen(true)}
+          >
+            {t('doc.recycleBin.entry')}
+          </Button>
           <AddDocBtn
             refresh={refresh}
             createLocal={createLocal}
@@ -277,6 +287,11 @@ const DocPageListContent = ({
           />
         )}
       </Stack>
+      <RecycleBinDialog
+        open={recycleBinOpen}
+        onClose={() => setRecycleBinOpen(false)}
+        refresh={refresh}
+      />
     </Card>
   );
 };

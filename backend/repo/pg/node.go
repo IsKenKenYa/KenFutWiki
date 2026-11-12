@@ -379,42 +379,34 @@ func (r *NodeRepository) GetByID(ctx context.Context, id, kbId string) (*v1.Node
 	return node, nil
 }
 
+// Delete 将文档（含子树）标记进回收站：gorm 软删除使普通查询自动排除，
+// 发布清单与公开站按 join 天然不再展示。返回仍需从检索库移除的 docID。
 func (r *NodeRepository) Delete(ctx context.Context, kbID string, ids []string) ([]string, error) {
 	docIDs := make([]string, 0)
 	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		// recursively collect all child node IDs
+		// 递归收集全部子文档；已被软删的文档不会再次命中
 		allIDs := r.collectAllChildNodeIDs(tx, kbID, ids)
 
-		var nodes []*domain.Node
-		if err := tx.Model(&domain.Node{}).
-			Where("id IN ?", allIDs).
-			Where("kb_id = ?", kbID).
-			Clauses(clause.Returning{Columns: []clause.Column{{Name: "doc_id"}}}).
-			Delete(&nodes).Error; err != nil {
-			return err
-		}
-		// backup node releases before deletion
-		if err := r.backupNodeReleasesTx(tx, allIDs); err != nil {
-			return err
-		}
-
-		// delete node release
-		var nodeReleases []*domain.NodeRelease
+		var releases []*domain.NodeRelease
 		if err := tx.Model(&domain.NodeRelease{}).
 			Where("node_id IN ?", allIDs).
-			Clauses(clause.Returning{Columns: []clause.Column{{Name: "doc_id"}}}).
-			Delete(&nodeReleases).Error; err != nil {
+			Find(&releases).Error; err != nil {
 			return err
 		}
-		for _, node := range nodes {
-			if node.DocID != "" {
-				docIDs = append(docIDs, node.DocID)
+		for _, release := range releases {
+			if release.DocID != "" {
+				docIDs = append(docIDs, release.DocID)
 			}
 		}
-		for _, nodeRelease := range nodeReleases {
-			if nodeRelease.DocID != "" {
-				docIDs = append(docIDs, nodeRelease.DocID)
-			}
+
+		result := tx.Model(&domain.Node{}).
+			Where("id IN ? AND kb_id = ?", allIDs, kbID).
+			Delete(&domain.Node{})
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected == 0 {
+			return gorm.ErrRecordNotFound
 		}
 		return nil
 	}); err != nil {
@@ -423,38 +415,115 @@ func (r *NodeRepository) Delete(ctx context.Context, kbID string, ids []string) 
 	return lo.Uniq(docIDs), nil
 }
 
-func (r *NodeRepository) backupNodeReleasesTx(tx *gorm.DB, nodeIDs []string) error {
-	var nodeReleases []*domain.NodeRelease
-	if err := tx.Model(&domain.NodeRelease{}).
-		Where("node_id IN ?", nodeIDs).
-		Find(&nodeReleases).Error; err != nil {
-		return err
-	}
-	if len(nodeReleases) == 0 {
-		return nil
-	}
-	now := time.Now()
-	backups := make([]*domain.NodeReleaseBackup, len(nodeReleases))
-	for i, nr := range nodeReleases {
-		backups[i] = &domain.NodeReleaseBackup{
-			ID:          nr.ID,
-			KBID:        nr.KBID,
-			PublisherId: nr.PublisherId,
-			EditorId:    nr.EditorId,
-			NodeID:      nr.NodeID,
-			DocID:       nr.DocID,
-			Type:        nr.Type,
-			Name:        nr.Name,
-			Meta:        nr.Meta,
-			Content:     nr.Content,
-			Position:    nr.Position,
-			ParentID:    nr.ParentID,
-			DeletedAt:   now,
-			CreatedAt:   nr.CreatedAt,
-			UpdatedAt:   nr.UpdatedAt,
+// RecycleBinList 列出回收站中的文档，按删除时间倒序。
+func (r *NodeRepository) RecycleBinList(ctx context.Context, kbID string) ([]domain.NodeRecycleBinItem, error) {
+	items := make([]domain.NodeRecycleBinItem, 0)
+	err := r.db.Unscoped().WithContext(ctx).
+		Model(&domain.Node{}).
+		Select("id, name, type, parent_id, nav_id, lang, deleted_at").
+		Where("kb_id = ? AND deleted_at IS NOT NULL", kbID).
+		Order("deleted_at DESC").
+		Scan(&items).Error
+	return items, err
+}
+
+// Restore 将回收站中的文档恢复为可见；恢复目录时连带恢复整个子树，
+// 恢复后的已发布快照重新进入检索重建队列。
+func (r *NodeRepository) Restore(ctx context.Context, kbID string, ids []string) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		allIDs := r.collectAllChildNodeIDsUnscoped(tx, kbID, ids)
+		result := tx.Unscoped().Model(&domain.Node{}).
+			Where("kb_id = ? AND id IN ? AND deleted_at IS NOT NULL", kbID, allIDs).
+			Update("deleted_at", nil)
+		if result.Error != nil {
+			return result.Error
 		}
+		if result.RowsAffected == 0 {
+			return gorm.ErrRecordNotFound
+		}
+		// 恢复后向检索库重新灌入已发布快照：清单仍保留关联，outbox 会按当前清单校验
+		return tx.Exec(
+			`INSERT INTO kenfut_rag_outbox(node_release_id,kb_id,created_at)
+			 SELECT nr.id, nr.kb_id, clock_timestamp() FROM node_releases nr
+			 WHERE nr.kb_id = ? AND nr.node_id IN ?
+			   AND EXISTS (SELECT 1 FROM kb_release_node_releases m WHERE m.node_release_id=nr.id AND m.kb_id=nr.kb_id
+			               AND m.release_id=(SELECT id FROM kb_releases WHERE kb_id=nr.kb_id ORDER BY created_at DESC,id DESC LIMIT 1))
+			 ON CONFLICT DO NOTHING`,
+			kbID, allIDs,
+		).Error
+	})
+}
+
+// Purge 将回收站中的文档连同其全部发布快照、清单关联一并彻底清除，
+// 返回仍需从检索库移除的 docID。
+func (r *NodeRepository) Purge(ctx context.Context, kbID string, ids []string) ([]string, error) {
+	docIDs := make([]string, 0)
+	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		allIDs := r.collectAllChildNodeIDsUnscoped(tx, kbID, ids)
+
+		var releases []*domain.NodeRelease
+		if err := tx.Unscoped().Model(&domain.NodeRelease{}).
+			Where("node_id IN ?", allIDs).
+			Find(&releases).Error; err != nil {
+			return err
+		}
+		for _, release := range releases {
+			if release.DocID != "" {
+				docIDs = append(docIDs, release.DocID)
+			}
+		}
+
+		if err := tx.Unscoped().Where("kb_id = ? AND node_id IN ?", kbID, allIDs).
+			Delete(&domain.KBReleaseNodeRelease{}).Error; err != nil {
+			return err
+		}
+		if err := tx.Unscoped().Where("node_id IN ?", allIDs).
+			Delete(&domain.NodeRelease{}).Error; err != nil {
+			return err
+		}
+		result := tx.Unscoped().
+			Where("id IN ? AND kb_id = ?", allIDs, kbID).
+			Delete(&domain.Node{})
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected == 0 {
+			return gorm.ErrRecordNotFound
+		}
+		return nil
+	}); err != nil {
+		return nil, err
 	}
-	return tx.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(&backups, 500).Error
+	return lo.Uniq(docIDs), nil
+}
+
+// collectAllChildNodeIDsUnscoped 与 collectAllChildNodeIDs 相同，但包含回收站中的文档。
+func (r *NodeRepository) collectAllChildNodeIDsUnscoped(tx *gorm.DB, kbID string, parentIDs []string) []string {
+	allIDs := make([]string, 0)
+	allIDs = append(allIDs, parentIDs...)
+
+	currentParentIDs := parentIDs
+	for len(currentParentIDs) > 0 {
+		var childIDs []string
+		if err := tx.Unscoped().Model(&domain.Node{}).
+			Where("parent_id IN ?", currentParentIDs).
+			Where("kb_id = ?", kbID).
+			Pluck("id", &childIDs).Error; err != nil {
+			break
+		}
+		next := make([]string, 0)
+		for _, childID := range childIDs {
+			if !lo.Contains(allIDs, childID) {
+				next = append(next, childID)
+			}
+		}
+		allIDs = append(allIDs, next...)
+		if len(next) == 0 {
+			break
+		}
+		currentParentIDs = next
+	}
+	return allIDs
 }
 
 // collectAllChildNodeIDs recursively collects all child node IDs for the given parent IDs
