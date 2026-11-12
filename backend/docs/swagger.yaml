@@ -7469,6 +7469,26 @@ paths:
       summary: ResetPassword
       tags:
       - user
+  /rss.xml:
+    get:
+      parameters:
+      - description: Knowledge base
+        in: header
+        name: X-KB-ID
+        required: true
+        type: string
+      - description: Content language
+        in: query
+        name: lang
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Blog channel RSS feed
+      tags:
+      - share
   /share/kenfut/v1/articles/{slug}:
     get:
       parameters:

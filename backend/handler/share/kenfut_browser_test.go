@@ -129,7 +129,7 @@ func browserPostgres(t *testing.T, dsn string) *storePG.DB {
 	if err := db.Exec(`CREATE TABLE comments(id text PRIMARY KEY,kb_id text,user_id text,node_id text,info jsonb,parent_id text,root_id text,content text,status smallint,pic_urls text[] NOT NULL DEFAULT '{}',created_at timestamptz)`).Error; err != nil {
 		t.Fatal(err)
 	}
-	for _, name := range []string{"000001_content.up.sql", "000002_integration.up.sql", "000003_node_pv.up.sql", "000004_event_surface.up.sql"} {
+	for _, name := range []string{"000001_content.up.sql", "000002_integration.up.sql", "000003_node_pv.up.sql", "000004_event_surface.up.sql", "000005_content_language.up.sql"} {
 		data, err := os.ReadFile("../../store/pg/kenfut_migration/" + name)
 		if err != nil {
 			t.Fatal(err)
@@ -250,6 +250,7 @@ func seedBrowserSite(t *testing.T, s *browserServices, siteURL, apiURL string) {
 func registerBrowserHandlers(e *echo.Echo, s *browserServices) {
 	base := handler.NewBaseHandler(e, s.logger, s.cfg, nil, nil, nil)
 	content := &ShareKenFutContentHandler{usecase: s.content, integration: s.integration}
+	e.GET("/rss.xml", NewShareFeedHandler(e, base, s.content).GetRSS)
 	e.GET("/share/kenfut/v1/contents", content.List)
 	e.GET("/share/kenfut/v1/contents/:node_id", content.Detail)
 	e.GET("/share/kenfut/v1/contents/:node_id/related", content.Related)

@@ -83,6 +83,16 @@ const nextConfig: NextConfig = {
             basePath: false as const,
           },
           {
+            source: '/rss.xml',
+            destination: `${process.env.TARGET}/rss.xml`,
+            basePath: false as const,
+          },
+          {
+            source: '/:basePath/rss.xml',
+            destination: `${process.env.TARGET}/rss.xml`,
+            basePath: false as const,
+          },
+          {
             source: '/:basePath/cap@0.0.6/:path*',
             destination: 'http://127.0.0.1:3010/cap@0.0.6/:path*',
             basePath: false as const,

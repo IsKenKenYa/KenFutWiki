@@ -187,6 +187,7 @@ func createApp() (*App, error) {
 		AuthGroupHandler:         authGroupHandler,
 		DocumentFeedbackHandler:  documentFeedbackHandler,
 	}
+	shareFeedHandler := share.NewShareFeedHandler(echo, baseHandler, kenFutContentUsecase)
 	shareKenFutContentHandler := share.NewShareKenFutContentHandler(echo, baseHandler, kenFutContentUsecase, kenFutIntegrationUsecase)
 	shareNodeHandler := share.NewShareNodeHandler(baseHandler, echo, nodeUsecase, logger)
 	shareNavHandler := share.NewShareNavHandler(baseHandler, echo, navUsecase, logger)
@@ -212,6 +213,7 @@ func createApp() (*App, error) {
 	shareSSOHandler := share.NewShareSSOHandler(echo, baseHandler, logger, authUsecase)
 	shareDocumentFeedbackHandler := share.NewShareDocumentFeedbackHandler(echo, baseHandler, logger, documentFeedbackUsecase)
 	shareHandler := &share.ShareHandler{
+		ShareFeedHandler:             shareFeedHandler,
 		ShareKenFutContentHandler:    shareKenFutContentHandler,
 		ShareNodeHandler:             shareNodeHandler,
 		ShareNavHandler:              shareNavHandler,

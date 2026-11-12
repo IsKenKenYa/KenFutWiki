@@ -4945,6 +4945,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/rss.xml": {
+            "get": {
+                "tags": [
+                    "share"
+                ],
+                "summary": "Blog channel RSS feed",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge base",
+                        "name": "X-KB-ID",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Content language",
+                        "name": "lang",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/share/kenfut/v1/articles/{slug}": {
             "get": {
                 "tags": [
