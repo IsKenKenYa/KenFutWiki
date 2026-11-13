@@ -62,6 +62,27 @@ services:
         aliases:
           - panda-wiki-nats
 
+  caddy:
+    # KB「服务监听方式」同步目标（生产架构：宝塔 nginx → caddy → app/api）。
+    # api 经 CADDY_API 调 admin API 下发反代路由；宿主宝塔 vhost 反代到
+    # 127.0.0.1:9080（caddy 80），流量按域名分流到 app/api/静态资源
+    image: docker.1ms.run/library/caddy:2.10.0-alpine
+    container_name: kenfutwiki-demo-caddy
+    restart: always
+    ports:
+      - "127.0.0.1:9080:80"
+    volumes:
+      # 仅含 admin endpoint（0.0.0.0:2019，容器内 TCP）；站点配置全由 api 下发
+      - ./caddy/caddy.json:/etc/caddy/caddy.json:ro
+      - caddy-data:/data
+    # 镜像默认入口读 /etc/caddy/Caddyfile（空配置），显式指向挂载的 JSON
+    command: ["caddy", "run", "--config", "/etc/caddy/caddy.json"]
+    mem_limit: 64m
+    networks:
+      demo-net:
+        aliases:
+          - panda-wiki-caddy
+
   app:
     image: ${REGISTRY_PREFIX:-docker.1ms.run/iskenkenya}/kenfutwiki-app:demo
     container_name: kenfutwiki-demo-app
@@ -97,6 +118,14 @@ services:
       - NATS_PASSWORD=${NATS_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      # KB 监听配置同步到本栈 caddy（TCP admin，容器内 2019）
+      - CADDY_API=tcp://panda-wiki-caddy:2019
+      # caddy 反代上游：api/app 在同一网络用别名；静态资源走雨云 S3
+      # （caddy 路由 transport 是 http，HTTPS 域名需带 443 端口；demo 桶
+      # 自定义名走 S3_PUBLIC_URL 直连，此 upstream 仅保证配置完整）
+      - CADDY_UPSTREAM_API=panda-wiki-api:8000
+      - CADDY_UPSTREAM_APP=panda-wiki-app:3010
+      - CADDY_UPSTREAM_STATIC=${CADDY_UPSTREAM_STATIC}
       - RAG_CT_RAG_BASE_URL=${RAG_CT_RAG_BASE_URL}
       - RAG_CT_RAG_API_KEY=${RAG_CT_RAG_API_KEY}
       # 对象存储：雨云 S3（demo 专用 bucket 按需在管理端存储页配置）
@@ -163,3 +192,5 @@ volumes:
     name: kenfutwiki-demo-pg-data
   nats-data:
     name: kenfutwiki-demo-nats-data
+  caddy-data:
+    name: kenfutwiki-demo-caddy-data
