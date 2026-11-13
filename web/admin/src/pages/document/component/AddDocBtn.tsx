@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddDocByType from './AddDocByType';
 import DocAddByCustomText from './DocAddByCustomText';
+import TemplatesDialog from './TemplatesDialog';
 
 interface InputContentProps {
   exportFile?: boolean;
@@ -32,6 +33,7 @@ const AddDocBtn = ({
 }: InputContentProps) => {
   const [customDocOpen, setCustomDocOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
   const [key, setKey] = useState<ConstsCrawlerSource | null>(null);
   const [docFileKey, setDocFileKey] = useState<1 | 2>(1);
   const { t } = useTranslation();
@@ -52,6 +54,11 @@ const AddDocBtn = ({
         setDocFileKey(2);
         setCustomDocOpen(true);
       },
+    },
+    {
+      key: 'template',
+      label: t('doc.templates.entry'),
+      onClick: () => setTemplatesOpen(true),
     },
     ...(exportFile
       ? [
@@ -198,6 +205,11 @@ const AddDocBtn = ({
           scrollTo?.(node.id);
         }}
         onClose={() => setCustomDocOpen(false)}
+      />
+      <TemplatesDialog
+        open={templatesOpen}
+        onClose={() => setTemplatesOpen(false)}
+        refresh={refresh}
       />
     </Box>
   );

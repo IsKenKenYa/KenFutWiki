@@ -23,6 +23,7 @@ var ProviderSet = wire.NewSet(
 	NewKenFutVoteUsecase,
 	NewLLMUsecase,
 	NewNodeUsecase,
+	NewNodeTemplateUsecase,
 	NewAppUsecase,
 	NewConversationUsecase,
 	NewUserUsecase,

@@ -977,6 +977,16 @@ export interface DomainCreateNodeReq {
   type: 1 | 2;
 }
 
+export interface DomainCreateNodeTemplateReq {
+  /** @maxLength 1000000 */
+  content?: string;
+  content_type?: "md" | "html";
+  /** @maxLength 120 */
+  name: string;
+  /** @maxLength 500 */
+  summary?: string;
+}
+
 export interface DomainDirDocConfig {
   bg_color?: string;
   title?: string;
@@ -1455,6 +1465,19 @@ export interface DomainNodeSummaryReq {
   kb_id: string;
 }
 
+export interface DomainNodeTemplate {
+  content?: string;
+  content_type?: string;
+  created_at?: string;
+  creator_id?: string;
+  creator_name?: string;
+  id?: string;
+  kb_id?: string;
+  name?: string;
+  summary?: string;
+  updated_at?: string;
+}
+
 export interface DomainNodeTranslation {
   /** Channel 译本最新发布内容的 channel（docs/article），决定 URL 形态 */
   channel?: string;
@@ -1852,6 +1875,16 @@ export interface DomainUpdateNodeReq {
   name?: string;
   nav_id?: string;
   position?: number;
+  summary?: string;
+}
+
+export interface DomainUpdateNodeTemplateReq {
+  /** @maxLength 1000000 */
+  content?: string;
+  content_type?: "md" | "html";
+  /** @maxLength 120 */
+  name: string;
+  /** @maxLength 500 */
   summary?: string;
 }
 
@@ -2755,6 +2788,23 @@ export interface GetApiV1NodeRecycleBinParams {
 
 export interface GetApiV1NodeStatsParams {
   kb_id: string;
+}
+
+export interface GetApiV1NodeTemplateListParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+}
+
+export interface PutApiV1NodeTemplateIdParams {
+  /** Template ID */
+  id: string;
+}
+
+export interface DeleteApiV1NodeTemplateIdParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+  /** Template ID */
+  id: string;
 }
 
 export interface GetApiV1StatBrowsersParams {

@@ -14,6 +14,7 @@ type APIHandlers struct {
 	UserHandler              *UserHandler
 	KnowledgeBaseHandler     *KnowledgeBaseHandler
 	NodeHandler              *NodeHandler
+	NodeTemplateHandler      *NodeTemplateHandler
 	AppHandler               *AppHandler
 	FileHandler              *FileHandler
 	ModelHandler             *ModelHandler
@@ -41,6 +42,7 @@ var ProviderSet = wire.NewSet(
 	NewKenFutContentHandler,
 	NewKenFutIntegrationHandler,
 	NewNodeHandler,
+	NewNodeTemplateHandler,
 	NewAppHandler,
 	NewConversationHandler,
 	NewUserHandler,

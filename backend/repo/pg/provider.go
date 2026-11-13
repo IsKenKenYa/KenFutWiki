@@ -13,6 +13,7 @@ var ProviderSet = wire.NewSet(
 	NewKenFutIntegrationRepository,
 	NewKenFutVoteRepository,
 	NewNodeRepository,
+	NewNodeTemplateRepository,
 	NewAppRepository,
 	NewConversationRepository,
 	NewUserRepository,

@@ -46,6 +46,7 @@ export function useDocTreeMenu(
     handleRestudy,
     handleProperties,
     handleFrontDoc,
+    handleSaveTemplate,
   } = handlers;
 
   return useCallback(
@@ -120,6 +121,11 @@ export function useDocTreeMenu(
             onClick: () => handleProperties(item),
           },
           {
+            label: t('doc.templates.saveAs'),
+            key: 'save_template',
+            onClick: () => handleSaveTemplate(item),
+          },
+          {
             label: t('editor.viewOnSite'),
             key: 'front_doc',
             onClick: () => handleFrontDoc(item.id),
@@ -151,6 +157,7 @@ export function useDocTreeMenu(
       handleRestudy,
       handleProperties,
       handleFrontDoc,
+      handleSaveTemplate,
     ],
   );
 }

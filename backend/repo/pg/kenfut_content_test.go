@@ -55,7 +55,7 @@ func contentTestDB(t *testing.T) *storePG.DB {
 		sqlBase, _ := base.DB()
 		_ = sqlBase.Close()
 	})
-	if err := db.AutoMigrate(&domain.KnowledgeBase{}, &domain.Node{}, &domain.NodeRelease{}, &domain.KBRelease{}, &domain.KBReleaseNodeRelease{}, &domain.Nav{}, &domain.NavRelease{}, &domain.NodeStats{}, &domain.StatPage{}); err != nil {
+	if err := db.AutoMigrate(&domain.KnowledgeBase{}, &domain.Node{}, &domain.NodeRelease{}, &domain.KBRelease{}, &domain.KBReleaseNodeRelease{}, &domain.Nav{}, &domain.NavRelease{}, &domain.NodeStats{}, &domain.StatPage{}, &domain.NodeTemplate{}); err != nil {
 		t.Fatal(err)
 	}
 	migration, err := os.ReadFile("../../store/pg/kenfut_migration/000001_content.up.sql")

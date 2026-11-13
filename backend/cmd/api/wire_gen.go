@@ -103,6 +103,9 @@ func createApp() (*App, error) {
 	userHandler := v1.NewUserHandler(echo, baseHandler, logger, userUsecase, authMiddleware, configConfig, cacheCache)
 	knowledgeBaseHandler := v1.NewKnowledgeBaseHandler(baseHandler, echo, knowledgeBaseUsecase, llmUsecase, authMiddleware, logger)
 	nodeHandler := v1.NewNodeHandler(baseHandler, echo, nodeUsecase, authMiddleware, logger)
+	nodeTemplateRepository := pg2.NewNodeTemplateRepository(db)
+	nodeTemplateUsecase := usecase.NewNodeTemplateUsecase(nodeTemplateRepository)
+	nodeTemplateHandler := v1.NewNodeTemplateHandler(echo, baseHandler, authMiddleware, nodeTemplateUsecase)
 	geoRepo := cache2.NewGeoCache(cacheCache, db, logger)
 	ipdbIPDB, err := ipdb.NewIPDB(configConfig, logger)
 	if err != nil {
@@ -169,6 +172,7 @@ func createApp() (*App, error) {
 		UserHandler:              userHandler,
 		KnowledgeBaseHandler:     knowledgeBaseHandler,
 		NodeHandler:              nodeHandler,
+		NodeTemplateHandler:      nodeTemplateHandler,
 		AppHandler:               appHandler,
 		FileHandler:              fileHandler,
 		ModelHandler:             modelHandler,

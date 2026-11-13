@@ -4217,6 +4217,171 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/node_template": {
+            "post": {
+                "description": "保存一份文档模板供新建文档时复制",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "node_template"
+                ],
+                "summary": "创建文档模板",
+                "parameters": [
+                    {
+                        "description": "Template",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.CreateNodeTemplateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/domain.NodeTemplate"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/node_template/list": {
+            "get": {
+                "description": "列出当前知识库的全部文档模板",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "node_template"
+                ],
+                "summary": "文档模板列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge Base ID",
+                        "name": "kb_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/domain.PWResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/domain.NodeTemplate"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/node_template/{id}": {
+            "put": {
+                "description": "修改模板名称、摘要与内容",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "node_template"
+                ],
+                "summary": "更新文档模板",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Template ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Template",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.UpdateNodeTemplateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PWResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除指定的文档模板",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "node_template"
+                ],
+                "summary": "删除文档模板",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Knowledge Base ID",
+                        "name": "kb_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Template ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.PWResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/stat/browsers": {
             "get": {
                 "security": [
@@ -10013,6 +10178,33 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.CreateNodeTemplateReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "maxLength": 1000000
+                },
+                "content_type": {
+                    "type": "string",
+                    "enum": [
+                        "md",
+                        "html"
+                    ]
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 120
+                },
+                "summary": {
+                    "type": "string",
+                    "maxLength": 500
+                }
+            }
+        },
         "domain.DirDocConfig": {
             "type": "object",
             "properties": {
@@ -11381,6 +11573,41 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.NodeTemplate": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "content_type": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "creator_id": {
+                    "type": "string"
+                },
+                "creator_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "kb_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.NodeTranslation": {
             "type": "object",
             "properties": {
@@ -12517,6 +12744,33 @@ const docTemplate = `{
                 },
                 "summary": {
                     "type": "string"
+                }
+            }
+        },
+        "domain.UpdateNodeTemplateReq": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "maxLength": 1000000
+                },
+                "content_type": {
+                    "type": "string",
+                    "enum": [
+                        "md",
+                        "html"
+                    ]
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 120
+                },
+                "summary": {
+                    "type": "string",
+                    "maxLength": 500
                 }
             }
         },

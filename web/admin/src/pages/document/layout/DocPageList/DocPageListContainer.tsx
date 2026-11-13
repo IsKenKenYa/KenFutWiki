@@ -1,6 +1,9 @@
 import { ITreeItem } from '@/api';
 import { type DragTreeHandle } from '@/components/Drag/DragTree';
-import { postApiV1NodeRestudy } from '@/request/Node';
+import TemplatesDialog, {
+  type TemplateDraft,
+} from '@/pages/document/component/TemplatesDialog';
+import { getApiV1NodeDetail, postApiV1NodeRestudy } from '@/request/Node';
 import {
   ConstsNodeRagInfoStatus,
   DomainNodeListItemResp,
@@ -43,6 +46,10 @@ const DocPageListContainer = ({
   const [opraData, setOpraData] = useState<DomainNodeListItemResp[]>([]);
   const [statusOpen, setStatusOpen] = useState<'delete' | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [templateDraft, setTemplateDraft] = useState<TemplateDraft | null>(
+    null,
+  );
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [moreSummaryOpen, setMoreSummaryOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
@@ -128,6 +135,30 @@ const DocPageListContainer = ({
     [list, wikiUrl],
   );
 
+  const handleSaveTemplate = useCallback(
+    (item: ITreeItem) => {
+      if (!kb_id) return;
+      getApiV1NodeDetail({ id: item.id, kb_id })
+        .then(detail => {
+          setTemplateDraft({
+            name: item.name,
+            summary: item.summary || detail.data?.meta?.summary || '',
+            content: detail.data?.content || '',
+            content_type: item.content_type || 'md',
+          });
+          setTemplatesOpen(true);
+        })
+        .catch(error =>
+          message.error(
+            error instanceof Error
+              ? error.message
+              : t('common.operationFailed'),
+          ),
+        );
+    },
+    [kb_id, t],
+  );
+
   const menu = useDocTreeMenu({
     handleUrl,
     handleDelete,
@@ -135,6 +166,7 @@ const DocPageListContainer = ({
     handleRestudy,
     handleProperties,
     handleFrontDoc,
+    handleSaveTemplate,
   });
 
   const updateLocalData = useCallback((newData: ITreeItem[]) => {
@@ -295,6 +327,15 @@ const DocPageListContainer = ({
           setOpraData([]);
         }}
         removeDeep={removeDeep}
+      />
+      <TemplatesDialog
+        open={templatesOpen}
+        draft={templateDraft}
+        onClose={() => {
+          setTemplatesOpen(false);
+          setTemplateDraft(null);
+        }}
+        refresh={refresh}
       />
     </>
   );

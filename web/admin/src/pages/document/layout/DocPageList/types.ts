@@ -29,6 +29,7 @@ export interface DocTreeMenuHandlers {
   handleRestudy: (item: ITreeItem) => void;
   handleProperties: (item: ITreeItem) => void;
   handleFrontDoc: (id: string) => void;
+  handleSaveTemplate: (item: ITreeItem) => void;
 }
 
 export type DocTreeMenuFn = (opra: TreeMenuOptions) => TreeMenuItem[];

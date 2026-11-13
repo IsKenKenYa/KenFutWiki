@@ -1765,6 +1765,25 @@ definitions:
     - nav_id
     - type
     type: object
+  domain.CreateNodeTemplateReq:
+    properties:
+      content:
+        maxLength: 1000000
+        type: string
+      content_type:
+        enum:
+        - md
+        - html
+        type: string
+      name:
+        maxLength: 120
+        type: string
+      summary:
+        maxLength: 500
+        type: string
+    required:
+    - name
+    type: object
   domain.DirDocConfig:
     properties:
       bg_color:
@@ -2662,6 +2681,29 @@ definitions:
     - ids
     - kb_id
     type: object
+  domain.NodeTemplate:
+    properties:
+      content:
+        type: string
+      content_type:
+        type: string
+      created_at:
+        type: string
+      creator_id:
+        type: string
+      creator_name:
+        type: string
+      id:
+        type: string
+      kb_id:
+        type: string
+      name:
+        type: string
+      summary:
+        type: string
+      updated_at:
+        type: string
+    type: object
   domain.NodeTranslation:
     properties:
       channel:
@@ -3414,6 +3456,25 @@ definitions:
     required:
     - id
     - kb_id
+    type: object
+  domain.UpdateNodeTemplateReq:
+    properties:
+      content:
+        maxLength: 1000000
+        type: string
+      content_type:
+        enum:
+        - md
+        - html
+        type: string
+      name:
+        maxLength: 120
+        type: string
+      summary:
+        maxLength: 500
+        type: string
+    required:
+    - name
     type: object
   domain.UploadByUrlReq:
     properties:
@@ -7080,6 +7141,109 @@ paths:
       summary: Stream Summary Node
       tags:
       - node
+  /api/v1/node_template:
+    post:
+      consumes:
+      - application/json
+      description: 保存一份文档模板供新建文档时复制
+      parameters:
+      - description: Template
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateNodeTemplateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.NodeTemplate'
+              type: object
+      summary: 创建文档模板
+      tags:
+      - node_template
+  /api/v1/node_template/{id}:
+    delete:
+      description: 删除指定的文档模板
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      - description: Template ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      summary: 删除文档模板
+      tags:
+      - node_template
+    put:
+      consumes:
+      - application/json
+      description: 修改模板名称、摘要与内容
+      parameters:
+      - description: Template ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Template
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateNodeTemplateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      summary: 更新文档模板
+      tags:
+      - node_template
+  /api/v1/node_template/list:
+    get:
+      description: 列出当前知识库的全部文档模板
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.NodeTemplate'
+                  type: array
+              type: object
+      summary: 文档模板列表
+      tags:
+      - node_template
   /api/v1/stat/browsers:
     get:
       consumes:
