@@ -1379,6 +1379,8 @@ export interface DomainNodeGroupDetail {
 }
 
 export interface DomainNodeListItemResp {
+  /** Channel 内容展示入口（docs/article/both），来自运营元数据草稿，默认 docs */
+  channel?: string;
   content_type?: string;
   created_at?: string;
   creator?: string;

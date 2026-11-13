@@ -590,11 +590,30 @@ export function ContentMetadataButton({
   onSaved?: () => void;
 }) {
   const { t } = useTranslation();
+  const { kb_id } = useAppSelector(state => state.config);
   const [open, setOpen] = useState(false);
+  const [channel, setChannel] = useState<string>('docs');
+
+  // 按当前内容的展示入口给出对应名称，避免文档也显示“文章设置”
+  useEffect(() => {
+    if (!nodeId || !kb_id) return;
+    let active = true;
+    getMetadata(nodeId, kb_id)
+      .then(metadata => {
+        if (active) setChannel(metadata.channel || 'docs');
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [nodeId, kb_id, open]);
+
   return (
     <>
       <Button size='small' onClick={() => setOpen(true)}>
-        {t('kenfut.metadata.articleSettings')}
+        {channel === 'article' || channel === 'both'
+          ? t('kenfut.metadata.articleSettings')
+          : t('kenfut.metadata.contentSettings')}
       </Button>
       <ContentMetadataEditor
         nodeId={nodeId}

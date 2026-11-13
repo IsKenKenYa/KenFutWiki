@@ -247,6 +247,8 @@ type NodeListItemResp struct {
 	Editor             string          `json:"editor"`
 	PublisherId        string          `json:"publisher_id" gorm:"-"`
 	Permissions        NodePermissions `json:"permissions" gorm:"type:jsonb"`
+	// Channel 内容展示入口（docs/article/both），来自运营元数据草稿，默认 docs
+	Channel string `json:"channel"`
 }
 
 type NodeContentChunk struct {

@@ -207,6 +207,8 @@ export interface ITreeItem {
   permissions?: DomainNodePermissions;
   collapsed?: boolean;
   lang?: string;
+  /** 内容展示入口：docs 文档目录、article 文章频道、both 两者 */
+  channel?: string;
 }
 
 export interface NodeReleaseItem {

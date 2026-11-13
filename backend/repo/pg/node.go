@@ -1613,8 +1613,9 @@ func (r *NodeRepository) GetNodeListByStatus(ctx context.Context, kbId, status, 
 		Model(&domain.Node{}).
 		Joins("LEFT JOIN users cu ON nodes.creator_id = cu.id").
 		Joins("LEFT JOIN users eu ON nodes.editor_id = eu.id").
+		Joins("LEFT JOIN kenfut_content_metadata kcm ON kcm.node_id = nodes.id AND kcm.kb_id = nodes.kb_id").
 		Where("nodes.kb_id = ?", kbId).
-		Select("cu.account AS creator, eu.account AS editor, nodes.editor_id, nodes.nav_id, nodes.rag_info, nodes.creator_id, nodes.id, nodes.permissions, nodes.type, nodes.status, nodes.name, nodes.parent_id, nodes.position, nodes.created_at, nodes.edit_time as updated_at, nodes.meta->>'summary' as summary, nodes.meta->>'emoji' as emoji, nodes.meta->>'content_type' as content_type, nodes.lang, nodes.translation_group_id")
+		Select("cu.account AS creator, eu.account AS editor, nodes.editor_id, nodes.nav_id, nodes.rag_info, nodes.creator_id, nodes.id, nodes.permissions, nodes.type, nodes.status, nodes.name, nodes.parent_id, nodes.position, nodes.created_at, nodes.edit_time as updated_at, nodes.meta->>'summary' as summary, nodes.meta->>'emoji' as emoji, nodes.meta->>'content_type' as content_type, nodes.lang, nodes.translation_group_id, COALESCE(kcm.metadata->>'channel','docs') AS channel")
 
 	if search != "" {
 		searchPattern := "%" + search + "%"

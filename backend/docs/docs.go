@@ -11560,6 +11560,10 @@ const docTemplate = `{
         "domain.NodeListItemResp": {
             "type": "object",
             "properties": {
+                "channel": {
+                    "description": "Channel 内容展示入口（docs/article/both），来自运营元数据草稿，默认 docs",
+                    "type": "string"
+                },
                 "content_type": {
                     "type": "string"
                 },

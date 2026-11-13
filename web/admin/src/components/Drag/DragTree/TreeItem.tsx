@@ -556,6 +556,32 @@ const TreeItem = React.forwardRef<
                             {item.lang}
                           </Box>
                         )}
+                        {item.type === 2 &&
+                          (item.channel === 'article' ||
+                            item.channel === 'both') && (
+                            <Box
+                              component={'span'}
+                              sx={{
+                                fontSize: 10,
+                                color: 'white',
+                                background:
+                                  item.channel === 'both'
+                                    ? 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)'
+                                    : 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)',
+                                px: 1,
+                                ml: 1,
+                                fontWeight: '500',
+                                borderRadius: '4px',
+                                height: '14px',
+                                lineHeight: '14px',
+                                display: 'inline-block',
+                              }}
+                            >
+                              {item.channel === 'both'
+                                ? t('doc.channelBoth')
+                                : t('doc.channelArticle')}
+                            </Box>
+                          )}
                       </Box>
                     </>
                   )}

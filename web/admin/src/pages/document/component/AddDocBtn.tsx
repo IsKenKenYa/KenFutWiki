@@ -36,6 +36,7 @@ const AddDocBtn = ({
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [key, setKey] = useState<ConstsCrawlerSource | null>(null);
   const [docFileKey, setDocFileKey] = useState<1 | 2>(1);
+  const [articleIntent, setArticleIntent] = useState(false);
   const { t } = useTranslation();
 
   const menuItems: TreeMenuItem[] = [
@@ -44,6 +45,7 @@ const AddDocBtn = ({
       label: t('doc.createFolder'),
       onClick: () => {
         setDocFileKey(1);
+        setArticleIntent(false);
         setCustomDocOpen(true);
       },
     },
@@ -52,6 +54,16 @@ const AddDocBtn = ({
       label: t('doc.createDocument'),
       onClick: () => {
         setDocFileKey(2);
+        setArticleIntent(false);
+        setCustomDocOpen(true);
+      },
+    },
+    {
+      key: 'article',
+      label: t('doc.createArticle'),
+      onClick: () => {
+        setDocFileKey(2);
+        setArticleIntent(true);
         setCustomDocOpen(true);
       },
     },
@@ -198,13 +210,17 @@ const AddDocBtn = ({
       )}
       <DocAddByCustomText
         type={docFileKey}
+        article={articleIntent}
         open={customDocOpen}
         refresh={refresh}
         onCreated={node => {
           createLocal?.(node);
           scrollTo?.(node.id);
         }}
-        onClose={() => setCustomDocOpen(false)}
+        onClose={() => {
+          setCustomDocOpen(false);
+          setArticleIntent(false);
+        }}
       />
       <TemplatesDialog
         open={templatesOpen}

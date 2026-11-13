@@ -110,6 +110,7 @@ export function convertToTree(data: DomainNodeListItemResp[]) {
       emoji: item.emoji,
       content_type: item.content_type,
       type: item.type!,
+      channel: item.channel,
       rag_status: item.rag_info?.status,
       rag_message: item.rag_info?.message,
       parentId: item.parent_id,
