@@ -44,7 +44,7 @@ const TemplatesDialog = ({
     if (!open || !kb_id) return;
     setLoading(true);
     getApiV1NodeTemplateList({ kb_id })
-      .then(res => setItems(res.data || []))
+      .then(res => setItems(res || []))
       .catch(error =>
         message.error(
           error instanceof Error ? error.message : t('common.operationFailed'),
@@ -64,12 +64,12 @@ const TemplatesDialog = ({
     if (!kb_id) return;
     setBusy(true);
     postApiV1Node({
-      name: item.name,
+      name: item.name || '',
       content: item.content,
       kb_id,
       nav_id: nav_id || '',
       type: 2,
-      content_type: item.content_type,
+      content_type: item.content_type || 'md',
       lang: 'zh',
     })
       .then(({ id }) => {
@@ -109,7 +109,7 @@ const TemplatesDialog = ({
       name: editing.name.trim(),
       summary: editing.summary,
       content: editing.content,
-      content_type: editing.content_type || 'md',
+      content_type: editing.content_type === 'html' ? 'html' : 'md',
     })
       .then(() => {
         message.success(t('common.saveSuccess'));

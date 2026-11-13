@@ -142,8 +142,8 @@ const DocPageListContainer = ({
         .then(detail => {
           setTemplateDraft({
             name: item.name,
-            summary: item.summary || detail.data?.meta?.summary || '',
-            content: detail.data?.content || '',
+            summary: item.summary || detail?.meta?.summary || '',
+            content: detail?.content || '',
             content_type: item.content_type || 'md',
           });
           setTemplatesOpen(true);

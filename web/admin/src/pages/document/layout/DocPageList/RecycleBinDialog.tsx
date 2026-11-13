@@ -28,7 +28,7 @@ const RecycleBinDialog = ({
     if (!open || !kb_id) return;
     setLoading(true);
     getApiV1NodeRecycleBin({ kb_id })
-      .then(res => setItems(res.data || []))
+      .then(res => setItems(res || []))
       .catch(error =>
         message.error(
           error instanceof Error ? error.message : t('common.operationFailed'),

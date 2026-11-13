@@ -7,7 +7,7 @@ import {
   putApiV1WebhookId,
 } from '@/request/Webhook';
 import { DomainWebhook, DomainWebhookDelivery } from '@/request/types';
-import { Button, Chip, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Chip, Stack, TextField, Typography } from '@mui/material';
 import { message, Modal } from '@ctzhian/ui';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
@@ -65,7 +65,7 @@ const CardWebhook = () => {
     if (!kb_id) return;
     setLoading(true);
     getApiV1WebhookList({ kb_id })
-      .then(res => setItems(res.data || []))
+      .then(res => setItems(res || []))
       .catch(error =>
         message.error(
           error instanceof Error ? error.message : t('common.operationFailed'),
@@ -147,7 +147,7 @@ const CardWebhook = () => {
     if (!kb_id || !item.id) return;
     setDeliveriesFor(item);
     getApiV1WebhookIdDeliveries({ id: item.id, kb_id })
-      .then(res => setDeliveries(res.data || []))
+      .then(res => setDeliveries(res || []))
       .catch(error =>
         message.error(
           error instanceof Error ? error.message : t('common.operationFailed'),
@@ -379,12 +379,13 @@ const CardWebhook = () => {
                 {dayjs(delivery.created_at).format('MM-DD HH:mm:ss')}
               </Typography>
               <Typography variant='body2' sx={{ flex: 1 }}>
-                {eventLabel(delivery.event, t)}
+                {eventLabel(delivery.event || '', t)}
               </Typography>
               <Typography
                 variant='body2'
                 color={
-                  delivery.status_code >= 200 && delivery.status_code < 300
+                  (delivery.status_code || 0) >= 200 &&
+                  (delivery.status_code || 0) < 300
                     ? 'success.main'
                     : 'error.main'
                 }

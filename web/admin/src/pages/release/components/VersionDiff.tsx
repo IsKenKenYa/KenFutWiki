@@ -104,8 +104,8 @@ const VersionDiff = ({
     ])
       .then(([before, after]) => {
         if (!active) return;
-        const beforeMap = toContentMap(before.data?.data);
-        const afterMap = toContentMap(after.data?.data);
+        const beforeMap = toContentMap(before?.data);
+        const afterMap = toContentMap(after?.data);
         setBaseMap(beforeMap);
         setTargetMap(afterMap);
         // 默认选中第一个有差异的文档
