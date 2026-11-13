@@ -163,6 +163,7 @@
     "createdAgo": "created {time}",
     "updatedAgo": "updated {time}",
     "characterCount": "{count} characters",
+    "readingMinutes": "{count} min read",
     "views": "{count} views",
     "copyMarkdown": "Copy as Markdown",
     "untitled": "Untitled",

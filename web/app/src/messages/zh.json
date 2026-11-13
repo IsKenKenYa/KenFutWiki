@@ -163,6 +163,7 @@
     "createdAgo": "{time}创建",
     "updatedAgo": "{time}更新",
     "characterCount": "{count} 字",
+    "readingMinutes": "预计阅读 {count} 分钟",
     "views": "浏览量 {count}",
     "copyMarkdown": "复制 MarkDown 格式",
     "untitled": "未命名",

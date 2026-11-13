@@ -7,6 +7,7 @@ import ScrollToTopFab from '@/components/scrollToTopFab';
 import { useBasePath } from '@/hooks/useBasePath';
 import { getDocContentSx } from '@/utils/getDocContentSx';
 import useCopy from '@/hooks/useCopy';
+import { estimateReadingMinutes } from '@/utils/readingTime';
 import { useStore } from '@/provider';
 import { ConstsCopySetting } from '@/request/types';
 import { TocList, useTiptap } from '@ctzhian/tiptap';
@@ -38,6 +39,7 @@ const Doc = ({
   const [loading, setLoading] = useState(true);
   const [headings, setHeadings] = useState<TocList>([]);
   const [characterCount, setCharacterCount] = useState(0);
+  const [readingMinutes, setReadingMinutes] = useState(0);
   const pathname = usePathname();
   const isMarkdown = useMemo(() => {
     return node?.meta?.content_type === 'md';
@@ -87,6 +89,15 @@ const Doc = ({
         node?.content || '',
         isMarkdown ? 'markdown' : 'html',
       );
+      if (node?.type === 2) {
+        setCharacterCount(
+          (editorRef.editor.storage as any).characterCount.characters(),
+        );
+        setReadingMinutes(estimateReadingMinutes(editorRef.editor.getText()));
+      } else {
+        setCharacterCount(0);
+        setReadingMinutes(0);
+      }
     });
     return () => cancelAnimationFrame(frame);
     // Synchronize the editor instance, not the changing hook wrapper.
@@ -138,6 +149,7 @@ const Doc = ({
               docWidth={docWidth}
               editorRef={editorRef}
               characterCount={characterCount}
+              readingMinutes={readingMinutes}
               publishedContent={publishedContent}
               pageTargets={pageTargets}
               articleLayout={articleLayout}

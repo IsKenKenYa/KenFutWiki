@@ -13,6 +13,7 @@ import { IconFuzhi, IconWenjian, IconWenjianjia } from '@panda-wiki/icons';
 interface DocMetaInfoProps {
   info: V1ShareNodeDetailResp;
   characterCount?: number;
+  readingMinutes?: number;
   kbDetailCopySetting?: string;
   onCopyDocMd: () => void;
   publication?: PublishedContent;
@@ -22,6 +23,7 @@ interface DocMetaInfoProps {
 const DocMetaInfo = ({
   info,
   characterCount,
+  readingMinutes,
   kbDetailCopySetting,
   onCopyDocMd,
   publication,
@@ -114,6 +116,12 @@ const DocMetaInfo = ({
             <>
               <Box>·</Box>
               <Box>{t('characterCount', { count: characterCount })}</Box>
+            </>
+          )}
+          {!!readingMinutes && readingMinutes > 0 && (
+            <>
+              <Box>·</Box>
+              <Box>{t('readingMinutes', { count: readingMinutes })}</Box>
             </>
           )}
           {showPV && (publication?.pv ?? info.pv ?? 0) > 0 && (

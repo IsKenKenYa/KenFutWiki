@@ -32,6 +32,7 @@ const DocContent = ({
   editorRef,
   commentList: propsCommentList,
   characterCount,
+  readingMinutes,
   publishedContent,
   pageTargets,
   articleLayout = false,
@@ -41,6 +42,7 @@ const DocContent = ({
   editorRef: UseTiptapReturn;
   commentList?: any[];
   characterCount?: number;
+  readingMinutes?: number;
   publishedContent?: PublishedContent;
   pageTargets?: PageTarget[];
   articleLayout?: boolean;
@@ -189,6 +191,7 @@ const DocContent = ({
       <DocMetaInfo
         info={info}
         characterCount={characterCount}
+        readingMinutes={readingMinutes}
         publication={publishedContent}
         showPV={kbDetail?.settings?.stats_setting?.pv_enable === true}
         kbDetailCopySetting={kbDetail?.settings?.copy_setting}
