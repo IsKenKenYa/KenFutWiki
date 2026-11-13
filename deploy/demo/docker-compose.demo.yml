@@ -1,0 +1,148 @@
+# KenFutWiki demo 站栈（LHY-FutureServer，kenfutwiki 用户维护）
+# 域名映射：kenfutwiki-demo.future-you.top → app(3010)，wiki.future-you.top → nginx admin(8080)
+# 宿主 80/443 归宝塔 nginx，由 vhost 反代到本栈；本栈不占用宿主低端口
+# 镜像经 docker.1ms.run 加速（服务器直连 Docker Hub 超时）
+# 数据隔离：独立 postgres/redis/nats 实例 + 独立卷，不碰 jaderun 的任何容器
+# 镜像 tag 固定 demo，CI push main/dev 后自动 pull 更新
+name: kenfutwiki-demo
+
+x-image: &image-base docker.1ms.run/iskenkenya
+
+services:
+  postgres:
+    # zhparser 中文分词变体（全文检索依赖）；chaitin 杭州 registry 国内直连可用，
+    # 1ms.run 加速只覆盖 Docker Hub，私有 registry 路径透传失败
+    image: chaitin-registry.cn-hangzhou.cr.aliyuncs.com/chaitin/postgres-zhparser:17.6-bookworm
+    container_name: kenfutwiki-demo-postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=panda-wiki
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=panda-wiki
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "panda-wiki", "-d", "panda-wiki"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    mem_limit: 512m
+    networks:
+      demo-net:
+        aliases:
+          - panda-wiki-postgres
+
+  redis:
+    image: docker.1ms.run/library/redis:7.4.2-alpine
+    container_name: kenfutwiki-demo-redis
+    restart: always
+    mem_limit: 128m
+    networks:
+      demo-net:
+        aliases:
+          - panda-wiki-redis
+
+  nats:
+    # 用官方发行版的 chaitin 变体（内置 jetstream 配置），与生产 compose 一致
+    image: chaitin-registry.cn-hangzhou.cr.aliyuncs.com/chaitin/panda-wiki-nats:2.11.3-alpine
+    container_name: kenfutwiki-demo-nats
+    restart: always
+    command: ["nats-server", "-c", "/etc/nats/nats.conf", "--user", "panda-wiki", "--pass", "${NATS_PASSWORD}"]
+    volumes:
+      - nats-data:/data
+    mem_limit: 128m
+    networks:
+      demo-net:
+        aliases:
+          - panda-wiki-nats
+
+  app:
+    image: ${REGISTRY_PREFIX:-docker.1ms.run/iskenkenya}/kenfutwiki-app:demo
+    container_name: kenfutwiki-demo-app
+    restart: always
+    depends_on:
+      - api
+    mem_limit: 400m
+    networks:
+      demo-net:
+        aliases:
+          - panda-wiki-app
+
+  api:
+    image: ${REGISTRY_PREFIX:-docker.1ms.run/iskenkenya}/kenfutwiki-api:demo
+    container_name: kenfutwiki-demo-api
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_started
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - NATS_PASSWORD=${NATS_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - RAG_CT_RAG_BASE_URL=${RAG_CT_RAG_BASE_URL}
+      - RAG_CT_RAG_API_KEY=${RAG_CT_RAG_API_KEY}
+      # 对象存储：雨云 S3（demo 专用 bucket 按需在管理端存储页配置）
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+      - S3_SECRET_KEY=${S3_SECRET_KEY}
+      - S3_BUCKET=${S3_BUCKET}
+      - S3_REGION=${S3_REGION}
+      - S3_SECURE=${S3_SECURE}
+      - S3_PUBLIC_URL=${S3_PUBLIC_URL}
+      - GOMEMLIMIT=350MiB
+    mem_limit: 450m
+    networks:
+      demo-net:
+        aliases:
+          # admin 镜像内置 nginx 的 upstream 指向 panda-wiki-api:8000
+          - panda-wiki-api
+
+  consumer:
+    image: ${REGISTRY_PREFIX:-docker.1ms.run/iskenkenya}/kenfutwiki-consumer:demo
+    container_name: kenfutwiki-demo-consumer
+    restart: always
+    depends_on:
+      - api
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - NATS_PASSWORD=${NATS_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - RAG_CT_RAG_BASE_URL=${RAG_CT_RAG_BASE_URL}
+      - RAG_CT_RAG_API_KEY=${RAG_CT_RAG_API_KEY}
+      - S3_SECRET_KEY=${S3_SECRET_KEY}
+      - GOMEMLIMIT=200MiB
+    mem_limit: 260m
+    networks:
+      demo-net: {}
+
+  admin:
+    # admin 镜像 = nginx + 静态管理端；内部监听 8080（自签证书 ssl http2）
+    image: ${REGISTRY_PREFIX:-docker.1ms.run/iskenkenya}/kenfutwiki-nginx:demo
+    container_name: kenfutwiki-demo-admin
+    restart: always
+    depends_on:
+      - api
+    mem_limit: 64m
+    networks:
+      demo-net:
+        aliases:
+          # admin 内置 nginx 反代 /static-file/ 到 panda-wiki-minio:9000；
+          # demo 用雨云 S3，该路由不可达但不影响管理端其余功能
+          - panda-wiki-nginx
+
+networks:
+  demo-net:
+    name: kenfutwiki-demo-net
+    driver: bridge
+
+volumes:
+  postgres-data:
+    name: kenfutwiki-demo-pg-data
+  nats-data:
+    name: kenfutwiki-demo-nats-data
