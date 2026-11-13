@@ -37,11 +37,16 @@ services:
     image: docker.1ms.run/library/redis:7.4.2-alpine
     container_name: kenfutwiki-demo-redis
     restart: always
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
     mem_limit: 128m
     networks:
       demo-net:
         aliases:
           - panda-wiki-redis
+          # admin 内置 nginx 的 upstream 硬编码 panda-wiki-minio:9000，
+          # 启动时 DNS 必须可解析；demo 用雨云 S3 直连，此别名仅保证
+          # nginx 能启动（/static-file/ 请求会打到 redis 被拒，属预期）
+          - panda-wiki-minio
 
   nats:
     # 用官方发行版的 chaitin 变体（内置 jetstream 配置），与生产 compose 一致
@@ -135,8 +140,8 @@ services:
     networks:
       demo-net:
         aliases:
-          # admin 内置 nginx 反代 /static-file/ 到 panda-wiki-minio:9000；
-          # demo 用雨云 S3，该路由不可达但不影响管理端其余功能
+          # admin 内置 nginx upstream 硬编码 panda-wiki-api / panda-wiki-minio，
+          # 启动时必须可解析（minio 别名挂在 redis 上，见其注释）
           - panda-wiki-nginx
 
 networks:

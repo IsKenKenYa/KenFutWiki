@@ -26,7 +26,11 @@ func NewRagDocUpdateHandler(consumer mq.MQConsumer, logger *log.Logger, nodeRepo
 		nodeRepo: nodeRepo,
 	}
 	if err := consumer.RegisterHandler(domain.RagDocUpdateTopic, h.HandleRagDocUpdate); err != nil {
-		return nil, err
+		// raglite.events 流由 raglite 服务在其所连的 NATS 上创建。
+		// 当 raglite 与本 consumer 不同实例（如 demo 站跨机共用远端 raglite）时，
+		// 本实例 NATS 上不存在该流，订阅必然失败；此时降级为仅记录告警，
+		// 代价是文档同步状态不自动刷新，其余功能不受影响。
+		logger.Warn("skip rag doc update subscription (raglite event stream not reachable)", log.Error(err))
 	}
 	return h, nil
 }
