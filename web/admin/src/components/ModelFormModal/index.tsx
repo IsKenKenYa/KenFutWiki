@@ -4,6 +4,7 @@ import type {
   DomainModelParam,
   ModelListItem,
 } from '@/api/type';
+import { ignoreAutofill, ignorePasswordAutofill } from '@/constant/autofill';
 import { ModelProvider } from '@/constant/enums';
 import type { ModelMeta } from '@/utils/modelResolve';
 import { presetModelIds, resolveModelMeta } from '@/utils/modelResolve';
@@ -480,6 +481,12 @@ const ModelFormModal = ({
             }
             value={baseUrl}
             onChange={e => setBaseUrl(e.target.value)}
+            slotProps={{
+              htmlInput: {
+                ...ignoreAutofill,
+                name: 'kfw-model-base-url',
+              },
+            }}
           />
           <Button
             size='small'
@@ -511,6 +518,10 @@ const ModelFormModal = ({
                   </IconButton>
                 </InputAdornment>
               ),
+            },
+            htmlInput: {
+              ...ignorePasswordAutofill,
+              name: 'kfw-model-api-key',
             },
           }}
         />

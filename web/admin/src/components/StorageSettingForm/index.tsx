@@ -3,6 +3,7 @@ import {
   DomainStorageSettingDetail,
   DomainStorageTestResult,
 } from '@/request/types';
+import { ignorePasswordAutofill } from '@/constant/autofill';
 import {
   postApiV1StorageSetting,
   postApiV1StorageTest,
@@ -245,6 +246,10 @@ const StorageSettingForm = forwardRef<
                 </IconButton>
               </InputAdornment>
             ),
+          },
+          htmlInput: {
+            ...ignorePasswordAutofill,
+            name: 'kfw-storage-secret-key',
           },
         }}
       />

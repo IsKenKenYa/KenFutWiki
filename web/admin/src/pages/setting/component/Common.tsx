@@ -1,4 +1,5 @@
 import Card from '@/components/Card';
+import { ignorePasswordAutofill } from '@/constant/autofill';
 import { ConstsLicenseEdition } from '@/request/types';
 import InfoIcon from '@mui/icons-material/Info';
 import Visibility from '@mui/icons-material/Visibility';
@@ -40,6 +41,11 @@ export const SecretTextField = (props: TextFieldProps) => {
               </IconButton>
             </InputAdornment>
           ),
+        },
+        htmlInput: {
+          ...((props.slotProps?.htmlInput ?? {}) as Record<string, unknown>),
+          ...ignorePasswordAutofill,
+          name: props.name || 'kfw-secret',
         },
       }}
     />
