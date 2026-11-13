@@ -50,12 +50,12 @@ def get_token(username: str, password: str) -> str:
     return data.get("token") or data["jwt_token"]
 
 
-def list_tags(token: str, image: str) -> list:
-    """分页拉取全部 tag，返回 [{name, last_updated}]，按时间新→旧"""
+def list_tags(image: str) -> list:
+    """分页拉取全部 tag（公开仓库匿名可读），返回 [{name, last_updated}]，按时间新→旧"""
     tags = []
     url = f"{HUB_URL}/{image}/tags/?page_size=100"
     while url:
-        req = urllib.request.Request(url, headers={"Authorization": f"JWT {token}"})
+        req = urllib.request.Request(url)
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = json.load(resp)
         for t in data.get("results", []):
@@ -129,7 +129,7 @@ def main() -> None:
     token = get_token(username, password)
     total_deleted = 0
     for image in images:
-        tags = list_tags(token, image)
+        tags = list_tags(image)
         deletions = plan_deletions(tags)
         keep = len(tags) - len(deletions)
         print(f"{image}: 共 {len(tags)} 个 tag，保留 {keep}，删除 {len(deletions)}")
