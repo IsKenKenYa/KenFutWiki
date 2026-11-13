@@ -187,7 +187,7 @@ const CardMCP = ({ kb }: CardMCPProps) => {
   );
 
   return (
-    <Box sx={{ width: 1000, margin: 'auto', pb: 4 }}>
+    <Box sx={{ width: '100%', maxWidth: 1200, margin: 'auto', pb: 4 }}>
       <SettingCardItem
         title={t('setting.mcpTitle')}
         isEdit={isEdit}

@@ -175,7 +175,7 @@ export const FormItem = ({
 
 const StyleSettingCardTitle = styled('div')(({ theme }) => ({
   fontWeight: 'bold',
-  padding: theme.spacing(2, 1.5),
+  padding: theme.spacing(2),
   backgroundColor: theme.palette.background.paper3,
 }));
 
@@ -198,7 +198,7 @@ const StyledSettingCardItem = styled('div')(({ theme }) => ({
   position: 'relative',
   '&:not(:last-child)': {
     borderBottom: `1px solid ${theme.palette.divider}`,
-    paddingBottom: theme.spacing(4),
+    paddingBottom: theme.spacing(3),
   },
 }));
 
@@ -229,6 +229,9 @@ const StyledSettingCardItemContent = styled('div')(({ theme }) => ({
   flexDirection: 'column',
   gap: theme.spacing(2),
   padding: theme.spacing(0, 2),
+  '& .MuiFormControl-root': {
+    maxWidth: 760,
+  },
 }));
 
 const StyledSettingCardItemTitleMore = styled('a')(({ theme }) => ({

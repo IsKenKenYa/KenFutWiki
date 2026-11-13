@@ -515,7 +515,8 @@ const CardFeedback = ({ kb }: CardCommentProps) => {
   return (
     <Box
       sx={{
-        width: 1000,
+        width: '100%',
+        maxWidth: 1200,
         margin: 'auto',
         pb: 4,
       }}

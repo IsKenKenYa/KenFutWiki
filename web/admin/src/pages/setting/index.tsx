@@ -99,11 +99,20 @@ const Setting = () => {
         position: 'relative',
       }}
     >
-      <Card sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
+      <Card sx={{ mb: 2 }}>
         <Tabs
           value={activeTab}
           onChange={(event, newValue) => setActiveTab(newValue as string)}
           aria-label='setting tabs'
+          variant='scrollable'
+          scrollButtons='auto'
+          centered
+          sx={{
+            '& .MuiTab-root': {
+              minWidth: 0,
+              px: 2,
+            },
+          }}
         >
           {SettingTabs.map(tab => (
             <Tab key={tab.id} label={t(tab.label)} value={tab.id} />

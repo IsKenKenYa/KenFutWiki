@@ -344,7 +344,7 @@ const CustomModal = ({
                 height: '64px',
                 borderBottom: '1px solid #ECEEF1',
                 alignItems: 'center',
-                paddingLeft: '20px',
+                pl: 2.5,
               }}
             >
               <Typography
@@ -371,9 +371,9 @@ const CustomModal = ({
                   gap={1}
                   alignItems='center'
                   sx={{
-                    marginLeft: 'auto',
-                    marginRight: '80px',
-                    marginTop: '6px',
+                    ml: 'auto',
+                    mr: 10,
+                    mt: 1,
                   }}
                 >
                   <CusTabs

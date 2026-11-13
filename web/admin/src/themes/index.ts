@@ -148,6 +148,55 @@ const componentStyleOverrides = (
       },
     },
   },
+  MuiAlert: {
+    styleOverrides: {
+      root: {
+        borderRadius: '10px',
+      },
+    },
+  },
+  MuiCard: {
+    styleOverrides: {
+      root: {
+        borderRadius: '10px',
+      },
+    },
+  },
+  MuiPopover: {
+    styleOverrides: {
+      paper: {
+        borderRadius: '10px',
+      },
+    },
+  },
+  MuiAccordion: {
+    styleOverrides: {
+      root: {
+        borderRadius: '10px',
+      },
+    },
+  },
+  MuiDialog: {
+    styleOverrides: {
+      paper: {
+        borderRadius: '12px',
+      },
+    },
+  },
+  MuiSnackbarContent: {
+    styleOverrides: {
+      root: {
+        borderRadius: '10px',
+      },
+    },
+  },
+  MuiTooltip: {
+    styleOverrides: {
+      tooltip: {
+        borderRadius: '6px',
+      },
+    },
+  },
   MuiFormLabel: {
     styleOverrides: {
       root: {

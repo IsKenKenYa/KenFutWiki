@@ -225,7 +225,7 @@ const ApiToken = () => {
             <Stack direction={'row'} alignItems={'center'}>
               <Select
                 size='small'
-                sx={{ width: 120 }}
+                sx={{ width: 180 }}
                 value={it.permission}
                 disabled={!isBusiness || user.role !== 'admin'}
                 onChange={e =>
@@ -448,7 +448,8 @@ const CardKB = () => {
   return (
     <Box
       sx={{
-        width: 1000,
+        width: '100%',
+        maxWidth: 1200,
         margin: 'auto',
         pb: 4,
       }}

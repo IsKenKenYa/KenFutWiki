@@ -235,10 +235,9 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
       : null;
 
     return (
-      <Stack gap={0}>
+      <Stack gap={1.5}>
         <Box
           sx={{
-            pl: 2,
             display: 'flex',
             alignItems: 'flex-start',
           }}
@@ -275,7 +274,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                   gap: 0.5,
                 }}
               >
-                <Box sx={{ color: 'warning.main', fontWeight: 'bold' }}>
+                <Box sx={{ color: 'warning.dark', fontWeight: 'bold' }}>
                   {t('model.vectorHint')}
                 </Box>
               </Box>
@@ -315,7 +314,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                   direction={'row'}
                   alignItems={'center'}
                   gap={1}
-                  sx={{ width: 500 }}
+                  sx={{ minWidth: 0, flexWrap: 'wrap', rowGap: 1 }}
                 >
                   {modelData.chat ? (
                     <>
@@ -403,7 +402,16 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                   {t('model.usageChat')}
                 </Box>
               </Box>
-              <Box sx={{ flexGrow: 1, flexSelf: 'flex-start' }}>
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  minWidth: 0,
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'flex-start',
+                  pr: 2,
+                }}
+              >
                 {modelData.chat ? (
                   <Box
                     sx={{
@@ -416,7 +424,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                         theme.palette.success.main,
                         0.1,
                       ),
-                      color: 'success.main',
+                      color: 'success.dark',
                     }}
                   >
                     {t('model.statusOk')}
@@ -493,7 +501,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                   direction={'row'}
                   alignItems={'center'}
                   gap={1}
-                  sx={{ width: 500 }}
+                  sx={{ minWidth: 0, flexWrap: 'wrap', rowGap: 1 }}
                 >
                   {modelData.embedding ? (
                     <>
@@ -584,7 +592,16 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                   {t('model.usageEmbedding')}
                 </Box>
               </Box>
-              <Box sx={{ flexGrow: 1, flexSelf: 'flex-start' }}>
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  minWidth: 0,
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'flex-start',
+                  pr: 2,
+                }}
+              >
                 {modelData.embedding ? (
                   <Box
                     sx={{
@@ -597,7 +614,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                         theme.palette.success.main,
                         0.1,
                       ),
-                      color: 'success.main',
+                      color: 'success.dark',
                     }}
                   >
                     {t('model.statusOk')}
@@ -674,7 +691,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                   direction={'row'}
                   alignItems={'center'}
                   gap={1}
-                  sx={{ width: 500 }}
+                  sx={{ minWidth: 0, flexWrap: 'wrap', rowGap: 1 }}
                 >
                   {modelData.rerank ? (
                     <>
@@ -765,7 +782,16 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                   {t('model.usageRerank')}
                 </Box>
               </Box>
-              <Box sx={{ flexGrow: 1, flexSelf: 'flex-start' }}>
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  minWidth: 0,
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'flex-start',
+                  pr: 2,
+                }}
+              >
                 {modelData.rerank ? (
                   <Box
                     sx={{
@@ -778,7 +804,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                         theme.palette.success.main,
                         0.1,
                       ),
-                      color: 'success.main',
+                      color: 'success.dark',
                     }}
                   >
                     {t('model.statusOk')}
@@ -855,7 +881,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                   direction={'row'}
                   alignItems={'center'}
                   gap={1}
-                  sx={{ width: 500 }}
+                  sx={{ minWidth: 0, flexWrap: 'wrap', rowGap: 1 }}
                 >
                   {modelData.analysis ? (
                     <>
@@ -946,7 +972,16 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                   {t('model.usageAnalysis')}
                 </Box>
               </Box>
-              <Box sx={{ flexGrow: 1, flexSelf: 'flex-start' }}>
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  minWidth: 0,
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'flex-start',
+                  pr: 2,
+                }}
+              >
                 {modelData.analysis ? (
                   <Box
                     sx={{
@@ -959,7 +994,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                         theme.palette.success.main,
                         0.1,
                       ),
-                      color: 'success.main',
+                      color: 'success.dark',
                     }}
                   >
                     {t('model.statusOk')}
@@ -1036,7 +1071,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                   direction={'row'}
                   alignItems={'center'}
                   gap={1}
-                  sx={{ width: 500 }}
+                  sx={{ minWidth: 0, flexWrap: 'wrap', rowGap: 1 }}
                 >
                   {modelData['analysis-vl'] ? (
                     <>
@@ -1138,7 +1173,16 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                   {t('model.usageAnalysisVl')}
                 </Box>
               </Box>
-              <Box sx={{ flexGrow: 1, flexSelf: 'flex-start' }}>
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  minWidth: 0,
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'flex-start',
+                  pr: 2,
+                }}
+              >
                 {modelData['analysis-vl'] ? (
                   <Box
                     sx={{
@@ -1151,7 +1195,7 @@ const ModelConfig = forwardRef<ModelConfigRef, ModelConfigProps>(
                         theme.palette.success.main,
                         0.1,
                       ),
-                      color: 'success.main',
+                      color: 'success.dark',
                     }}
                   >
                     {t('model.statusOk')}

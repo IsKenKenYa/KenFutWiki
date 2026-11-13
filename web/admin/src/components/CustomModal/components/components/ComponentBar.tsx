@@ -254,7 +254,7 @@ const ComponentBar = ({
             sx={{
               justifyContent: 'space-between',
               alignItems: 'center',
-              paddingTop: '19px',
+              pt: 2,
             }}
           >
             <Typography
@@ -267,7 +267,7 @@ const ComponentBar = ({
               {t('customModal.sidebar.colorScheme')}
             </Typography>
           </Stack>
-          <Stack sx={{ pr: '20px', marginTop: '15px' }}>
+          <Stack sx={{ pr: 2.5, mt: 2 }}>
             <Select
               value={
                 THEME_TO_PALETTE[
@@ -326,8 +326,8 @@ const ComponentBar = ({
           sx={{
             justifyContent: 'space-between',
             alignItems: 'center',
-            pr: '20px',
-            paddingTop: '19px',
+            pr: 2.5,
+            pt: 2,
           }}
         >
           <Typography
@@ -464,12 +464,12 @@ const ComponentBar = ({
           <Stack
             direction={'column'}
             sx={{
-              marginTop: '15px',
+              mt: 2,
               overflowY: 'auto',
               flex: 1,
               minHeight: 0,
-              pr: '20px',
-              paddingBottom: '20px',
+              pr: 2.5,
+              pb: 2.5,
             }}
           >
             {components.map(item => (

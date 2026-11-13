@@ -381,7 +381,7 @@ const ModelFormModal = ({
 
   const metaChip =
     metaApplied && meta ? (
-      <Alert severity='success' sx={{ py: 0 }}>
+      <Alert severity='success'>
         {t('model.recognized', { name: meta.name ?? meta.id })}
         {meta.contextWindow
           ? t('model.metaContext', {
@@ -398,9 +398,7 @@ const ModelFormModal = ({
         {t('model.metaEditable')}
       </Alert>
     ) : modelName ? (
-      <Alert severity='info' sx={{ py: 0 }}>
-        {t('model.notInCatalog')}
-      </Alert>
+      <Alert severity='info'>{t('model.notInCatalog')}</Alert>
     ) : null;
 
   return (
@@ -435,10 +433,7 @@ const ModelFormModal = ({
         </Stack>
       }
     >
-      <Stack
-        spacing={2}
-        sx={{ pt: 1, maxHeight: '65vh', overflow: 'auto', pr: 1 }}
-      >
+      <Stack spacing={2} sx={{ pt: 1, maxHeight: '65vh', overflow: 'auto' }}>
         <TextField
           select
           label={t('model.providerLabel')}
@@ -467,7 +462,7 @@ const ModelFormModal = ({
         )}
 
         {reusedFrom && !isEdit && (
-          <Alert severity='info' sx={{ py: 0 }}>
+          <Alert severity='info'>
             {t('model.reusedCredentials', { model: reusedFrom })}
           </Alert>
         )}
@@ -487,10 +482,11 @@ const ModelFormModal = ({
             onChange={e => setBaseUrl(e.target.value)}
           />
           <Button
+            size='small'
             variant='outlined'
             onClick={handleFetchModels}
             disabled={fetching}
-            sx={{ flexShrink: 0 }}
+            sx={{ flexShrink: 0, height: 40 }}
           >
             {fetching ? <CircularProgress size={16} /> : t('model.fetchList')}
           </Button>
@@ -524,7 +520,7 @@ const ModelFormModal = ({
             href={providerConf.modelDocumentUrl}
             target='_blank'
             rel='noreferrer'
-            sx={{ fontSize: 13, alignSelf: 'flex-start' }}
+            sx={{ fontSize: 14, alignSelf: 'flex-start' }}
           >
             {t('model.getApiKey', {
               provider:

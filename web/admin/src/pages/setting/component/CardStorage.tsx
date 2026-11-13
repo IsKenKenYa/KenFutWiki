@@ -53,7 +53,16 @@ const CardStorage = () => {
   };
 
   return (
-    <Box sx={{ width: 640, margin: 'auto', pt: 3, pb: 4 }}>
+    <Box
+      sx={{
+        width: '100%',
+        maxWidth: 1000,
+        margin: 'auto',
+        px: 3,
+        pt: 3,
+        pb: 4,
+      }}
+    >
       <Stack spacing={2} sx={{ mb: 2 }}>
         <Stack direction='row' spacing={1} alignItems='center'>
           <Typography variant='subtitle1' fontWeight='bold'>
