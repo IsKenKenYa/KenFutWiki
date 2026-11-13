@@ -118,6 +118,10 @@ SUCCESS    密码: **********************
 
 <img src="/images/wechat.png" width="300" />
 
+## 🙏 赞助与鸣谢
+
+- **算力赞助**：天技谷（福州）科技有限公司
+
 ## 🙋‍♂️ 贡献
 
 欢迎提交 [Pull Request](https://github.com/chaitin/PandaWiki/pulls) 或创建 [Issue](https://github.com/chaitin/PandaWiki/issues) 来帮助改进项目。
