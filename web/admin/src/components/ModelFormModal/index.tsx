@@ -417,7 +417,7 @@ const ModelFormModal = ({
           direction='row'
           spacing={2}
           justifyContent='flex-end'
-          sx={{ pt: 2 }}
+          sx={{ px: 3, pt: 2, pb: 3 }}
         >
           <Button onClick={handleTest} disabled={testing || saving}>
             {testing ? <CircularProgress size={16} sx={{ mr: 1 }} /> : null}
