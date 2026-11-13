@@ -68,6 +68,12 @@ services:
     restart: always
     depends_on:
       - api
+    environment:
+      # 服务端渲染/代理的 API 目标（httpClient baseUrl 与 proxy 转发都用 TARGET）
+      - TARGET=http://panda-wiki-api:8000
+    ports:
+      # 宿主 80 端口归宝塔 nginx，反代目标绑回环，不暴露公网
+      - "127.0.0.1:3010:3010"
     mem_limit: 400m
     networks:
       demo-net:
@@ -136,6 +142,9 @@ services:
     restart: always
     depends_on:
       - api
+    ports:
+      # 反代目标绑回环；宝塔侧用 proxy_ssl_verify off 对接自签证书
+      - "127.0.0.1:8080:8080"
     mem_limit: 64m
     networks:
       demo-net:
