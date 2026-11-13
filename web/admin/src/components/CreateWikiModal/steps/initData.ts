@@ -23,7 +23,7 @@ export const getInitLandingData = () => ({
   web_app_custom_style: {
     allow_theme_switching: false,
     header_search_placeholder: i18next.t('wizard.init.searchPlaceholder'),
-    show_brand_info: true,
+    show_brand_info: false,
     footer_show_intro: true,
     social_media_accounts: [],
   },

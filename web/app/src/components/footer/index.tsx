@@ -48,6 +48,7 @@ export const FooterProvider = ({
         }
         customStyle={{
           ...customStyle,
+          show_brand_info: customStyle?.show_brand_info ?? false,
           social_media_accounts: customStyle?.social_media_accounts?.map(
             (item: any) => ({
               ...item,
@@ -92,6 +93,7 @@ export const WelcomeFooter = ({
         }
         customStyle={{
           ...customStyle,
+          show_brand_info: customStyle?.show_brand_info ?? false,
           social_media_accounts: customStyle?.social_media_accounts?.map(
             (item: any) => ({
               ...item,
