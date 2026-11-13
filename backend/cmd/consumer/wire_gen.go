@@ -84,8 +84,10 @@ func createApp() (*App, error) {
 	statUseCase := usecase.NewStatUseCase(statRepository, nodeRepository, conversationRepository, appRepository, ipAddressRepo, geoRepo, authRepo, knowledgeBaseRepository, logger)
 	navRepository := pg2.NewNavRepository(db, logger)
 	userRepository := pg2.NewUserRepository(db, logger)
-	nodeUsecase := usecase.NewNodeUsecase(nodeRepository, navRepository, appRepository, ragRepository, userRepository, knowledgeBaseRepository, llmUsecase, ragService, logger, modelRepository, authRepo, modelUsecase)
-	cronHandler, err := mq3.NewCronHandler(logger, statRepository, nodeRepository, statUseCase, nodeUsecase)
+	webhookRepository := pg2.NewWebhookRepository(db)
+	webhookUsecase := usecase.NewWebhookUsecase(webhookRepository, logger)
+	nodeUsecase := usecase.NewNodeUsecase(nodeRepository, navRepository, appRepository, ragRepository, userRepository, knowledgeBaseRepository, llmUsecase, ragService, logger, modelRepository, authRepo, modelUsecase, webhookUsecase)
+	cronHandler, err := mq3.NewCronHandler(logger, statRepository, nodeRepository, statUseCase, nodeUsecase, webhookUsecase)
 	if err != nil {
 		return nil, err
 	}

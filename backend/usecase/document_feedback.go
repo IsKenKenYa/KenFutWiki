@@ -21,6 +21,7 @@ type DocumentFeedbackUsecase struct {
 	authUsecase *AuthUsecase
 	ipRepo      *ipdb.IPAddressRepo
 	logger      *log.Logger
+	webhook     *WebhookUsecase
 }
 
 func NewDocumentFeedbackUsecase(
@@ -31,6 +32,7 @@ func NewDocumentFeedbackUsecase(
 	authUsecase *AuthUsecase,
 	ipRepo *ipdb.IPAddressRepo,
 	logger *log.Logger,
+	webhook *WebhookUsecase,
 ) *DocumentFeedbackUsecase {
 	return &DocumentFeedbackUsecase{
 		repo:        repo,
@@ -40,6 +42,7 @@ func NewDocumentFeedbackUsecase(
 		authUsecase: authUsecase,
 		ipRepo:      ipRepo,
 		logger:      logger.WithModule("usecase.document_feedback"),
+		webhook:     webhook,
 	}
 }
 
@@ -96,6 +99,9 @@ func (u *DocumentFeedbackUsecase) Submit(ctx context.Context, kbID, nodeID, cont
 	}
 	if err := u.repo.Create(ctx, feedback); err != nil {
 		return 0, err
+	}
+	if u.webhook != nil {
+		u.webhook.FeedbackCreated(kbID, nodeID, content)
 	}
 	return feedback.ID, nil
 }

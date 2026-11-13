@@ -3639,6 +3639,44 @@ definitions:
       name:
         type: string
     type: object
+  domain.Webhook:
+    properties:
+      created_at:
+        type: string
+      creator_id:
+        type: string
+      enabled:
+        type: boolean
+      events:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      kb_id:
+        type: string
+      secret:
+        type: string
+      updated_at:
+        type: string
+      url:
+        type: string
+    type: object
+  domain.WebhookDelivery:
+    properties:
+      created_at:
+        type: string
+      error:
+        type: string
+      event:
+        type: string
+      id:
+        type: integer
+      status_code:
+        type: integer
+      webhook_id:
+        type: string
+    type: object
   domain.WecomAIBotSettings:
     properties:
       encodingaeskey:
@@ -7756,6 +7794,164 @@ paths:
       summary: ResetPassword
       tags:
       - user
+  /api/v1/webhook:
+    post:
+      consumes:
+      - application/json
+      description: 注册一个事件推送目标
+      parameters:
+      - description: Webhook
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Webhook'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Webhook'
+              type: object
+      summary: 创建 Webhook
+      tags:
+      - webhook
+  /api/v1/webhook/{id}:
+    delete:
+      description: 删除推送目标及其投递记录
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      - description: Webhook ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      summary: 删除 Webhook
+      tags:
+      - webhook
+    put:
+      consumes:
+      - application/json
+      description: 修改推送地址、事件订阅与启用状态
+      parameters:
+      - description: Webhook ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Webhook
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Webhook'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      summary: 更新 Webhook
+      tags:
+      - webhook
+  /api/v1/webhook/{id}/deliveries:
+    get:
+      description: 返回某 Webhook 最近 20 条投递记录
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      - description: Webhook ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.WebhookDelivery'
+                  type: array
+              type: object
+      summary: 投递记录
+      tags:
+      - webhook
+  /api/v1/webhook/{id}/test:
+    post:
+      description: 向该 Webhook 推送一条 test 事件用于验证连通性
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      - description: Webhook ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.PWResponse'
+      summary: 发送测试事件
+      tags:
+      - webhook
+  /api/v1/webhook/list:
+    get:
+      description: 列出当前知识库的全部 Webhook
+      parameters:
+      - description: Knowledge Base ID
+        in: query
+        name: kb_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/domain.PWResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/domain.Webhook'
+                  type: array
+              type: object
+      summary: Webhook 列表
+      tags:
+      - webhook
   /rss.xml:
     get:
       parameters:

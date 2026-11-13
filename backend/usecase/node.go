@@ -38,6 +38,7 @@ type NodeUsecase struct {
 	logger       *log.Logger
 	rAGService   rag.RAGService
 	modelUsecase *ModelUsecase
+	webhook      *WebhookUsecase
 }
 
 func NewNodeUsecase(
@@ -53,6 +54,7 @@ func NewNodeUsecase(
 	modelRepo *pg.ModelRepository,
 	authRepo *pg.AuthRepo,
 	modelUsecase *ModelUsecase,
+	webhook *WebhookUsecase,
 ) *NodeUsecase {
 	return &NodeUsecase{
 		nodeRepo:     nodeRepo,
@@ -67,6 +69,7 @@ func NewNodeUsecase(
 		modelRepo:    modelRepo,
 		logger:       logger.WithModule("usecase.node"),
 		modelUsecase: modelUsecase,
+		webhook:      webhook,
 	}
 }
 
@@ -215,8 +218,16 @@ func (u *NodeUsecase) NodeAction(ctx context.Context, req *domain.NodeActionReq)
 		if err := u.ragRepo.AsyncUpdateNodeReleaseVector(ctx, deleteVectorRequests(req.KBID, docIDs)); err != nil {
 			return err
 		}
+		if u.webhook != nil {
+			u.webhook.NodeDeleted(req.KBID, req.IDs)
+		}
 	case "restore":
-		return u.nodeRepo.Restore(ctx, req.KBID, req.IDs)
+		if err := u.nodeRepo.Restore(ctx, req.KBID, req.IDs); err != nil {
+			return err
+		}
+		if u.webhook != nil {
+			u.webhook.NodeRestored(req.KBID, req.IDs)
+		}
 	case "purge":
 		docIDs, err := u.nodeRepo.Purge(ctx, req.KBID, req.IDs)
 		if err != nil {

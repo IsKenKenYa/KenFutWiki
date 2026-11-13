@@ -17,6 +17,7 @@ export * from './NodeTemplate'
 export * from './Stat'
 export * from './Storage'
 export * from './User'
+export * from './Webhook'
 export * from './nodeStream'
 export * from './types'
 

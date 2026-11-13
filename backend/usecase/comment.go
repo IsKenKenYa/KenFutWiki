@@ -21,16 +21,18 @@ type CommentUsecase struct {
 	NodeRepo    *pg.NodeRepository
 	ipRepo      *ipdb.IPAddressRepo
 	authRepo    *pg.AuthRepo
+	webhook     *WebhookUsecase
 }
 
 func NewCommentUsecase(commentRepo *pg.CommentRepository, logger *log.Logger,
-	nodeRepo *pg.NodeRepository, ipRepo *ipdb.IPAddressRepo, authRepo *pg.AuthRepo) *CommentUsecase {
+	nodeRepo *pg.NodeRepository, ipRepo *ipdb.IPAddressRepo, authRepo *pg.AuthRepo, webhook *WebhookUsecase) *CommentUsecase {
 	return &CommentUsecase{
 		logger:      logger.WithModule("usecase.comment"),
 		CommentRepo: commentRepo,
 		NodeRepo:    nodeRepo,
 		ipRepo:      ipRepo,
 		authRepo:    authRepo,
+		webhook:     webhook,
 	}
 }
 
@@ -73,6 +75,9 @@ func (u *CommentUsecase) CreateComment(ctx context.Context, commentReq *domain.C
 	}
 
 	// success
+	if u.webhook != nil {
+		u.webhook.CommentCreated(KbID, CommentStr, commentReq.NodeID)
+	}
 	return CommentStr, nil
 }
 

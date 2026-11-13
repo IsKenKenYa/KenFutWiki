@@ -17,14 +17,16 @@ type CronHandler struct {
 	nodeRepo    *pg.NodeRepository
 	statUseCase *usecase.StatUseCase
 	nodeUseCase *usecase.NodeUsecase
+	webhook     *usecase.WebhookUsecase
 }
 
-func NewCronHandler(logger *log.Logger, statRepo *pg.StatRepository, nodeRepo *pg.NodeRepository, statUseCase *usecase.StatUseCase, nodeUseCase *usecase.NodeUsecase) (*CronHandler, error) {
+func NewCronHandler(logger *log.Logger, statRepo *pg.StatRepository, nodeRepo *pg.NodeRepository, statUseCase *usecase.StatUseCase, nodeUseCase *usecase.NodeUsecase, webhook *usecase.WebhookUsecase) (*CronHandler, error) {
 	h := &CronHandler{
 		statRepo:    statRepo,
 		nodeRepo:    nodeRepo,
 		statUseCase: statUseCase,
 		nodeUseCase: nodeUseCase,
+		webhook:     webhook,
 		logger:      logger.WithModule("handler.mq.cron"),
 	}
 	cron := cron.New()
@@ -68,6 +70,13 @@ func NewCronHandler(logger *log.Logger, statRepo *pg.StatRepository, nodeRepo *p
 		return nil, err
 	}
 	h.logger.Info("add cron job", log.String("cron_id", "cleanup_old_node_release_backups"))
+
+	// 每天2点10分执行清理30天前的webhook投递记录
+	if _, err := cron.AddFunc("10 2 * * *", h.CleanupOldWebhookDeliveries); err != nil {
+		h.logger.Error("failed to add cron job for cleaning up old webhook deliveries", log.Error(err))
+		return nil, err
+	}
+	h.logger.Info("add cron job", log.String("cron_id", "cleanup_old_webhook_deliveries"))
 
 	cron.Start()
 	h.logger.Info("start cron jobs")
@@ -131,4 +140,16 @@ func (h *CronHandler) CleanupOldNodeReleaseBackups() {
 		return
 	}
 	h.logger.Info("cleanup old node release backups successful")
+}
+
+// CleanupOldWebhookDeliveries 每日清理超期的 Webhook 投递记录。
+func (h *CronHandler) CleanupOldWebhookDeliveries() {
+	if h.webhook == nil {
+		return
+	}
+	if err := h.webhook.CleanupDeliveries(context.Background()); err != nil {
+		h.logger.Error("cleanup old webhook deliveries failed", log.Error(err))
+		return
+	}
+	h.logger.Info("cleanup old webhook deliveries successful")
 }

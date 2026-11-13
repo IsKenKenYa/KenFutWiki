@@ -28,9 +28,10 @@ type KnowledgeBaseUsecase struct {
 	kbCache  *cache.KBRepo
 	logger   *log.Logger
 	config   *config.Config
+	webhook  *WebhookUsecase
 }
 
-func NewKnowledgeBaseUsecase(repo *pg.KnowledgeBaseRepository, nodeRepo *pg.NodeRepository, navRepo *pg.NavRepository, ragRepo *mq.RAGRepository, userRepo *pg.UserRepository, rag rag.RAGService, kbCache *cache.KBRepo, logger *log.Logger, config *config.Config) (*KnowledgeBaseUsecase, error) {
+func NewKnowledgeBaseUsecase(repo *pg.KnowledgeBaseRepository, nodeRepo *pg.NodeRepository, navRepo *pg.NavRepository, ragRepo *mq.RAGRepository, userRepo *pg.UserRepository, rag rag.RAGService, kbCache *cache.KBRepo, logger *log.Logger, config *config.Config, webhook *WebhookUsecase) (*KnowledgeBaseUsecase, error) {
 	u := &KnowledgeBaseUsecase{
 		repo:     repo,
 		nodeRepo: nodeRepo,
@@ -41,6 +42,7 @@ func NewKnowledgeBaseUsecase(repo *pg.KnowledgeBaseRepository, nodeRepo *pg.Node
 		logger:   logger.WithModule("usecase.knowledge_base"),
 		config:   config,
 		kbCache:  kbCache,
+		webhook:  webhook,
 	}
 	return u, nil
 }
@@ -163,6 +165,9 @@ func (u *KnowledgeBaseUsecase) CreateKBRelease(ctx context.Context, req *domain.
 	releaseIDs, err := u.repo.PublishContentRelease(ctx, release, userId, req.NodeIDs)
 	if err != nil {
 		return "", fmt.Errorf("publish content release: %w", err)
+	}
+	if u.webhook != nil {
+		u.webhook.NodePublished(req.KBID, release.Tag, release.Message, req.NodeIDs)
 	}
 	if len(releaseIDs) > 0 {
 		requests := make([]*domain.NodeReleaseVectorRequest, 0, len(releaseIDs))

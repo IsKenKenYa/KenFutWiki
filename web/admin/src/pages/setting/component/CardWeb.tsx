@@ -13,6 +13,7 @@ import CardListen from './CardListen';
 import CardProxy from './CardProxy';
 import CardStyle from './CardStyle';
 import CardWebCustomCode from './CardWebCustomCode';
+import CardWebhook from './CardWebhook';
 import CardWebSEO from './CardWebSEO';
 import CardQaCopyright from './CardQaCopyright';
 import CardWebStats from './CardWebStats';
@@ -151,6 +152,7 @@ const CardWeb = ({ kb, refresh }: CardWebProps) => {
           });
         }}
       />
+      <CardWebhook />
     </Box>
   );
 };

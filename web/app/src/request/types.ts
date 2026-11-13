@@ -1974,6 +1974,27 @@ export interface DomainWebAppLandingTheme {
   name?: string;
 }
 
+export interface DomainWebhook {
+  created_at?: string;
+  creator_id?: string;
+  enabled?: boolean;
+  events?: string[];
+  id?: string;
+  kb_id?: string;
+  secret?: string;
+  updated_at?: string;
+  url?: string;
+}
+
+export interface DomainWebhookDelivery {
+  created_at?: string;
+  error?: string;
+  event?: string;
+  id?: number;
+  status_code?: number;
+  webhook_id?: string;
+}
+
 export interface DomainWecomAIBotSettings {
   encodingaeskey?: string;
   is_enabled?: boolean;
@@ -2847,6 +2868,37 @@ export interface GetApiV1StatRefererHostsParams {
 
 export interface DeleteApiV1UserDeleteParams {
   user_id: string;
+}
+
+export interface GetApiV1WebhookListParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+}
+
+export interface PutApiV1WebhookIdParams {
+  /** Webhook ID */
+  id: string;
+}
+
+export interface DeleteApiV1WebhookIdParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+  /** Webhook ID */
+  id: string;
+}
+
+export interface GetApiV1WebhookIdDeliveriesParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+  /** Webhook ID */
+  id: string;
+}
+
+export interface PostApiV1WebhookIdTestParams {
+  /** Knowledge Base ID */
+  kb_id: string;
+  /** Webhook ID */
+  id: string;
 }
 
 export interface GetRssXmlParams {

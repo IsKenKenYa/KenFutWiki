@@ -76,7 +76,9 @@ func createApp() (*App, error) {
 	authRepo := pg2.NewAuthRepo(db, logger, cacheCache)
 	systemSettingRepo := pg2.NewSystemSettingRepo(db, logger)
 	modelUsecase := usecase.NewModelUsecase(modelRepository, nodeRepository, ragRepository, ragService, logger, configConfig, knowledgeBaseRepository, systemSettingRepo)
-	nodeUsecase := usecase.NewNodeUsecase(nodeRepository, navRepository, appRepository, ragRepository, userRepository, knowledgeBaseRepository, llmUsecase, ragService, logger, modelRepository, authRepo, modelUsecase)
+	webhookRepository := pg2.NewWebhookRepository(db)
+	webhookUsecase := usecase.NewWebhookUsecase(webhookRepository, logger)
+	nodeUsecase := usecase.NewNodeUsecase(nodeRepository, navRepository, appRepository, ragRepository, userRepository, knowledgeBaseRepository, llmUsecase, ragService, logger, modelRepository, authRepo, modelUsecase, webhookUsecase)
 	kenFutContentUsecase := usecase.NewKenFutContentUsecase(kenFutContentRepository, nodeUsecase, knowledgeBaseRepository)
 	userAccessRepository := pg2.NewUserAccessRepository(db, logger)
 	apiTokenRepo := pg2.NewAPITokenRepo(db, logger, cacheCache)
@@ -88,7 +90,7 @@ func createApp() (*App, error) {
 	kenFutIntegrationRepository := pg2.NewKenFutIntegrationRepository(db)
 	kenFutIntegrationUsecase := usecase.NewKenFutIntegrationUsecase(kenFutIntegrationRepository, kenFutContentUsecase)
 	kbRepo := cache2.NewKBRepo(cacheCache)
-	knowledgeBaseUsecase, err := usecase.NewKnowledgeBaseUsecase(knowledgeBaseRepository, nodeRepository, navRepository, ragRepository, userRepository, ragService, kbRepo, logger, configConfig)
+	knowledgeBaseUsecase, err := usecase.NewKnowledgeBaseUsecase(knowledgeBaseRepository, nodeRepository, navRepository, ragRepository, userRepository, ragService, kbRepo, logger, configConfig, webhookUsecase)
 	if err != nil {
 		return nil, err
 	}
@@ -106,6 +108,7 @@ func createApp() (*App, error) {
 	nodeTemplateRepository := pg2.NewNodeTemplateRepository(db)
 	nodeTemplateUsecase := usecase.NewNodeTemplateUsecase(nodeTemplateRepository)
 	nodeTemplateHandler := v1.NewNodeTemplateHandler(echo, baseHandler, authMiddleware, nodeTemplateUsecase)
+	webhookHandler := v1.NewWebhookHandler(echo, baseHandler, authMiddleware, webhookUsecase)
 	geoRepo := cache2.NewGeoCache(cacheCache, db, logger)
 	ipdbIPDB, err := ipdb.NewIPDB(configConfig, logger)
 	if err != nil {
@@ -142,7 +145,7 @@ func createApp() (*App, error) {
 	statUseCase := usecase.NewStatUseCase(statRepository, nodeRepository, conversationRepository, appRepository, ipAddressRepo, geoRepo, authRepo, knowledgeBaseRepository, logger)
 	statHandler := v1.NewStatHandler(baseHandler, echo, statUseCase, logger, authMiddleware)
 	commentRepository := pg2.NewCommentRepository(db, logger)
-	commentUsecase := usecase.NewCommentUsecase(commentRepository, logger, nodeRepository, ipAddressRepo, authRepo)
+	commentUsecase := usecase.NewCommentUsecase(commentRepository, logger, nodeRepository, ipAddressRepo, authRepo, webhookUsecase)
 	commentHandler := v1.NewCommentHandler(echo, baseHandler, logger, authMiddleware, commentUsecase)
 	authUsecase, err := usecase.NewAuthUsecase(authRepo, logger, knowledgeBaseRepository, cacheCache)
 	if err != nil {
@@ -164,7 +167,7 @@ func createApp() (*App, error) {
 	authGroupUsecase := usecase.NewAuthGroupUsecase(authGroupRepository, authRepo, cacheCache, logger)
 	authGroupHandler := v1.NewAuthGroupHandler(echo, baseHandler, logger, authMiddleware, authGroupUsecase)
 	documentFeedbackRepository := pg2.NewDocumentFeedbackRepository(db, logger)
-	documentFeedbackUsecase := usecase.NewDocumentFeedbackUsecase(documentFeedbackRepository, nodeRepository, appUsecase, fileUsecase, authUsecase, ipAddressRepo, logger)
+	documentFeedbackUsecase := usecase.NewDocumentFeedbackUsecase(documentFeedbackRepository, nodeRepository, appUsecase, fileUsecase, authUsecase, ipAddressRepo, logger, webhookUsecase)
 	documentFeedbackHandler := v1.NewDocumentFeedbackHandler(echo, baseHandler, logger, authMiddleware, documentFeedbackUsecase)
 	apiHandlers := &v1.APIHandlers{
 		KenFutContentHandler:     kenFutContentHandler,
@@ -173,6 +176,7 @@ func createApp() (*App, error) {
 		KnowledgeBaseHandler:     knowledgeBaseHandler,
 		NodeHandler:              nodeHandler,
 		NodeTemplateHandler:      nodeTemplateHandler,
+		WebhookHandler:           webhookHandler,
 		AppHandler:               appHandler,
 		FileHandler:              fileHandler,
 		ModelHandler:             modelHandler,
