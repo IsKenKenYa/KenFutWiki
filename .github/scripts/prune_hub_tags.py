@@ -45,7 +45,9 @@ def get_token(username: str, password: str) -> str:
         method="POST",
     )
     with urllib.request.urlopen(req, timeout=30) as resp:
-        return json.load(resp)["jwt_token"]
+        data = json.load(resp)
+    # 登录响应字段历史上有 jwt_token / token 两种形态，取存在的那个
+    return data.get("token") or data["jwt_token"]
 
 
 def list_tags(token: str, image: str) -> list:
