@@ -55,7 +55,8 @@ def list_tags(image: str) -> list:
     tags = []
     url = f"{HUB_URL}/{image}/tags/?page_size=100"
     while url:
-        req = urllib.request.Request(url)
+        # 默认 Python-urllib UA 会被 Docker Hub（Cloudflare）拦截返回 404
+        req = urllib.request.Request(url, headers={"User-Agent": "kenfutwiki-prune/1.0"})
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = json.load(resp)
         for t in data.get("results", []):
