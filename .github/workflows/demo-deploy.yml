@@ -161,7 +161,7 @@ jobs:
           host: ${{ secrets.DEMO_SSH_HOST }}
           username: ${{ secrets.DEMO_SSH_USER }}
           key: ${{ secrets.DEMO_SSH_KEY }}
-          source: "deploy/demo/docker-compose.demo.yml,deploy/demo/nginx/kenfutwiki-demo.conf.template"
+          source: "deploy/demo/docker-compose.demo.yml"
           target: ${{ env.DEPLOY_DIR }}
           strip_components: 2
 
@@ -177,8 +177,8 @@ jobs:
           script: |
             set -euo pipefail
             cd ${{ env.DEPLOY_DIR }}
-            # compose 内镜像引用 docker.1ms.run/iskenkenya/*（Docker Hub 国内加速，
-            # 服务器直连 Hub 超时）；pull 前登录代理不需要，公开镜像匿名可拉
+            # compose 内镜像引用经国内加速前缀（REGISTRY_PREFIX 在服务器 .env 配置，
+            # 服务器直连 Docker Hub 超时）；公开镜像匿名可拉
             docker compose -f ${{ env.COMPOSE_FILE }} pull
             docker compose -f ${{ env.COMPOSE_FILE }} up -d --remove-orphans
             # 清理悬空镜像与旧构建缓存，防止磁盘被无用镜像占满
@@ -186,23 +186,6 @@ jobs:
             docker builder prune -f --filter until=168h
             echo "=== 栈状态 ==="
             docker compose -f ${{ env.COMPOSE_FILE }} ps
-
-      - name: Reload nginx (vhost update)
-        if: hashFiles('deploy/demo/nginx/kenfutwiki-demo.conf.template') != ''
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.DEMO_SSH_HOST }}
-          username: ${{ secrets.DEMO_SSH_USER }}
-          key: ${{ secrets.DEMO_SSH_KEY }}
-          script: |
-            set -euo pipefail
-            # vhost 模板渲染（DEMO 上游端口由服务器 .env 提供）后检测并平滑重载
-            envsubst '$DEMO_APP_PORT,$DEMO_API_PORT' \
-              < ${{ env.DEPLOY_DIR }}/kenfutwiki-demo.conf.template \
-              > /www/server/panel/vhost/nginx/kenfutwiki-demo.conf
-            sudo /www/server/nginx/sbin/nginx -t
-            sudo /www/server/nginx/sbin/nginx -s reload
-            echo "nginx reloaded"
 
   prune-tags:
     # Docker Hub 镜像 tag 保留策略：滚动 tag（latest/demo）永不删，
