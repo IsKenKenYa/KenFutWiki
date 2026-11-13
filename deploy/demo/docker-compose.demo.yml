@@ -81,6 +81,8 @@ services:
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+      # 默认 NATS 地址按 SUBNET_PREFIX 拼 IP（生产容器网段），demo 用网络别名覆盖
+      - MQ_NATS_SERVER=nats://panda-wiki-nats:4222
       - NATS_PASSWORD=${NATS_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
@@ -111,6 +113,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - MQ_NATS_SERVER=nats://panda-wiki-nats:4222
       - NATS_PASSWORD=${NATS_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
       - RAG_CT_RAG_BASE_URL=${RAG_CT_RAG_BASE_URL}
